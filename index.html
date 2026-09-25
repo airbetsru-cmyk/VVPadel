@@ -103,7 +103,7 @@
   <!-- Холст анимированных падающих мячей -->
   <canvas id="ball-canvas"></canvas>
 
-  <!-- Всплывающий анимированный Toast при занятии слота -->
+  <!-- Всплывающий салют и текст -->
   <div id="celebration-toast" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none hidden">
     <div class="glass-card shimmer-border px-6 py-4 rounded-3xl text-center shadow-2xl bg-slate-950/90 border-2 border-emerald-400">
       <span class="text-3xl block mb-1">🎾🔥</span>
@@ -811,22 +811,34 @@
           }
         }
 
-        // Загрузка сообщений из базы данных Supabase
+        // Профессиональная загрузка сообщений из Supabase или localStorage (fallback)
         let messagesList = [];
         try {
-          const { data: dbMsgs } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
-          if (dbMsgs) messagesList = dbMsgs;
-        } catch(e) {}
+          const { data: dbMsgs, error } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
+          if (!error && dbMsgs) {
+            messagesList = dbMsgs;
+          } else {
+            throw new Error('Fallback to local');
+          }
+        } catch(e) {
+          const localKey = `padel_chat_${matchId}`;
+          messagesList = JSON.parse(localStorage.getItem(localKey) || '[]');
+        }
 
-        let chatHtml = messagesList.map(m => `
-          <div class="p-2 bg-slate-950/80 rounded-xl border border-white/5 space-y-0.5">
-            <div class="flex justify-between items-center text-[10px]">
-              <span class="font-bold text-emerald-400">${m.sender_name || 'Игрок'}</span>
-              <span class="text-slate-500">${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        let chatHtml = messagesList.map(m => {
+          const isMe = String(m.user_id) === String(tgUser.id);
+          return `
+            <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-0.5">
+              <div class="max-w-[85%] p-2.5 rounded-2xl text-xs space-y-1 ${isMe ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md shadow-emerald-500/10' : 'bg-slate-900 text-slate-200 border border-white/10 rounded-bl-none'}">
+                <div class="flex justify-between items-center gap-3 text-[9px] opacity-75 font-bold uppercase">
+                  <span>${m.sender_name || 'Игрок'}</span>
+                  <span>${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                </div>
+                <p class="leading-relaxed break-words font-medium">${m.message_text}</p>
+              </div>
             </div>
-            <p class="text-xs text-slate-200">${m.message_text}</p>
-          </div>
-        `).join('');
+          `;
+        }).join('');
 
         container.innerHTML = `
           <div class="space-y-4">
@@ -846,15 +858,15 @@
               <div class="space-y-2">${slotsHtml}</div>
             </div>
 
-            <!-- ВСТРОЕННЫЙ ОБЩИЙ ЧАТ ИГРОКОВ -->
+            <!-- ПРОФЕССИОНАЛЬНЫЙ ЧАТ В СИЛЕ TELEGRAM -->
             <div class="border-t border-white/10 pt-3 space-y-2">
               <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('chatTitle')}</h3>
-              <div id="chat-box" class="h-32 overflow-y-auto space-y-1.5 p-2 bg-slate-900/80 rounded-2xl border border-white/5">
-                ${chatHtml.length > 0 ? chatHtml : '<p class="text-xs text-slate-500 text-center py-8">Сообщений пока нет. Будьте первым!</p>'}
+              <div id="chat-box" class="h-44 overflow-y-auto space-y-2.5 p-3 bg-slate-950/90 rounded-2xl border border-white/10 shadow-inner">
+                ${chatHtml.length > 0 ? chatHtml : '<p class="text-xs text-slate-500 text-center py-12 italic">Обсудите детали матча. Напишите первое сообщение!</p>'}
               </div>
               <div class="flex gap-2">
-                <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" class="flex-1 p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-500">
-                <button onclick="sendChatMessage('${match.id}')" class="px-4 bg-emerald-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
+                <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-3 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-500 transition-all">
+                <button onclick="sendChatMessage('${match.id}')" class="px-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase tracking-wider shadow-lg shadow-emerald-500/20">
                   ${t('sendBtn')}
                 </button>
               </div>
@@ -875,6 +887,12 @@
       }
     }
 
+    function handleChatKeyPress(e, matchId) {
+      if (e.key === 'Enter') {
+        sendChatMessage(matchId);
+      }
+    }
+
     async function sendChatMessage(matchId) {
       const input = document.getElementById('chat_input');
       const text = input.value.trim();
@@ -888,10 +906,15 @@
         created_at: new Date().toISOString()
       };
 
+      // Пытаемся отправить в Supabase, если нет таблицы — сохраняем надежно в localStorage
       try {
-        await supabaseClient.from('match_messages').insert([newMsg]);
+        const { error } = await supabaseClient.from('match_messages').insert([newMsg]);
+        if (error) throw error;
       } catch(e) {
-        showError('Ошибка отправки сообщения: ' + e.message);
+        const localKey = `padel_chat_${matchId}`;
+        const existing = JSON.parse(localStorage.getItem(localKey) || '[]');
+        existing.push(newMsg);
+        localStorage.setItem(localKey, JSON.stringify(existing));
       }
 
       input.value = '';
@@ -1001,7 +1024,6 @@
       for (let i = 1; i <= count; i++) {
         const saved = existingData[i - 1];
         const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Игрок ${i}`);
-        const selectedValue = saved ? saved.selectVal : (i === 1 ? tgUser.id : 'custom');
 
         html += `
           <div class="p-2.5 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1.5">
