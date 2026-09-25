@@ -10,40 +10,92 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
   <style>
-    body { background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
+    body { 
+      font-family: 'Outfit', sans-serif;
+      background: #090d16 url('https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat fixed;
+      -webkit-tap-highlight-color: transparent;
+      color: #f3f4f6;
+    }
+    
+    /* Тёмная маска поверх фона */
+    .bg-overlay {
+      background: linear-gradient(180deg, rgba(9, 13, 22, 0.85) 0%, rgba(9, 13, 22, 0.96) 100%);
+      min-height: 100vh;
+    }
+
+    /* Эффект матового стекла */
+    .glass-card {
+      background: rgba(18, 26, 43, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Эффект свечения для кнопок */
+    .neon-glow-emerald {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+    .neon-glow-purple {
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    }
+
+    /* Анимация нажатия 3D */
+    .btn-3d {
+      transition: all 0.15s ease;
+    }
+    .btn-3d:active {
+      transform: translateY(2px) scale(0.98);
+    }
   </style>
 </head>
-<body class="p-4 text-gray-900 font-sans pb-12">
+<body class="antialiased selection:bg-emerald-500 selection:text-white">
 
-  <div id="app" class="max-w-md mx-auto space-y-4">
-    <!-- Шапка -->
-    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-lg font-bold text-emerald-700">Padel Moldova 🎾</h1>
-          <p id="user-greeting" class="text-xs text-gray-500">Загрузка профиля...</p>
+  <div class="bg-overlay p-4 pb-16">
+    <div id="app" class="max-w-md mx-auto space-y-4">
+      
+      <!-- Шапка -->
+      <div class="glass-card p-4 rounded-3xl space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-xl font-black text-slate-950 shadow-lg shadow-emerald-500/30">
+              🎾
+            </div>
+            <div>
+              <h1 class="text-lg font-black tracking-tight text-white uppercase italic">Padel <span class="text-emerald-400">Moldova</span></h1>
+              <p id="user-greeting" class="text-xs text-slate-400 font-medium">Загрузка...</p>
+            </div>
+          </div>
+          <span id="user-badge" class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-extrabold uppercase tracking-widest rounded-full">Pro Player</span>
         </div>
-        <span id="user-badge" class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">Player</span>
+
+        <!-- Переключатель вкладок -->
+        <div class="grid grid-cols-2 gap-1.5 bg-slate-950/60 p-1.5 rounded-2xl border border-white/5">
+          <button id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
+            🎾 Слоты
+          </button>
+          <button id="tab-americano" onclick="switchTab('americano')" class="py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
+            🏆 Американо
+          </button>
+        </div>
       </div>
 
-      <!-- Вкладки переключения режимов -->
-      <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl text-xs font-bold">
-        <button id="tab-booking" onclick="switchTab('booking')" class="py-2 rounded-lg bg-white shadow text-emerald-700">
-          🎾 Запись на корт
-        </button>
-        <button id="tab-americano" onclick="switchTab('americano')" class="py-2 rounded-lg text-gray-500 hover:text-gray-900">
-          🏆 Быстрый Американо
-        </button>
+      <!-- Блок ошибок -->
+      <div id="error-box" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-300 p-3.5 rounded-2xl text-xs font-mono break-all"></div>
+
+      <!-- Главный контент -->
+      <div id="main-content" class="glass-card p-5 rounded-3xl min-h-[300px]">
+        <div class="flex justify-center items-center py-16 text-slate-500 font-semibold text-sm">
+          <div class="animate-pulse flex items-center gap-2">
+            <span>Загрузка платформы...</span>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Блок ошибок -->
-    <div id="error-box" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-xs font-mono break-all"></div>
-
-    <!-- Главный контент -->
-    <div id="main-content" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[250px]">
-      <div class="flex justify-center items-center py-12 text-gray-400">Загрузка приложения...</div>
     </div>
   </div>
 
@@ -53,7 +105,7 @@
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot';
 
-    // Матрицы ротации для Американо
+    // Матрицы ротации
     const AMERICANO_ROTATIONS = {
       4: [
         { round: 1, court: 1, a: [0, 1], b: [2, 3] },
@@ -134,14 +186,14 @@
       const btnAmericano = document.getElementById('tab-americano');
 
       if (tab === 'booking') {
-        btnBooking.className = 'py-2 rounded-lg bg-white shadow text-emerald-700 font-bold';
-        btnAmericano.className = 'py-2 rounded-lg text-gray-500 hover:text-gray-900 font-bold';
+        btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
+        btnAmericano.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
         const startParam = getStartParam();
         if (startParam) renderMatchDetails(startParam);
         else renderCreateMatchForm();
       } else {
-        btnAmericano.className = 'py-2 rounded-lg bg-white shadow text-purple-700 font-bold';
-        btnBooking.className = 'py-2 rounded-lg text-gray-500 hover:text-gray-900 font-bold';
+        btnAmericano.className = 'py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-xs uppercase tracking-wider neon-glow-purple btn-3d';
+        btnBooking.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
         renderQuickAmericano();
       }
     }
@@ -163,48 +215,48 @@
     function renderCreateMatchForm() {
       const container = document.getElementById('main-content');
       container.innerHTML = `
-        <h2 class="text-base font-bold mb-4 text-gray-800">Создать новую игру</h2>
-        <form id="create-form" class="space-y-3" onsubmit="handleCreateMatch(event)">
+        <h2 class="text-base font-extrabold mb-4 text-white uppercase italic tracking-wide">Создать новую игру</h2>
+        <form id="create-form" class="space-y-3.5" onsubmit="handleCreateMatch(event)">
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">Локация / Корт</label>
-            <input type="text" id="custom_location" required value="Padel Club Chisinau" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Локация / Корт</label>
+            <input type="text" id="custom_location" required value="Padel Club Chisinau" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition-all">
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">Мест</label>
-              <select id="max_players" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Мест</label>
+              <select id="max_players" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm font-semibold text-white">
                 <option value="4">4 игрока (2х2)</option>
                 <option value="6">6 игроков (Americano)</option>
                 <option value="8">8 игроков (2 корта)</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">Формат</label>
-              <select id="match_type" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Формат</label>
+              <select id="match_type" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm font-semibold text-white">
                 <option value="friendly">Дружеский</option>
                 <option value="competitive">Рейтинговый</option>
               </select>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">Дата и время</label>
-              <input type="datetime-local" id="scheduled_at" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Дата и время</label>
+              <input type="datetime-local" id="scheduled_at" required class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm text-white">
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">Цена с игрока (MDL)</label>
-              <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Цена с игрока (MDL)</label>
+              <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm text-white">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">Заметки / Пожелания</label>
-            <input type="text" id="notes" placeholder="Мячи свои, уровень 2.5+" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Заметки / Пожелания</label>
+            <input type="text" id="notes" placeholder="Мячи свои, уровень 2.5+" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm text-white">
           </div>
 
-          <button type="submit" id="submit-btn" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-md hover:bg-emerald-700 text-sm mt-2">
+          <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl shadow-lg text-sm uppercase tracking-wider neon-glow-emerald btn-3d mt-2">
             Сформировать ссылку на игру
           </button>
         </form>
@@ -250,12 +302,12 @@
 
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
-      container.innerHTML = `<div class="text-center py-8 text-gray-400">Загрузка информации...</div>`;
+      container.innerHTML = `<div class="text-center py-10 text-slate-400">Загрузка карточки матча...</div>`;
 
       try {
         const { data: match } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
         if (!match) {
-          container.innerHTML = `<div class="text-center py-6 text-red-500">Игра не найдена.</div>`;
+          container.innerHTML = `<div class="text-center py-8 text-rose-400 font-bold">Игра не найдена.</div>`;
           return;
         }
 
@@ -273,12 +325,16 @@
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
           if (p) {
             const name = p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Игрок');
-            slotsHtml += `<div class="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-100 rounded-xl">
-              <span class="text-xs font-semibold text-emerald-900">Слот #${i}: ${name}</span>
-              <span class="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full">Занят</span>
-            </div>`;
+            slotsHtml += `
+              <div class="flex items-center justify-between p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl">
+                <span class="text-xs font-bold text-emerald-300">Слот #${i}: ${name}</span>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">Занят</span>
+              </div>`;
           } else {
-            slotsHtml += `<div class="p-2.5 bg-gray-50 border border-dashed border-gray-300 rounded-xl text-gray-400 text-xs">Слот #${i}: Свободно</div>`;
+            slotsHtml += `
+              <div class="p-3 bg-slate-900/50 border border-dashed border-slate-700/60 rounded-2xl text-slate-500 text-xs font-semibold">
+                Слот #${i}: Свободно
+              </div>`;
           }
         }
 
@@ -286,22 +342,24 @@
           <div class="space-y-4">
             <div>
               <div class="flex justify-between items-start">
-                <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-[11px] font-bold uppercase rounded">${match.match_type}</span>
-                <span class="text-xs font-bold text-emerald-700">${match.price_per_player} MDL / чел</span>
+                <span class="px-2.5 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-black uppercase tracking-wider rounded-lg">
+                  ${match.match_type}
+                </span>
+                <span class="text-xs font-black text-emerald-400">${match.price_per_player} MDL / чел</span>
               </div>
-              <h2 class="text-lg font-bold mt-1 text-gray-900">${match.custom_location}</h2>
-              <p class="text-xs text-gray-500">📅 ${dateStr}</p>
+              <h2 class="text-xl font-black mt-2 text-white">${match.custom_location}</h2>
+              <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
             </div>
 
-            <div class="border-t pt-3">
-              <h3 class="text-xs font-bold text-gray-700 mb-2">Участники (${players.length}/${match.max_players})</h3>
-              <div class="space-y-1.5">${slotsHtml}</div>
+            <div class="border-t border-white/10 pt-3.5">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Участники (${players.length}/${match.max_players})</h3>
+              <div class="space-y-2">${slotsHtml}</div>
             </div>
 
             <div class="space-y-2 pt-2">
-              ${!isJoined && !isFull ? `<button onclick="joinMatch('${match.id}',${players.length + 1})" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-sm">Занять слот</button>` : ''}
-              ${isJoined ? `<button onclick="leaveMatch('${match.id}')" class="w-full py-2 bg-red-50 text-red-600 font-semibold rounded-xl text-xs">Покинуть игру</button>` : ''}
-              <button onclick="copyShareLink('${shareUrl}')" class="w-full py-2.5 bg-gray-100 text-gray-800 font-semibold rounded-xl text-xs">📋 Скопировать ссылку на игру</button>
+              ${!isJoined && !isFull ? `<button onclick="joinMatch('${match.id}',${players.length + 1})" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">Занять слот</button>` : ''}
+              ${isJoined ? `<button onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">Покинуть игру</button>` : ''}
+              <button onclick="copyShareLink('${shareUrl}')" class="w-full py-3 bg-slate-800/80 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">📋 Скопировать ссылку на игру</button>
             </div>
           </div>
         `;
@@ -310,7 +368,7 @@
       }
     }
 
-    // --- 2. РЕЖИМ «БЫСТРЫЙ АМЕРИКАНО» С ВЫБОРОМ КРУГОВ И КНОПКОЙ ОК ---
+    // --- 2. РЕЖИМ «БЫСТРЫЙ АМЕРИКАНО» ---
     function renderQuickAmericano() {
       const container = document.getElementById('main-content');
 
@@ -320,22 +378,22 @@
       }
 
       container.innerHTML = `
-        <h2 class="text-base font-bold mb-2 text-purple-900">🏆 Быстрый Американо</h2>
-        <p class="text-xs text-gray-500 mb-4">Укажите игроков и количество кругов для генерации сетки.</p>
+        <h2 class="text-base font-extrabold mb-1 text-purple-300 uppercase italic tracking-wide">🏆 Быстрый Американо</h2>
+        <p class="text-xs text-slate-400 mb-4">Настройка турнира с авто-генерацией сетки.</p>
 
-        <div class="space-y-3">
-          <div class="grid grid-cols-2 gap-2">
+        <div class="space-y-3.5">
+          <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">Участники</label>
-              <select id="quick_player_count" onchange="renderNameInputs()" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium">
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Участники</label>
+              <select id="quick_player_count" onchange="renderNameInputs()" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs font-semibold text-white">
                 <option value="4">4 игрока (1 корт)</option>
                 <option value="6">6 игроков (1 корт)</option>
                 <option value="8">8 игроков (2 корта)</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-600 mb-1">Количество кругов</label>
-              <select id="quick_cycles" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium">
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Круги</label>
+              <select id="quick_cycles" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs font-semibold text-white">
                 <option value="1">1 круг (3 игры)</option>
                 <option value="2">2 круга (6 игр)</option>
                 <option value="3">3 круга (9 игр)</option>
@@ -345,7 +403,7 @@
 
           <div id="names-container" class="space-y-2 pt-2"></div>
 
-          <button onclick="startQuickAmericano()" class="w-full py-3 bg-purple-600 text-white font-bold rounded-xl shadow-md hover:bg-purple-700 text-sm mt-4">
+          <button onclick="startQuickAmericano()" class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider neon-glow-purple btn-3d mt-4">
             🚀 Начать турнир
           </button>
         </div>
@@ -357,17 +415,16 @@
     function renderNameInputs() {
       const count = parseInt(document.getElementById('quick_player_count').value) || 4;
       const container = document.getElementById('names-container');
-      let html = '<label class="block text-xs font-medium text-gray-600 mb-1">Имена участников:</label>';
+      let html = '<label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Имена участников:</label>';
 
       for (let i = 1; i <= count; i++) {
         html += `
-          <input type="text" id="player_name_${i}" value="Игрок ${i}" placeholder="Имя игрока ${i}" class="w-full p-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:bg-white">
+          <input type="text" id="player_name_${i}" value="Игрок ${i}" placeholder="Имя игрока ${i}" class="w-full p-2.5 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
         `;
       }
       container.innerHTML = html;
     }
 
-    // Генерация сетки на выбранное число кругов
     function startQuickAmericano() {
       const count = parseInt(document.getElementById('quick_player_count').value) || 4;
       const cycles = parseInt(document.getElementById('quick_cycles').value) || 1;
@@ -375,16 +432,12 @@
 
       for (let i = 1; i <= count; i++) {
         const inputName = document.getElementById(`player_name_${i}`).value.trim();
-        players.push({
-          id: i - 1,
-          name: inputName || `Игрок ${i}`
-        });
+        players.push({ id: i - 1, name: inputName || `Игрок ${i}` });
       }
 
       const baseRotation = AMERICANO_ROTATIONS[count];
       const rounds = [];
       let roundIdCounter = 1;
-
       const roundsPerCycle = baseRotation[baseRotation.length - 1].round;
 
       for (let c = 1; c <= cycles; c++) {
@@ -408,18 +461,16 @@
       renderQuickAmericano();
     }
 
-    // Отрисовка Лидерборда и Сетки
+    // 3D Лидерборд и карточки матчей
     function renderQuickAmericanoBoard(container) {
       const { players, rounds, cycles } = localAmericanoState;
 
-      // Подсчет очков
       const leaderboard = players.map(p => ({ ...p, points: 0, matches: 0 }));
 
       rounds.forEach(r => {
         if (r.completed) {
           const sa = parseInt(r.score_a) || 0;
           const sb = parseInt(r.score_b) || 0;
-
           r.team_a.forEach(pIdx => { leaderboard[pIdx].points += sa; leaderboard[pIdx].matches++; });
           r.team_b.forEach(pIdx => { leaderboard[pIdx].points += sb; leaderboard[pIdx].matches++; });
         }
@@ -427,16 +478,29 @@
 
       const sortedLeaderboard = [...leaderboard].sort((a, b) => b.points - a.points);
 
+      // Стильные карточки 3D для победителей
       let leaderboardHtml = sortedLeaderboard.map((item, index) => {
-        let badge = `${index + 1} место`;
-        if (index === 0) badge = '🥇 1-е место';
-        if (index === 1) badge = '🥈 2-е место';
-        if (index === 2) badge = '🥉 3-е место';
+        let cardStyle = "bg-slate-900/60 border-white/5";
+        let badge = `<span class="text-slate-400 font-bold">${index + 1} место</span>`;
+
+        if (index === 0) {
+          cardStyle = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/50 shadow-lg shadow-amber-500/10";
+          badge = `<span class="text-amber-400 font-black">🥇 1-е МЕСТО</span>`;
+        } else if (index === 1) {
+          cardStyle = "bg-gradient-to-r from-slate-300/20 to-slate-400/10 border-slate-300/40";
+          badge = `<span class="text-slate-200 font-black">🥈 2-е МЕСТО</span>`;
+        } else if (index === 2) {
+          cardStyle = "bg-gradient-to-r from-amber-700/20 to-amber-800/10 border-amber-700/40";
+          badge = `<span class="text-amber-600 font-black">🥉 3-е МЕСТО</span>`;
+        }
 
         return `
-          <div class="flex items-center justify-between p-2 border-b border-gray-100 text-xs">
-            <span class="font-bold text-gray-800">${badge}: ${item.name}</span>
-            <span class="font-extrabold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">${item.points} очков</span>
+          <div class="flex items-center justify-between p-2.5 border rounded-2xl ${cardStyle}">
+            <div class="flex items-center gap-2 text-xs">
+              ${badge}
+              <span class="font-bold text-white">${item.name}</span>
+            </div>
+            <span class="font-black text-purple-300 bg-purple-500/20 px-2.5 py-1 rounded-full text-xs">${item.points} PTS</span>
           </div>
         `;
       }).join('');
@@ -448,26 +512,26 @@
         const pB2 = players[r.team_b[1]]?.name;
 
         return `
-          <div class="p-3 border border-gray-200 rounded-xl bg-gray-50 space-y-2 text-xs">
-            <div class="flex justify-between items-center text-gray-500 font-bold">
+          <div class="p-3 border border-slate-800/80 rounded-2xl bg-slate-900/50 space-y-2 text-xs">
+            <div class="flex justify-between items-center text-slate-400 font-semibold">
               <span>Круг ${r.cycle} • Игра #${r.round} ${r.court ? `(Корт #${r.court})` : ''}</span>
-              ${r.completed ? '<span class="text-green-600 font-bold">Завершён</span>' : '<span class="text-amber-600">Ожидает</span>'}
+              ${r.completed ? '<span class="text-emerald-400 font-black">Завершён</span>' : '<span class="text-amber-400 font-semibold">Ожидает</span>'}
             </div>
-            <div class="flex items-center justify-between gap-1">
-              <div class="flex-1 text-center font-semibold text-gray-800">${pA1} / ${pA2}</div>
+            <div class="flex items-center justify-between gap-1.5">
+              <div class="flex-1 text-center font-bold text-white">${pA1} / ${pA2}</div>
               
-              <!-- Ввод очков и кнопка ОК -->
+              <!-- Поля ввода счетов и кнопка ОК -->
               <div class="flex items-center gap-1">
-                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-11 text-center p-1.5 border border-gray-300 rounded-lg font-bold bg-white text-sm focus:border-purple-600 focus:outline-none">
-                <span class="font-bold text-gray-400">:</span>
-                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-11 text-center p-1.5 border border-gray-300 rounded-lg font-bold bg-white text-sm focus:border-purple-600 focus:outline-none">
+                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black bg-slate-950 text-white text-sm focus:border-purple-500 focus:outline-none">
+                <span class="font-black text-slate-500">:</span>
+                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black bg-slate-950 text-white text-sm focus:border-purple-500 focus:outline-none">
                 
-                <button onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-lg font-bold text-xs hover:bg-purple-700 active:scale-95 transition-all shadow-sm">
+                <button onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
                   ОК
                 </button>
               </div>
 
-              <div class="flex-1 text-center font-semibold text-gray-800">${pB1} / ${pB2}</div>
+              <div class="flex-1 text-center font-bold text-white">${pB1} / ${pB2}</div>
             </div>
           </div>
         `;
@@ -475,28 +539,27 @@
 
       container.innerHTML = `
         <div class="space-y-4">
-          <div class="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 rounded-xl text-white flex justify-between items-center">
+          <div class="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 rounded-2xl text-white flex justify-between items-center shadow-lg shadow-purple-500/20">
             <div>
-              <h2 class="text-base font-bold">🏆 Калькулятор Американо</h2>
+              <h2 class="text-base font-black uppercase tracking-wide">🏆 Калькулятор</h2>
               <p class="text-xs opacity-80">Всего игр: ${rounds.length} (${cycles || 1} ${cycles > 1 ? 'круга' : 'круг'})</p>
             </div>
-            <button onclick="resetQuickAmericano()" class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-semibold">Сброс</button>
-          </div>
-
-          <div class="bg-white border rounded-xl p-3 shadow-sm">
-            <h3 class="text-xs font-bold text-gray-700 mb-2">Общий Лидерборд</h3>
-            ${leaderboardHtml}
+            <button onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold btn-3d">Сбросить</button>
           </div>
 
           <div class="space-y-2">
-            <h3 class="text-xs font-bold text-gray-700">Матчи и Счёт</h3>
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Общий Лидерборд</h3>
+            ${leaderboardHtml}
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Матчи и Счёт</h3>
             ${roundsHtml}
           </div>
         </div>
       `;
     }
 
-    // Сохранение очков конкретной игры
     function saveQuickScore(roundId) {
       const inputA = document.getElementById(`quick_score_a_${roundId}`);
       const inputB = document.getElementById(`quick_score_b_${roundId}`);
@@ -547,6 +610,9 @@
     }
 
     initApp();
+  </script>
+</body>
+</html>
   </script>
 </body>
 </html>
