@@ -8,6 +8,8 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts -->
@@ -77,6 +79,18 @@
       50% { transform: translateY(-6px) rotate(5deg) rotateY(15deg); }
     }
 
+    /* Анимация всплывающего респект-текста */
+    @keyframes popInOut {
+      0% { transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); opacity: 0; }
+      20% { transform: translate(-50%, -50%) scale(1.1) rotate(3deg); opacity: 1; }
+      80% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
+    }
+
+    .toast-pop {
+      animation: popInOut 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
     .neon-glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.45); }
     .neon-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.45); }
     .neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.45); }
@@ -89,6 +103,16 @@
 
   <!-- Холст анимированных падающих мячей -->
   <canvas id="ball-canvas"></canvas>
+
+  <!-- Всплывающий анимированный Toast при занятии слота -->
+  <div id="celebration-toast" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none hidden">
+    <div class="glass-card shimmer-border px-6 py-4 rounded-3xl text-center shadow-2xl bg-slate-950/90 border-2 border-emerald-400">
+      <span class="text-3xl block mb-1">🎾🔥</span>
+      <h2 id="celebration-text" class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 uppercase tracking-wide drop-shadow-md">
+        Tu vopshe esti chempion
+      </h2>
+    </div>
+  </div>
 
   <div class="bg-overlay p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
@@ -108,14 +132,12 @@
           
           <!-- Переключатель языков и Кнопки Поддержки / Создателя -->
           <div class="flex flex-col items-end gap-1.5">
-            <!-- Переключатель языков -->
             <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 text-[10px] font-bold">
               <button onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
               <button onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
               <button onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
             </div>
 
-            <!-- Дополнительные сервис-кнопки -->
             <div class="flex items-center gap-1">
               <button onclick="openSupportModal()" class="px-2 py-1 bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
                 🛠️ <span id="txt-btn-support">Support</span>
@@ -141,7 +163,7 @@
         </div>
       </div>
 
-      <!-- Блок ошибок -->
+      <!-- Ошибки -->
       <div id="error-box" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-300 p-3.5 rounded-2xl text-xs font-mono break-all"></div>
 
       <!-- Главный контент -->
@@ -156,7 +178,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО SUPPORT (ПОДДЕРЖКА / ДОНАТЫ) -->
+  <!-- МОДАЛЬНОЕ ОКНО SUPPORT -->
   <div id="modal-support" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -171,12 +193,10 @@
           Возникли вопросы, предложения или нашли ошибку? Свяжитесь напрямую с нашей службой поддержки.
         </p>
 
-        <!-- Кнопка связи с саппортом (@kizdoi) -->
         <a id="support-tg-link" href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20">
           💬 Написать в Telegram (@kizdoi)
         </a>
 
-        <!-- Раздел добровольной поддержки проекта -->
         <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-amber-500/20 space-y-2 mt-3">
           <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wide" id="m-donate-title">☕ Поддержать Padel Moldova</h4>
           <p class="text-[11px] text-slate-400" id="m-donate-desc">Если вам нравится платформа, вы можете сделать добровольный взнос на развитие серверов и новые функции:</p>
@@ -201,7 +221,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО CREATOR (О СОЗДАТЕЛЕ) -->
+  <!-- МОДАЛЬНОЕ ОКНО CREATOR -->
   <div id="modal-creator" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -225,7 +245,6 @@
           Платформа **Padel Moldova** создана для объединения игроков, удобного поиска слотов и проведения турниров по всей Молдове.
         </p>
 
-        <!-- Прямая ссылка на ваш Telegram @kizdoi -->
         <a id="creator-tg-link" href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-cyan-500/20">
           📩 Связаться с Виктором (@kizdoi)
         </a>
@@ -482,6 +501,45 @@
     function closeModals() {
       document.getElementById('modal-support').classList.add('hidden');
       document.getElementById('modal-creator').classList.add('hidden');
+    }
+
+    // --- ФУНКЦИЯ САЛЮТА И ВСПЛЫВАЮЩЕГО ТЕКСТА ПРИ ВХОДЕ В СЛОТ ---
+    const RANDOM_CELEBRATION_TEXTS = [
+      "Tu vopshe esti chempion 🏆",
+      "Aiii Malaceaga! 🔥",
+      "Azi tati kizdele dupa padel is atali 😎",
+      "Tei Cacat, tei Parfumat 🎾✨",
+      "Vamoooooos! 🚀",
+      "Vezi s nu intarzii ⏰"
+    ];
+
+    function triggerSlotCelebration() {
+      // 1. Запуск анимированного салюта (Confetti)
+      if (window.confetti) {
+        window.confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#10b981', '#ccff00', '#3b82f6', '#f59e0b']
+        });
+      }
+
+      // 2. Случайный выбор фразы
+      const randomMsg = RANDOM_CELEBRATION_TEXTS[Math.floor(Math.random() * RANDOM_CELEBRATION_TEXTS.length)];
+      
+      const toast = document.getElementById('celebration-toast');
+      const toastText = document.getElementById('celebration-text');
+      
+      toastText.innerText = randomMsg;
+      toast.classList.remove('hidden', 'toast-pop');
+      
+      // Перезапуск CSS анимации
+      void toast.offsetWidth;
+      toast.classList.add('toast-pop');
+
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2500);
     }
 
     // --- 3. SUPABASE И TELEGRAM ---
@@ -1329,6 +1387,10 @@
       try {
         await syncUserProfile();
         await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: tgUser.id, slot_number: nextSlot }]);
+        
+        // Вызов анимированного салюта и текста
+        triggerSlotCelebration();
+
         renderMatchDetails(matchId);
       } catch (err) { alert('Ошибка: ' + err.message); }
     }
