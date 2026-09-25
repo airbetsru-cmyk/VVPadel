@@ -377,31 +377,13 @@
       return age >= 0 ? age : null;
     }
 
-    // Строгая проверка: ТОЛЬКО НАСТОЯЩИЕ ПОЛЬЗОВАТЕЛИ
+    // Надежная фильтрация реальных профилей
     function isValidRealUser(p) {
       if (!p || !p.id || !p.first_name) return false;
-      
-      const firstName = p.first_name.trim().toLowerCase();
-      const idStr = String(p.id).trim();
-      const numericId = parseInt(idStr, 10);
-
-      // Отсеиваем локальные/тестовые фейковые ID (менее 1000)
-      if (isNaN(numericId) || numericId < 1000) return false;
-
-      // Проверяем, не является ли имя стандартной заглушкой
-      const isGenericName = firstName === '' || 
-                            firstName.startsWith('игрок') || 
-                            firstName.startsWith('player') || 
-                            firstName.startsWith('гость') || 
-                            firstName.startsWith('test');
-
-      if (isGenericName && (!p.username || p.username.trim() === '')) return false;
-
-      // Главное условие: Наличие Telegram Username ИЛИ полноценный профиль с реальным ID
-      const hasUsername = p.username && p.username.trim() !== '';
-      const isRealProfile = idStr.length >= 5 && !isGenericName;
-
-      return hasUsername || isRealProfile;
+      const firstName = String(p.first_name).trim().toLowerCase();
+      // Отсеиваем только тестовые имена
+      if (firstName === 'test' || firstName === 'тест') return false;
+      return true;
     }
 
     // --- 2. МУЛЬТИЯЗЫЧНОСТЬ ---
@@ -651,7 +633,6 @@
       document.getElementById('txt-btn-support').innerText = t('btnSupport');
       document.getElementById('txt-btn-creator').innerText = t('btnCreator');
 
-      // Обновление статических элементов модального окна Support
       document.getElementById('m-support-title').innerText = t('mSupportTitle');
       document.getElementById('m-support-desc').innerText = t('mSupportDesc');
       document.getElementById('support-tg-link').innerText = t('mSupportTgBtn');
@@ -661,14 +642,12 @@
       document.getElementById('m-donate-footer').innerText = t('mDonateFooter');
       document.getElementById('m-support-close-btn').innerText = t('mCloseBtn');
 
-      // Обновление статических элементов модального окна Creator
       document.getElementById('m-creator-title').innerText = t('mCreatorTitle');
       document.getElementById('m-creator-role').innerText = t('mCreatorRole');
       document.getElementById('m-creator-desc').innerText = t('mCreatorDesc');
       document.getElementById('creator-tg-link').innerText = t('mCreatorTgBtn');
       document.getElementById('m-creator-close-btn').innerText = t('mCloseBtn');
 
-      // Обновление заголовков просмотра игроков
       document.getElementById('m-view-player-title').innerText = t('mViewPlayerTitle');
       document.getElementById('m-view-player-close').innerText = t('mCloseBtn');
 
@@ -822,11 +801,10 @@
       try {
         const { data, error } = await supabaseClient
           .from('profiles')
-          .select('id, first_name, last_name, username, skill_level, rating_americano, rating_friendly, rating_competitive, preferred_side, phone, birth_date, gender, total_matches_played, wins, losses, is_public_profile')
+          .select('*')
           .order('total_matches_played', { ascending: false });
         
         if (!error && data) {
-          // Строгая фильтрация ТОЛЬКО настоящих игроков
           platformProfilesList = data.filter(isValidRealUser);
         }
       } catch(e) {}
@@ -1009,7 +987,10 @@
         const players = rawPlayers || [];
 
         const isJoined = players.some(p => String(p.user_id) === String(tgUser.id));
-        const isCreator = String(match.creator_id) === String(tgUser.id) || isUserCreator();
+        
+        // СТРОГАЯ ПРОВЕРКА: Только создатель данного матча или главный админ
+        const isMatchCreator = String(match.creator_id) === String(tgUser.id) || isUserCreator();
+        
         const isRegClosed = match.is_registration_closed === true;
         const isFull = players.length >= match.max_players;
 
@@ -1023,16 +1004,16 @@
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
           if (p) {
             const name = p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Player');
-            const isMatchCreator = String(p.user_id) === String(match.creator_id);
+            const isCreatorOfThisSlot = String(p.user_id) === String(match.creator_id);
 
             slotsHtml += `
               <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-1">
-                ${isMatchCreator ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
+                ${isCreatorOfThisSlot ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-emerald-300">Слот #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline decoration-dotted hover:text-amber-300">${name}</span></span>
                   <div class="flex items-center gap-2">
                     <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
-                    ${isCreator ? `<button onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d" title="Удалить из слота">❌</button>` : ''}
+                    ${isMatchCreator ? `<button onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d" title="Удалить из слота">❌</button>` : ''}
                   </div>
                 </div>
               </div>`;
@@ -1072,8 +1053,9 @@
           `;
         }).join('');
 
+        // ПАНЕЛЬ ОРГАНИЗАТОРА - ПОКАЗЫВАЕТСЯ ТОЛЬКО СОЗДАТЕЛЮ СЛОТА
         let creatorControlsHtml = '';
-        if (isCreator) {
+        if (isMatchCreator) {
           creatorControlsHtml = `
             <div class="p-3.5 bg-gradient-to-r from-amber-500/15 via-slate-900 to-amber-500/10 border border-amber-500/30 rounded-2xl space-y-3">
               <div class="flex items-center justify-between">
@@ -1732,7 +1714,6 @@
         const total = player.total_matches_played || (wins + losses);
         const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
 
-        const tgHandle = player.username ? `@${player.username}` : t('mNoUsername');
         const tgLink = player.username ? `<a href="https://t.me/${player.username}" target="_blank" class="text-cyan-400 font-bold underline">@${player.username}</a>` : `<span class="text-slate-400 italic">${t('mNoUsername')}</span>`;
 
         content.innerHTML = `
@@ -1821,8 +1802,7 @@
       if (p.preferred_side === 'left') sideLabel = t('leftSide');
       if (p.preferred_side === 'right') sideLabel = t('rightSide');
 
-      // ИСПОЛЬЗУЕМ СТРОГУЮ ФИЛЬТРАЦИЮ: ТОЛЬКО НАСТОЯЩИЕ ПОЛЬЗОВАТЕЛИ
-      let sortedList = platformProfilesList.filter(isValidRealUser);
+      let sortedList = [...platformProfilesList];
 
       if (currentLeaderboardTab === 'national') {
         sortedList.sort((a, b) => (b.skill_level || 2.5) - (a.skill_level || 2.5));
@@ -1834,7 +1814,6 @@
         sortedList.sort((a, b) => (b.rating_competitive || 1000) - (a.rating_competitive || 1000));
       }
 
-      // В НАЦИОНАЛЬНОМ РЕЙТИНГЕ НЕ ОТОБРАЖАЕМ @USERNAME НАПРЯМУЮ, НО ДЕЛАЕМ КЛИКАБЕЛЬНЫМ ДЛЯ ПРОСМОТРА
       let leaderboardRows = sortedList.map((item, index) => {
         let valBadge = '';
         if (currentLeaderboardTab === 'national') valBadge = `Lvl ${item.skill_level || 2.5}`;
@@ -2144,6 +2123,7 @@
       }
     }
 
+    // Безопасное сохранение профиля с защитой от отсутствующих колонок в БД
     async function saveProfileData(e) {
       e.preventDefault();
       const birthDate = document.getElementById('edit_birth_date').value || null;
@@ -2152,24 +2132,37 @@
       const phone = document.getElementById('edit_phone').value.trim();
       const isPublic = document.getElementById('edit_privacy').value === 'true';
 
+      const updatePayload = {
+        birth_date: birthDate,
+        gender: gender,
+        preferred_side: preferredSide,
+        phone: phone,
+        updated_at: new Date().toISOString()
+      };
+
       try {
-        const { error } = await supabaseClient
+        // Пробуем первое сохранение с полем is_public_profile
+        let { error } = await supabaseClient
           .from('profiles')
-          .update({
-            birth_date: birthDate,
-            gender: gender,
-            preferred_side: preferredSide,
-            phone: phone,
-            is_public_profile: isPublic,
-            updated_at: new Date().toISOString()
-          })
+          .update({ ...updatePayload, is_public_profile: isPublic })
           .eq('id', tgUser.id);
 
-        if (error) throw error;
+        // Если колонка не найдена в Supabase, делаем повторный запрос без неё
+        if (error && error.message.includes('is_public_profile')) {
+          const fallbackRes = await supabaseClient
+            .from('profiles')
+            .update(updatePayload)
+            .eq('id', tgUser.id);
+
+          if (fallbackRes.error) throw fallbackRes.error;
+        } else if (error) {
+          throw error;
+        }
 
         isProfileEditOpen = false;
         alert('Профиль успешно сохранен!');
         await syncUserProfile();
+        if (currentUserProfile) currentUserProfile.is_public_profile = isPublic;
         renderProfileTab();
       } catch(err) {
         alert('Ошибка сохранения: ' + err.message);
