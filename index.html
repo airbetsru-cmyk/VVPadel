@@ -364,7 +364,7 @@
         skillLevel: "Уровень игры (1.0 - 7.0)",
         preferredSide: "Сторона на корте",
         phone: "Номер телефона",
-        saveProfile: "Отправить запрос на изменение",
+        saveProfile: "Сохранить профиль",
         stats: "Статистика игрока",
         matches: "Матчи",
         wins: "Победы",
@@ -407,7 +407,7 @@
         skillLevel: "Nivel de joc (1.0 - 7.0)",
         preferredSide: "Parte pe teren",
         phone: "Număr de telefon",
-        saveProfile: "Trimite cererea de modificare",
+        saveProfile: "Salvează profilul",
         stats: "Statistici jucător",
         matches: "Meciuri",
         wins: "Victorii",
@@ -450,7 +450,7 @@
         skillLevel: "Skill Level (1.0 - 7.0)",
         preferredSide: "Preferred Side",
         phone: "Phone Number",
-        saveProfile: "Submit Update Request",
+        saveProfile: "Save Profile",
         stats: "Player Statistics",
         matches: "Matches",
         wins: "Wins",
@@ -691,7 +691,6 @@
             last_name: tgUser.last_name || null,
             username: tgUser.username || null,
             skill_level: 2.5,
-            pending_skill_level: null,
             preferred_side: 'both',
             total_matches_played: 0,
             wins: 0,
@@ -1377,7 +1376,6 @@
       const p = currentUserProfile || {
         first_name: tgUser.first_name,
         skill_level: 2.5,
-        pending_skill_level: null,
         preferred_side: 'both',
         phone: '060217449',
         total_matches_played: 0,
@@ -1410,25 +1408,9 @@
 
       let creatorAdminPanelHtml = '';
       if (isUserCreator()) {
-        const pendingProfiles = platformProfilesList.filter(item => item.pending_skill_level !== null && item.pending_skill_level !== undefined);
-        
-        let pendingRows = pendingProfiles.map(item => `
-          <div class="p-3 bg-slate-950/80 border border-amber-500/30 rounded-xl space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-white cursor-pointer underline" onclick="openAdminPlayerModalById('${item.id}')">${item.first_name} ${item.last_name || ''}</span>
-              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-extrabold">Запрос на Lvl ${item.pending_skill_level}</span>
-            </div>
-            <p class="text-[11px] text-slate-400">Текущий рейтинг: <strong class="text-white">${item.skill_level || 2.5}</strong></p>
-            <div class="flex gap-2 pt-1">
-              <button onclick="approveRating('${item.id}', ${item.pending_skill_level})" class="flex-1 py-1.5 bg-emerald-500 text-slate-950 font-black rounded-lg text-[11px] btn-3d uppercase">Одобрить</button>
-              <button onclick="rejectRating('${item.id}')" class="flex-1 py-1.5 bg-rose-500/20 text-rose-300 font-bold rounded-lg text-[11px] btn-3d">Отклонить</button>
-            </div>
-          </div>
-        `).join('');
-
         let allUsersManagementRows = platformProfilesList.map(item => `
           <div class="flex items-center justify-between p-2 bg-slate-950/50 rounded-xl text-xs gap-2">
-            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[130px] cursor-pointer underline decoration-dotted hover:text-amber-300" title="Нажмите для полного редактирования матчей и рейтинга">${item.first_name} (${item.total_matches_played || 0} матчей)</span>
+            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[140px] cursor-pointer underline decoration-dotted hover:text-amber-300" title="Нажмите для полного редактирования матчей и рейтинга">${item.first_name} (${item.total_matches_played || 0} матчей)</span>
             <span class="text-[10px] bg-purple-500/20 text-purple-300 font-bold px-2 py-0.5 rounded">Lvl ${item.skill_level || 2.5}</span>
           </div>
         `).join('');
@@ -1440,12 +1422,7 @@
             </h3>
             
             <div class="space-y-2">
-              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Запросы на изменение уровня (${pendingProfiles.length}):</p>
-              ${pendingProfiles.length > 0 ? pendingRows : '<p class="text-[11px] text-slate-500 italic">Нет новых запросов на проверку.</p>'}
-            </div>
-
-            <div class="border-t border-amber-500/20 pt-3 space-y-2">
-              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Все игроки платформы (Нажмите на имя для точной настройки матчей и рейтинга):</p>
+              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Все игроки платформы (Нажмите на имя для настройки матчей и рейтинга):</p>
               <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
                 ${allUsersManagementRows}
               </div>
@@ -1453,13 +1430,6 @@
           </div>
         `;
       }
-
-      let pendingNotice = p.pending_skill_level !== null && p.pending_skill_level !== undefined ? `
-        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-xs text-amber-300 flex items-center justify-between">
-          <span>⏳ Ваш новый уровень (${p.pending_skill_level}) ожидает проверки создателем.</span>
-          <button onclick="cancelPendingRating()" class="text-[10px] underline font-bold">Отменить</button>
-        </div>
-      ` : '';
 
       container.innerHTML = `
         <div class="space-y-4">
@@ -1496,17 +1466,16 @@
             </div>
           </div>
 
-          ${pendingNotice}
           ${creatorAdminPanelHtml}
 
-          <!-- Редактирование профиля (С отправкой на модерацию) -->
+          <!-- Редактирование профиля -->
           <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-white/5 space-y-3">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('editProfile')}</h3>
             
             <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
               <div>
-                <label class="block text-slate-400 font-semibold mb-1">${t('skillLevel')} <span class="text-[10px] text-amber-400">(требует одобрения)</span></label>
-                <input type="number" id="edit_skill_level" step="0.1" min="1.0" max="7.0" value="${p.pending_skill_level !== null ? p.pending_skill_level : (p.skill_level || 2.5)}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
+                <label class="block text-slate-400 font-semibold mb-1">${t('skillLevel')}</label>
+                <input type="number" id="edit_skill_level" step="0.1" min="1.0" max="7.0" value="${p.skill_level || 2.5}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
               </div>
 
               <div>
@@ -1599,7 +1568,6 @@
         const { error } = await supabaseClient.from('profiles').upsert({
           id: userId,
           skill_level: newSkill,
-          pending_skill_level: null,
           total_matches_played: newMatches,
           wins: newWins,
           losses: newLosses,
@@ -1619,71 +1587,28 @@
 
     async function saveProfileData(e) {
       e.preventDefault();
-      const requestedSkill = parseFloat(document.getElementById('edit_skill_level').value) || 2.5;
+      const newSkill = parseFloat(document.getElementById('edit_skill_level').value) || 2.5;
       const side = document.getElementById('edit_preferred_side').value;
       const phone = document.getElementById('edit_phone').value.trim();
 
       try {
         const updateObj = {
           id: tgUser.id,
+          skill_level: newSkill,
           preferred_side: side,
           phone: phone,
           updated_at: new Date()
         };
 
-        if (requestedSkill !== currentUserProfile.skill_level) {
-          updateObj.pending_skill_level = requestedSkill;
-          alert('Запрос на изменение рейтинга отправлен создателю на проверку!');
-        } else {
-          updateObj.pending_skill_level = null;
-          alert('Профиль сохранен!');
-        }
-
         const { error } = await supabaseClient.from('profiles').upsert(updateObj);
         if (error) throw error;
 
+        alert('Профиль успешно сохранен!');
         await syncUserProfile();
         renderProfileTab();
       } catch(err) {
         alert('Ошибка сохранения: ' + err.message);
       }
-    }
-
-    async function cancelPendingRating() {
-      try {
-        await supabaseClient.from('profiles').update({ pending_skill_level: null }).eq('id', tgUser.id);
-        await syncUserProfile();
-        renderProfileTab();
-      } catch(e) {}
-    }
-
-    async function approveRating(userId, newLevel) {
-      try {
-        const { error } = await supabaseClient.from('profiles').update({
-          skill_level: newLevel,
-          pending_skill_level: null,
-          updated_at: new Date()
-        }).eq('id', userId);
-        if (error) throw error;
-
-        alert('Рейтинг успешно одобрен!');
-        await fetchAllPlatformProfiles();
-        renderProfileTab();
-      } catch(e) { alert('Ошибка: ' + e.message); }
-    }
-
-    async function rejectRating(userId) {
-      try {
-        const { error } = await supabaseClient.from('profiles').update({
-          pending_skill_level: null,
-          updated_at: new Date()
-        }).eq('id', userId);
-        if (error) throw error;
-
-        alert('Запрос отклонен.');
-        await fetchAllPlatformProfiles();
-        renderProfileTab();
-      } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
     async function joinMatch(matchId, nextSlot) {
