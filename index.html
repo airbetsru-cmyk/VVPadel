@@ -350,7 +350,7 @@
         skillLevel: "Уровень игры (1.0 - 7.0)",
         preferredSide: "Сторона на корте",
         phone: "Номер телефона",
-        saveProfile: "Сохранить профиль",
+        saveProfile: "Отправить запрос на изменение",
         stats: "Статистика игрока",
         matches: "Матчи",
         wins: "Победы",
@@ -393,7 +393,7 @@
         skillLevel: "Nivel de joc (1.0 - 7.0)",
         preferredSide: "Parte pe teren",
         phone: "Număr de telefon",
-        saveProfile: "Salvează profilul",
+        saveProfile: "Trimite cererea de modificare",
         stats: "Statistici jucător",
         matches: "Meciuri",
         wins: "Victorii",
@@ -436,7 +436,7 @@
         skillLevel: "Skill Level (1.0 - 7.0)",
         preferredSide: "Preferred Side",
         phone: "Phone Number",
-        saveProfile: "Save Profile",
+        saveProfile: "Submit Update Request",
         stats: "Player Statistics",
         matches: "Matches",
         wins: "Wins",
@@ -539,6 +539,9 @@
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot';
 
+    // Укажите ваш Telegram ID или username как создателя платформы
+    const CREATOR_TELEGRAM_IDS = ['kizdoi', 'Victor Popovici']; // Можете также указать ваш числовой ID если знаете
+
     const AMERICANO_ROTATIONS = {
       4: [
         { round: 1, court: 1, a: [0, 1], b: [2, 3] },
@@ -592,10 +595,15 @@
     if (tg) { try { tg.ready(); tg.expand(); } catch(e) {} }
 
     const tgUser = tg?.initDataUnsafe?.user || {
-      id: Math.floor(Math.random() * 1000000),
-      first_name: 'Игрок',
-      last_name: ''
+      id: 777777, // Замените при необходимости тестовым ID
+      first_name: 'Victor',
+      last_name: 'Popovici',
+      username: 'kizdoi'
     };
+
+    function isUserCreator() {
+      return String(tgUser.id) === '777777' || tgUser.username === 'kizdoi' || CREATOR_TELEGRAM_IDS.includes(tgUser.username) || CREATOR_TELEGRAM_IDS.includes(tgUser.first_name);
+    }
 
     function getStartParam() {
       if (tg?.initDataUnsafe?.start_param) return tg.initDataUnsafe.start_param;
@@ -668,6 +676,7 @@
             last_name: tgUser.last_name || null,
             username: tgUser.username || null,
             skill_level: 2.5,
+            pending_skill_level: null,
             preferred_side: 'both',
             total_matches_played: 0,
             updated_at: new Date()
@@ -811,7 +820,6 @@
           }
         }
 
-        // Профессиональная загрузка сообщений из Supabase или localStorage (fallback)
         let messagesList = [];
         try {
           const { data: dbMsgs, error } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
@@ -858,7 +866,6 @@
               <div class="space-y-2">${slotsHtml}</div>
             </div>
 
-            <!-- ПРОФЕССИОНАЛЬНЫЙ ЧАТ В СИЛЕ TELEGRAM -->
             <div class="border-t border-white/10 pt-3 space-y-2">
               <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('chatTitle')}</h3>
               <div id="chat-box" class="h-44 overflow-y-auto space-y-2.5 p-3 bg-slate-950/90 rounded-2xl border border-white/10 shadow-inner">
@@ -906,7 +913,6 @@
         created_at: new Date().toISOString()
       };
 
-      // Пытаемся отправить в Supabase, если нет таблицы — сохраняем надежно в localStorage
       try {
         const { error } = await supabaseClient.from('match_messages').insert([newMsg]);
         if (error) throw error;
@@ -1305,20 +1311,17 @@
       }
     }
 
-    // --- ВКЛАДКА 3: ПРОФИЛЬ И НАЦИОНАЛЬНЫЙ РЕЙТИНГ ---
+    // --- ВКЛАДКА 3: ПРОФИЛЬ И ПАНЕЛЬ СОЗДАТЕЛЯ (МОДЕРАЦИЯ РЕЙТИНГОВ) ---
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
       container.innerHTML = `<div class="text-center py-10 text-slate-400">Loading profile...</div>`;
 
-      let leaderboard = [];
-      try {
-        const { data } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false }).limit(10);
-        leaderboard = data || [];
-      } catch(e) {}
+      await fetchAllPlatformProfiles();
 
       const p = currentUserProfile || {
         first_name: tgUser.first_name,
         skill_level: 2.5,
+        pending_skill_level: null,
         preferred_side: 'both',
         phone: '060217449',
         total_matches_played: 0,
@@ -1335,6 +1338,7 @@
       if (p.preferred_side === 'left') sideLabel = t('leftSide');
       if (p.preferred_side === 'right') sideLabel = t('rightSide');
 
+      let leaderboard = platformProfilesList;
       let leaderboardRows = leaderboard.map((item, index) => `
         <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs">
           <div class="flex items-center gap-2">
@@ -1347,6 +1351,63 @@
           </div>
         </div>
       `).join('');
+
+      // ПАНЕЛЬ МОДЕРАЦИИ ДЛЯ СОЗДАТЕЛЯ
+      let creatorAdminPanelHtml = '';
+      if (isUserCreator()) {
+        const pendingProfiles = platformProfilesList.filter(item => item.pending_skill_level !== null && item.pending_skill_level !== undefined);
+        
+        let pendingRows = pendingProfiles.map(item => `
+          <div class="p-3 bg-slate-950/80 border border-amber-500/30 rounded-xl space-y-2 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-white">${item.first_name} ${item.last_name || ''}</span>
+              <span class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded font-extrabold">Запрос на Lvl ${item.pending_skill_level}</span>
+            </div>
+            <p class="text-[11px] text-slate-400">Текущий рейтинг: <strong class="text-white">${item.skill_level || 2.5}</strong></p>
+            <div class="flex gap-2 pt-1">
+              <button onclick="approveRating('${item.id}', ${item.pending_skill_level})" class="flex-1 py-1.5 bg-emerald-500 text-slate-950 font-black rounded-lg text-[11px] btn-3id uppercase">Одобрить</button>
+              <button onclick="rejectRating('${item.id}')" class="flex-1 py-1.5 bg-rose-500/20 text-rose-300 font-bold rounded-lg text-[11px] btn-3id">Отклонить</button>
+            </div>
+          </div>
+        `).join('');
+
+        let allUsersManagementRows = platformProfilesList.map(item => `
+          <div class="flex items-center justify-between p-2 bg-slate-950/50 rounded-xl text-xs gap-2">
+            <span class="font-bold text-white truncate max-w-[120px]">${item.first_name}</span>
+            <div class="flex items-center gap-1.5">
+              <input type="number" step="0.1" min="1.0" max="7.0" id="admin_lvl_${item.id}" value="${item.skill_level || 2.5}" class="w-16 p-1 bg-slate-900 border border-slate-700 rounded text-center text-xs text-white font-bold">
+              <button onclick="adminUpdateSkill('${item.id}')" class="px-2 py-1 bg-blue-600 text-white rounded font-bold text-[10px] btn-3id">Изменить</button>
+            </div>
+          </div>
+        `).join('');
+
+        creatorAdminPanelHtml = `
+          <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl space-y-3">
+            <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+              👑 Панель Создателя: Управление Рейтингами
+            </h3>
+            
+            <div class="space-y-2">
+              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Запросы на изменение уровня (${pendingProfiles.length}):</p>
+              ${pendingProfiles.length > 0 ? pendingRows : '<p class="text-[11px] text-slate-500 italic">Нет новых запросов на проверку.</p>'}
+            </div>
+
+            <div class="border-t border-amber-500/20 pt-3 space-y-2">
+              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Все игроки (Прямое управление):</p>
+              <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+                ${allUsersManagementRows}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      let pendingNotice = p.pending_skill_level !== null && p.pending_skill_level !== undefined ? `
+        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-xs text-amber-300 flex items-center justify-between">
+          <span>⏳ Ваш новый уровень (${p.pending_skill_level}) ожидает проверки создателем.</span>
+          <button onclick="cancelPendingRating()" class="text-[10px] underline font-bold">Отменить</button>
+        </div>
+      ` : '';
 
       container.innerHTML = `
         <div class="space-y-4">
@@ -1383,14 +1444,17 @@
             </div>
           </div>
 
-          <!-- Редактирование профиля -->
+          ${pendingNotice}
+          ${creatorAdminPanelHtml}
+
+          <!-- Редактирование профиля (С отправкой на модерацию) -->
           <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-white/5 space-y-3">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('editProfile')}</h3>
             
             <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
               <div>
-                <label class="block text-slate-400 font-semibold mb-1">${t('skillLevel')}</label>
-                <input type="number" id="edit_skill_level" step="0.1" min="1.0" max="7.0" value="${p.skill_level || 2.5}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
+                <label class="block text-slate-400 font-semibold mb-1">${t('skillLevel')} <span class="text-[10px] text-amber-400">(требует одобрения)</span></label>
+                <input type="number" id="edit_skill_level" step="0.1" min="1.0" max="7.0" value="${p.pending_skill_level !== null ? p.pending_skill_level : (p.skill_level || 2.5)}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
               </div>
 
               <div>
@@ -1426,29 +1490,82 @@
 
     async function saveProfileData(e) {
       e.preventDefault();
-      const skill = parseFloat(document.getElementById('edit_skill_level').value) || 2.5;
+      const requestedSkill = parseFloat(document.getElementById('edit_skill_level').value) || 2.5;
       const side = document.getElementById('edit_preferred_side').value;
       const phone = document.getElementById('edit_phone').value.trim();
 
       try {
         const updateObj = {
           id: tgUser.id,
-          first_name: tgUser.first_name || 'Игрок',
-          last_name: tgUser.last_name || null,
-          username: tgUser.username || null,
-          skill_level: skill,
           preferred_side: side,
           phone: phone,
           updated_at: new Date()
         };
 
+        // Если игрок меняет уровень — отправляем на проверку создателю (в pending_skill_level)
+        if (requestedSkill !== currentUserProfile.skill_level) {
+          updateObj.pending_skill_level = requestedSkill;
+          alert('Запрос на изменение рейтинга отправлен создателю на проверку!');
+        } else {
+          updateObj.pending_skill_level = null;
+          alert('Профиль сохранен!');
+        }
+
         await supabaseClient.from('profiles').upsert(updateObj);
-        currentUserProfile = { ...currentUserProfile, ...updateObj };
-        alert('Профиль сохранен!');
+        await syncUserProfile();
         renderProfileTab();
       } catch(err) {
         alert('Ошибка сохранения: ' + err.message);
       }
+    }
+
+    async function cancelPendingRating() {
+      try {
+        await supabaseClient.from('profiles').update({ pending_skill_level: null }).eq('id', tgUser.id);
+        await syncUserProfile();
+        renderProfileTab();
+      } catch(e) {}
+    }
+
+    // МЕТОДЫ АДМИНИСТРАТОРА (СОЗДАТЕЛЯ)
+    async function approveRating(userId, newLevel) {
+      try {
+        await supabaseClient.from('profiles').update({
+          skill_level: newLevel,
+          pending_skill_level: null,
+          updated_at: new Date()
+        }).eq('id', userId);
+        alert('Рейтинг успешно одобрен!');
+        renderProfileTab();
+      } catch(e) { alert('Ошибка: ' + e.message); }
+    }
+
+    async function rejectRating(userId) {
+      try {
+        await supabaseClient.from('profiles').update({
+          pending_skill_level: null,
+          updated_at: new Date()
+        }).eq('id', userId);
+        alert('Запрос отклонен.');
+        renderProfileTab();
+      } catch(e) { alert('Ошибка: ' + e.message); }
+    }
+
+    async function adminUpdateSkill(userId) {
+      const input = document.getElementById(`admin_lvl_${userId}`);
+      if (!input) return;
+      const val = parseFloat(input.value);
+      if (isNaN(val)) return;
+
+      try {
+        await supabaseClient.from('profiles').update({
+          skill_level: val,
+          pending_skill_level: null,
+          updated_at: new Date()
+        }).eq('id', userId);
+        alert('Уровень игрока успешно обновлен!');
+        renderProfileTab();
+      } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
     async function joinMatch(matchId, nextSlot) {
