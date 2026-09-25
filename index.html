@@ -810,7 +810,7 @@
 
         const isJoined = players.some(p => String(p.user_id) === String(tgUser.id));
         const isCreator = String(match.creator_id) === String(tgUser.id) || isUserCreator();
-        const isRegClosed = match.is_registration_closed || false;
+        const isRegClosed = match.is_registration_closed === true;
         const isFull = players.length >= match.max_players;
 
         const dateStr = new Date(match.scheduled_at).toLocaleString(currentLang === 'ro' ? 'ro-RO' : (currentLang === 'en' ? 'en-US' : 'ru-RU'), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -867,27 +867,42 @@
           `;
         }).join('');
 
+        // БЛОК УПРАВЛЕНИЯ ДЛЯ ОРГАНИЗАТОРА
         let creatorControlsHtml = '';
         if (isCreator) {
-          if (isRegClosed) {
-            creatorControlsHtml = `
-              <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-between text-xs">
-                <span class="font-bold text-amber-300">🔒 Регистрация завершена</span>
-                <button onclick="toggleRegistration('${match.id}', false)" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl btn-3d">Открыть</button>
+          creatorControlsHtml = `
+            <div class="p-3.5 bg-gradient-to-r from-amber-500/15 via-slate-900 to-amber-500/10 border border-amber-500/30 rounded-2xl space-y-2.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">👑</span>
+                  <div>
+                    <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">Панель Организатора</h4>
+                    <p class="text-[10px] text-slate-400">Управление статусом записи</p>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 text-[10px] font-black rounded-lg uppercase tracking-wider ${isRegClosed ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'}">
+                  ${isRegClosed ? '🔒 ЗАКРЫТА' : '🟢 ОТКРЫТА'}
+                </span>
               </div>
-            `;
-          } else {
-            creatorControlsHtml = `
-              <button onclick="toggleRegistration('${match.id}', true)" class="w-full py-2.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold rounded-xl text-xs btn-3d uppercase tracking-wider">
-                🔒 Завершить регистрацию
-              </button>
-            `;
-          }
+
+              ${isRegClosed ? `
+                <button onclick="toggleRegistration('${match.id}', false)" id="btn-toggle-reg" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20 flex items-center justify-center gap-1.5">
+                  🔓 Возобновить регистрацию
+                </button>
+              ` : `
+                <button onclick="toggleRegistration('${match.id}', true)" id="btn-toggle-reg" class="w-full py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-extrabold rounded-xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-1.5">
+                  🔒 Завершить и зафиксировать состав
+                </button>
+              `}
+            </div>
+          `;
         }
 
         let joinButtonHtml = '';
         if (isRegClosed) {
-          joinButtonHtml = `<div class="p-3 bg-slate-900/80 border border-amber-500/20 text-amber-300 rounded-xl text-xs font-bold text-center">🔒 Регистрация на этот матч завершена организатором</div>`;
+          joinButtonHtml = `<div class="p-3 bg-slate-900/90 border border-amber-500/30 text-amber-300 rounded-2xl text-xs font-bold text-center flex items-center justify-center gap-1.5">
+            🔒 Регистрация зафиксирована организатором
+          </div>`;
         } else if (!isJoined && !isFull) {
           joinButtonHtml = `<button onclick="joinMatch('${match.id}', ${players.length + 1})" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">${t('joinSlot')}</button>`;
         }
@@ -941,11 +956,24 @@
     }
 
     async function toggleRegistration(matchId, closeStatus) {
+      const btn = document.getElementById('btn-toggle-reg');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Обновление статуса...';
+      }
+
       try {
-        await supabaseClient.from('matches').update({ is_registration_closed: closeStatus }).eq('id', matchId);
-        renderMatchDetails(matchId);
+        const { error } = await supabaseClient
+          .from('matches')
+          .update({ is_registration_closed: closeStatus })
+          .eq('id', matchId);
+
+        if (error) throw error;
+
+        await renderMatchDetails(matchId);
       } catch(e) {
-        alert('Ошибка: ' + e.message);
+        alert('Ошибка при изменении статуса регистрации: ' + e.message + '\n\nУбедитесь, что выполнили SQL-запрос из Шага 1.');
+        if (btn) btn.disabled = false;
       }
     }
 
