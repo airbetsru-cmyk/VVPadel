@@ -41,28 +41,24 @@
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot'; // Юзернейм вашего бота без @
 
-    // Функция вывода понятных ошибок
     function showError(msg) {
-      if (!msg || msg === 'Script error.') return; // Игнорируем слепые ошибки CORS
+      if (!msg || msg === 'Script error.') return;
       const box = document.getElementById('error-box');
       box.classList.remove('hidden');
       box.innerHTML = `<strong>Инфо:</strong> ${msg}`;
     }
 
-    // Инициализация Telegram SDK
     const tg = window.Telegram?.WebApp;
     if (tg) {
       try { tg.ready(); tg.expand(); } catch(e) {}
     }
 
-    // Данные Telegram-пользователя
     const tgUser = tg?.initDataUnsafe?.user || {
       id: Math.floor(Math.random() * 1000000),
       first_name: 'Игрок',
       last_name: ''
     };
 
-    // Определение параметра игры (startapp или tgWebAppStartParam)
     function getStartParam() {
       if (tg?.initDataUnsafe?.start_param) {
         return tg.initDataUnsafe.start_param;
@@ -71,19 +67,16 @@
       return urlParams.get('tgWebAppStartParam') || urlParams.get('startapp') || urlParams.get('start');
     }
 
-    // Инициализация клиентского подключения Supabase
     let supabaseClient = null;
     try {
       if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       }
     } catch (e) {
-      showError('Ошибка подключения к базе: ' + e.message);
+      showError('Ошибка подключения: ' + e.message);
     }
 
-    // Запуск приложения
     async function initApp() {
-      // Отображаем имя пользователя
       document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
 
       const startParam = getStartParam();
@@ -94,11 +87,9 @@
         renderCreateMatchForm();
       }
 
-      // Сохраняем профиль
       syncUserProfile();
     }
 
-    // Фоновая синхронизация профиля
     async function syncUserProfile() {
       if (!supabaseClient) return;
       try {
@@ -114,7 +105,6 @@
       }
     }
 
-    // Форма создания игры
     function renderCreateMatchForm() {
       const container = document.getElementById('main-content');
       container.innerHTML = `
@@ -170,7 +160,6 @@
       document.getElementById('scheduled_at').value = defaultTime;
     }
 
-    // Обработка кнопки создания игры
     async function handleCreateMatch(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
@@ -178,7 +167,6 @@
       btn.innerText = 'Создание...';
 
       try {
-        // Убеждаемся, что профиль создан перед записью игры
         await syncUserProfile();
 
         const matchData = {
@@ -195,7 +183,6 @@
 
         if (error) throw error;
 
-        // Добавляем организатора в 1-й слот
         await supabaseClient.from('match_players').insert([{
           match_id: match.id,
           user_id: tgUser.id,
@@ -210,29 +197,39 @@
       }
     }
 
-    // Карточка игры
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
       container.innerHTML = `<div class="text-center py-8 text-gray-400">Загрузка информации об игре...</div>`;
 
       try {
-        const { data: match, error } = await supabaseClient
-          .from('view_active_matches')
+        // Запрос игры напрямую
+        const { data: match, error: matchErr } = await supabaseClient
+          .from('matches')
           .select('*')
-          .eq('match_id', matchId)
-          .single();
+          .eq('id', matchId)
+          .maybeSingle();
 
-        if (error || !match) {
+        if (matchErr) throw matchErr;
+
+        if (!match) {
           container.innerHTML = `
             <div class="text-center py-6">
-              <p class="text-red-500 font-medium mb-3">Игра не найдена или завершена.</p>
+              <p class="text-red-500 font-medium mb-3">Игра не найдена или была удалена.</p>
               <button onclick="renderCreateMatchForm()" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl">Создать новую игру</button>
             </div>`;
           return;
         }
 
-        const players = match.players || [];
-        const isJoined = players.some(p => p.user_id === tgUser.id);
+        // Запрос игроков напрямую
+        const { data: rawPlayers, error: playErr } = await supabaseClient
+          .from('match_players')
+          .select('*, profiles(*)')
+          .eq('match_id', matchId);
+
+        if (playErr) throw playErr;
+
+        const players = rawPlayers || [];
+        const isJoined = players.some(p => String(p.user_id) === String(tgUser.id));
         const isFull = players.length >= match.max_players;
 
         const dateStr = new Date(match.scheduled_at).toLocaleString('ru-RU', {
@@ -241,11 +238,12 @@
 
         let slotsHtml = '';
         for (let i = 1; i <= match.max_players; i++) {
-          const playerInSlot = players.find(p => p.slot_number === i || (!p.slot_number && players.indexOf(p) === i - 1));
-          if (playerInSlot) {
+          const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
+          if (p) {
+            const name = p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Игрок');
             slotsHtml += `
               <div class="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-100 rounded-xl">
-                <span class="text-xs font-semibold text-emerald-900">Слот #${i}: ${playerInSlot.first_name}</span>
+                <span class="text-xs font-semibold text-emerald-900">Слот #${i}: ${name}</span>
                 <span class="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full">Занят</span>
               </div>`;
           } else {
@@ -256,18 +254,18 @@
           }
         }
 
-        const shareUrl = `https://t.me/${shareBotUsername}/app?startapp=${match.match_id}`;
+        const shareUrl = `https://t.me/${shareBotUsername}/app?startapp=${match.id}`;
 
         container.innerHTML = `
           <div class="space-y-4">
             <div>
               <div class="flex justify-between items-start">
                 <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-[11px] font-bold uppercase tracking-wider rounded">
-                  ${match.match_type}
+                  ${match.match_type || 'Дружеский'}
                 </span>
-                <span class="text-xs font-bold text-emerald-700">${match.price_per_player} MDL / чел</span>
+                <span class="text-xs font-bold text-emerald-700">${match.price_per_player || 0} MDL / чел</span>
               </div>
-              <h2 class="text-lg font-bold mt-1 text-gray-900">${match.location_name}</h2>
+              <h2 class="text-lg font-bold mt-1 text-gray-900">${match.custom_location || 'Padel Club'}</h2>
               <p class="text-xs text-gray-500">📅 ${dateStr}</p>
               ${match.notes ? `<p class="text-xs italic text-gray-600 mt-1">"${match.notes}"</p>` : ''}
             </div>
@@ -281,13 +279,13 @@
 
             <div class="space-y-2 pt-2">
               ${!isJoined && !isFull ? `
-                <button onclick="joinMatch('${match.match_id}',${players.length + 1})" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-md hover:bg-emerald-700 active:scale-95 transition-all text-sm">
+                <button onclick="joinMatch('${match.id}',${players.length + 1})" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-md hover:bg-emerald-700 active:scale-95 transition-all text-sm">
                   Занять слот
                 </button>
               ` : ''}
 
               ${isJoined ? `
-                <button onclick="leaveMatch('${match.match_id}')" class="w-full py-2.5 bg-red-50 text-red-600 font-semibold rounded-xl text-xs hover:bg-red-100">
+                <button onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-red-50 text-red-600 font-semibold rounded-xl text-xs hover:bg-red-100">
                   Покинуть игру
                 </button>
               ` : ''}
@@ -299,11 +297,10 @@
           </div>
         `;
       } catch (err) {
-        showError('Ошибка отображения карточки: ' + err.message);
+        showError('Ошибка загрузки матча: ' + err.message);
       }
     }
 
-    // Кнопка присоединиться
     async function joinMatch(matchId, nextSlot) {
       try {
         await syncUserProfile();
@@ -320,7 +317,6 @@
       }
     }
 
-    // Кнопка выйти из игры
     async function leaveMatch(matchId) {
       try {
         const { error } = await supabaseClient.from('match_players').delete()
@@ -330,22 +326,20 @@
         if (error) throw error;
         renderMatchDetails(matchId);
       } catch (err) {
-        alert('Ошибка выхода: ' + err.message);
+        alert('Ошибка: ' + err.message);
       }
     }
 
-    // Скопировать ссылку
     function copyShareLink(url) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(url);
-        if (tg?.showAlert) tg.showAlert('Ссылка скопирована! Отправьте её друзьям.');
+        if (tg?.showAlert) tg.showAlert('Ссылка скопирована!');
         else alert('Ссылка скопирована!');
       } else {
         prompt('Скопируйте ссылку:', url);
       }
     }
 
-    // Старт работы
     initApp();
   </script>
 </body>
