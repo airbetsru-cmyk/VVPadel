@@ -79,7 +79,6 @@
       50% { transform: translateY(-6px) rotate(5deg) rotateY(15deg); }
     }
 
-    /* Анимация всплывающего респект-текста */
     @keyframes popInOut {
       0% { transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); opacity: 0; }
       20% { transform: translate(-50%, -50%) scale(1.1) rotate(3deg); opacity: 1; }
@@ -130,7 +129,6 @@
             </div>
           </div>
           
-          <!-- Переключатель языков и Кнопки Поддержки / Создателя -->
           <div class="flex flex-col items-end gap-1.5">
             <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 text-[10px] font-bold">
               <button onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
@@ -371,8 +369,8 @@
         chatPlaceholder: "Напишите сообщение...",
         sendBtn: "Отправить",
         creatorTag: "👑 Организатор игры",
-        quickImportBtn: "⚡ Импортировать участников из Слота",
-        guestOption: "➕ Ввести имя вручную (Гость)"
+        quickImportBtn: "⚡ Импортировать из Слота",
+        guestOption: "➕ Ввести вручную (Гость)"
       },
       ro: {
         tabBooking: "Sloturi",
@@ -414,7 +412,7 @@
         chatPlaceholder: "Scrie un mesaj...",
         sendBtn: "Trimite",
         creatorTag: "👑 Organizator joc",
-        quickImportBtn: "⚡ Importă jucătorii din Slot",
+        quickImportBtn: "⚡ Importă din Slot",
         guestOption: "➕ Introdu manual (Oaspete)"
       },
       en: {
@@ -457,7 +455,7 @@
         chatPlaceholder: "Type a message...",
         sendBtn: "Send",
         creatorTag: "👑 Game Host",
-        quickImportBtn: "⚡ Import players from Slot",
+        quickImportBtn: "⚡ Import from Slot",
         guestOption: "➕ Enter manually (Guest)"
       }
     };
@@ -503,7 +501,6 @@
       document.getElementById('modal-creator').classList.add('hidden');
     }
 
-    // --- ФУНКЦИЯ САЛЮТА И ВСПЛЫВАЮЩЕГО ТЕКСТА ПРИ ВХОДЕ В СЛОТ ---
     const RANDOM_CELEBRATION_TEXTS = [
       "Tu vopshe esti chempion 🏆",
       "Aiii Malaceaga! 🔥",
@@ -514,7 +511,6 @@
     ];
 
     function triggerSlotCelebration() {
-      // 1. Запуск анимированного салюта (Confetti)
       if (window.confetti) {
         window.confetti({
           particleCount: 80,
@@ -524,16 +520,12 @@
         });
       }
 
-      // 2. Случайный выбор фразы
       const randomMsg = RANDOM_CELEBRATION_TEXTS[Math.floor(Math.random() * RANDOM_CELEBRATION_TEXTS.length)];
-      
       const toast = document.getElementById('celebration-toast');
       const toastText = document.getElementById('celebration-text');
       
       toastText.innerText = randomMsg;
       toast.classList.remove('hidden', 'toast-pop');
-      
-      // Перезапуск CSS анимации
       void toast.offsetWidth;
       toast.classList.add('toast-pop');
 
@@ -553,12 +545,24 @@
         { round: 2, court: 1, a: [0, 2], b: [1, 3] },
         { round: 3, court: 1, a: [0, 3], b: [1, 2] }
       ],
+      5: [
+        { round: 1, court: 1, a: [0, 1], b: [2, 3] },
+        { round: 2, court: 1, a: [1, 2], b: [3, 4] },
+        { round: 3, court: 1, a: [2, 3], b: [4, 0] },
+        { round: 4, court: 1, a: [3, 4], b: [0, 1] },
+        { round: 5, court: 1, a: [4, 0], b: [1, 2] }
+      ],
       6: [
         { round: 1, court: 1, a: [0, 1], b: [2, 3] },
         { round: 2, court: 1, a: [0, 4], b: [2, 5] },
         { round: 3, court: 1, a: [1, 4], b: [3, 5] },
         { round: 4, court: 1, a: [0, 2], b: [1, 5] },
         { round: 5, court: 1, a: [0, 3], b: [4, 5] }
+      ],
+      7: [
+        { round: 1, court: 1, a: [0, 1], b: [2, 3] },
+        { round: 2, court: 1, a: [2, 4], b: [5, 6] },
+        { round: 3, court: 1, a: [0, 5], b: [1, 4] }
       ],
       8: [
         { round: 1, court: 1, a: [0, 1], b: [2, 3] }, { round: 1, court: 2, a: [4, 5], b: [6, 7] },
@@ -576,6 +580,7 @@
     let currentUserProfile = null;
     let localMatchMessages = {};
     let platformProfilesList = [];
+    let currentAmericanoPlayerCount = 4; // Хранит текущее фиксированное количество игроков
 
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
@@ -910,26 +915,35 @@
         <p class="text-xs text-slate-400 mb-3">Настройка турнира с возможностью выбора зарегистрированных игроков.</p>
 
         <div class="space-y-3.5">
-          <div class="grid grid-cols-2 gap-2.5">
+          <div class="grid grid-cols-2 gap-2.5 items-end">
             <div>
               <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Участники</label>
-              <select id="quick_player_count" onchange="renderNameInputs()" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs font-semibold text-white">
-                <option value="4">4 игрока (1 корт)</option>
-                <option value="6">6 игроков (1 корт)</option>
-                <option value="8">8 игроков (2 корта)</option>
+              <select id="quick_player_count" onchange="onPlayerCountChange()" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs font-semibold text-white">
+                <option value="4" ${currentAmericanoPlayerCount === 4 ? 'selected' : ''}>4 игрока</option>
+                <option value="5" ${currentAmericanoPlayerCount === 5 ? 'selected' : ''}>5 игроков</option>
+                <option value="6" ${currentAmericanoPlayerCount === 6 ? 'selected' : ''}>6 игроков</option>
+                <option value="7" ${currentAmericanoPlayerCount === 7 ? 'selected' : ''}>7 игроков</option>
+                <option value="8" ${currentAmericanoPlayerCount === 8 ? 'selected' : ''}>8 игроков</option>
               </select>
             </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Круги</label>
-              <select id="quick_cycles" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs font-semibold text-white">
-                <option value="1">1 круг (3 игры)</option>
-                <option value="2">2 круга (6 игр)</option>
-                <option value="3">3 круга (9 игр)</option>
-              </select>
+            
+            <!-- Кнопки +/- игроков -->
+            <div class="flex gap-1">
+              <button onclick="adjustPlayerCount(-1)" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm btn-3d" title="Убрать игрока">➖</button>
+              <button onclick="adjustPlayerCount(1)" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm btn-3d" title="Добавить игрока">➕</button>
             </div>
           </div>
 
-          <button onclick="importPlayersFromCurrentSlot()" class="w-full py-2 bg-purple-500/10 border border-purple-500/30 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/20 btn-3d">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Круги</label>
+            <select id="quick_cycles" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs font-semibold text-white">
+              <option value="1">1 круг</option>
+              <option value="2">2 круга</option>
+              <option value="3">3 круга</option>
+            </select>
+          </div>
+
+          <button onclick="importPlayersFromCurrentSlot()" class="w-full py-2.5 bg-purple-500/10 border border-purple-500/30 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/20 btn-3d">
             ${t('quickImportBtn')}
           </button>
 
@@ -944,22 +958,54 @@
       renderNameInputs();
     }
 
+    function onPlayerCountChange() {
+      const select = document.getElementById('quick_player_count');
+      if (select) {
+        currentAmericanoPlayerCount = parseInt(select.value) || 4;
+        renderNameInputs();
+      }
+    }
+
+    function adjustPlayerCount(delta) {
+      let newCount = currentAmericanoPlayerCount + delta;
+      if (newCount < 4) newCount = 4;
+      if (newCount > 8) newCount = 8;
+      currentAmericanoPlayerCount = newCount;
+
+      const select = document.getElementById('quick_player_count');
+      if (select) select.value = currentAmericanoPlayerCount;
+
+      renderNameInputs();
+    }
+
     function renderNameInputs() {
-      const count = parseInt(document.getElementById('quick_player_count').value) || 4;
+      const count = currentAmericanoPlayerCount;
       const container = document.getElementById('names-container');
+      if (!container) return;
+
+      // Сохраняем уже введённые данные пользователей, чтобы не терять при изменении количества
+      const existingData = [];
+      for (let i = 1; i <= 8; i++) {
+        const sel = document.getElementById(`player_select_${i}`);
+        const inp = document.getElementById(`player_name_${i}`);
+        if (sel && inp) {
+          existingData.push({ selectVal: sel.value, nameVal: inp.value });
+        }
+      }
       
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
-      
       platformProfilesList.forEach(p => {
         const name = `${p.first_name} ${p.last_name || ''}`.trim();
         optionsHtml += `<option value="${p.id}" data-name="${name}">${name} (Lvl ${p.skill_level || 2.5})</option>`;
       });
 
-      let html = '<label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Выбор и состав участников:</label>';
+      let html = '<label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Состав участников:</label>';
 
       for (let i = 1; i <= count; i++) {
-        const defaultName = (i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Игрок ${i}`;
-        
+        const saved = existingData[i - 1];
+        const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Игрок ${i}`);
+        const selectedValue = saved ? saved.selectVal : (i === 1 ? tgUser.id : 'custom');
+
         html += `
           <div class="p-2.5 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1.5">
             <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
@@ -978,22 +1024,22 @@
 
       container.innerHTML = html;
 
-      setTimeout(() => {
-        const sel1 = document.getElementById('player_select_1');
-        if (sel1) {
-          const userOpt = Array.from(sel1.options).find(o => String(o.value) === String(tgUser.id));
-          if (userOpt) {
-            sel1.value = tgUser.id;
-            onPlayerSelectChange(1);
-          }
+      // Устанавливаем выбранные селекты
+      for (let i = 1; i <= count; i++) {
+        const saved = existingData[i - 1];
+        const sel = document.getElementById(`player_select_${i}`);
+        if (sel) {
+          sel.value = saved ? saved.selectVal : (i === 1 ? tgUser.id : 'custom');
+          onPlayerSelectChange(i);
         }
-      }, 50);
+      }
     }
 
     function onPlayerSelectChange(slotIdx) {
       const select = document.getElementById(`player_select_${slotIdx}`);
       const input = document.getElementById(`player_name_${slotIdx}`);
       const badge = document.getElementById(`player_badge_${slotIdx}`);
+      if (!select || !input || !badge) return;
 
       if (select.value === 'custom') {
         input.classList.remove('hidden');
@@ -1020,16 +1066,21 @@
           return;
         }
 
+        // Устанавливаем количество игроков равным количеству в слоте (в пределах от 4 до 8)
+        let count = rawPlayers.length;
+        if (count < 4) count = 4;
+        if (count > 8) count = 8;
+        
+        currentAmericanoPlayerCount = count;
         const countSelect = document.getElementById('quick_player_count');
-        if (rawPlayers.length >= 8) countSelect.value = "8";
-        else if (rawPlayers.length >= 6) countSelect.value = "6";
-        else countSelect.value = "4";
+        if (countSelect) countSelect.value = count;
 
         renderNameInputs();
 
         setTimeout(() => {
           rawPlayers.forEach((p, idx) => {
             const slotNum = idx + 1;
+            if (slotNum > 8) return;
             const select = document.getElementById(`player_select_${slotNum}`);
             const input = document.getElementById(`player_name_${slotNum}`);
 
@@ -1038,7 +1089,7 @@
               if (opt) {
                 select.value = p.user_id;
                 onPlayerSelectChange(slotNum);
-              } else if (p.profiles?.first_name) {
+              } else if (p.profiles?.first_name && input) {
                 input.value = `${p.profiles.first_name} ${p.profiles.last_name || ''}`.trim();
               }
             }
@@ -1050,7 +1101,7 @@
     }
 
     function startQuickAmericano() {
-      const count = parseInt(document.getElementById('quick_player_count').value) || 4;
+      const count = currentAmericanoPlayerCount;
       const cycles = parseInt(document.getElementById('quick_cycles').value) || 1;
       const players = [];
 
@@ -1065,7 +1116,7 @@
         });
       }
 
-      const baseRotation = AMERICANO_ROTATIONS[count];
+      const baseRotation = AMERICANO_ROTATIONS[count] || AMERICANO_ROTATIONS[4];
       const rounds = [];
       let roundIdCounter = 1;
       const roundsPerCycle = baseRotation[baseRotation.length - 1].round;
@@ -1076,7 +1127,7 @@
             id: roundIdCounter++,
             cycle: c,
             round: r.round + (c - 1) * roundsPerCycle,
-            court: r.court,
+            court: r.court || 1,
             team_a: [r.a[0], r.a[1]],
             team_b: [r.b[0], r.b[1]],
             score_a: 0,
@@ -1100,8 +1151,8 @@
         if (r.completed) {
           const sa = parseInt(r.score_a) || 0;
           const sb = parseInt(r.score_b) || 0;
-          r.team_a.forEach(pIdx => { leaderboard[pIdx].points += sa; leaderboard[pIdx].matches++; });
-          r.team_b.forEach(pIdx => { leaderboard[pIdx].points += sb; leaderboard[pIdx].matches++; });
+          r.team_a.forEach(pIdx => { if(leaderboard[pIdx]) { leaderboard[pIdx].points += sa; leaderboard[pIdx].matches++; } });
+          r.team_b.forEach(pIdx => { if(leaderboard[pIdx]) { leaderboard[pIdx].points += sb; leaderboard[pIdx].matches++; } });
         }
       });
 
@@ -1134,10 +1185,10 @@
       }).join('');
 
       let roundsHtml = rounds.map(r => {
-        const pA1 = players[r.team_a[0]]?.name;
-        const pA2 = players[r.team_a[1]]?.name;
-        const pB1 = players[r.team_b[0]]?.name;
-        const pB2 = players[r.team_b[1]]?.name;
+        const pA1 = players[r.team_a[0]]?.name || '—';
+        const pA2 = players[r.team_a[1]]?.name || '—';
+        const pB1 = players[r.team_b[0]]?.name || '—';
+        const pB2 = players[r.team_b[1]]?.name || '—';
 
         return `
           <div class="p-3 border border-slate-800/80 rounded-2xl bg-slate-900/50 space-y-2 text-xs">
@@ -1388,7 +1439,6 @@
         await syncUserProfile();
         await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: tgUser.id, slot_number: nextSlot }]);
         
-        // Вызов анимированного салюта и текста
         triggerSlotCelebration();
 
         renderMatchDetails(matchId);
