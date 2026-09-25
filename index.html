@@ -647,7 +647,7 @@
     async function fetchAllPlatformProfiles() {
       if (!supabaseClient) return;
       try {
-        const { data, error } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false });
+        const { data, error } = await supabaseClient.from('profiles').select('id, first_name, last_name, username, skill_level, preferred_side, phone, total_matches_played, wins, losses').order('total_matches_played', { ascending: false });
         if (!error && data) {
           platformProfilesList = data;
         }
@@ -681,7 +681,7 @@
     async function syncUserProfile() {
       if (!supabaseClient) return;
       try {
-        const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
+        const { data } = await supabaseClient.from('profiles').select('id, first_name, last_name, username, skill_level, preferred_side, phone, total_matches_played, wins, losses').eq('id', tgUser.id).maybeSingle();
         if (data) {
           currentUserProfile = data;
         } else {
@@ -695,7 +695,7 @@
             total_matches_played: 0,
             wins: 0,
             losses: 0,
-            updated_at: new Date()
+            updated_at: new Date().toISOString()
           };
           await supabaseClient.from('profiles').upsert(newProf);
           currentUserProfile = newProf;
@@ -1326,17 +1326,18 @@
       try {
         for (const p of localAmericanoState.players) {
           if (p.userId) {
-            const { data } = await supabaseClient.from('profiles').select('*').eq('id', p.userId).maybeSingle();
+            const { data } = await supabaseClient.from('profiles').select('total_matches_played').eq('id', p.userId).maybeSingle();
             if (data) {
               const currentMatches = data.total_matches_played || 0;
               await supabaseClient.from('profiles').update({
                 total_matches_played: currentMatches + 1,
-                updated_at: new Date()
+                updated_at: new Date().toISOString()
               }).eq('id', p.userId);
             }
           }
         }
         alert('Результаты турнира успешно сохранены в статистику профилей!');
+        await fetchAllPlatformProfiles();
       } catch(e) { alert('Ошибка записи: ' + e.message); }
     }
 
@@ -1366,7 +1367,7 @@
       }
     }
 
-    // --- ВКЛАДКА 3: ПРОФИЛЬ И ПАНЕЛЬ СОЗДАТЕЛЯ (МОДЕРАЦИЯ И УПРАВЛЕНИЕ ИГРОКАМИ) ---
+    // --- ВКЛАДКА 3: ПРОФИЛЬ И ПАНЕЛЬ СОЗДАТЕЛЯ ---
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
       container.innerHTML = `<div class="text-center py-10 text-slate-400">Loading profile...</div>`;
@@ -1410,7 +1411,7 @@
       if (isUserCreator()) {
         let allUsersManagementRows = platformProfilesList.map(item => `
           <div class="flex items-center justify-between p-2 bg-slate-950/50 rounded-xl text-xs gap-2">
-            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[140px] cursor-pointer underline decoration-dotted hover:text-amber-300" title="Нажмите для полного редактирования матчей и рейтинга">${item.first_name} (${item.total_matches_played || 0} матчей)</span>
+            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[140px] cursor-pointer underline decoration-dotted hover:text-amber-300" title="Нажмите для настройки матчей и рейтинга">${item.first_name} (${item.total_matches_played || 0} матчей)</span>
             <span class="text-[10px] bg-purple-500/20 text-purple-300 font-bold px-2 py-0.5 rounded">Lvl ${item.skill_level || 2.5}</span>
           </div>
         `).join('');
@@ -1565,14 +1566,16 @@
       const newLosses = parseInt(document.getElementById('ap_losses').value) || 0;
 
       try {
-        const { error } = await supabaseClient.from('profiles').upsert({
-          id: userId,
-          skill_level: newSkill,
-          total_matches_played: newMatches,
-          wins: newWins,
-          losses: newLosses,
-          updated_at: new Date()
-        });
+        const { error } = await supabaseClient
+          .from('profiles')
+          .update({
+            skill_level: newSkill,
+            total_matches_played: newMatches,
+            wins: newWins,
+            losses: newLosses,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId);
 
         if (error) throw error;
 
@@ -1592,15 +1595,16 @@
       const phone = document.getElementById('edit_phone').value.trim();
 
       try {
-        const updateObj = {
-          id: tgUser.id,
-          skill_level: newSkill,
-          preferred_side: side,
-          phone: phone,
-          updated_at: new Date()
-        };
+        const { error } = await supabaseClient
+          .from('profiles')
+          .update({
+            skill_level: newSkill,
+            preferred_side: side,
+            phone: phone,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', tgUser.id);
 
-        const { error } = await supabaseClient.from('profiles').upsert(updateObj);
         if (error) throw error;
 
         alert('Профиль успешно сохранен!');
