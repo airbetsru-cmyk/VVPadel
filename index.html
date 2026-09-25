@@ -113,7 +113,6 @@
     async function initApp() {
       document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
       
-      // Загрузка сохранённого турнира Американо из локальной памяти
       const savedState = localStorage.getItem('quick_americano_state');
       if (savedState) {
         try { localAmericanoState = JSON.parse(savedState); } catch(e){}
@@ -311,37 +310,43 @@
       }
     }
 
-    // --- 2. РЕЖИМ «БЫСТРЫЙ АМЕРИКАНО» (АВТОНОМНЫЙ КАЛЬКУЛЯТОР) ---
+    // --- 2. РЕЖИМ «БЫСТРЫЙ АМЕРИКАНО» С ВЫБОРОМ КРУГОВ И КНОПКОЙ ОК ---
     function renderQuickAmericano() {
       const container = document.getElementById('main-content');
 
-      // Если турнир уже запущен — показываем таблицу и сетку
       if (localAmericanoState && localAmericanoState.rounds) {
         renderQuickAmericanoBoard(container);
         return;
       }
 
-      // Если турнир ещё не запущен — показываем форму с ручным вводом имён
       container.innerHTML = `
         <h2 class="text-base font-bold mb-2 text-purple-900">🏆 Быстрый Американо</h2>
-        <p class="text-xs text-gray-500 mb-4">Введите имена игроков для моментальной генерации сетки и подсчёта мест.</p>
+        <p class="text-xs text-gray-500 mb-4">Укажите игроков и количество кругов для генерации сетки.</p>
 
         <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-medium text-gray-600 mb-1">Количество участников</label>
-            <select id="quick_player_count" onchange="renderNameInputs()" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-              <option value="4">4 игрока (1 корт)</option>
-              <option value="6">6 игроков (1 корт)</option>
-              <option value="8">8 игроков (2 корта)</option>
-            </select>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Участники</label>
+              <select id="quick_player_count" onchange="renderNameInputs()" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium">
+                <option value="4">4 игрока (1 корт)</option>
+                <option value="6">6 игроков (1 корт)</option>
+                <option value="8">8 игроков (2 корта)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Количество кругов</label>
+              <select id="quick_cycles" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium">
+                <option value="1">1 круг (3 игры)</option>
+                <option value="2">2 круга (6 игр)</option>
+                <option value="3">3 круга (9 игр)</option>
+              </select>
+            </div>
           </div>
 
-          <div id="names-container" class="space-y-2 pt-2">
-            <!-- Сюда сгенерируются поля ввода имён -->
-          </div>
+          <div id="names-container" class="space-y-2 pt-2"></div>
 
           <button onclick="startQuickAmericano()" class="w-full py-3 bg-purple-600 text-white font-bold rounded-xl shadow-md hover:bg-purple-700 text-sm mt-4">
-            🚀 Начать турнир и построить сетку
+            🚀 Начать турнир
           </button>
         </div>
       `;
@@ -349,7 +354,6 @@
       renderNameInputs();
     }
 
-    // Динамическая генерация полей ввода имён
     function renderNameInputs() {
       const count = parseInt(document.getElementById('quick_player_count').value) || 4;
       const container = document.getElementById('names-container');
@@ -363,9 +367,10 @@
       container.innerHTML = html;
     }
 
-    // Запуск турнира
+    // Генерация сетки на выбранное число кругов
     function startQuickAmericano() {
       const count = parseInt(document.getElementById('quick_player_count').value) || 4;
+      const cycles = parseInt(document.getElementById('quick_cycles').value) || 1;
       const players = [];
 
       for (let i = 1; i <= count; i++) {
@@ -376,26 +381,36 @@
         });
       }
 
-      const rotation = AMERICANO_ROTATIONS[count];
-      const rounds = rotation.map((r, index) => ({
-        id: index + 1,
-        round: r.round,
-        court: r.court,
-        team_a: [r.a[0], r.a[1]],
-        team_b: [r.b[0], r.b[1]],
-        score_a: 0,
-        score_b: 0,
-        completed: false
-      }));
+      const baseRotation = AMERICANO_ROTATIONS[count];
+      const rounds = [];
+      let roundIdCounter = 1;
 
-      localAmericanoState = { players, rounds };
+      const roundsPerCycle = baseRotation[baseRotation.length - 1].round;
+
+      for (let c = 1; c <= cycles; c++) {
+        baseRotation.forEach((r) => {
+          rounds.push({
+            id: roundIdCounter++,
+            cycle: c,
+            round: r.round + (c - 1) * roundsPerCycle,
+            court: r.court,
+            team_a: [r.a[0], r.a[1]],
+            team_b: [r.b[0], r.b[1]],
+            score_a: 0,
+            score_b: 0,
+            completed: false
+          });
+        });
+      }
+
+      localAmericanoState = { players, rounds, cycles };
       localStorage.setItem('quick_americano_state', JSON.stringify(localAmericanoState));
       renderQuickAmericano();
     }
 
-    // Отрисовка интерактивной турнирной таблицы и сетки
+    // Отрисовка Лидерборда и Сетки
     function renderQuickAmericanoBoard(container) {
-      const { players, rounds } = localAmericanoState;
+      const { players, rounds, cycles } = localAmericanoState;
 
       // Подсчет очков
       const leaderboard = players.map(p => ({ ...p, points: 0, matches: 0 }));
@@ -410,7 +425,6 @@
         }
       });
 
-      // Сортировка по очкам
       const sortedLeaderboard = [...leaderboard].sort((a, b) => b.points - a.points);
 
       let leaderboardHtml = sortedLeaderboard.map((item, index) => {
@@ -436,16 +450,23 @@
         return `
           <div class="p-3 border border-gray-200 rounded-xl bg-gray-50 space-y-2 text-xs">
             <div class="flex justify-between items-center text-gray-500 font-bold">
-              <span>Раунд ${r.round} ${r.court ? `(Корт #${r.court})` : ''}</span>
+              <span>Круг ${r.cycle} • Игра #${r.round} ${r.court ? `(Корт #${r.court})` : ''}</span>
               ${r.completed ? '<span class="text-green-600 font-bold">Завершён</span>' : '<span class="text-amber-600">Ожидает</span>'}
             </div>
             <div class="flex items-center justify-between gap-1">
               <div class="flex-1 text-center font-semibold text-gray-800">${pA1} / ${pA2}</div>
+              
+              <!-- Ввод очков и кнопка ОК -->
               <div class="flex items-center gap-1">
-                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a}" oninput="updateQuickScore(${r.id})" class="w-10 text-center p-1 border rounded font-bold bg-white text-sm">
-                <span>:</span>
-                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b}" oninput="updateQuickScore(${r.id})" class="w-10 text-center p-1 border rounded font-bold bg-white text-sm">
+                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-11 text-center p-1.5 border border-gray-300 rounded-lg font-bold bg-white text-sm focus:border-purple-600 focus:outline-none">
+                <span class="font-bold text-gray-400">:</span>
+                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-11 text-center p-1.5 border border-gray-300 rounded-lg font-bold bg-white text-sm focus:border-purple-600 focus:outline-none">
+                
+                <button onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-lg font-bold text-xs hover:bg-purple-700 active:scale-95 transition-all shadow-sm">
+                  ОК
+                </button>
               </div>
+
               <div class="flex-1 text-center font-semibold text-gray-800">${pB1} / ${pB2}</div>
             </div>
           </div>
@@ -457,13 +478,13 @@
           <div class="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 rounded-xl text-white flex justify-between items-center">
             <div>
               <h2 class="text-base font-bold">🏆 Калькулятор Американо</h2>
-              <p class="text-xs opacity-80">Введите очки — рейтинг пересчитается автоматически</p>
+              <p class="text-xs opacity-80">Всего игр: ${rounds.length} (${cycles || 1} ${cycles > 1 ? 'круга' : 'круг'})</p>
             </div>
             <button onclick="resetQuickAmericano()" class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-semibold">Сброс</button>
           </div>
 
           <div class="bg-white border rounded-xl p-3 shadow-sm">
-            <h3 class="text-xs font-bold text-gray-700 mb-2">Текущий Лидерборд</h3>
+            <h3 class="text-xs font-bold text-gray-700 mb-2">Общий Лидерборд</h3>
             ${leaderboardHtml}
           </div>
 
@@ -475,22 +496,25 @@
       `;
     }
 
-    // Автоматическое обновление очков "на лету" при вводе
-    function updateQuickScore(roundId) {
-      const scoreA = parseInt(document.getElementById(`quick_score_a_${roundId}`).value) || 0;
-      const scoreB = parseInt(document.getElementById(`quick_score_b_${roundId}`).value) || 0;
+    // Сохранение очков конкретной игры
+    function saveQuickScore(roundId) {
+      const inputA = document.getElementById(`quick_score_a_${roundId}`);
+      const inputB = document.getElementById(`quick_score_b_${roundId}`);
+
+      const scoreA = parseInt(inputA.value) || 0;
+      const scoreB = parseInt(inputB.value) || 0;
 
       const round = localAmericanoState.rounds.find(r => r.id === roundId);
       if (round) {
         round.score_a = scoreA;
         round.score_b = scoreB;
         round.completed = (scoreA > 0 || scoreB > 0);
+        
         localStorage.setItem('quick_americano_state', JSON.stringify(localAmericanoState));
         renderQuickAmericanoBoard(document.getElementById('main-content'));
       }
     }
 
-    // Сброс и создание нового турнира
     function resetQuickAmericano() {
       if (confirm('Начать новый турнир? Текущий счёт будет сброшен.')) {
         localAmericanoState = null;
