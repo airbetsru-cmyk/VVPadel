@@ -96,6 +96,12 @@
 
     .btn-3d { transition: all 0.15s ease; }
     .btn-3d:active { transform: translateY(2px) scale(0.98); }
+
+    /* Кастомная стилизация поля даты */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+    }
   </style>
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white">
@@ -341,6 +347,19 @@
     }
     animateBalls();
 
+    // --- ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ РАСЧЁТА ВОЗРАСТА ---
+    function calculateAge(birthDateStr) {
+      if (!birthDateStr) return null;
+      const today = new Date();
+      const birthDate = new Date(birthDateStr);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      return age >= 0 ? age : null;
+    }
+
     // --- 2. МУЛЬТИЯЗЫЧНОСТЬ ---
     const TRANSLATIONS = {
       ru: {
@@ -360,15 +379,13 @@
         joinSlot: "Занять слот",
         leaveGame: "Покинуть игру",
         copyLink: "📋 Скопировать ссылку на игру",
-        editProfile: "Профиль игрока",
-        skillLevel: "Уровень игры (1.0 - 7.0)",
-        preferredSide: "Сторона на корте",
-        phone: "Номер телефона",
-        age: "Возраст (лет)",
+        editProfile: "Настройки профиля",
+        birthDate: "Дата рождения",
         gender: "Пол",
         male: "Мужской 👨",
         female: "Женский 👩",
         unspecified: "Не указан",
+        phone: "Номер телефона",
         saveProfile: "Сохранить профиль",
         stats: "Статистика игрока",
         matches: "Матчи",
@@ -408,15 +425,13 @@
         joinSlot: "Ocupă un loc",
         leaveGame: "Părăsește jocul",
         copyLink: "📋 Copiază link-ul jocului",
-        editProfile: "Profilul jucătorului",
-        skillLevel: "Nivel de joc (1.0 - 7.0)",
-        preferredSide: "Parte pe teren",
-        phone: "Număr de telefon",
-        age: "Vârstă (ani)",
+        editProfile: "Setări profil",
+        birthDate: "Data nașterii",
         gender: "Gen",
         male: "Masculin 👨",
         female: "Feminin 👩",
         unspecified: "Nespecificat",
+        phone: "Număr de telefon",
         saveProfile: "Salvează profilul",
         stats: "Statistici jucător",
         matches: "Meciuri",
@@ -456,15 +471,13 @@
         joinSlot: "Take Slot",
         leaveGame: "Leave Game",
         copyLink: "📋 Copy Game Link",
-        editProfile: "Player Profile",
-        skillLevel: "Skill Level (1.0 - 7.0)",
-        preferredSide: "Preferred Side",
-        phone: "Phone Number",
-        age: "Age (years)",
+        editProfile: "Profile Settings",
+        birthDate: "Date of Birth",
         gender: "Gender",
         male: "Male 👨",
         female: "Female 👩",
         unspecified: "Unspecified",
+        phone: "Phone Number",
         saveProfile: "Save Profile",
         stats: "Player Statistics",
         matches: "Matches",
@@ -665,11 +678,11 @@
       try {
         const { data, error } = await supabaseClient
           .from('profiles')
-          .select('id, first_name, last_name, username, skill_level, rating_americano, rating_friendly, rating_competitive, preferred_side, phone, age, gender, total_matches_played, wins, losses')
+          .select('id, first_name, last_name, username, skill_level, rating_americano, rating_friendly, rating_competitive, preferred_side, phone, birth_date, gender, total_matches_played, wins, losses')
           .order('total_matches_played', { ascending: false });
         
         if (!error && data) {
-          // СТРОГАЯ ФИЛЬТРАЦИЯ: оставляем ТОЛЬКО людей, зарегистрированных на платформе (существующих игроков)
+          // СТРОГАЯ ФИЛЬТРАЦИЯ: только существующие игроки с заполненным именем
           platformProfilesList = data.filter(p => p.first_name && p.first_name.trim() !== '' && p.id);
         }
       } catch(e) {}
@@ -716,7 +729,7 @@
             rating_friendly: 1000,
             rating_competitive: 1000,
             preferred_side: 'both',
-            age: null,
+            birth_date: null,
             gender: null,
             total_matches_played: 0,
             wins: 0,
@@ -1524,7 +1537,7 @@
         rating_competitive: 1000,
         preferred_side: 'both',
         phone: '+373 60 217 449',
-        age: null,
+        birth_date: null,
         gender: null,
         total_matches_played: 0,
         wins: 0,
@@ -1536,15 +1549,17 @@
       const total = p.total_matches_played || (wins + losses);
       const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
 
-      let sideLabel = t('bothSides');
-      if (p.preferred_side === 'left') sideLabel = t('leftSide');
-      if (p.preferred_side === 'right') sideLabel = t('rightSide');
+      // Динамический расчёт текущего возраста пользователя
+      const calculatedAge = calculateAge(p.birth_date);
+      let ageLabel = calculatedAge ? ` • 🎂 ${calculatedAge} лет` : '';
 
       let genderLabel = '';
       if (p.gender === 'male') genderLabel = ' • 👨 Мужской';
       else if (p.gender === 'female') genderLabel = ' • 👩 Женский';
 
-      let ageLabel = p.age ? ` • 🎂 ${p.age} лет` : '';
+      let sideLabel = t('bothSides');
+      if (p.preferred_side === 'left') sideLabel = t('leftSide');
+      if (p.preferred_side === 'right') sideLabel = t('rightSide');
 
       // Фильтрация: берем строго реальных людей платформы (с заполнением имени)
       let sortedList = platformProfilesList.filter(user => user.first_name && user.first_name.trim() !== '');
@@ -1567,7 +1582,8 @@
         else if (currentLeaderboardTab === 'competitive') valBadge = `${item.rating_competitive || 1000} ELO`;
 
         let itemGenderIcon = item.gender === 'male' ? '👨 ' : (item.gender === 'female' ? '👩 ' : '');
-        let itemAgeStr = item.age ? ` (${item.age} л.)` : '';
+        let itemAge = calculateAge(item.birth_date);
+        let itemAgeStr = itemAge ? ` (${itemAge} л.)` : '';
 
         return `
           <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs">
@@ -1610,7 +1626,34 @@
 
       container.innerHTML = `
         <div class="space-y-4">
-          <!-- Главная Карточка профиля -->
+          <!-- 1. МУЛЬТИ-ТАБОВЫЙ НАЦИОНАЛЬНЫЙ РЕЙТИНГ МОЛДОВЫ (В САМОМ ВЕРХУ) -->
+          <div class="bg-slate-900/60 p-3.5 rounded-3xl border border-white/5 space-y-3">
+            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              🇲🇩 Система Рейтингов Молдовы
+            </h3>
+
+            <!-- Табы выбора категории рейтинга -->
+            <div class="grid grid-cols-4 gap-1 bg-slate-950 p-1 rounded-xl text-[10px] font-extrabold uppercase text-center border border-white/5">
+              <button onclick="setLeaderboardTab('national')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'national' ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
+                🇲🇩 Общий
+              </button>
+              <button onclick="setLeaderboardTab('americano')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'americano' ? 'bg-purple-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
+                🏆 Американо
+              </button>
+              <button onclick="setLeaderboardTab('friendly')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'friendly' ? 'bg-blue-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
+                🤝 Дружеский
+              </button>
+              <button onclick="setLeaderboardTab('competitive')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'competitive' ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
+                ⚔️ Ranked
+              </button>
+            </div>
+
+            <div class="divide-y divide-white/5">
+              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные игроки отсутствуют...</p>'}
+            </div>
+          </div>
+
+          <!-- 2. Главная Карточка профиля -->
           <div class="bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-500 p-4 rounded-3xl text-white shadow-xl shadow-blue-500/20 shimmer-border space-y-3">
             <div class="flex items-center justify-between">
               <div>
@@ -1661,58 +1704,16 @@
 
           ${creatorAdminPanelHtml}
 
-          <!-- МУЛЬТИ-ТАБОВЫЙ НАЦИОНАЛЬНЫЙ РЕЙТИНГ МОЛДОВЫ -->
-          <div class="bg-slate-900/60 p-3.5 rounded-3xl border border-white/5 space-y-3">
-            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              🇲🇩 Система Рейтингов Молдовы
-            </h3>
-
-            <!-- Табы выбора категории рейтинга -->
-            <div class="grid grid-cols-4 gap-1 bg-slate-950 p-1 rounded-xl text-[10px] font-extrabold uppercase text-center border border-white/5">
-              <button onclick="setLeaderboardTab('national')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'national' ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
-                🇲🇩 Общий
-              </button>
-              <button onclick="setLeaderboardTab('americano')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'americano' ? 'bg-purple-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
-                🏆 Американо
-              </button>
-              <button onclick="setLeaderboardTab('friendly')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'friendly' ? 'bg-blue-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
-                🤝 Дружеский
-              </button>
-              <button onclick="setLeaderboardTab('competitive')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'competitive' ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
-                ⚔️ Ranked
-              </button>
-            </div>
-
-            <div class="divide-y divide-white/5">
-              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные игроки отсутствуют...</p>'}
-            </div>
-          </div>
-
-          <!-- Редактирование профиля -->
+          <!-- 3. Настройки профиля пользователя -->
           <div class="bg-slate-900/60 p-3.5 rounded-3xl border border-white/5 space-y-3">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('editProfile')}</h3>
             
             <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
+              <!-- Дата рождения и Пол -->
               <div class="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label class="block text-slate-400 font-semibold mb-1">${t('skillLevel')}</label>
-                  <input type="number" id="edit_skill_level" step="0.1" min="1.0" max="7.0" value="${p.skill_level || 2.5}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">${t('preferredSide')}</label>
-                  <select id="edit_preferred_side" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
-                    <option value="both" ${p.preferred_side === 'both' ? 'selected' : ''}>${t('bothSides')}</option>
-                    <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
-                    <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
-                  </select>
-                </div>
-              </div>
-
-              <!-- Возраст и Пол -->
-              <div class="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">${t('age')}</label>
-                  <input type="number" id="edit_age" min="10" max="99" placeholder="Напр. 25" value="${p.age || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                  <label class="block text-slate-400 font-semibold mb-1">${t('birthDate')}</label>
+                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
                 </div>
                 <div>
                   <label class="block text-slate-400 font-semibold mb-1">${t('gender')}</label>
@@ -1840,23 +1841,17 @@
 
     async function saveProfileData(e) {
       e.preventDefault();
-      const newSkill = parseFloat(document.getElementById('edit_skill_level').value) || 2.5;
-      const side = document.getElementById('edit_preferred_side').value;
-      const phone = document.getElementById('edit_phone').value.trim();
-      
-      const ageVal = parseInt(document.getElementById('edit_age').value);
-      const age = !isNaN(ageVal) && ageVal > 0 ? ageVal : null;
+      const birthDate = document.getElementById('edit_birth_date').value || null;
       const gender = document.getElementById('edit_gender').value || null;
+      const phone = document.getElementById('edit_phone').value.trim();
 
       try {
         const { error } = await supabaseClient
           .from('profiles')
           .update({
-            skill_level: newSkill,
-            preferred_side: side,
-            phone: phone,
-            age: age,
+            birth_date: birthDate,
             gender: gender,
+            phone: phone,
             updated_at: new Date().toISOString()
           })
           .eq('id', tgUser.id);
