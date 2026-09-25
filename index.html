@@ -38,7 +38,7 @@
       z-index: 1;
     }
 
-    /* Эффект матового стекла с переливающейся рамкой */
+    /* Эффект матового стекла */
     .glass-card {
       background: rgba(18, 26, 43, 0.82);
       backdrop-filter: blur(18px);
@@ -48,7 +48,7 @@
       position: relative;
     }
 
-    /* Анимированная переливающаяся рамка */
+    /* Анимированная рамка */
     .shimmer-border {
       position: relative;
     }
@@ -72,7 +72,6 @@
       100% { background-position: 300% 0%; }
     }
 
-    /* 3D парение ракетки */
     .floating-racket {
       animation: float3d 3.5s ease-in-out infinite;
       transform-style: preserve-3d;
@@ -82,19 +81,12 @@
       50% { transform: translateY(-6px) rotate(5deg) rotateY(15deg); }
     }
 
-    /* Неоновые свечения */
     .neon-glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.45); }
     .neon-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.45); }
     .neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.45); }
 
     .btn-3d { transition: all 0.15s ease; }
     .btn-3d:active { transform: translateY(2px) scale(0.98); }
-
-    /* Визуализация мини-корта */
-    .court-bg {
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(9, 13, 22, 0.9) 100%), #0d192b;
-      border: 2px solid rgba(16, 185, 129, 0.4);
-    }
   </style>
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white">
@@ -105,7 +97,7 @@
   <div class="bg-overlay p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <!-- Шапка с 3D анимированной ракеткой -->
+      <!-- Шапка -->
       <div class="glass-card shimmer-border p-4 rounded-3xl space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -126,7 +118,7 @@
           </div>
         </div>
 
-        <!-- Переключатель вкладок (3 вкладки) -->
+        <!-- Вкладки -->
         <div class="grid grid-cols-3 gap-1 bg-slate-950/60 p-1.5 rounded-2xl border border-white/5">
           <button id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
             🎾 <span id="txt-tab-booking">Слоты</span>
@@ -140,7 +132,7 @@
         </div>
       </div>
 
-      <!-- Блок ошибок -->
+      <!-- Ошибки -->
       <div id="error-box" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-300 p-3.5 rounded-2xl text-xs font-mono break-all"></div>
 
       <!-- Главный контент -->
@@ -156,7 +148,7 @@
   </div>
 
   <script>
-    // --- 1. CANVAS АНИМАЦИЯ ПАДАЮЩИХ ПАДЕЛЬНЫХ МЯЧЕЙ ---
+    // --- 1. CANVAS АНИМАЦИЯ МЯЧЕЙ ---
     const canvas = document.getElementById('ball-canvas');
     const ctx = canvas.getContext('2d');
     let width, height;
@@ -228,7 +220,7 @@
     }
     animateBalls();
 
-    // --- 2. МУЛЬТИЯЗЫЧНОСТЬ (I18N) ---
+    // --- 2. МУЛЬТИЯЗЫЧНОСТЬ ---
     const TRANSLATIONS = {
       ru: {
         tabBooking: "Слоты",
@@ -261,12 +253,13 @@
         bothSides: "Обе стороны",
         friendly: "Дружеский",
         competitive: "Рейтинговый",
+        americanoFormat: "Американо",
         occupied: "Занят",
         free: "Свободно",
-        chatTitle: "💬 Чат игроков",
+        chatTitle: "💬 Чат участников слота",
         chatPlaceholder: "Напишите сообщение...",
         sendBtn: "Отправить",
-        courtLayout: "🏟️ Схема корта"
+        creatorTag: "👑 Организатор игры"
       },
       ro: {
         tabBooking: "Sloturi",
@@ -299,12 +292,13 @@
         bothSides: "Ambele părți",
         friendly: "Amical",
         competitive: "Competitiv",
+        americanoFormat: "Americano",
         occupied: "Ocupat",
         free: "Liber",
         chatTitle: "💬 Chat jucători",
         chatPlaceholder: "Scrie un mesaj...",
         sendBtn: "Trimite",
-        courtLayout: "🏟️ Schema terenului"
+        creatorTag: "👑 Organizator joc"
       },
       en: {
         tabBooking: "Slots",
@@ -337,12 +331,13 @@
         bothSides: "Both sides",
         friendly: "Friendly",
         competitive: "Ranked",
+        americanoFormat: "Americano",
         occupied: "Occupied",
         free: "Free",
-        chatTitle: "💬 Players Chat",
+        chatTitle: "💬 Slot Chat",
         chatPlaceholder: "Type a message...",
         sendBtn: "Send",
-        courtLayout: "🏟️ Court Layout"
+        creatorTag: "👑 Game Host"
       }
     };
 
@@ -372,7 +367,7 @@
       switchTab(activeTab);
     }
 
-    // --- 3. SUPABASE И TELEGRAM ЛОГИКА ---
+    // --- 3. SUPABASE И TELEGRAM ---
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot';
@@ -511,7 +506,7 @@
               <select id="max_players" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm font-semibold text-white">
                 <option value="4">4 ${t('maxPlayers').toLowerCase()} (2х2)</option>
                 <option value="6">6 ${t('maxPlayers').toLowerCase()} (Americano)</option>
-                <option value="8">8 ${t('maxPlayers').toLowerCase()} (2 courts)</option>
+                <option value="8">8 ${t('maxPlayers').toLowerCase()} (2 корта)</option>
               </select>
             </div>
             <div>
@@ -519,6 +514,7 @@
               <select id="match_type" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm font-semibold text-white">
                 <option value="friendly">${t('friendly')}</option>
                 <option value="competitive">${t('competitive')}</option>
+                <option value="americano">${t('americanoFormat')}</option>
               </select>
             </div>
           </div>
@@ -608,26 +604,25 @@
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
           if (p) {
             const name = p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Player');
+            const isCreator = String(p.user_id) === String(match.creator_id);
+
             slotsHtml += `
-              <div class="flex items-center justify-between p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl">
-                <span class="text-xs font-bold text-emerald-300">Slot #${i}: ${name}</span>
-                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
+              <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-1">
+                ${isCreator ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-emerald-300">Слот #${i}: ${name}</span>
+                  <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
+                </div>
               </div>`;
           } else {
             slotsHtml += `
               <div class="p-3 bg-slate-900/50 border border-dashed border-slate-700/60 rounded-2xl text-slate-500 text-xs font-semibold">
-                Slot #${i}: ${t('free')}
+                Слот #${i}: ${t('free')}
               </div>`;
           }
         }
 
-        // Подготовка данных для визуального корта
-        const p1 = players[0]?.profiles?.first_name || (players[0] ? tgUser.first_name : t('free'));
-        const p2 = players[1]?.profiles?.first_name || (players[1] ? 'Игрок 2' : t('free'));
-        const p3 = players[2]?.profiles?.first_name || (players[2] ? 'Игрок 3' : t('free'));
-        const p4 = players[3]?.profiles?.first_name || (players[3] ? 'Игрок 4' : t('free'));
-
-        // Получение сообщений чата
+        // Загрузка сообщений чата
         let messagesList = localMatchMessages[matchId] || [];
         try {
           const { data: dbMsgs } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
@@ -657,40 +652,9 @@
               <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
             </div>
 
-            <!-- ИНТЕРАКТИВНЫЙ МИНИ-КОРТ (2D/3D Визуализация) -->
-            <div class="space-y-2">
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('courtLayout')}</h3>
-              <div class="court-bg p-3 rounded-2xl border border-emerald-500/30 space-y-2">
-                <div class="grid grid-cols-2 gap-2 text-center text-[11px] font-bold">
-                  <div class="p-2 bg-emerald-500/20 rounded-xl border border-emerald-500/40 text-emerald-300">
-                    <span class="block text-[9px] text-slate-400 uppercase">Team A (L)</span>
-                    ${p1}
-                  </div>
-                  <div class="p-2 bg-emerald-500/20 rounded-xl border border-emerald-500/40 text-emerald-300">
-                    <span class="block text-[9px] text-slate-400 uppercase">Team A (R)</span>
-                    ${p2}
-                  </div>
-                </div>
-                <!-- Сетка корта -->
-                <div class="border-t-2 border-dashed border-emerald-400/60 my-1 relative flex justify-center">
-                  <span class="absolute -top-2.5 bg-slate-900 px-2 py-0.5 text-[9px] font-black text-emerald-400 rounded-full border border-emerald-500/40">NET</span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-center text-[11px] font-bold">
-                  <div class="p-2 bg-blue-500/20 rounded-xl border border-blue-500/40 text-blue-300">
-                    <span class="block text-[9px] text-slate-400 uppercase">Team B (L)</span>
-                    ${p3}
-                  </div>
-                  <div class="p-2 bg-blue-500/20 rounded-xl border border-blue-500/40 text-blue-300">
-                    <span class="block text-[9px] text-slate-400 uppercase">Team B (R)</span>
-                    ${p4}
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <!-- Список слотов -->
             <div class="border-t border-white/10 pt-3">
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
               <div class="space-y-2">${slotsHtml}</div>
             </div>
 
