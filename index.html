@@ -475,6 +475,7 @@
     };
 
     let currentLang = localStorage.getItem('padel_lang') || 'ru';
+    let currentLeaderboardTab = 'national'; // 'national' | 'americano' | 'friendly' | 'competitive'
 
     function t(key) {
       return TRANSLATIONS[currentLang][key] || key;
@@ -647,7 +648,10 @@
     async function fetchAllPlatformProfiles() {
       if (!supabaseClient) return;
       try {
-        const { data, error } = await supabaseClient.from('profiles').select('id, first_name, last_name, username, skill_level, preferred_side, phone, total_matches_played, wins, losses').order('total_matches_played', { ascending: false });
+        const { data, error } = await supabaseClient
+          .from('profiles')
+          .select('id, first_name, last_name, username, skill_level, rating_americano, rating_friendly, rating_competitive, preferred_side, phone, total_matches_played, wins, losses')
+          .order('total_matches_played', { ascending: false });
         if (!error && data) {
           platformProfilesList = data;
         }
@@ -681,7 +685,7 @@
     async function syncUserProfile() {
       if (!supabaseClient) return;
       try {
-        const { data } = await supabaseClient.from('profiles').select('id, first_name, last_name, username, skill_level, preferred_side, phone, total_matches_played, wins, losses').eq('id', tgUser.id).maybeSingle();
+        const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
         if (data) {
           currentUserProfile = data;
         } else {
@@ -691,6 +695,9 @@
             last_name: tgUser.last_name || null,
             username: tgUser.username || null,
             skill_level: 2.5,
+            rating_americano: 1000,
+            rating_friendly: 1000,
+            rating_competitive: 1000,
             preferred_side: 'both',
             total_matches_played: 0,
             wins: 0,
@@ -971,15 +978,21 @@
 
     async function adjustMatchMaxPlayers(matchId, currentMax, delta) {
       const newMax = currentMax + delta;
-      if (newMax < 2) {
-        alert('Минимальное количество мест: 2');
+      if (newMax < 1) {
+        alert('Минимальное количество мест: 1');
         return;
       }
 
       try {
+        const updatePayload = { max_players: newMax };
+        // При добавлении слота открываем регистрацию, чтобы место стало видимым и доступным
+        if (delta > 0) {
+          updatePayload.is_registration_closed = false;
+        }
+
         const { error } = await supabaseClient
           .from('matches')
-          .update({ max_players: newMax })
+          .update(updatePayload)
           .eq('id', matchId);
 
         if (error) throw error;
@@ -1448,18 +1461,26 @@
       }
     }
 
-    // --- ВКЛАДКА 3: ПРОФИЛЬ И ПАНЕЛЬ СОЗДАТЕЛЯ ---
+    // --- ВКЛАДКА 3: ПРОФИЛЬ И СИСТЕМА РЕЙТИНГОВ ---
+    function setLeaderboardTab(tab) {
+      currentLeaderboardTab = tab;
+      renderProfileTab();
+    }
+
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
-      container.innerHTML = `<div class="text-center py-10 text-slate-400">Loading profile...</div>`;
+      container.innerHTML = `<div class="text-center py-10 text-slate-400">Загрузка профиля...</div>`;
 
       await fetchAllPlatformProfiles();
 
       const p = currentUserProfile || {
         first_name: tgUser.first_name,
         skill_level: 2.5,
+        rating_americano: 1000,
+        rating_friendly: 1000,
+        rating_competitive: 1000,
         preferred_side: 'both',
-        phone: '060217449',
+        phone: '+373 60 217 449',
         total_matches_played: 0,
         wins: 0,
         losses: 0
@@ -1474,25 +1495,44 @@
       if (p.preferred_side === 'left') sideLabel = t('leftSide');
       if (p.preferred_side === 'right') sideLabel = t('rightSide');
 
-      let leaderboard = platformProfilesList;
-      let leaderboardRows = leaderboard.map((item, index) => `
-        <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs">
-          <div class="flex items-center gap-2">
-            <span class="font-black ${index < 3 ? 'text-amber-400' : 'text-slate-500'}">#${index + 1}</span>
-            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white ${isUserCreator() ? 'cursor-pointer underline decoration-dotted hover:text-amber-300' : ''}" title="${isUserCreator() ? 'Нажмите для управления игроком' : ''}">${item.first_name} ${item.last_name || ''}</span>
+      // Формирование динамических списков лидеров
+      let sortedList = [...platformProfilesList];
+      if (currentLeaderboardTab === 'national') {
+        sortedList.sort((a, b) => (b.skill_level || 2.5) - (a.skill_level || 2.5));
+      } else if (currentLeaderboardTab === 'americano') {
+        sortedList.sort((a, b) => (b.rating_americano || 1000) - (a.rating_americano || 1000));
+      } else if (currentLeaderboardTab === 'friendly') {
+        sortedList.sort((a, b) => (b.rating_friendly || 1000) - (a.rating_friendly || 1000));
+      } else if (currentLeaderboardTab === 'competitive') {
+        sortedList.sort((a, b) => (b.rating_competitive || 1000) - (a.rating_competitive || 1000));
+      }
+
+      let leaderboardRows = sortedList.map((item, index) => {
+        let valBadge = '';
+        if (currentLeaderboardTab === 'national') valBadge = `Lvl ${item.skill_level || 2.5}`;
+        else if (currentLeaderboardTab === 'americano') valBadge = `${item.rating_americano || 1000} PTS`;
+        else if (currentLeaderboardTab === 'friendly') valBadge = `${item.rating_friendly || 1000} PTS`;
+        else if (currentLeaderboardTab === 'competitive') valBadge = `${item.rating_competitive || 1000} ELO`;
+
+        return `
+          <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="font-black ${index < 3 ? 'text-amber-400 font-mono text-sm' : 'text-slate-500'}">#${index + 1}</span>
+              <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white ${isUserCreator() ? 'cursor-pointer underline decoration-dotted hover:text-amber-300' : ''}">${item.first_name} ${item.last_name || ''}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2.5 py-1 rounded-full uppercase">${valBadge}</span>
+              <span class="font-extrabold text-slate-400 text-[11px]">${item.total_matches_played || 0} игр</span>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] bg-blue-500/20 text-blue-300 font-extrabold px-2 py-0.5 rounded-full">Lvl ${item.skill_level || 2.5}</span>
-            <span class="font-extrabold text-slate-300">${item.total_matches_played || 0} ${t('matches').toLowerCase()}</span>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       let creatorAdminPanelHtml = '';
       if (isUserCreator()) {
         let allUsersManagementRows = platformProfilesList.map(item => `
           <div class="flex items-center justify-between p-2 bg-slate-950/50 rounded-xl text-xs gap-2">
-            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[140px] cursor-pointer underline decoration-dotted hover:text-amber-300" title="Нажмите для настройки матчей и рейтинга">${item.first_name} (${item.total_matches_played || 0} матчей)</span>
+            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[140px] cursor-pointer underline decoration-dotted hover:text-amber-300">${item.first_name} (${item.total_matches_played || 0} матчей)</span>
             <span class="text-[10px] bg-purple-500/20 text-purple-300 font-bold px-2 py-0.5 rounded">Lvl ${item.skill_level || 2.5}</span>
           </div>
         `).join('');
@@ -1504,7 +1544,7 @@
             </h3>
             
             <div class="space-y-2">
-              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Все игроки платформы (Нажмите на имя для настройки матчей и рейтинга):</p>
+              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Все игроки платформы (Нажмите на имя для настройки всех рейтингов):</p>
               <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
                 ${allUsersManagementRows}
               </div>
@@ -1515,43 +1555,86 @@
 
       container.innerHTML = `
         <div class="space-y-4">
-          <!-- Карточка игрока -->
-          <div class="bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-500 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/20 shimmer-border">
+          <!-- Главная Карточка профиля -->
+          <div class="bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-500 p-4 rounded-3xl text-white shadow-xl shadow-blue-500/20 shimmer-border space-y-3">
             <div class="flex items-center justify-between">
               <div>
-                <h2 class="text-lg font-black">${p.first_name} ${p.last_name || ''}</h2>
-                <p class="text-xs opacity-80">Skill Level: ${p.skill_level || 2.5} • ${sideLabel}</p>
+                <h2 class="text-lg font-black tracking-tight">${p.first_name} ${p.last_name || ''}</h2>
+                <p class="text-xs opacity-90 font-medium">Национальный Уровень: <strong class="text-amber-300 font-extrabold">${p.skill_level || 2.5}</strong> • ${sideLabel}</p>
               </div>
-              <div class="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-2xl font-black">
+              <div class="w-11 h-11 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-2xl font-black">
                 🎾
               </div>
             </div>
 
-            <!-- Статистика -->
-            <div class="grid grid-cols-4 gap-1.5 mt-4 pt-3 border-t border-white/20 text-center">
+            <!-- Детализированная шкала рейтингов -->
+            <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/20 text-center font-mono">
+              <div class="bg-slate-950/40 p-2 rounded-xl border border-white/10">
+                <p class="text-[9px] text-cyan-200 uppercase font-black">🏆 Американо</p>
+                <p class="text-xs font-black text-white mt-0.5">${p.rating_americano || 1000} <span class="text-[9px]">PTS</span></p>
+              </div>
+              <div class="bg-slate-950/40 p-2 rounded-xl border border-white/10">
+                <p class="text-[9px] text-emerald-200 uppercase font-black">🤝 Дружеский</p>
+                <p class="text-xs font-black text-white mt-0.5">${p.rating_friendly || 1000} <span class="text-[9px]">PTS</span></p>
+              </div>
+              <div class="bg-slate-950/40 p-2 rounded-xl border border-white/10">
+                <p class="text-[9px] text-amber-200 uppercase font-black">⚔️ Соревнование</p>
+                <p class="text-xs font-black text-white mt-0.5">${p.rating_competitive || 1000} <span class="text-[9px]">ELO</span></p>
+              </div>
+            </div>
+
+            <!-- Статистика игр -->
+            <div class="grid grid-cols-4 gap-1 pt-1 text-center font-bold">
               <div>
-                <p class="text-[10px] opacity-75 uppercase font-bold">${t('matches')}</p>
-                <p class="text-sm font-black">${total}</p>
+                <p class="text-[9px] opacity-75 uppercase">Матчи</p>
+                <p class="text-xs font-black">${total}</p>
               </div>
               <div>
-                <p class="text-[10px] opacity-75 uppercase font-bold">${t('wins')}</p>
-                <p class="text-sm font-black text-emerald-300">${wins}</p>
+                <p class="text-[9px] opacity-75 uppercase">Победы</p>
+                <p class="text-xs font-black text-emerald-300">${wins}</p>
               </div>
               <div>
-                <p class="text-[10px] opacity-75 uppercase font-bold">${t('losses')}</p>
-                <p class="text-sm font-black text-rose-300">${losses}</p>
+                <p class="text-[9px] opacity-75 uppercase">Поражения</p>
+                <p class="text-xs font-black text-rose-300">${losses}</p>
               </div>
               <div>
-                <p class="text-[10px] opacity-75 uppercase font-bold">${t('winrate')}</p>
-                <p class="text-sm font-black text-amber-300">${winrate}%</p>
+                <p class="text-[9px] opacity-75 uppercase">Винрейт</p>
+                <p class="text-xs font-black text-amber-300">${winrate}%</p>
               </div>
             </div>
           </div>
 
           ${creatorAdminPanelHtml}
 
+          <!-- МУЛЬТИ-ТАБОВЫЙ НАЦИОНАЛЬНЫЙ РЕЙТИНГ МОЛДОВЫ -->
+          <div class="bg-slate-900/60 p-3.5 rounded-3xl border border-white/5 space-y-3">
+            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              🇲🇩 Система Рейтингов Молдовы
+            </h3>
+
+            <!-- Табы выбора категории рейтинга -->
+            <div class="grid grid-cols-4 gap-1 bg-slate-950 p-1 rounded-xl text-[10px] font-extrabold uppercase text-center border border-white/5">
+              <button onclick="setLeaderboardTab('national')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'national' ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
+                🇲🇩 Общий
+              </button>
+              <button onclick="setLeaderboardTab('americano')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'americano' ? 'bg-purple-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
+                🏆 Американо
+              </button>
+              <button onclick="setLeaderboardTab('friendly')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'friendly' ? 'bg-blue-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
+                🤝 Дружеский
+              </button>
+              <button onclick="setLeaderboardTab('competitive')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'competitive' ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
+                ⚔️ Ranked
+              </button>
+            </div>
+
+            <div class="divide-y divide-white/5">
+              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-2">Рейтинг формируется...</p>'}
+            </div>
+          </div>
+
           <!-- Редактирование профиля -->
-          <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-white/5 space-y-3">
+          <div class="bg-slate-900/60 p-3.5 rounded-3xl border border-white/5 space-y-3">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('editProfile')}</h3>
             
             <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
@@ -1579,14 +1662,6 @@
               </button>
             </form>
           </div>
-
-          <!-- Национальный рейтинг -->
-          <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-white/5 space-y-2">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('nationalRanking')}</h3>
-            <div class="divide-y divide-white/5">
-              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-2">Рейтинг формируется...</p>'}
-            </div>
-          </div>
         </div>
       `;
     }
@@ -1608,22 +1683,37 @@
           </div>
 
           <div>
-            <label class="block text-slate-400 font-semibold mb-1">Рейтинг (Skill Level)</label>
+            <label class="block text-slate-400 font-semibold mb-1 text-[10px] uppercase">Национальный Уровень (Skill Level 1.0 - 7.0)</label>
             <input type="number" step="0.1" min="1.0" max="7.0" id="ap_skill" value="${player.skill_level || 2.5}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
           </div>
 
           <div class="grid grid-cols-3 gap-2">
             <div>
-              <label class="block text-slate-400 font-semibold mb-1 text-[10px]">Матчи</label>
-              <input type="number" min="0" id="ap_matches" value="${player.total_matches_played || 0}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white text-center">
+              <label class="block text-slate-400 font-semibold mb-1 text-[9px] uppercase">Американо</label>
+              <input type="number" id="ap_americano" value="${player.rating_americano || 1000}" class="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl font-bold text-purple-300 text-center text-xs">
             </div>
             <div>
-              <label class="block text-slate-400 font-semibold mb-1 text-[10px]">Победы</label>
-              <input type="number" min="0" id="ap_wins" value="${player.wins || 0}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-emerald-400 text-center">
+              <label class="block text-slate-400 font-semibold mb-1 text-[9px] uppercase">Дружеский</label>
+              <input type="number" id="ap_friendly" value="${player.rating_friendly || 1000}" class="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl font-bold text-blue-300 text-center text-xs">
             </div>
             <div>
-              <label class="block text-slate-400 font-semibold mb-1 text-[10px]">Поражения</label>
-              <input type="number" min="0" id="ap_losses" value="${player.losses || 0}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-rose-400 text-center">
+              <label class="block text-slate-400 font-semibold mb-1 text-[9px] uppercase">Ranked (ELO)</label>
+              <input type="number" id="ap_competitive" value="${player.rating_competitive || 1000}" class="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl font-bold text-amber-300 text-center text-xs">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1 text-[9px] uppercase">Матчи</label>
+              <input type="number" min="0" id="ap_matches" value="${player.total_matches_played || 0}" class="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white text-center text-xs">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1 text-[9px] uppercase">Победы</label>
+              <input type="number" min="0" id="ap_wins" value="${player.wins || 0}" class="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl font-bold text-emerald-400 text-center text-xs">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1 text-[9px] uppercase">Поражения</label>
+              <input type="number" min="0" id="ap_losses" value="${player.losses || 0}" class="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl font-bold text-rose-400 text-center text-xs">
             </div>
           </div>
 
@@ -1642,6 +1732,10 @@
 
     async function saveAdminPlayerChanges(userId) {
       const newSkill = parseFloat(document.getElementById('ap_skill').value) || 2.5;
+      const newAmericano = parseInt(document.getElementById('ap_americano').value) || 1000;
+      const newFriendly = parseInt(document.getElementById('ap_friendly').value) || 1000;
+      const newCompetitive = parseInt(document.getElementById('ap_competitive').value) || 1000;
+
       const newMatches = parseInt(document.getElementById('ap_matches').value) || 0;
       const newWins = parseInt(document.getElementById('ap_wins').value) || 0;
       const newLosses = parseInt(document.getElementById('ap_losses').value) || 0;
@@ -1651,6 +1745,9 @@
           .from('profiles')
           .update({
             skill_level: newSkill,
+            rating_americano: newAmericano,
+            rating_friendly: newFriendly,
+            rating_competitive: newCompetitive,
             total_matches_played: newMatches,
             wins: newWins,
             losses: newLosses,
@@ -1660,7 +1757,7 @@
 
         if (error) throw error;
 
-        alert('Данные игрока успешно обновлены!');
+        alert('Данные игрока и рейтинги успешно обновлены!');
         closeAdminPlayerModal();
         await fetchAllPlatformProfiles();
         switchTab(activeTab);
