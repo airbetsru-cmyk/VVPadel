@@ -22,14 +22,12 @@
       overflow-x: hidden;
     }
     
-    /* Тёмная маска поверх фона */
     .bg-overlay {
       background: linear-gradient(180deg, rgba(9, 13, 22, 0.88) 0%, rgba(9, 13, 22, 0.97) 100%);
       min-height: 100vh;
       position: relative;
     }
 
-    /* Холст для падающих мячей */
     #ball-canvas {
       position: fixed;
       top: 0;
@@ -40,30 +38,20 @@
       z-index: 1;
     }
 
-    /* Эффект матового стекла для карточек */
     .glass-card {
-      background: rgba(18, 26, 43, 0.78);
+      background: rgba(18, 26, 43, 0.82);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     }
 
-    /* Эффект неонового свечения */
-    .neon-glow-emerald {
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-    }
-    .neon-glow-purple {
-      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
-    }
+    .neon-glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+    .neon-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
+    .neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
 
-    /* Анимация нажатия 3D */
-    .btn-3d {
-      transition: all 0.15s ease;
-    }
-    .btn-3d:active {
-      transform: translateY(2px) scale(0.98);
-    }
+    .btn-3d { transition: all 0.15s ease; }
+    .btn-3d:active { transform: translateY(2px) scale(0.98); }
   </style>
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white">
@@ -86,16 +74,25 @@
               <p id="user-greeting" class="text-xs text-slate-400 font-medium">Загрузка...</p>
             </div>
           </div>
-          <span id="user-badge" class="px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-extrabold uppercase tracking-widest rounded-full">Pro Player</span>
+          
+          <!-- Переключатель языков -->
+          <div class="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-white/10 text-[10px] font-bold">
+            <button onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
+            <button onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
+            <button onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
+          </div>
         </div>
 
-        <!-- Переключатель вкладок -->
-        <div class="grid grid-cols-2 gap-1.5 bg-slate-950/60 p-1.5 rounded-2xl border border-white/5">
+        <!-- Переключатель вкладок (3 вкладки) -->
+        <div class="grid grid-cols-3 gap-1 bg-slate-950/60 p-1.5 rounded-2xl border border-white/5">
           <button id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
-            🎾 Слоты
+            🎾 <span id="txt-tab-booking">Слоты</span>
           </button>
           <button id="tab-americano" onclick="switchTab('americano')" class="py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
-            🏆 Американо
+            🏆 <span id="txt-tab-americano">Американо</span>
+          </button>
+          <button id="tab-profile" onclick="switchTab('profile')" class="py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
+            👤 <span id="txt-tab-profile">Профиль</span>
           </button>
         </div>
       </div>
@@ -129,32 +126,27 @@
     resizeCanvas();
 
     const balls = [];
-    const ballCount = 16; // Количество падельных мячей на экране
+    const ballCount = 16;
 
     class FallingBall {
-      constructor() {
-        this.reset(true);
-      }
+      constructor() { this.reset(true); }
 
       reset(initial = false) {
         this.x = Math.random() * width;
         this.y = initial ? Math.random() * height : -30;
-        this.radius = Math.random() * 7 + 7; // Размер мяча (от 7px до 14px)
-        this.speedY = Math.random() * 0.9 + 0.4; // Скорость падения
-        this.speedX = (Math.random() - 0.5) * 0.4; // Легкое покачивание влево/вправо
-        this.opacity = Math.random() * 0.35 + 0.15; // Прозрачность (чтобы не отвлекать)
+        this.radius = Math.random() * 7 + 7;
+        this.speedY = Math.random() * 0.9 + 0.4;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.opacity = Math.random() * 0.35 + 0.15;
         this.rotation = Math.random() * Math.PI * 2;
-        this.spin = (Math.random() - 0.5) * 0.02; // Скорость вращения
+        this.spin = (Math.random() - 0.5) * 0.02;
       }
 
       update() {
         this.y += this.speedY;
         this.x += this.speedX;
         this.rotation += this.spin;
-
-        if (this.y - this.radius > height) {
-          this.reset(false);
-        }
+        if (this.y - this.radius > height) this.reset(false);
       }
 
       draw() {
@@ -163,7 +155,6 @@
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
 
-        // Основное тело падельного мяча (Неоново-желтый)
         ctx.beginPath();
         ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = '#ccff00';
@@ -171,7 +162,6 @@
         ctx.shadowBlur = 10;
         ctx.fill();
 
-        // Белые изогнутые швы теннисного/падельного мяча
         ctx.beginPath();
         ctx.arc(-this.radius * 0.5, 0, this.radius * 0.7, -Math.PI * 0.45, Math.PI * 0.45);
         ctx.strokeStyle = '#ffffff';
@@ -186,21 +176,148 @@
       }
     }
 
-    for (let i = 0; i < ballCount; i++) {
-      balls.push(new FallingBall());
-    }
+    for (let i = 0; i < ballCount; i++) balls.push(new FallingBall());
 
     function animateBalls() {
       ctx.clearRect(0, 0, width, height);
-      balls.forEach(ball => {
-        ball.update();
-        ball.draw();
-      });
+      balls.forEach(ball => { ball.update(); ball.draw(); });
       requestAnimationFrame(animateBalls);
     }
     animateBalls();
 
-    // --- 2. ЛОГИКА ПРИЛОЖЕНИЯ SUPABASE И ТЕЛЕГРАМ ---
+    // --- 2. МУЛЬТИЯЗЫЧНОСТЬ (I18N) ---
+    const TRANSLATIONS = {
+      ru: {
+        tabBooking: "Слоты",
+        tabAmericano: "Американо",
+        tabProfile: "Профиль",
+        createGame: "Создать новую игру",
+        location: "Локация / Корт",
+        maxPlayers: "Мест",
+        format: "Формат",
+        dateTime: "Дата и время",
+        price: "Цена с игрока (MDL)",
+        notes: "Заметки / Пожелания",
+        generateLink: "Сформировать ссылку на игру",
+        joinSlot: "Занять слот",
+        leaveGame: "Покинуть игру",
+        copyLink: "📋 Скопировать ссылку на игру",
+        editProfile: "Профиль игрока",
+        skillLevel: "Уровень игры (1.0 - 7.0)",
+        preferredSide: "Сторона на корте",
+        phone: "Номер телефона",
+        saveProfile: "Сохранить профиль",
+        stats: "Статистика игрока",
+        matches: "Матчи",
+        wins: "Победы",
+        losses: "Поражения",
+        winrate: "Винрейт",
+        nationalRanking: "Национальный Рейтинг Молдовы",
+        leftSide: "Слева",
+        rightSide: "Справа",
+        bothSides: "Обе стороны",
+        friendly: "Дружеский",
+        competitive: "Рейтинговый",
+        occupied: "Занят",
+        free: "Свободно"
+      },
+      ro: {
+        tabBooking: "Sloturi",
+        tabAmericano: "Americano",
+        tabProfile: "Profil",
+        createGame: "Creează joc nou",
+        location: "Locație / Teren",
+        maxPlayers: "Locuri",
+        format: "Format",
+        dateTime: "Data și ora",
+        price: "Preț per jucător (MDL)",
+        notes: "Note / Detalii",
+        generateLink: "Generează link-ul jocului",
+        joinSlot: "Ocupă un loc",
+        leaveGame: "Părăsește jocul",
+        copyLink: "📋 Copiază link-ul jocului",
+        editProfile: "Profilul jucătorului",
+        skillLevel: "Nivel de joc (1.0 - 7.0)",
+        preferredSide: "Parte pe teren",
+        phone: "Număr de telefon",
+        saveProfile: "Salvează profilul",
+        stats: "Statistici jucător",
+        matches: "Meciuri",
+        wins: "Victorii",
+        losses: "Înfrângeri",
+        winrate: "Rată de câștig",
+        nationalRanking: "Clasamentul Național Moldova",
+        leftSide: "Stânga",
+        rightSide: "Dreapta",
+        bothSides: "Ambele părți",
+        friendly: "Amical",
+        competitive: "Competitiv",
+        occupied: "Ocupat",
+        free: "Liber"
+      },
+      en: {
+        tabBooking: "Slots",
+        tabAmericano: "Americano",
+        tabProfile: "Profile",
+        createGame: "Create New Game",
+        location: "Location / Court",
+        maxPlayers: "Slots",
+        format: "Format",
+        dateTime: "Date & Time",
+        price: "Price per player (MDL)",
+        notes: "Notes / Details",
+        generateLink: "Generate Game Link",
+        joinSlot: "Take Slot",
+        leaveGame: "Leave Game",
+        copyLink: "📋 Copy Game Link",
+        editProfile: "Player Profile",
+        skillLevel: "Skill Level (1.0 - 7.0)",
+        preferredSide: "Preferred Side",
+        phone: "Phone Number",
+        saveProfile: "Save Profile",
+        stats: "Player Statistics",
+        matches: "Matches",
+        wins: "Wins",
+        losses: "Losses",
+        winrate: "Winrate",
+        nationalRanking: "Moldova National Leaderboard",
+        leftSide: "Left",
+        rightSide: "Right",
+        bothSides: "Both sides",
+        friendly: "Friendly",
+        competitive: "Ranked",
+        occupied: "Occupied",
+        free: "Free"
+      }
+    };
+
+    let currentLang = localStorage.getItem('padel_lang') || 'ru';
+
+    function t(key) {
+      return TRANSLATIONS[currentLang][key] || key;
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('padel_lang', lang);
+      
+      ['ru', 'ro', 'en'].forEach(l => {
+        const btn = document.getElementById(`lang-${l}`);
+        if (l === lang) {
+          btn.className = "px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10";
+        } else {
+          btn.className = "px-2 py-0.5 rounded-lg text-slate-400 hover:text-white";
+        }
+      });
+
+      document.getElementById('txt-tab-booking').innerText = t('tabBooking');
+      document.getElementById('txt-tab-americano').innerText = t('tabAmericano');
+      document.getElementById('txt-tab-profile').innerText = t('tabProfile');
+
+      switchTab(activeTab);
+    }
+
+    // --- 3. SUPABASE И TELEGRAM ЛОГИКА ---
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot';
@@ -231,6 +348,7 @@
 
     let activeTab = 'booking';
     let localAmericanoState = null;
+    let currentUserProfile = null;
 
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
@@ -269,94 +387,104 @@
         try { localAmericanoState = JSON.parse(savedState); } catch(e){}
       }
 
-      const startParam = getStartParam();
-      if (startParam) {
-        await renderMatchDetails(startParam);
-      } else {
-        renderCreateMatchForm();
-      }
-
-      syncUserProfile();
+      await syncUserProfile();
+      setLanguage(currentLang);
     }
 
     function switchTab(tab) {
       activeTab = tab;
       const btnBooking = document.getElementById('tab-booking');
       const btnAmericano = document.getElementById('tab-americano');
+      const btnProfile = document.getElementById('tab-profile');
+
+      btnBooking.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
+      btnAmericano.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
+      btnProfile.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
 
       if (tab === 'booking') {
         btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
-        btnAmericano.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
         const startParam = getStartParam();
         if (startParam) renderMatchDetails(startParam);
         else renderCreateMatchForm();
-      } else {
+      } else if (tab === 'americano') {
         btnAmericano.className = 'py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-xs uppercase tracking-wider neon-glow-purple btn-3d';
-        btnBooking.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
         renderQuickAmericano();
+      } else if (tab === 'profile') {
+        btnProfile.className = 'py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-black text-xs uppercase tracking-wider neon-glow-blue btn-3d';
+        renderProfileTab();
       }
     }
 
     async function syncUserProfile() {
       if (!supabaseClient) return;
       try {
-        await supabaseClient.from('profiles').upsert({
-          id: tgUser.id,
-          first_name: tgUser.first_name || 'Игрок',
-          last_name: tgUser.last_name || null,
-          username: tgUser.username || null,
-          updated_at: new Date()
-        });
-      } catch (err) {}
+        const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
+        if (data) {
+          currentUserProfile = data;
+        } else {
+          const newProf = {
+            id: tgUser.id,
+            first_name: tgUser.first_name || 'Игрок',
+            last_name: tgUser.last_name || null,
+            username: tgUser.username || null,
+            skill_level: 2.5,
+            preferred_side: 'both',
+            total_matches_played: 0,
+            updated_at: new Date()
+          };
+          await supabaseClient.from('profiles').upsert(newProf);
+          currentUserProfile = newProf;
+        }
+      } catch (err) { console.log('Profile sync err:', err); }
     }
 
-    // --- БРОНИРОВАНИЕ И СЛОТЫ ---
+    // --- ВКЛАДКА 1: БРОНИРОВАНИЕ И СЛОТЫ ---
     function renderCreateMatchForm() {
       const container = document.getElementById('main-content');
       container.innerHTML = `
-        <h2 class="text-base font-extrabold mb-4 text-white uppercase italic tracking-wide">Создать новую игру</h2>
+        <h2 class="text-base font-extrabold mb-4 text-white uppercase italic tracking-wide">${t('createGame')}</h2>
         <form id="create-form" class="space-y-3.5" onsubmit="handleCreateMatch(event)">
           <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Локация / Корт</label>
+            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">${t('location')}</label>
             <input type="text" id="custom_location" required value="Padel Club Chisinau" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition-all">
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Мест</label>
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">${t('maxPlayers')}</label>
               <select id="max_players" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm font-semibold text-white">
-                <option value="4">4 игрока (2х2)</option>
-                <option value="6">6 игроков (Americano)</option>
-                <option value="8">8 игроков (2 корта)</option>
+                <option value="4">4 ${t('maxPlayers').toLowerCase()} (2х2)</option>
+                <option value="6">6 ${t('maxPlayers').toLowerCase()} (Americano)</option>
+                <option value="8">8 ${t('maxPlayers').toLowerCase()} (2 courts)</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Формат</label>
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">${t('format')}</label>
               <select id="match_type" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm font-semibold text-white">
-                <option value="friendly">Дружеский</option>
-                <option value="competitive">Рейтинговый</option>
+                <option value="friendly">${t('friendly')}</option>
+                <option value="competitive">${t('competitive')}</option>
               </select>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Дата и время</label>
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">${t('dateTime')}</label>
               <input type="datetime-local" id="scheduled_at" required class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm text-white">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Цена с игрока (MDL)</label>
+              <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">${t('price')}</label>
               <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm text-white">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">Заметки / Пожелания</label>
-            <input type="text" id="notes" placeholder="Мячи свои, уровень 2.5+" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm text-white">
+            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase">${t('notes')}</label>
+            <input type="text" id="notes" placeholder="Level 2.5+" class="w-full p-3 bg-slate-900/80 border border-slate-700/60 rounded-xl text-sm text-white">
           </div>
 
           <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl shadow-lg text-sm uppercase tracking-wider neon-glow-emerald btn-3d mt-2">
-            Сформировать ссылку на игру
+            ${t('generateLink')}
           </button>
         </form>
       `;
@@ -401,12 +529,12 @@
 
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
-      container.innerHTML = `<div class="text-center py-10 text-slate-400">Загрузка карточки матча...</div>`;
+      container.innerHTML = `<div class="text-center py-10 text-slate-400">Loading match...</div>`;
 
       try {
         const { data: match } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
         if (!match) {
-          container.innerHTML = `<div class="text-center py-8 text-rose-400 font-bold">Игра не найдена.</div>`;
+          container.innerHTML = `<div class="text-center py-8 text-rose-400 font-bold">Game not found.</div>`;
           return;
         }
 
@@ -416,23 +544,23 @@
         const isJoined = players.some(p => String(p.user_id) === String(tgUser.id));
         const isFull = players.length >= match.max_players;
 
-        const dateStr = new Date(match.scheduled_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const dateStr = new Date(match.scheduled_at).toLocaleString(currentLang === 'ro' ? 'ro-RO' : (currentLang === 'en' ? 'en-US' : 'ru-RU'), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
         const shareUrl = `https://t.me/${shareBotUsername}/app?startapp=${match.id}`;
 
         let slotsHtml = '';
         for (let i = 1; i <= match.max_players; i++) {
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
           if (p) {
-            const name = p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Игрок');
+            const name = p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Player');
             slotsHtml += `
               <div class="flex items-center justify-between p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl">
-                <span class="text-xs font-bold text-emerald-300">Слот #${i}: ${name}</span>
-                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">Занят</span>
+                <span class="text-xs font-bold text-emerald-300">Slot #${i}: ${name}</span>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
               </div>`;
           } else {
             slotsHtml += `
               <div class="p-3 bg-slate-900/50 border border-dashed border-slate-700/60 rounded-2xl text-slate-500 text-xs font-semibold">
-                Слот #${i}: Свободно
+                Slot #${i}: ${t('free')}
               </div>`;
           }
         }
@@ -444,21 +572,21 @@
                 <span class="px-2.5 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-black uppercase tracking-wider rounded-lg">
                   ${match.match_type}
                 </span>
-                <span class="text-xs font-black text-emerald-400">${match.price_per_player} MDL / чел</span>
+                <span class="text-xs font-black text-emerald-400">${match.price_per_player} MDL / pers</span>
               </div>
               <h2 class="text-xl font-black mt-2 text-white">${match.custom_location}</h2>
               <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
             </div>
 
             <div class="border-t border-white/10 pt-3.5">
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Участники (${players.length}/${match.max_players})</h3>
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
               <div class="space-y-2">${slotsHtml}</div>
             </div>
 
             <div class="space-y-2 pt-2">
-              ${!isJoined && !isFull ? `<button onclick="joinMatch('${match.id}',${players.length + 1})" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">Занять слот</button>` : ''}
-              ${isJoined ? `<button onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">Покинуть игру</button>` : ''}
-              <button onclick="copyShareLink('${shareUrl}')" class="w-full py-3 bg-slate-800/80 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">📋 Скопировать ссылку на игру</button>
+              ${!isJoined && !isFull ? `<button onclick="joinMatch('${match.id}',${players.length + 1})" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">${t('joinSlot')}</button>` : ''}
+              ${isJoined ? `<button onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">${t('leaveGame')}</button>` : ''}
+              <button onclick="copyShareLink('${shareUrl}')" class="w-full py-3 bg-slate-800/80 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">${t('copyLink')}</button>
             </div>
           </div>
         `;
@@ -467,7 +595,7 @@
       }
     }
 
-    // --- БЫСТРЫЙ АМЕРИКАНО ---
+    // --- ВКЛАДКА 2: БЫСТРЫЙ АМЕРИКАНО ---
     function renderQuickAmericano() {
       const container = document.getElementById('main-content');
 
@@ -679,6 +807,153 @@
         localAmericanoState = null;
         localStorage.removeItem('quick_americano_state');
         renderQuickAmericano();
+      }
+    }
+
+    // --- ВКЛАДКА 3: ПРОФИЛЬ И НАЦИОНАЛЬНЫЙ РЕЙТИНГ ---
+    async function renderProfileTab() {
+      const container = document.getElementById('main-content');
+      container.innerHTML = `<div class="text-center py-10 text-slate-400">Loading profile...</div>`;
+
+      // Запрашиваем рейтинг всех игроков Молдовы
+      let leaderboard = [];
+      try {
+        const { data } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false }).limit(10);
+        leaderboard = data || [];
+      } catch(e) {}
+
+      const p = currentUserProfile || {
+        first_name: tgUser.first_name,
+        skill_level: 2.5,
+        preferred_side: 'both',
+        phone: '',
+        total_matches_played: 0,
+        wins: 0,
+        losses: 0
+      };
+
+      const wins = p.wins || 0;
+      const losses = p.losses || 0;
+      const total = p.total_matches_played || (wins + losses);
+      const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
+
+      let sideLabel = t('bothSides');
+      if (p.preferred_side === 'left') sideLabel = t('leftSide');
+      if (p.preferred_side === 'right') sideLabel = t('rightSide');
+
+      let leaderboardRows = leaderboard.map((item, index) => `
+        <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="font-black ${index < 3 ? 'text-amber-400' : 'text-slate-500'}">#${index + 1}</span>
+            <span class="font-bold text-white">${item.first_name} ${item.last_name || ''}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] bg-blue-500/20 text-blue-300 font-extrabold px-2 py-0.5 rounded-full">Lvl ${item.skill_level || 2.5}</span>
+            <span class="font-extrabold text-slate-300">${item.total_matches_played || 0} ${t('matches').toLowerCase()}</span>
+          </div>
+        </div>
+      `).join('');
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <!-- Карточка игрока -->
+          <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/20">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-black">${p.first_name} ${p.last_name || ''}</h2>
+                <p class="text-xs opacity-80">Skill Level: ${p.skill_level || 2.5} • ${sideLabel}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-2xl font-black">
+                🎾
+              </div>
+            </div>
+
+            <!-- Статистика -->
+            <div class="grid grid-cols-4 gap-1.5 mt-4 pt-3 border-t border-white/20 text-center">
+              <div>
+                <p class="text-[10px] opacity-75 uppercase font-bold">${t('matches')}</p>
+                <p class="text-sm font-black">${total}</p>
+              </div>
+              <div>
+                <p class="text-[10px] opacity-75 uppercase font-bold">${t('wins')}</p>
+                <p class="text-sm font-black text-emerald-300">${wins}</p>
+              </div>
+              <div>
+                <p class="text-[10px] opacity-75 uppercase font-bold">${t('losses')}</p>
+                <p class="text-sm font-black text-rose-300">${losses}</p>
+              </div>
+              <div>
+                <p class="text-[10px] opacity-75 uppercase font-bold">${t('winrate')}</p>
+                <p class="text-sm font-black text-amber-300">${winrate}%</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Редактирование профиля -->
+          <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-white/5 space-y-3">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('editProfile')}</h3>
+            
+            <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">${t('skillLevel')}</label>
+                <input type="number" id="edit_skill_level" step="0.1" min="1.0" max="7.0" value="${p.skill_level || 2.5}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
+              </div>
+
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">${t('preferredSide')}</label>
+                <select id="edit_preferred_side" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
+                  <option value="both" ${p.preferred_side === 'both' ? 'selected' : ''}>${t('bothSides')}</option>
+                  <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
+                  <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">${t('phone')}</label>
+                <input type="text" id="edit_phone" placeholder="+373 60 000 000" value="${p.phone || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
+              </div>
+
+              <button type="submit" class="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl btn-3d uppercase tracking-wider text-[11px]">
+                ${t('saveProfile')}
+              </button>
+            </form>
+          </div>
+
+          <!-- Национальный рейтинг -->
+          <div class="bg-slate-900/60 p-3.5 rounded-2xl border border-white/5 space-y-2">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('nationalRanking')}</h3>
+            <div class="divide-y divide-white/5">
+              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-2">Рейтинг формируется...</p>'}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function saveProfileData(e) {
+      e.preventDefault();
+      const skill = parseFloat(document.getElementById('edit_skill_level').value) || 2.5;
+      const side = document.getElementById('edit_preferred_side').value;
+      const phone = document.getElementById('edit_phone').value.trim();
+
+      try {
+        const updateObj = {
+          id: tgUser.id,
+          first_name: tgUser.first_name || 'Игрок',
+          last_name: tgUser.last_name || null,
+          username: tgUser.username || null,
+          skill_level: skill,
+          preferred_side: side,
+          phone: phone,
+          updated_at: new Date()
+        };
+
+        await supabaseClient.from('profiles').upsert(updateObj);
+        currentUserProfile = { ...currentUserProfile, ...updateObj };
+        alert('Профиль сохранен!');
+        renderProfileTab();
+      } catch(err) {
+        alert('Ошибка сохранения: ' + err.message);
       }
     }
 
