@@ -38,20 +38,63 @@
       z-index: 1;
     }
 
+    /* Эффект матового стекла с переливающейся рамкой */
     .glass-card {
       background: rgba(18, 26, 43, 0.82);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
     }
 
-    .neon-glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
-    .neon-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); }
-    .neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+    /* Анимированная переливающаяся рамка */
+    .shimmer-border {
+      position: relative;
+    }
+    .shimmer-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.6), rgba(139, 92, 246, 0.6), rgba(59, 130, 246, 0.6), rgba(16, 185, 129, 0.6));
+      background-size: 300% 100%;
+      animation: borderShimmer 4s linear infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    @keyframes borderShimmer {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 300% 0%; }
+    }
+
+    /* 3D парение ракетки */
+    .floating-racket {
+      animation: float3d 3.5s ease-in-out infinite;
+      transform-style: preserve-3d;
+    }
+    @keyframes float3d {
+      0%, 100% { transform: translateY(0px) rotate(-5deg) rotateY(0deg); }
+      50% { transform: translateY(-6px) rotate(5deg) rotateY(15deg); }
+    }
+
+    /* Неоновые свечения */
+    .neon-glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.45); }
+    .neon-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.45); }
+    .neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.45); }
 
     .btn-3d { transition: all 0.15s ease; }
     .btn-3d:active { transform: translateY(2px) scale(0.98); }
+
+    /* Визуализация мини-корта */
+    .court-bg {
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(9, 13, 22, 0.9) 100%), #0d192b;
+      border: 2px solid rgba(16, 185, 129, 0.4);
+    }
   </style>
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white">
@@ -62,11 +105,11 @@
   <div class="bg-overlay p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <!-- Шапка -->
-      <div class="glass-card p-4 rounded-3xl space-y-3">
+      <!-- Шапка с 3D анимированной ракеткой -->
+      <div class="glass-card shimmer-border p-4 rounded-3xl space-y-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-xl font-black text-slate-950 shadow-lg shadow-emerald-500/30">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-500 flex items-center justify-center text-2xl font-black text-slate-950 shadow-lg shadow-emerald-500/40 floating-racket">
               🎾
             </div>
             <div>
@@ -76,7 +119,7 @@
           </div>
           
           <!-- Переключатель языков -->
-          <div class="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-white/10 text-[10px] font-bold">
+          <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 text-[10px] font-bold">
             <button onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
             <button onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
             <button onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
@@ -113,7 +156,7 @@
   </div>
 
   <script>
-    // --- 1. АНИМАЦИЯ ПАДАЮЩИХ ПАДЕЛЬНЫХ МЯЧЕЙ НА CANVAS ---
+    // --- 1. CANVAS АНИМАЦИЯ ПАДАЮЩИХ ПАДЕЛЬНЫХ МЯЧЕЙ ---
     const canvas = document.getElementById('ball-canvas');
     const ctx = canvas.getContext('2d');
     let width, height;
@@ -219,7 +262,11 @@
         friendly: "Дружеский",
         competitive: "Рейтинговый",
         occupied: "Занят",
-        free: "Свободно"
+        free: "Свободно",
+        chatTitle: "💬 Чат игроков",
+        chatPlaceholder: "Напишите сообщение...",
+        sendBtn: "Отправить",
+        courtLayout: "🏟️ Схема корта"
       },
       ro: {
         tabBooking: "Sloturi",
@@ -253,7 +300,11 @@
         friendly: "Amical",
         competitive: "Competitiv",
         occupied: "Ocupat",
-        free: "Liber"
+        free: "Liber",
+        chatTitle: "💬 Chat jucători",
+        chatPlaceholder: "Scrie un mesaj...",
+        sendBtn: "Trimite",
+        courtLayout: "🏟️ Schema terenului"
       },
       en: {
         tabBooking: "Slots",
@@ -287,7 +338,11 @@
         friendly: "Friendly",
         competitive: "Ranked",
         occupied: "Occupied",
-        free: "Free"
+        free: "Free",
+        chatTitle: "💬 Players Chat",
+        chatPlaceholder: "Type a message...",
+        sendBtn: "Send",
+        courtLayout: "🏟️ Court Layout"
       }
     };
 
@@ -349,6 +404,7 @@
     let activeTab = 'booking';
     let localAmericanoState = null;
     let currentUserProfile = null;
+    let localMatchMessages = {};
 
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
@@ -529,7 +585,7 @@
 
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
-      container.innerHTML = `<div class="text-center py-10 text-slate-400">Loading match...</div>`;
+      container.innerHTML = `<div class="text-center py-10 text-slate-400">Загрузка матча...</div>`;
 
       try {
         const { data: match } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
@@ -565,6 +621,29 @@
           }
         }
 
+        // Подготовка данных для визуального корта
+        const p1 = players[0]?.profiles?.first_name || (players[0] ? tgUser.first_name : t('free'));
+        const p2 = players[1]?.profiles?.first_name || (players[1] ? 'Игрок 2' : t('free'));
+        const p3 = players[2]?.profiles?.first_name || (players[2] ? 'Игрок 3' : t('free'));
+        const p4 = players[3]?.profiles?.first_name || (players[3] ? 'Игрок 4' : t('free'));
+
+        // Получение сообщений чата
+        let messagesList = localMatchMessages[matchId] || [];
+        try {
+          const { data: dbMsgs } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
+          if (dbMsgs && dbMsgs.length > 0) messagesList = dbMsgs;
+        } catch(e){}
+
+        let chatHtml = messagesList.map(m => `
+          <div class="p-2 bg-slate-950/80 rounded-xl border border-white/5 space-y-0.5">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="font-bold text-emerald-400">${m.sender_name || 'Игрок'}</span>
+              <span class="text-slate-500">${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            </div>
+            <p class="text-xs text-slate-200">${m.message_text}</p>
+          </div>
+        `).join('');
+
         container.innerHTML = `
           <div class="space-y-4">
             <div>
@@ -578,11 +657,58 @@
               <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
             </div>
 
-            <div class="border-t border-white/10 pt-3.5">
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
+            <!-- ИНТЕРАКТИВНЫЙ МИНИ-КОРТ (2D/3D Визуализация) -->
+            <div class="space-y-2">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('courtLayout')}</h3>
+              <div class="court-bg p-3 rounded-2xl border border-emerald-500/30 space-y-2">
+                <div class="grid grid-cols-2 gap-2 text-center text-[11px] font-bold">
+                  <div class="p-2 bg-emerald-500/20 rounded-xl border border-emerald-500/40 text-emerald-300">
+                    <span class="block text-[9px] text-slate-400 uppercase">Team A (L)</span>
+                    ${p1}
+                  </div>
+                  <div class="p-2 bg-emerald-500/20 rounded-xl border border-emerald-500/40 text-emerald-300">
+                    <span class="block text-[9px] text-slate-400 uppercase">Team A (R)</span>
+                    ${p2}
+                  </div>
+                </div>
+                <!-- Сетка корта -->
+                <div class="border-t-2 border-dashed border-emerald-400/60 my-1 relative flex justify-center">
+                  <span class="absolute -top-2.5 bg-slate-900 px-2 py-0.5 text-[9px] font-black text-emerald-400 rounded-full border border-emerald-500/40">NET</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-center text-[11px] font-bold">
+                  <div class="p-2 bg-blue-500/20 rounded-xl border border-blue-500/40 text-blue-300">
+                    <span class="block text-[9px] text-slate-400 uppercase">Team B (L)</span>
+                    ${p3}
+                  </div>
+                  <div class="p-2 bg-blue-500/20 rounded-xl border border-blue-500/40 text-blue-300">
+                    <span class="block text-[9px] text-slate-400 uppercase">Team B (R)</span>
+                    ${p4}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Список слотов -->
+            <div class="border-t border-white/10 pt-3">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
               <div class="space-y-2">${slotsHtml}</div>
             </div>
 
+            <!-- ВСТРОЕННЫЙ ОБЩИЙ ЧАТ ИГРОКОВ -->
+            <div class="border-t border-white/10 pt-3 space-y-2">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('chatTitle')}</h3>
+              <div id="chat-box" class="h-32 overflow-y-auto space-y-1.5 p-2 bg-slate-900/80 rounded-2xl border border-white/5">
+                ${chatHtml.length > 0 ? chatHtml : '<p class="text-xs text-slate-500 text-center py-8">Сообщений пока нет. Будьте первым!</p>'}
+              </div>
+              <div class="flex gap-2">
+                <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" class="flex-1 p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-500">
+                <button onclick="sendChatMessage('${match.id}')" class="px-4 bg-emerald-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
+                  ${t('sendBtn')}
+                </button>
+              </div>
+            </div>
+
+            <!-- Кнопки действий -->
             <div class="space-y-2 pt-2">
               ${!isJoined && !isFull ? `<button onclick="joinMatch('${match.id}',${players.length + 1})" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">${t('joinSlot')}</button>` : ''}
               ${isJoined ? `<button onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">${t('leaveGame')}</button>` : ''}
@@ -590,9 +716,36 @@
             </div>
           </div>
         `;
+
+        const chatBox = document.getElementById('chat-box');
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
       } catch (err) {
         showError('Ошибка загрузки: ' + err.message);
       }
+    }
+
+    async function sendChatMessage(matchId) {
+      const input = document.getElementById('chat_input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const newMsg = {
+        match_id: matchId,
+        user_id: tgUser.id,
+        sender_name: tgUser.first_name || 'Игрок',
+        message_text: text,
+        created_at: new Date().toISOString()
+      };
+
+      if (!localMatchMessages[matchId]) localMatchMessages[matchId] = [];
+      localMatchMessages[matchId].push(newMsg);
+
+      try {
+        await supabaseClient.from('match_messages').insert([newMsg]);
+      } catch(e){}
+
+      input.value = '';
+      renderMatchDetails(matchId);
     }
 
     // --- ВКЛАДКА 2: БЫСТРЫЙ АМЕРИКАНО ---
@@ -815,7 +968,6 @@
       const container = document.getElementById('main-content');
       container.innerHTML = `<div class="text-center py-10 text-slate-400">Loading profile...</div>`;
 
-      // Запрашиваем рейтинг всех игроков Молдовы
       let leaderboard = [];
       try {
         const { data } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false }).limit(10);
@@ -857,7 +1009,7 @@
       container.innerHTML = `
         <div class="space-y-4">
           <!-- Карточка игрока -->
-          <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/20">
+          <div class="bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-500 p-4 rounded-2xl text-white shadow-lg shadow-blue-500/20 shimmer-border">
             <div class="flex items-center justify-between">
               <div>
                 <h2 class="text-lg font-black">${p.first_name} ${p.last_name || ''}</h2>
