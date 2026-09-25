@@ -382,7 +382,7 @@
         chatTitle: "💬 Чат участников слота",
         chatPlaceholder: "Напишите сообщение...",
         sendBtn: "Отправить",
-        creatorTag: "👑 Организатор игры",
+        creatorTag: "👑 Организатор",
         quickImportBtn: "⚡ Импортировать из Слота",
         guestOption: "➕ Ввести вручную (Гость)"
       },
@@ -425,7 +425,7 @@
         chatTitle: "💬 Chat jucători",
         chatPlaceholder: "Scrie un mesaj...",
         sendBtn: "Trimite",
-        creatorTag: "👑 Organizator joc",
+        creatorTag: "👑 Organizator",
         quickImportBtn: "⚡ Importă din Slot",
         guestOption: "➕ Introdu manual (Oaspete)"
       },
@@ -468,7 +468,7 @@
         chatTitle: "💬 Slot Chat",
         chatPlaceholder: "Type a message...",
         sendBtn: "Send",
-        creatorTag: "👑 Game Host",
+        creatorTag: "👑 Host",
         quickImportBtn: "⚡ Import from Slot",
         guestOption: "➕ Enter manually (Guest)"
       }
@@ -801,6 +801,22 @@
       }
     }
 
+    async function updateMatchPrice(matchId) {
+      const newPrice = parseFloat(document.getElementById(`edit_price_${matchId}`).value) || 0;
+      try {
+        const { error } = await supabaseClient
+          .from('matches')
+          .update({ price_per_player: newPrice })
+          .eq('id', matchId);
+
+        if (error) throw error;
+        alert('Цена успешно обновлена!');
+        renderMatchDetails(matchId);
+      } catch (e) {
+        alert('Ошибка изменения цены: ' + e.message);
+      }
+    }
+
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
       container.innerHTML = `<div class="text-center py-10 text-slate-400">Загрузка матча...</div>`;
@@ -889,7 +905,7 @@
                   <span class="text-base">👑</span>
                   <div>
                     <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">Панель Организатора Слотa</h4>
-                    <p class="text-[10px] text-slate-400">Управление составом и местами</p>
+                    <p class="text-[10px] text-slate-400">Управление составом, местами и ценой</p>
                   </div>
                 </div>
                 <span class="px-2.5 py-1 text-[10px] font-black rounded-lg uppercase tracking-wider ${isRegClosed ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'}">
@@ -897,9 +913,18 @@
                 </span>
               </div>
 
+              <!-- Управление ценой -->
+              <div class="flex items-center justify-between p-2 bg-slate-950/70 rounded-xl border border-white/5 text-xs">
+                <span class="font-bold text-slate-300 pl-1">Цена с игрока (MDL):</span>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1.5 bg-slate-800 border border-slate-600 rounded-lg text-center text-white font-black focus:outline-none focus:border-amber-500 transition-colors">
+                  <button onclick="updateMatchPrice('${match.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black rounded-lg btn-3d">💾</button>
+                </div>
+              </div>
+
               <!-- Управление слотами (Добавить / Убрать место) -->
               <div class="flex items-center justify-between p-2.5 bg-slate-950/70 rounded-xl border border-white/5 text-xs">
-                <span class="font-bold text-slate-300">Всего мест: <strong class="text-amber-400 font-black">${match.max_players}</strong></span>
+                <span class="font-bold text-slate-300">Всего мест: <strong class="text-amber-400 font-black text-sm">${match.max_players}</strong></span>
                 <div class="flex items-center gap-1.5">
                   <button onclick="adjustMatchMaxPlayers('${match.id}', ${match.max_players}, -1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-lg btn-3d" title="Убрать 1 слот">➖ Слот</button>
                   <button onclick="adjustMatchMaxPlayers('${match.id}', ${match.max_players}, 1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-lg btn-3d" title="Добавить 1 слот">➕ Слот</button>
@@ -912,7 +937,7 @@
                 </button>
               ` : `
                 <button onclick="toggleRegistration('${match.id}', true)" id="btn-toggle-reg" class="w-full py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-extrabold rounded-xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-1.5">
-                  🔒 Завершить и скрыть свободные слоты
+                  🔒 Завершить и скрыть пустые слоты
                 </button>
               `}
             </div>
@@ -985,7 +1010,7 @@
 
       try {
         const updatePayload = { max_players: newMax };
-        // При добавлении слота открываем регистрацию, чтобы место стало видимым и доступным
+        // При добавлении слота автоматически открываем регистрацию, чтобы место стало видимым и доступным
         if (delta > 0) {
           updatePayload.is_registration_closed = false;
         }
