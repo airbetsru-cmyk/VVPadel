@@ -95,7 +95,7 @@
       
       <!-- Шапка -->
       <div class="glass-card shimmer-border p-4 rounded-3xl space-y-3">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-2">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-400 to-cyan-500 flex items-center justify-center text-2xl font-black text-slate-950 shadow-lg shadow-emerald-500/40 floating-racket">
               🎾
@@ -106,11 +106,24 @@
             </div>
           </div>
           
-          <!-- Переключатель языков -->
-          <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 text-[10px] font-bold">
-            <button onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
-            <button onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
-            <button onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
+          <!-- Переключатель языков и Кнопки Поддержки / Создателя -->
+          <div class="flex flex-col items-end gap-1.5">
+            <!-- Переключатель языков -->
+            <div class="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-white/10 text-[10px] font-bold">
+              <button onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
+              <button onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
+              <button onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
+            </div>
+
+            <!-- Дополнительные сервис-кнопки -->
+            <div class="flex items-center gap-1">
+              <button onclick="openSupportModal()" class="px-2 py-1 bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
+                🛠️ <span id="txt-btn-support">Support</span>
+              </button>
+              <button onclick="openCreatorModal()" class="px-2 py-1 bg-cyan-500/15 border border-cyan-500/30 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
+                👨‍💻 <span id="txt-btn-creator">Creator</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -128,7 +141,7 @@
         </div>
       </div>
 
-      <!-- Ошибки -->
+      <!-- Блок ошибок -->
       <div id="error-box" class="hidden bg-rose-500/10 border border-rose-500/30 text-rose-300 p-3.5 rounded-2xl text-xs font-mono break-all"></div>
 
       <!-- Главный контент -->
@@ -140,6 +153,87 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО SUPPORT (ПОДДЕРЖКА / ДОНАТЫ) -->
+  <div id="modal-support" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
+          🛠️ <span id="m-support-title">Поддержка и Помощь</span>
+        </h3>
+        <button onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <p class="text-slate-300 leading-relaxed" id="m-support-desc">
+          Возникли вопросы, предложения или нашли ошибку? Свяжитесь напрямую с нашей службой поддержки.
+        </p>
+
+        <!-- Кнопка связи с саппортом (@kizdoi) -->
+        <a id="support-tg-link" href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20">
+          💬 Написать в Telegram (@kizdoi)
+        </a>
+
+        <!-- Раздел добровольной поддержки проекта -->
+        <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-amber-500/20 space-y-2 mt-3">
+          <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wide" id="m-donate-title">☕ Поддержать Padel Moldova</h4>
+          <p class="text-[11px] text-slate-400" id="m-donate-desc">Если вам нравится платформа, вы можете сделать добровольный взнос на развитие серверов и новые функции:</p>
+
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-white/5 space-y-1.5 font-mono text-[11px]">
+            <div class="flex justify-between items-center text-slate-300">
+              <span class="text-slate-500">MIA Plăți Instant:</span>
+              <span class="font-bold text-emerald-400">+373 60 217 449</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span class="text-slate-500">Телефон:</span>
+              <span class="font-bold text-emerald-400">060217449</span>
+            </div>
+          </div>
+          <p class="text-[9px] text-slate-500 italic text-center">* Добровольные пожертвования на развитие комьюнити</p>
+        </div>
+      </div>
+
+      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs">
+        Закрыть
+      </button>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО CREATOR (О СОЗДАТЕЛЕ) -->
+  <div id="modal-creator" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <h3 class="text-sm font-black text-cyan-300 uppercase italic tracking-wide flex items-center gap-2">
+          👨‍💻 <span id="m-creator-title">Разработчик Проекта</span>
+        </h3>
+        <button onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-center">
+        <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-cyan-500 to-blue-600 mx-auto flex items-center justify-center text-3xl shadow-lg shadow-cyan-500/30">
+          🎾
+        </div>
+
+        <div>
+          <h4 class="text-base font-black text-white">Victor Popovici</h4>
+          <p class="text-xs text-cyan-400 font-semibold">Founder & Developer • @kizdoi</p>
+        </div>
+
+        <p class="text-slate-300 text-xs leading-relaxed" id="m-creator-desc">
+          Платформа **Padel Moldova** создана для объединения игроков, удобного поиска слотов и проведения турниров по всей Молдове.
+        </p>
+
+        <!-- Прямая ссылка на ваш Telegram @kizdoi -->
+        <a id="creator-tg-link" href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-cyan-500/20">
+          📩 Связаться с Виктором (@kizdoi)
+        </a>
+      </div>
+
+      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs">
+        Закрыть
+      </button>
     </div>
   </div>
 
@@ -222,6 +316,8 @@
         tabBooking: "Слоты",
         tabAmericano: "Американо",
         tabProfile: "Профиль",
+        btnSupport: "Support",
+        btnCreator: "Creator",
         createGame: "Создать новую игру",
         location: "Локация / Корт",
         maxPlayers: "Мест",
@@ -263,6 +359,8 @@
         tabBooking: "Sloturi",
         tabAmericano: "Americano",
         tabProfile: "Profil",
+        btnSupport: "Suport",
+        btnCreator: "Autor",
         createGame: "Creează joc nou",
         location: "Locație / Teren",
         maxPlayers: "Locuri",
@@ -304,6 +402,8 @@
         tabBooking: "Slots",
         tabAmericano: "Americano",
         tabProfile: "Profile",
+        btnSupport: "Support",
+        btnCreator: "Creator",
         createGame: "Create New Game",
         location: "Location / Court",
         maxPlayers: "Slots",
@@ -365,8 +465,23 @@
       document.getElementById('txt-tab-booking').innerText = t('tabBooking');
       document.getElementById('txt-tab-americano').innerText = t('tabAmericano');
       document.getElementById('txt-tab-profile').innerText = t('tabProfile');
+      document.getElementById('txt-btn-support').innerText = t('btnSupport');
+      document.getElementById('txt-btn-creator').innerText = t('btnCreator');
 
       switchTab(activeTab);
+    }
+
+    function openSupportModal() {
+      document.getElementById('modal-support').classList.remove('hidden');
+    }
+
+    function openCreatorModal() {
+      document.getElementById('modal-creator').classList.remove('hidden');
+    }
+
+    function closeModals() {
+      document.getElementById('modal-support').classList.add('hidden');
+      document.getElementById('modal-creator').classList.add('hidden');
     }
 
     // --- 3. SUPABASE И TELEGRAM ---
@@ -402,7 +517,7 @@
     let localAmericanoState = null;
     let currentUserProfile = null;
     let localMatchMessages = {};
-    let platformProfilesList = []; // Все зарегистрированные профили платформы
+    let platformProfilesList = [];
 
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
@@ -721,7 +836,7 @@
       renderMatchDetails(matchId);
     }
 
-    // --- ВКЛАДКА 2: БЫСТРЫЙ АМЕРИКАНО (ПРОФЕССИОНАЛЬНЫЙ СЕЛЕКТОР ИГРОКОВ) ---
+    // --- ВКЛАДКА 2: БЫСТРЫЙ АМЕРИКАНО ---
     async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
 
@@ -756,7 +871,6 @@
             </div>
           </div>
 
-          <!-- Быстрый импорт участников из забронированных слотов -->
           <button onclick="importPlayersFromCurrentSlot()" class="w-full py-2 bg-purple-500/10 border border-purple-500/30 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/20 btn-3d">
             ${t('quickImportBtn')}
           </button>
@@ -806,7 +920,6 @@
 
       container.innerHTML = html;
 
-      // Авто-выбор текущего юзера в Слот 1
       setTimeout(() => {
         const sel1 = document.getElementById('player_select_1');
         if (sel1) {
@@ -1008,7 +1121,6 @@
             ${leaderboardHtml}
           </div>
 
-          <!-- Запись результатов в профили зарегистрированных игроков -->
           <button onclick="syncResultsToPlatformProfiles()" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
             🏆 Записать результаты в Личный Рейтинг
           </button>
@@ -1082,7 +1194,7 @@
         first_name: tgUser.first_name,
         skill_level: 2.5,
         preferred_side: 'both',
-        phone: '',
+        phone: '060217449',
         total_matches_played: 0,
         wins: 0,
         losses: 0
@@ -1166,7 +1278,7 @@
 
               <div>
                 <label class="block text-slate-400 font-semibold mb-1">${t('phone')}</label>
-                <input type="text" id="edit_phone" placeholder="+373 60 000 000" value="${p.phone || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
+                <input type="text" id="edit_phone" placeholder="+373 60 217 449" value="${p.phone || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
               </div>
 
               <button type="submit" class="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl btn-3d uppercase tracking-wider text-[11px]">
