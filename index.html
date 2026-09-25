@@ -18,12 +18,24 @@
 
   <div id="app" class="max-w-md mx-auto space-y-4">
     <!-- Шапка -->
-    <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-      <div>
-        <h1 class="text-lg font-bold text-emerald-700">Padel Moldova 🎾</h1>
-        <p id="user-greeting" class="text-xs text-gray-500">Загрузка профиля...</p>
+    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-lg font-bold text-emerald-700">Padel Moldova 🎾</h1>
+          <p id="user-greeting" class="text-xs text-gray-500">Загрузка профиля...</p>
+        </div>
+        <span id="user-badge" class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">Player</span>
       </div>
-      <span id="user-badge" class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">Player</span>
+
+      <!-- Вкладки переключения режимов -->
+      <div class="grid grid-cols-2 gap-1 bg-gray-100 p-1 rounded-xl text-xs font-bold">
+        <button id="tab-booking" onclick="switchTab('booking')" class="py-2 rounded-lg bg-white shadow text-emerald-700">
+          🎾 Запись на корт
+        </button>
+        <button id="tab-americano" onclick="switchTab('americano')" class="py-2 rounded-lg text-gray-500 hover:text-gray-900">
+          🏆 Быстрый Американо
+        </button>
+      </div>
     </div>
 
     <!-- Блок ошибок -->
@@ -39,9 +51,9 @@
     // --- ВСТАВЬТЕ ВАШИ ДАННЫЕ СУПАБЕЙС НИЖЕ ---
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
-    const shareBotUsername = 'VVPadel_bot'; // Юзернейм бота без @
+    const shareBotUsername = 'VVPadel_bot';
 
-    // Матрица ротаций для Американо (4, 6 и 8 игроков)
+    // Матрицы ротации для Американо
     const AMERICANO_ROTATIONS = {
       4: [
         { round: 1, court: 1, a: [0, 1], b: [2, 3] },
@@ -65,6 +77,9 @@
         { round: 7, court: 1, a: [0, 7], b: [1, 2] }, { round: 7, court: 2, a: [3, 5], b: [4, 6] }
       ]
     };
+
+    let activeTab = 'booking';
+    let localAmericanoState = null;
 
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
@@ -97,10 +112,39 @@
 
     async function initApp() {
       document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
+      
+      // Загрузка сохранённого турнира Американо из локальной памяти
+      const savedState = localStorage.getItem('quick_americano_state');
+      if (savedState) {
+        try { localAmericanoState = JSON.parse(savedState); } catch(e){}
+      }
+
       const startParam = getStartParam();
-      if (startParam) await renderMatchDetails(startParam);
-      else renderCreateMatchForm();
+      if (startParam) {
+        await renderMatchDetails(startParam);
+      } else {
+        renderCreateMatchForm();
+      }
+
       syncUserProfile();
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      const btnBooking = document.getElementById('tab-booking');
+      const btnAmericano = document.getElementById('tab-americano');
+
+      if (tab === 'booking') {
+        btnBooking.className = 'py-2 rounded-lg bg-white shadow text-emerald-700 font-bold';
+        btnAmericano.className = 'py-2 rounded-lg text-gray-500 hover:text-gray-900 font-bold';
+        const startParam = getStartParam();
+        if (startParam) renderMatchDetails(startParam);
+        else renderCreateMatchForm();
+      } else {
+        btnAmericano.className = 'py-2 rounded-lg bg-white shadow text-purple-700 font-bold';
+        btnBooking.className = 'py-2 rounded-lg text-gray-500 hover:text-gray-900 font-bold';
+        renderQuickAmericano();
+      }
     }
 
     async function syncUserProfile() {
@@ -116,6 +160,7 @@
       } catch (err) {}
     }
 
+    // --- 1. РЕЖИМ БРОНИРОВАНИЯ И СЛОТОВ ---
     function renderCreateMatchForm() {
       const container = document.getElementById('main-content');
       container.innerHTML = `
@@ -138,8 +183,8 @@
             <div>
               <label class="block text-xs font-medium text-gray-600 mb-1">Формат</label>
               <select id="match_type" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
-                <option value="americano">Americano (Турнир)</option>
                 <option value="friendly">Дружеский</option>
+                <option value="competitive">Рейтинговый</option>
               </select>
             </div>
           </div>
@@ -157,11 +202,11 @@
 
           <div>
             <label class="block text-xs font-medium text-gray-600 mb-1">Заметки / Пожелания</label>
-            <input type="text" id="notes" placeholder="Играем до 32 очков" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
+            <input type="text" id="notes" placeholder="Мячи свои, уровень 2.5+" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
           </div>
 
           <button type="submit" id="submit-btn" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-md hover:bg-emerald-700 text-sm mt-2">
-            Сформировать ссылку на турнир
+            Сформировать ссылку на игру
           </button>
         </form>
       `;
@@ -218,23 +263,12 @@
         const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', matchId);
         const players = rawPlayers || [];
 
-        // Запрос раундов Американо
-        const { data: rounds } = await supabaseClient.from('americano_rounds').select('*').eq('match_id', matchId).order('round_number', { ascending: true });
-
-        const isCreator = String(match.creator_id) === String(tgUser.id);
         const isJoined = players.some(p => String(p.user_id) === String(tgUser.id));
         const isFull = players.length >= match.max_players;
 
         const dateStr = new Date(match.scheduled_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
         const shareUrl = `https://t.me/${shareBotUsername}/app?startapp=${match.id}`;
 
-        // Если Американо запущен и есть раунды -> показываем Турнирную таблицу и сетку
-        if (match.match_type === 'americano' && rounds && rounds.length > 0) {
-          renderAmericanoTournament(container, match, players, rounds, shareUrl, isCreator);
-          return;
-        }
-
-        // Если обычная регистрация на слоты
         let slotsHtml = '';
         for (let i = 1; i <= match.max_players; i++) {
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
@@ -253,9 +287,7 @@
           <div class="space-y-4">
             <div>
               <div class="flex justify-between items-start">
-                <span class="px-2 py-0.5 bg-purple-100 text-purple-800 text-[11px] font-bold uppercase rounded">
-                  ${match.match_type}
-                </span>
+                <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-[11px] font-bold uppercase rounded">${match.match_type}</span>
                 <span class="text-xs font-bold text-emerald-700">${match.price_per_player} MDL / чел</span>
               </div>
               <h2 class="text-lg font-bold mt-1 text-gray-900">${match.custom_location}</h2>
@@ -270,8 +302,7 @@
             <div class="space-y-2 pt-2">
               ${!isJoined && !isFull ? `<button onclick="joinMatch('${match.id}',${players.length + 1})" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl text-sm">Занять слот</button>` : ''}
               ${isJoined ? `<button onclick="leaveMatch('${match.id}')" class="w-full py-2 bg-red-50 text-red-600 font-semibold rounded-xl text-xs">Покинуть игру</button>` : ''}
-              ${isCreator && isFull ? `<button onclick="generateAmericanoRounds('${match.id}')" class="w-full py-3 bg-purple-600 text-white font-bold rounded-xl text-sm shadow-lg">🚀 Запустить Американо</button>` : ''}
-              <button onclick="copyShareLink('${shareUrl}')" class="w-full py-2.5 bg-gray-100 text-gray-800 font-semibold rounded-xl text-xs">📋 Скопировать ссылку</button>
+              <button onclick="copyShareLink('${shareUrl}')" class="w-full py-2.5 bg-gray-100 text-gray-800 font-semibold rounded-xl text-xs">📋 Скопировать ссылку на игру</button>
             </div>
           </div>
         `;
@@ -280,145 +311,191 @@
       }
     }
 
-    // --- ЛОГИКА ТУРНИРА АМЕРИКАНО (Лидерборд и Сетка) ---
-    function renderAmericanoTournament(container, match, players, rounds, shareUrl, isCreator) {
-      // Подсчет баллов каждого игрока
-      const leaderboard = {};
-      players.forEach(p => {
-        leaderboard[p.user_id] = {
-          name: p.profiles?.first_name || 'Игрок',
-          points: 0,
-          gamesPlayed: 0
-        };
-      });
+    // --- 2. РЕЖИМ «БЫСТРЫЙ АМЕРИКАНО» (АВТОНОМНЫЙ КАЛЬКУЛЯТОР) ---
+    function renderQuickAmericano() {
+      const container = document.getElementById('main-content');
+
+      // Если турнир уже запущен — показываем таблицу и сетку
+      if (localAmericanoState && localAmericanoState.rounds) {
+        renderQuickAmericanoBoard(container);
+        return;
+      }
+
+      // Если турнир ещё не запущен — показываем форму с ручным вводом имён
+      container.innerHTML = `
+        <h2 class="text-base font-bold mb-2 text-purple-900">🏆 Быстрый Американо</h2>
+        <p class="text-xs text-gray-500 mb-4">Введите имена игроков для моментальной генерации сетки и подсчёта мест.</p>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Количество участников</label>
+            <select id="quick_player_count" onchange="renderNameInputs()" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
+              <option value="4">4 игрока (1 корт)</option>
+              <option value="6">6 игроков (1 корт)</option>
+              <option value="8">8 игроков (2 корта)</option>
+            </select>
+          </div>
+
+          <div id="names-container" class="space-y-2 pt-2">
+            <!-- Сюда сгенерируются поля ввода имён -->
+          </div>
+
+          <button onclick="startQuickAmericano()" class="w-full py-3 bg-purple-600 text-white font-bold rounded-xl shadow-md hover:bg-purple-700 text-sm mt-4">
+            🚀 Начать турнир и построить сетку
+          </button>
+        </div>
+      `;
+
+      renderNameInputs();
+    }
+
+    // Динамическая генерация полей ввода имён
+    function renderNameInputs() {
+      const count = parseInt(document.getElementById('quick_player_count').value) || 4;
+      const container = document.getElementById('names-container');
+      let html = '<label class="block text-xs font-medium text-gray-600 mb-1">Имена участников:</label>';
+
+      for (let i = 1; i <= count; i++) {
+        html += `
+          <input type="text" id="player_name_${i}" value="Игрок ${i}" placeholder="Имя игрока ${i}" class="w-full p-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:bg-white">
+        `;
+      }
+      container.innerHTML = html;
+    }
+
+    // Запуск турнира
+    function startQuickAmericano() {
+      const count = parseInt(document.getElementById('quick_player_count').value) || 4;
+      const players = [];
+
+      for (let i = 1; i <= count; i++) {
+        const inputName = document.getElementById(`player_name_${i}`).value.trim();
+        players.push({
+          id: i - 1,
+          name: inputName || `Игрок ${i}`
+        });
+      }
+
+      const rotation = AMERICANO_ROTATIONS[count];
+      const rounds = rotation.map((r, index) => ({
+        id: index + 1,
+        round: r.round,
+        court: r.court,
+        team_a: [r.a[0], r.a[1]],
+        team_b: [r.b[0], r.b[1]],
+        score_a: 0,
+        score_b: 0,
+        completed: false
+      }));
+
+      localAmericanoState = { players, rounds };
+      localStorage.setItem('quick_americano_state', JSON.stringify(localAmericanoState));
+      renderQuickAmericano();
+    }
+
+    // Отрисовка интерактивной турнирной таблицы и сетки
+    function renderQuickAmericanoBoard(container) {
+      const { players, rounds } = localAmericanoState;
+
+      // Подсчет очков
+      const leaderboard = players.map(p => ({ ...p, points: 0, matches: 0 }));
 
       rounds.forEach(r => {
-        if (r.is_completed) {
-          const scoreA = parseInt(r.score_a) || 0;
-          const scoreB = parseInt(r.score_b) || 0;
+        if (r.completed) {
+          const sa = parseInt(r.score_a) || 0;
+          const sb = parseInt(r.score_b) || 0;
 
-          if (leaderboard[r.team_a_p1]) { leaderboard[r.team_a_p1].points += scoreA; leaderboard[r.team_a_p1].gamesPlayed++; }
-          if (leaderboard[r.team_a_p2]) { leaderboard[r.team_a_p2].points += scoreA; leaderboard[r.team_a_p2].gamesPlayed++; }
-          if (leaderboard[r.team_b_p1]) { leaderboard[r.team_b_p1].points += scoreB; leaderboard[r.team_b_p1].gamesPlayed++; }
-          if (leaderboard[r.team_b_p2]) { leaderboard[r.team_b_p2].points += scoreB; leaderboard[r.team_b_p2].gamesPlayed++; }
+          r.team_a.forEach(pIdx => { leaderboard[pIdx].points += sa; leaderboard[pIdx].matches++; });
+          r.team_b.forEach(pIdx => { leaderboard[pIdx].points += sb; leaderboard[pIdx].matches++; });
         }
       });
 
-      // Сортировка участников по баллам
-      const sortedLeaderboard = Object.values(leaderboard).sort((a, b) => b.points - a.points);
+      // Сортировка по очкам
+      const sortedLeaderboard = [...leaderboard].sort((a, b) => b.points - a.points);
 
-      // Генерация Лидерборда
       let leaderboardHtml = sortedLeaderboard.map((item, index) => {
         let badge = `${index + 1} место`;
-        if (index === 0) badge = '🥇 1 место';
-        if (index === 1) badge = '🥈 2 место';
-        if (index === 2) badge = '🥉 3 место';
+        if (index === 0) badge = '🥇 1-е место';
+        if (index === 1) badge = '🥈 2-е место';
+        if (index === 2) badge = '🥉 3-е место';
 
         return `
           <div class="flex items-center justify-between p-2 border-b border-gray-100 text-xs">
             <span class="font-bold text-gray-800">${badge}: ${item.name}</span>
-            <span class="font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">${item.points} очков</span>
+            <span class="font-extrabold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">${item.points} очков</span>
           </div>
         `;
       }).join('');
 
-      // Генерация сетки раундов
       let roundsHtml = rounds.map(r => {
-        const nameA1 = leaderboard[r.team_a_p1]?.name || 'Игрок';
-        const nameA2 = leaderboard[r.team_a_p2]?.name || 'Игрок';
-        const nameB1 = leaderboard[r.team_b_p1]?.name || 'Игрок';
-        const nameB2 = leaderboard[r.team_b_p2]?.name || 'Игрок';
+        const pA1 = players[r.team_a[0]]?.name;
+        const pA2 = players[r.team_a[1]]?.name;
+        const pB1 = players[r.team_b[0]]?.name;
+        const pB2 = players[r.team_b[1]]?.name;
 
         return `
           <div class="p-3 border border-gray-200 rounded-xl bg-gray-50 space-y-2 text-xs">
             <div class="flex justify-between items-center text-gray-500 font-bold">
-              <span>Раунд ${r.round_number} (Корт #${r.court_number})</span>
-              ${r.is_completed ? '<span class="text-green-600 font-bold">Завершён</span>' : '<span class="text-amber-600">В процессе</span>'}
+              <span>Раунд ${r.round} ${r.court ? `(Корт #${r.court})` : ''}</span>
+              ${r.completed ? '<span class="text-green-600 font-bold">Завершён</span>' : '<span class="text-amber-600">Ожидает</span>'}
             </div>
             <div class="flex items-center justify-between gap-1">
-              <div class="flex-1 text-center font-medium">${nameA1} / ${nameA2}</div>
+              <div class="flex-1 text-center font-semibold text-gray-800">${pA1} / ${pA2}</div>
               <div class="flex items-center gap-1">
-                <input type="number" id="score_a_${r.id}" value="${r.score_a}" class="w-10 text-center p-1 border rounded font-bold bg-white">
+                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a}" oninput="updateQuickScore(${r.id})" class="w-10 text-center p-1 border rounded font-bold bg-white text-sm">
                 <span>:</span>
-                <input type="number" id="score_b_${r.id}" value="${r.score_b}" class="w-10 text-center p-1 border rounded font-bold bg-white">
+                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b}" oninput="updateQuickScore(${r.id})" class="w-10 text-center p-1 border rounded font-bold bg-white text-sm">
               </div>
-              <div class="flex-1 text-center font-medium">${nameB1} / ${nameB2}</div>
+              <div class="flex-1 text-center font-semibold text-gray-800">${pB1} / ${pB2}</div>
             </div>
-            <button onclick="saveRoundScore('${r.id}')" class="w-full py-1 bg-emerald-600 text-white rounded font-bold text-[11px]">Сохранить счёт</button>
           </div>
         `;
       }).join('');
 
       container.innerHTML = `
         <div class="space-y-4">
-          <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-4 rounded-xl text-white">
-            <h2 class="text-base font-bold">🏆 Турнирная таблица Американо</h2>
-            <p class="text-xs opacity-90">${match.custom_location}</p>
+          <div class="bg-gradient-to-r from-purple-600 to-indigo-700 p-4 rounded-xl text-white flex justify-between items-center">
+            <div>
+              <h2 class="text-base font-bold">🏆 Калькулятор Американо</h2>
+              <p class="text-xs opacity-80">Введите очки — рейтинг пересчитается автоматически</p>
+            </div>
+            <button onclick="resetQuickAmericano()" class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white rounded-lg text-xs font-semibold">Сброс</button>
           </div>
 
           <div class="bg-white border rounded-xl p-3 shadow-sm">
-            <h3 class="text-xs font-bold text-gray-700 mb-2">Рейтинг игроков</h3>
+            <h3 class="text-xs font-bold text-gray-700 mb-2">Текущий Лидерборд</h3>
             ${leaderboardHtml}
           </div>
 
           <div class="space-y-2">
-            <h3 class="text-xs font-bold text-gray-700">Сетка матчей и счёт</h3>
+            <h3 class="text-xs font-bold text-gray-700">Матчи и Счёт</h3>
             ${roundsHtml}
           </div>
-
-          <button onclick="copyShareLink('${shareUrl}')" class="w-full py-2.5 bg-gray-100 text-gray-800 font-semibold rounded-xl text-xs">📋 Скопировать ссылку на турнир</button>
         </div>
       `;
     }
 
-    // Генерация сетки раундов
-    async function generateAmericanoRounds(matchId) {
-      try {
-        const { data: match } = await supabaseClient.from('matches').select('*').eq('id', matchId).single();
-        const { data: players } = await supabaseClient.from('match_players').select('*').eq('match_id', matchId).order('slot_number');
+    // Автоматическое обновление очков "на лету" при вводе
+    function updateQuickScore(roundId) {
+      const scoreA = parseInt(document.getElementById(`quick_score_a_${roundId}`).value) || 0;
+      const scoreB = parseInt(document.getElementById(`quick_score_b_${roundId}`).value) || 0;
 
-        const pCount = players.length;
-        const rotation = AMERICANO_ROTATIONS[pCount];
-
-        if (!rotation) {
-          alert('Для Американо требуется 4, 6 или 8 игроков.');
-          return;
-        }
-
-        const roundsToInsert = rotation.map(r => ({
-          match_id: matchId,
-          round_number: r.round,
-          court_number: r.court,
-          team_a_p1: players[r.a[0]].user_id,
-          team_a_p2: players[r.a[1]].user_id,
-          team_b_p1: players[r.b[0]].user_id,
-          team_b_p2: players[r.b[1]].user_id
-        }));
-
-        await supabaseClient.from('americano_rounds').insert(roundsToInsert);
-        renderMatchDetails(matchId);
-      } catch (err) {
-        alert('Ошибка генерации сетки: ' + err.message);
+      const round = localAmericanoState.rounds.find(r => r.id === roundId);
+      if (round) {
+        round.score_a = scoreA;
+        round.score_b = scoreB;
+        round.completed = (scoreA > 0 || scoreB > 0);
+        localStorage.setItem('quick_americano_state', JSON.stringify(localAmericanoState));
+        renderQuickAmericanoBoard(document.getElementById('main-content'));
       }
     }
 
-    // Сохранение счёта конкретного матча
-    async function saveRoundScore(roundId) {
-      const scoreA = parseInt(document.getElementById(`score_a_${roundId}`).value) || 0;
-      const scoreB = parseInt(document.getElementById(`score_b_${roundId}`).value) || 0;
-
-      try {
-        await supabaseClient.from('americano_rounds').update({
-          score_a: scoreA,
-          score_b: scoreB,
-          is_completed: true
-        }).eq('id', roundId);
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const matchId = getStartParam();
-        renderMatchDetails(matchId);
-      } catch (err) {
-        alert('Ошибка сохранения счёта: ' + err.message);
+    // Сброс и создание нового турнира
+    function resetQuickAmericano() {
+      if (confirm('Начать новый турнир? Текущий счёт будет сброшен.')) {
+        localAmericanoState = null;
+        localStorage.removeItem('quick_americano_state');
+        renderQuickAmericano();
       }
     }
 
