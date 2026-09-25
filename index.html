@@ -364,6 +364,11 @@
         skillLevel: "Уровень игры (1.0 - 7.0)",
         preferredSide: "Сторона на корте",
         phone: "Номер телефона",
+        age: "Возраст (лет)",
+        gender: "Пол",
+        male: "Мужской 👨",
+        female: "Женский 👩",
+        unspecified: "Не указан",
         saveProfile: "Сохранить профиль",
         stats: "Статистика игрока",
         matches: "Матчи",
@@ -407,6 +412,11 @@
         skillLevel: "Nivel de joc (1.0 - 7.0)",
         preferredSide: "Parte pe teren",
         phone: "Număr de telefon",
+        age: "Vârstă (ani)",
+        gender: "Gen",
+        male: "Masculin 👨",
+        female: "Feminin 👩",
+        unspecified: "Nespecificat",
         saveProfile: "Salvează profilul",
         stats: "Statistici jucător",
         matches: "Meciuri",
@@ -450,6 +460,11 @@
         skillLevel: "Skill Level (1.0 - 7.0)",
         preferredSide: "Preferred Side",
         phone: "Phone Number",
+        age: "Age (years)",
+        gender: "Gender",
+        male: "Male 👨",
+        female: "Female 👩",
+        unspecified: "Unspecified",
         saveProfile: "Save Profile",
         stats: "Player Statistics",
         matches: "Matches",
@@ -650,10 +665,12 @@
       try {
         const { data, error } = await supabaseClient
           .from('profiles')
-          .select('id, first_name, last_name, username, skill_level, rating_americano, rating_friendly, rating_competitive, preferred_side, phone, total_matches_played, wins, losses')
+          .select('id, first_name, last_name, username, skill_level, rating_americano, rating_friendly, rating_competitive, preferred_side, phone, age, gender, total_matches_played, wins, losses')
           .order('total_matches_played', { ascending: false });
+        
         if (!error && data) {
-          platformProfilesList = data;
+          // СТРОГАЯ ФИЛЬТРАЦИЯ: оставляем ТОЛЬКО людей, зарегистрированных на платформе (существующих игроков)
+          platformProfilesList = data.filter(p => p.first_name && p.first_name.trim() !== '' && p.id);
         }
       } catch(e) {}
     }
@@ -699,6 +716,8 @@
             rating_friendly: 1000,
             rating_competitive: 1000,
             preferred_side: 'both',
+            age: null,
+            gender: null,
             total_matches_played: 0,
             wins: 0,
             losses: 0,
@@ -1010,7 +1029,6 @@
 
       try {
         const updatePayload = { max_players: newMax };
-        // При добавлении слота автоматически открываем регистрацию, чтобы место стало видимым и доступным
         if (delta > 0) {
           updatePayload.is_registration_closed = false;
         }
@@ -1506,6 +1524,8 @@
         rating_competitive: 1000,
         preferred_side: 'both',
         phone: '+373 60 217 449',
+        age: null,
+        gender: null,
         total_matches_played: 0,
         wins: 0,
         losses: 0
@@ -1520,8 +1540,15 @@
       if (p.preferred_side === 'left') sideLabel = t('leftSide');
       if (p.preferred_side === 'right') sideLabel = t('rightSide');
 
-      // Формирование динамических списков лидеров
-      let sortedList = [...platformProfilesList];
+      let genderLabel = '';
+      if (p.gender === 'male') genderLabel = ' • 👨 Мужской';
+      else if (p.gender === 'female') genderLabel = ' • 👩 Женский';
+
+      let ageLabel = p.age ? ` • 🎂 ${p.age} лет` : '';
+
+      // Фильтрация: берем строго реальных людей платформы (с заполнением имени)
+      let sortedList = platformProfilesList.filter(user => user.first_name && user.first_name.trim() !== '');
+
       if (currentLeaderboardTab === 'national') {
         sortedList.sort((a, b) => (b.skill_level || 2.5) - (a.skill_level || 2.5));
       } else if (currentLeaderboardTab === 'americano') {
@@ -1539,11 +1566,14 @@
         else if (currentLeaderboardTab === 'friendly') valBadge = `${item.rating_friendly || 1000} PTS`;
         else if (currentLeaderboardTab === 'competitive') valBadge = `${item.rating_competitive || 1000} ELO`;
 
+        let itemGenderIcon = item.gender === 'male' ? '👨 ' : (item.gender === 'female' ? '👩 ' : '');
+        let itemAgeStr = item.age ? ` (${item.age} л.)` : '';
+
         return `
           <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs">
             <div class="flex items-center gap-2">
               <span class="font-black ${index < 3 ? 'text-amber-400 font-mono text-sm' : 'text-slate-500'}">#${index + 1}</span>
-              <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white ${isUserCreator() ? 'cursor-pointer underline decoration-dotted hover:text-amber-300' : ''}">${item.first_name} ${item.last_name || ''}</span>
+              <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white ${isUserCreator() ? 'cursor-pointer underline decoration-dotted hover:text-amber-300' : ''}">${itemGenderIcon}${item.first_name} ${item.last_name || ''}${itemAgeStr}</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2.5 py-1 rounded-full uppercase">${valBadge}</span>
@@ -1555,7 +1585,7 @@
 
       let creatorAdminPanelHtml = '';
       if (isUserCreator()) {
-        let allUsersManagementRows = platformProfilesList.map(item => `
+        let allUsersManagementRows = sortedList.map(item => `
           <div class="flex items-center justify-between p-2 bg-slate-950/50 rounded-xl text-xs gap-2">
             <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[140px] cursor-pointer underline decoration-dotted hover:text-amber-300">${item.first_name} (${item.total_matches_played || 0} матчей)</span>
             <span class="text-[10px] bg-purple-500/20 text-purple-300 font-bold px-2 py-0.5 rounded">Lvl ${item.skill_level || 2.5}</span>
@@ -1569,7 +1599,7 @@
             </h3>
             
             <div class="space-y-2">
-              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Все игроки платформы (Нажмите на имя для настройки всех рейтингов):</p>
+              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Все зарегистрированные игроки платформы:</p>
               <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
                 ${allUsersManagementRows}
               </div>
@@ -1585,7 +1615,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <h2 class="text-lg font-black tracking-tight">${p.first_name} ${p.last_name || ''}</h2>
-                <p class="text-xs opacity-90 font-medium">Национальный Уровень: <strong class="text-amber-300 font-extrabold">${p.skill_level || 2.5}</strong> • ${sideLabel}</p>
+                <p class="text-xs opacity-90 font-medium">Lvl: <strong class="text-amber-300 font-extrabold">${p.skill_level || 2.5}</strong> • ${sideLabel}${genderLabel}${ageLabel}</p>
               </div>
               <div class="w-11 h-11 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-2xl font-black">
                 🎾
@@ -1654,7 +1684,7 @@
             </div>
 
             <div class="divide-y divide-white/5">
-              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-2">Рейтинг формируется...</p>'}
+              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные игроки отсутствуют...</p>'}
             </div>
           </div>
 
@@ -1663,18 +1693,35 @@
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('editProfile')}</h3>
             
             <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
-              <div>
-                <label class="block text-slate-400 font-semibold mb-1">${t('skillLevel')}</label>
-                <input type="number" id="edit_skill_level" step="0.1" min="1.0" max="7.0" value="${p.skill_level || 2.5}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-slate-400 font-semibold mb-1">${t('skillLevel')}</label>
+                  <input type="number" id="edit_skill_level" step="0.1" min="1.0" max="7.0" value="${p.skill_level || 2.5}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
+                </div>
+                <div>
+                  <label class="block text-slate-400 font-semibold mb-1">${t('preferredSide')}</label>
+                  <select id="edit_preferred_side" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
+                    <option value="both" ${p.preferred_side === 'both' ? 'selected' : ''}>${t('bothSides')}</option>
+                    <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
+                    <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
+                  </select>
+                </div>
               </div>
 
-              <div>
-                <label class="block text-slate-400 font-semibold mb-1">${t('preferredSide')}</label>
-                <select id="edit_preferred_side" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
-                  <option value="both" ${p.preferred_side === 'both' ? 'selected' : ''}>${t('bothSides')}</option>
-                  <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
-                  <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
-                </select>
+              <!-- Возраст и Пол -->
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-slate-400 font-semibold mb-1">${t('age')}</label>
+                  <input type="number" id="edit_age" min="10" max="99" placeholder="Напр. 25" value="${p.age || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                  <label class="block text-slate-400 font-semibold mb-1">${t('gender')}</label>
+                  <select id="edit_gender" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                    <option value="" ${!p.gender ? 'selected' : ''}>${t('unspecified')}</option>
+                    <option value="male" ${p.gender === 'male' ? 'selected' : ''}>${t('male')}</option>
+                    <option value="female" ${p.gender === 'female' ? 'selected' : ''}>${t('female')}</option>
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -1682,7 +1729,7 @@
                 <input type="text" id="edit_phone" placeholder="+373 60 217 449" value="${p.phone || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
               </div>
 
-              <button type="submit" class="w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl btn-3d uppercase tracking-wider text-[11px]">
+              <button type="submit" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-black rounded-xl btn-3d uppercase tracking-wider text-xs shadow-lg shadow-blue-500/20">
                 ${t('saveProfile')}
               </button>
             </form>
@@ -1796,6 +1843,10 @@
       const newSkill = parseFloat(document.getElementById('edit_skill_level').value) || 2.5;
       const side = document.getElementById('edit_preferred_side').value;
       const phone = document.getElementById('edit_phone').value.trim();
+      
+      const ageVal = parseInt(document.getElementById('edit_age').value);
+      const age = !isNaN(ageVal) && ageVal > 0 ? ageVal : null;
+      const gender = document.getElementById('edit_gender').value || null;
 
       try {
         const { error } = await supabaseClient
@@ -1804,6 +1855,8 @@
             skill_level: newSkill,
             preferred_side: side,
             phone: phone,
+            age: age,
+            gender: gender,
             updated_at: new Date().toISOString()
           })
           .eq('id', tgUser.id);
