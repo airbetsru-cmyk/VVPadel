@@ -17,89 +17,107 @@
 <body class="p-4 text-gray-900 font-sans pb-12">
 
   <div id="app" class="max-w-md mx-auto space-y-4">
-    <!-- Шапка приложения -->
+    <!-- Шапка -->
     <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
       <div>
         <h1 class="text-lg font-bold text-emerald-700">Padel Moldova 🎾</h1>
-        <p id="user-greeting" class="text-xs text-gray-500">Авторизация...</p>
+        <p id="user-greeting" class="text-xs text-gray-500">Загрузка профиля...</p>
       </div>
       <span id="user-badge" class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">Player</span>
     </div>
 
-    <!-- Главный контейнер -->
-    <div id="main-content" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[300px]">
-      <div class="flex justify-center items-center py-12 text-gray-400">Загрузка данных...</div>
+    <!-- Блок диагностики (покажет ошибку, если что-то пойдет не так) -->
+    <div id="error-box" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-xs font-mono break-all"></div>
+
+    <!-- Главный контент -->
+    <div id="main-content" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[250px]">
+      <div class="flex justify-center items-center py-12 text-gray-400">Инициализация...</div>
     </div>
   </div>
 
   <script>
-    // 1. Инициализация Telegram SDK
+    // --- 1. КЛЮЧИ ПОДКЛЮЧЕНИЯ (ВСТАВЬТЕ ВАШИ ДАННЫЕ СУПАБЕЙС) ---
+    const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
+    const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
+    const shareBotUsername = 'VVPadel_bot'; // Юзернейм вашего бота без @
+
+    // Вывод ошибок на экран приложения
+    function showError(msg) {
+      const box = document.getElementById('error-box');
+      box.classList.remove('hidden');
+      box.innerHTML = `<strong>Ошибка:</strong> ${msg}`;
+      console.error(msg);
+    }
+
+    // Перехват любых невидимых сбоев JS
+    window.addEventListener('error', (e) => showError(e.message));
+    window.addEventListener('unhandledrejection', (e) => showError(e.reason?.message || e.reason));
+
+    // Инициализация Telegram
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
 
-    // 2. Инициализация Supabase
-    const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Данные пользователя Telegram
+    // Данные Telegram-пользователя
     const tgUser = tg.initDataUnsafe?.user || {
       id: 999000111,
-      first_name: 'Тестовый',
-      last_name: 'Игрок',
-      username: 'testplayer'
+      first_name: 'Игрок',
+      last_name: ''
     };
 
-    // Контекст запуска
+    // Параметры запуска
     const startParam = tg.initDataUnsafe?.start_param || new URLSearchParams(window.location.search).get('startapp');
 
-    // Старт приложения
-    async function initApp() {
-      await syncUserProfile();
-      const userGreeting = document.getElementById('user-greeting');
-      if (userGreeting) {
-        userGreeting.innerText = `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 'Игрок';
-      }
+    // Инициализация Supabase
+    let supabaseClient;
+    try {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) {
+      showError('Не удалось инициализировать Supabase: ' + e.message);
+    }
 
+    // Главная функция запуска
+    async function initApp() {
+      // Сразу обновляем имя пользователя в шапке
+      document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`;
+
+      // Рендерим форму СРАЗУ, не дожидаясь ответа базы
       if (startParam) {
-        renderMatchDetails(startParam);
+        await renderMatchDetails(startParam);
       } else {
         renderCreateMatchForm();
       }
+
+      // Синхронизируем профиль в фоновом режиме
+      syncUserProfile().catch(err => console.log('Sync profile note:', err));
     }
 
-    // Синхронизация профиля
+    // Сохранение / обновление профиля
     async function syncUserProfile() {
-      try {
-        await supabase.from('profiles').upsert({
-          id: tgUser.id,
-          first_name: tgUser.first_name,
-          last_name: tgUser.last_name || null,
-          username: tgUser.username || null,
-          updated_at: new Date().toISOString()
-        });
-      } catch (err) {
-        console.error('Ошибка синхронизации профиля:', err);
-      }
+      if (!supabaseClient) return;
+      await supabaseClient.from('profiles').upsert({
+        id: tgUser.id,
+        first_name: tgUser.first_name,
+        last_name: tgUser.last_name || null,
+        username: tgUser.username || null,
+        updated_at: new Date()
+      });
     }
 
-    // Форма создания игры
+    // Отрисовка формы создания
     function renderCreateMatchForm() {
       const container = document.getElementById('main-content');
-      if (!container) return;
-
       container.innerHTML = `
         <h2 class="text-base font-bold mb-4 text-gray-800">Создать новую игру</h2>
         <form id="create-form" class="space-y-3" onsubmit="handleCreateMatch(event)">
           <div>
-            <label for="custom_location" class="block text-xs font-medium text-gray-600 mb-1">Локация / Корт</label>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Локация / Корт</label>
             <input type="text" id="custom_location" required value="Padel Club Chisinau" placeholder="Например: Арена Кишинёв" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-emerald-500">
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label for="max_players" class="block text-xs font-medium text-gray-600 mb-1">Количество мест</label>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Мест</label>
               <select id="max_players" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                 <option value="4">4 игрока (2х2)</option>
                 <option value="6">6 игроков (Americano)</option>
@@ -107,7 +125,7 @@
               </select>
             </div>
             <div>
-              <label for="match_type" class="block text-xs font-medium text-gray-600 mb-1">Формат</label>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Формат</label>
               <select id="match_type" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium">
                 <option value="friendly">Дружеский</option>
                 <option value="competitive">Рейтинговый</option>
@@ -118,17 +136,17 @@
 
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label for="scheduled_at" class="block text-xs font-medium text-gray-600 mb-1">Дата и время</label>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Дата и время</label>
               <input type="datetime-local" id="scheduled_at" required class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
             </div>
             <div>
-              <label for="price_per_player" class="block text-xs font-medium text-gray-600 mb-1">Цена с игрока (MDL)</label>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Цена с игрока (MDL)</label>
               <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
             </div>
           </div>
 
           <div>
-            <label for="notes" class="block text-xs font-medium text-gray-600 mb-1">Заметки / Пожелания</label>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Заметки / Пожелания</label>
             <input type="text" id="notes" placeholder="Мячи свои, уровень 2.5+" class="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm">
           </div>
 
@@ -138,42 +156,36 @@
         </form>
       `;
 
-      const defaultTime = new Date(Date.now() + 3 * 3600 * 1000 - new Date().getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, 16);
-      
-      const dateInput = document.getElementById('scheduled_at');
-      if (dateInput) {
-        dateInput.value = defaultTime;
-      }
+      // Дата по умолчанию (+2 часа от текущего)
+      const defaultTime = new Date(Date.now() + 2 * 3600 * 1000).toISOString().slice(0, 16);
+      document.getElementById('scheduled_at').value = defaultTime;
     }
 
-    // Обработка создания игры
+    // Создание матча
     async function handleCreateMatch(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
-      if (btn) {
-        btn.disabled = true;
-        btn.innerText = 'Создание...';
-      }
+      btn.disabled = true;
+      btn.innerText = 'Создание...';
 
       try {
-        const scheduledInput = document.getElementById('scheduled_at').value;
         const matchData = {
           creator_id: tgUser.id,
           custom_location: document.getElementById('custom_location').value,
-          max_players: parseInt(document.getElementById('max_players').value, 10),
+          max_players: parseInt(document.getElementById('max_players').value),
           match_type: document.getElementById('match_type').value,
-          scheduled_at: new Date(scheduledInput).toISOString(),
+          scheduled_at: new Date(document.getElementById('scheduled_at').value).toISOString(),
           price_per_player: parseFloat(document.getElementById('price_per_player').value) || 0,
           notes: document.getElementById('notes').value
         };
 
-        const { data: match, error } = await supabase.from('matches').insert([matchData]).select().single();
+        // Создаем запись матча
+        const { data: match, error } = await supabaseClient.from('matches').insert([matchData]).select().single();
 
         if (error) throw error;
 
-        await supabase.from('match_players').insert([{
+        // Записываем создателя в слот №1
+        await supabaseClient.from('match_players').insert([{
           match_id: match.id,
           user_id: tgUser.id,
           slot_number: 1
@@ -181,30 +193,26 @@
 
         renderMatchDetails(match.id);
       } catch (err) {
-        alert('Ошибка при создании игры: ' + (err.message || err));
-        if (btn) {
-          btn.disabled = false;
-          btn.innerText = 'Сформировать ссылку на игру';
-        }
+        showError('Ошибка создания игры: ' + err.message);
+        btn.disabled = false;
+        btn.innerText = 'Сформировать ссылку на игру';
       }
     }
 
-    // Отображение деталей игры
+    // Карточка игры
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
-      if (!container) return;
-
-      container.innerHTML = `<div class="text-center py-8 text-gray-400">Загрузка карточки матча...</div>`;
+      container.innerHTML = `<div class="text-center py-8 text-gray-400">Загрузка данных матча...</div>`;
 
       try {
-        const { data: match, error } = await supabase
+        const { data: match, error } = await supabaseClient
           .from('view_active_matches')
           .select('*')
           .eq('match_id', matchId)
           .single();
 
         if (error || !match) {
-          container.innerHTML = `<div class="text-red-500 font-medium text-center">Игра не найдена или была удалена.</div>`;
+          container.innerHTML = `<div class="text-red-500 font-medium text-center py-6">Игра не найдена.</div>`;
           return;
         }
 
@@ -220,10 +228,9 @@
         for (let i = 1; i <= match.max_players; i++) {
           const playerInSlot = players.find(p => p.slot_number === i || (!p.slot_number && players.indexOf(p) === i - 1));
           if (playerInSlot) {
-            const name = playerInSlot.first_name || 'Игрок';
             slotsHtml += `
               <div class="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-100 rounded-xl">
-                <span class="text-xs font-semibold text-emerald-900">Слот #${i}: ${name}</span>
+                <span class="text-xs font-semibold text-emerald-900">Слот #${i}: ${playerInSlot.first_name}</span>
                 <span class="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full">Занят</span>
               </div>`;
           } else {
@@ -234,7 +241,6 @@
           }
         }
 
-        const shareBotUsername = 'VVPadel_bot';
         const shareUrl = `https://t.me/${shareBotUsername}/app?startapp=${match.match_id}`;
 
         container.innerHTML = `
@@ -246,7 +252,7 @@
                 </span>
                 <span class="text-xs font-bold text-emerald-700">${match.price_per_player} MDL / чел</span>
               </div>
-              <h2 class="text-lg font-bold mt-1 text-gray-900">${match.location_name || match.custom_location || 'Корт'}</h2>
+              <h2 class="text-lg font-bold mt-1 text-gray-900">${match.location_name}</h2>
               <p class="text-xs text-gray-500">📅 ${dateStr}</p>
               ${match.notes ? `<p class="text-xs italic text-gray-600 mt-1">"${match.notes}"</p>` : ''}
             </div>
@@ -278,44 +284,45 @@
           </div>
         `;
       } catch (err) {
-        container.innerHTML = `<div class="text-red-500 font-medium text-center">Ошибка загрузки: ${err.message || err}</div>`;
+        showError('Ошибка загрузки матча: ' + err.message);
       }
     }
 
-    // Присоединиться к игре
+    // Присоединение к игре
     async function joinMatch(matchId, nextSlot) {
-      const { error } = await supabase.from('match_players').insert([{
-        match_id: matchId,
-        user_id: tgUser.id,
-        slot_number: nextSlot
-      }]);
+      try {
+        const { error } = await supabaseClient.from('match_players').insert([{
+          match_id: matchId,
+          user_id: tgUser.id,
+          slot_number: nextSlot
+        }]);
 
-      if (error) {
-        alert('Не удалось занять место: ' + error.message);
-      } else {
+        if (error) throw error;
         renderMatchDetails(matchId);
+      } catch (err) {
+        alert('Не удалось занять место: ' + err.message);
       }
     }
 
-    // Выйти из игры
+    // Выход из игры
     async function leaveMatch(matchId) {
-      const { error } = await supabase.from('match_players').delete()
-        .eq('match_id', matchId)
-        .eq('user_id', tgUser.id);
+      try {
+        const { error } = await supabaseClient.from('match_players').delete()
+          .eq('match_id', matchId)
+          .eq('user_id', tgUser.id);
 
-      if (error) {
-        alert('Ошибка: ' + error.message);
-      } else {
+        if (error) throw error;
         renderMatchDetails(matchId);
+      } catch (err) {
+        alert('Ошибка: ' + err.message);
       }
     }
 
-    // Поделиться ссылкой
+    // Копирование ссылки
     function copyShareLink(url) {
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(url)
-          .then(() => tg.showAlert('Ссылка на бронирование скопирована! Отправьте её игрокам.'))
-          .catch(() => prompt('Скопируйте ссылку вручную:', url));
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url);
+        tg.showAlert('Ссылка на игру скопирована!');
       } else {
         prompt('Скопируйте ссылку вручную:', url);
       }
