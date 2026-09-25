@@ -26,86 +26,95 @@
       <span id="user-badge" class="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">Player</span>
     </div>
 
-    <!-- Блок диагностики (покажет ошибку, если что-то пойдет не так) -->
+    <!-- Блок диагностики ошибок -->
     <div id="error-box" class="hidden bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-xs font-mono break-all"></div>
 
     <!-- Главный контент -->
     <div id="main-content" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 min-h-[250px]">
-      <div class="flex justify-center items-center py-12 text-gray-400">Инициализация...</div>
+      <div class="flex justify-center items-center py-12 text-gray-400">Загрузка приложения...</div>
     </div>
   </div>
 
   <script>
-    // --- 1. КЛЮЧИ ПОДКЛЮЧЕНИЯ (ВСТАВЬТЕ ВАШИ ДАННЫЕ СУПАБЕЙС) ---
+    // --- ВСТАВЬТЕ ВАШИ ДАННЫЕ НИЖЕ ---
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot'; // Юзернейм вашего бота без @
 
-    // Вывод ошибок на экран приложения
+    // Функция вывода понятных ошибок
     function showError(msg) {
+      if (!msg || msg === 'Script error.') return; // Игнорируем слепые ошибки CORS
       const box = document.getElementById('error-box');
       box.classList.remove('hidden');
-      box.innerHTML = `<strong>Ошибка:</strong> ${msg}`;
-      console.error(msg);
+      box.innerHTML = `<strong>Инфо:</strong> ${msg}`;
     }
 
-    // Перехват любых невидимых сбоев JS
-    window.addEventListener('error', (e) => showError(e.message));
-    window.addEventListener('unhandledrejection', (e) => showError(e.reason?.message || e.reason));
-
-    // Инициализация Telegram
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
+    // Инициализация Telegram SDK
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      try { tg.ready(); tg.expand(); } catch(e) {}
+    }
 
     // Данные Telegram-пользователя
-    const tgUser = tg.initDataUnsafe?.user || {
-      id: 999000111,
+    const tgUser = tg?.initDataUnsafe?.user || {
+      id: Math.floor(Math.random() * 1000000),
       first_name: 'Игрок',
       last_name: ''
     };
 
-    // Параметры запуска
-const urlParams = new URLSearchParams(window.location.search);
-const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStartParam') || urlParams.get('startapp');
-
-    // Инициализация Supabase
-    let supabaseClient;
-    try {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } catch (e) {
-      showError('Не удалось инициализировать Supabase: ' + e.message);
+    // Определение параметра игры (startapp или tgWebAppStartParam)
+    function getStartParam() {
+      if (tg?.initDataUnsafe?.start_param) {
+        return tg.initDataUnsafe.start_param;
+      }
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get('tgWebAppStartParam') || urlParams.get('startapp') || urlParams.get('start');
     }
 
-    // Главная функция запуска
-    async function initApp() {
-      // Сразу обновляем имя пользователя в шапке
-      document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`;
+    // Инициализация клиентского подключения Supabase
+    let supabaseClient = null;
+    try {
+      if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+    } catch (e) {
+      showError('Ошибка подключения к базе: ' + e.message);
+    }
 
-      // Рендерим форму СРАЗУ, не дожидаясь ответа базы
+    // Запуск приложения
+    async function initApp() {
+      // Отображаем имя пользователя
+      document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
+
+      const startParam = getStartParam();
+
       if (startParam) {
         await renderMatchDetails(startParam);
       } else {
         renderCreateMatchForm();
       }
 
-      // Синхронизируем профиль в фоновом режиме
-      syncUserProfile().catch(err => console.log('Sync profile note:', err));
+      // Сохраняем профиль
+      syncUserProfile();
     }
 
-    // Сохранение / обновление профиля
+    // Фоновая синхронизация профиля
     async function syncUserProfile() {
       if (!supabaseClient) return;
-      await supabaseClient.from('profiles').upsert({
-        id: tgUser.id,
-        first_name: tgUser.first_name,
-        last_name: tgUser.last_name || null,
-        username: tgUser.username || null,
-        updated_at: new Date()
-      });
+      try {
+        await supabaseClient.from('profiles').upsert({
+          id: tgUser.id,
+          first_name: tgUser.first_name || 'Игрок',
+          last_name: tgUser.last_name || null,
+          username: tgUser.username || null,
+          updated_at: new Date()
+        });
+      } catch (err) {
+        console.log('Profile sync:', err);
+      }
     }
 
-    // Отрисовка формы создания
+    // Форма создания игры
     function renderCreateMatchForm() {
       const container = document.getElementById('main-content');
       container.innerHTML = `
@@ -157,12 +166,11 @@ const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStar
         </form>
       `;
 
-      // Дата по умолчанию (+2 часа от текущего)
       const defaultTime = new Date(Date.now() + 2 * 3600 * 1000).toISOString().slice(0, 16);
       document.getElementById('scheduled_at').value = defaultTime;
     }
 
-    // Создание матча
+    // Обработка кнопки создания игры
     async function handleCreateMatch(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
@@ -170,6 +178,9 @@ const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStar
       btn.innerText = 'Создание...';
 
       try {
+        // Убеждаемся, что профиль создан перед записью игры
+        await syncUserProfile();
+
         const matchData = {
           creator_id: tgUser.id,
           custom_location: document.getElementById('custom_location').value,
@@ -180,12 +191,11 @@ const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStar
           notes: document.getElementById('notes').value
         };
 
-        // Создаем запись матча
         const { data: match, error } = await supabaseClient.from('matches').insert([matchData]).select().single();
 
         if (error) throw error;
 
-        // Записываем создателя в слот №1
+        // Добавляем организатора в 1-й слот
         await supabaseClient.from('match_players').insert([{
           match_id: match.id,
           user_id: tgUser.id,
@@ -194,7 +204,7 @@ const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStar
 
         renderMatchDetails(match.id);
       } catch (err) {
-        showError('Ошибка создания игры: ' + err.message);
+        showError('Не удалось создать игру: ' + err.message);
         btn.disabled = false;
         btn.innerText = 'Сформировать ссылку на игру';
       }
@@ -203,7 +213,7 @@ const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStar
     // Карточка игры
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
-      container.innerHTML = `<div class="text-center py-8 text-gray-400">Загрузка данных матча...</div>`;
+      container.innerHTML = `<div class="text-center py-8 text-gray-400">Загрузка информации об игре...</div>`;
 
       try {
         const { data: match, error } = await supabaseClient
@@ -213,7 +223,11 @@ const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStar
           .single();
 
         if (error || !match) {
-          container.innerHTML = `<div class="text-red-500 font-medium text-center py-6">Игра не найдена.</div>`;
+          container.innerHTML = `
+            <div class="text-center py-6">
+              <p class="text-red-500 font-medium mb-3">Игра не найдена или завершена.</p>
+              <button onclick="renderCreateMatchForm()" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl">Создать новую игру</button>
+            </div>`;
           return;
         }
 
@@ -285,13 +299,14 @@ const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStar
           </div>
         `;
       } catch (err) {
-        showError('Ошибка загрузки матча: ' + err.message);
+        showError('Ошибка отображения карточки: ' + err.message);
       }
     }
 
-    // Присоединение к игре
+    // Кнопка присоединиться
     async function joinMatch(matchId, nextSlot) {
       try {
+        await syncUserProfile();
         const { error } = await supabaseClient.from('match_players').insert([{
           match_id: matchId,
           user_id: tgUser.id,
@@ -305,7 +320,7 @@ const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStar
       }
     }
 
-    // Выход из игры
+    // Кнопка выйти из игры
     async function leaveMatch(matchId) {
       try {
         const { error } = await supabaseClient.from('match_players').delete()
@@ -315,21 +330,22 @@ const startParam = tg.initDataUnsafe?.start_param || urlParams.get('tgWebAppStar
         if (error) throw error;
         renderMatchDetails(matchId);
       } catch (err) {
-        alert('Ошибка: ' + err.message);
+        alert('Ошибка выхода: ' + err.message);
       }
     }
 
-    // Копирование ссылки
+    // Скопировать ссылку
     function copyShareLink(url) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(url);
-        tg.showAlert('Ссылка на игру скопирована!');
+        if (tg?.showAlert) tg.showAlert('Ссылка скопирована! Отправьте её друзьям.');
+        else alert('Ссылка скопирована!');
       } else {
-        prompt('Скопируйте ссылку вручную:', url);
+        prompt('Скопируйте ссылку:', url);
       }
     }
 
-    // Запуск
+    // Старт работы
     initApp();
   </script>
 </body>
