@@ -377,12 +377,18 @@
       return age >= 0 ? age : null;
     }
 
-    // Надежная фильтрация реальных профилей
+    // СТРОГАЯ ВАЛИДАЦИЯ: ТОЛЬКО НАСТОЯЩИЕ ПОЛЬЗОВАТЕЛИ TELEGRAM
     function isValidRealUser(p) {
       if (!p || !p.id || !p.first_name) return false;
+      const idStr = String(p.id).trim();
+      const numericId = parseInt(idStr, 10);
+      
+      // Разрешаем создателя (777777) или настоящие Telegram ID (от 100 000 и выше)
+      if (numericId !== 777777 && (isNaN(numericId) || numericId < 100000)) return false;
+      
       const firstName = String(p.first_name).trim().toLowerCase();
-      // Отсеиваем только тестовые имена
-      if (firstName === 'test' || firstName === 'тест') return false;
+      if (firstName === 'test' || firstName === 'тест' || firstName.startsWith('игрок ')) return false;
+      
       return true;
     }
 
@@ -407,6 +413,7 @@
         copyLink: "📋 Скопировать ссылку на игру",
         editProfile: "Настройки профиля",
         birthDate: "Дата рождения",
+        ageLabel: "Возраст",
         gender: "Пол",
         male: "Мужской 👨",
         female: "Женский 👩",
@@ -479,6 +486,7 @@
         copyLink: "📋 Copiază link-ul jocului",
         editProfile: "Setări profil",
         birthDate: "Data nașterii",
+        ageLabel: "Vârstă",
         gender: "Gen",
         male: "Masculin 👨",
         female: "Feminin 👩",
@@ -551,6 +559,7 @@
         copyLink: "📋 Copy Game Link",
         editProfile: "Profile Settings",
         birthDate: "Date of Birth",
+        ageLabel: "Age",
         gender: "Gender",
         male: "Male 👨",
         female: "Female 👩",
@@ -805,6 +814,7 @@
           .order('total_matches_played', { ascending: false });
         
         if (!error && data) {
+          // ИСПОЛЬЗУЕМ СТРОГУЮ ФИЛЬТРАЦИЮ РЕАЛЬНЫХ TELEGRAM ID
           platformProfilesList = data.filter(isValidRealUser);
         }
       } catch(e) {}
@@ -987,10 +997,7 @@
         const players = rawPlayers || [];
 
         const isJoined = players.some(p => String(p.user_id) === String(tgUser.id));
-        
-        // СТРОГАЯ ПРОВЕРКА: Только создатель данного матча или главный админ
         const isMatchCreator = String(match.creator_id) === String(tgUser.id) || isUserCreator();
-        
         const isRegClosed = match.is_registration_closed === true;
         const isFull = players.length >= match.max_players;
 
@@ -1053,7 +1060,6 @@
           `;
         }).join('');
 
-        // ПАНЕЛЬ ОРГАНИЗАТОРА - ПОКАЗЫВАЕТСЯ ТОЛЬКО СОЗДАТЕЛЮ СЛОТА
         let creatorControlsHtml = '';
         if (isMatchCreator) {
           creatorControlsHtml = `
@@ -1728,7 +1734,7 @@
 
             <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-950/60 p-2.5 rounded-xl border border-white/5">
               <div><span class="text-slate-400">${t('gender')}:</span> <strong class="text-slate-200">${genderLabel}</strong></div>
-              <div><span class="text-slate-400">${t('birthDate')}:</span> <strong class="text-slate-200">${ageStr}</strong></div>
+              <div><span class="text-slate-400">${t('ageLabel')}:</span> <strong class="text-slate-200">${ageStr}</strong></div>
               <div class="col-span-2"><span class="text-slate-400">${t('preferredSide')}:</span> <strong class="text-emerald-400">${sideLabel}</strong></div>
             </div>
 
@@ -2123,7 +2129,6 @@
       }
     }
 
-    // Безопасное сохранение профиля с защитой от отсутствующих колонок в БД
     async function saveProfileData(e) {
       e.preventDefault();
       const birthDate = document.getElementById('edit_birth_date').value || null;
@@ -2141,13 +2146,11 @@
       };
 
       try {
-        // Пробуем первое сохранение с полем is_public_profile
         let { error } = await supabaseClient
           .from('profiles')
           .update({ ...updatePayload, is_public_profile: isPublic })
           .eq('id', tgUser.id);
 
-        // Если колонка не найдена в Supabase, делаем повторный запрос без неё
         if (error && error.message.includes('is_public_profile')) {
           const fallbackRes = await supabaseClient
             .from('profiles')
