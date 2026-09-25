@@ -97,7 +97,7 @@
     .btn-3d { transition: all 0.15s ease; }
     .btn-3d:active { transform: translateY(2px) scale(0.98); }
 
-    /* Кастомная стилизация поля даты */
+    /* Кастомная стилизация календаря */
     input[type="date"]::-webkit-calendar-picker-indicator {
       filter: invert(1);
       cursor: pointer;
@@ -504,6 +504,7 @@
 
     let currentLang = localStorage.getItem('padel_lang') || 'ru';
     let currentLeaderboardTab = 'national'; // 'national' | 'americano' | 'friendly' | 'competitive'
+    let isProfileEditOpen = false; // Состояние видимости формы настроек
 
     function t(key) {
       return TRANSLATIONS[currentLang][key] || key;
@@ -682,7 +683,6 @@
           .order('total_matches_played', { ascending: false });
         
         if (!error && data) {
-          // СТРОГАЯ ФИЛЬТРАЦИЯ: только существующие игроки с заполненным именем
           platformProfilesList = data.filter(p => p.first_name && p.first_name.trim() !== '' && p.id);
         }
       } catch(e) {}
@@ -954,7 +954,7 @@
                 </div>
               </div>
 
-              <!-- Управление слотами (Добавить / Убрать место) -->
+              <!-- Управление слотами -->
               <div class="flex items-center justify-between p-2.5 bg-slate-950/70 rounded-xl border border-white/5 text-xs">
                 <span class="font-bold text-slate-300">Всего мест: <strong class="text-amber-400 font-black text-sm">${match.max_players}</strong></span>
                 <div class="flex items-center gap-1.5">
@@ -1523,6 +1523,33 @@
       renderProfileTab();
     }
 
+    function toggleProfileEditForm() {
+      isProfileEditOpen = !isProfileEditOpen;
+      const formBox = document.getElementById('profile-edit-box');
+      if (formBox) {
+        if (isProfileEditOpen) {
+          formBox.classList.remove('hidden');
+        } else {
+          formBox.classList.add('hidden');
+        }
+      }
+    }
+
+    function shareMyProfileCard() {
+      if (!currentUserProfile) return;
+      const p = currentUserProfile;
+      const calculatedAge = calculateAge(p.birth_date);
+      const ageStr = calculatedAge ? `${calculatedAge} лет` : '';
+      const genderStr = p.gender === 'male' ? '👨' : (p.gender === 'female' ? '👩' : '');
+      
+      const shareText = `🎾 Игрок Padel Moldova:\n👤 ${p.first_name} ${p.last_name || ''} ${genderStr} ${ageStr}\n⭐ Level: ${p.skill_level || 2.5}\n🏆 Американо: ${p.rating_americano || 1000} PTS\n⚔️ Ranked: ${p.rating_competitive || 1000} ELO`;
+      
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText);
+        alert('Карточка профиля скопирована в буфер обмена!');
+      } else prompt('Скопируйте вашу карточку:', shareText);
+    }
+
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
       container.innerHTML = `<div class="text-center py-10 text-slate-400">Загрузка профиля...</div>`;
@@ -1549,7 +1576,7 @@
       const total = p.total_matches_played || (wins + losses);
       const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
 
-      // Динамический расчёт текущего возраста пользователя
+      // Автоматический расчёт возраста по дате рождения
       const calculatedAge = calculateAge(p.birth_date);
       let ageLabel = calculatedAge ? ` • 🎂 ${calculatedAge} лет` : '';
 
@@ -1561,7 +1588,7 @@
       if (p.preferred_side === 'left') sideLabel = t('leftSide');
       if (p.preferred_side === 'right') sideLabel = t('rightSide');
 
-      // Фильтрация: берем строго реальных людей платформы (с заполнением имени)
+      // Фильтрация: оставляем только реальных игроков платформы
       let sortedList = platformProfilesList.filter(user => user.first_name && user.first_name.trim() !== '');
 
       if (currentLeaderboardTab === 'national') {
@@ -1626,7 +1653,123 @@
 
       container.innerHTML = `
         <div class="space-y-4">
-          <!-- 1. МУЛЬТИ-ТАБОВЫЙ НАЦИОНАЛЬНЫЙ РЕЙТИНГ МОЛДОВЫ (В САМОМ ВЕРХУ) -->
+          <!-- 1. ГЛАВНАЯ КАРТОЧКА ПРОФИЛЯ ИГРОКА (В САМОМ ВЕРХУ) -->
+          <div class="bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-500 p-4 rounded-3xl text-white shadow-xl shadow-blue-500/20 shimmer-border space-y-3 relative">
+            
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-lg font-black tracking-tight">${p.first_name} ${p.last_name || ''}</h2>
+                  <span class="px-2 py-0.5 bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg uppercase shadow">Lvl ${p.skill_level || 2.5}</span>
+                </div>
+                <p class="text-xs opacity-90 font-semibold mt-1">🎾 ${sideLabel}${genderLabel}${ageLabel}</p>
+              </div>
+
+              <!-- Кнопка вызова настроек профиля -->
+              <div class="flex items-center gap-1.5">
+                <button onclick="shareMyProfileCard()" class="p-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white text-xs font-bold btn-3d" title="Поделиться карточкой">
+                  📤
+                </button>
+                <button onclick="toggleProfileEditForm()" class="px-2.5 py-1.5 bg-white/20 hover:bg-white/30 border border-white/30 rounded-xl text-white text-xs font-extrabold btn-3d flex items-center gap-1 shadow">
+                  ✏️ <span>Настройки</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Детализированная шкала очков -->
+            <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/20 text-center font-mono">
+              <div class="bg-slate-950/40 p-2 rounded-xl border border-white/10">
+                <p class="text-[9px] text-cyan-200 uppercase font-black">🏆 Американо</p>
+                <p class="text-xs font-black text-white mt-0.5">${p.rating_americano || 1000} <span class="text-[9px]">PTS</span></p>
+              </div>
+              <div class="bg-slate-950/40 p-2 rounded-xl border border-white/10">
+                <p class="text-[9px] text-emerald-200 uppercase font-black">🤝 Дружеский</p>
+                <p class="text-xs font-black text-white mt-0.5">${p.rating_friendly || 1000} <span class="text-[9px]">PTS</span></p>
+              </div>
+              <div class="bg-slate-950/40 p-2 rounded-xl border border-white/10">
+                <p class="text-[9px] text-amber-200 uppercase font-black">⚔️ Соревнование</p>
+                <p class="text-xs font-black text-white mt-0.5">${p.rating_competitive || 1000} <span class="text-[9px]">ELO</span></p>
+              </div>
+            </div>
+
+            <!-- Статистика матчей -->
+            <div class="grid grid-cols-4 gap-1 pt-1 text-center font-bold">
+              <div>
+                <p class="text-[9px] opacity-75 uppercase">Матчи</p>
+                <p class="text-xs font-black">${total}</p>
+              </div>
+              <div>
+                <p class="text-[9px] opacity-75 uppercase">Победы</p>
+                <p class="text-xs font-black text-emerald-300">${wins}</p>
+              </div>
+              <div>
+                <p class="text-[9px] opacity-75 uppercase">Поражения</p>
+                <p class="text-xs font-black text-rose-300">${losses}</p>
+              </div>
+              <div>
+                <p class="text-[9px] opacity-75 uppercase">Винрейт</p>
+                <p class="text-xs font-black text-amber-300">${winrate}%</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. ФОРМА НАСТРОЕК ПРОФИЛЯ (СКРЫТА ПО УМОЛЧАНИЮ, ОТКРЫВАЕТСЯ ПО КНОПКЕ "✏️ Настройки") -->
+          <div id="profile-edit-box" class="${isProfileEditOpen ? '' : 'hidden'} bg-slate-900/90 p-4 rounded-3xl border border-cyan-500/30 space-y-3 shadow-2xl transition-all">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+              <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+                ✏️ Редактирование Данных Профиля
+              </h3>
+              <button onclick="toggleProfileEditForm()" class="text-slate-400 hover:text-white font-bold text-sm px-1.5">✕</button>
+            </div>
+            
+            <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
+              <!-- Дата рождения и Пол -->
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-slate-400 font-semibold mb-1">${t('birthDate')}</label>
+                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                </div>
+                <div>
+                  <label class="block text-slate-400 font-semibold mb-1">${t('gender')}</label>
+                  <select id="edit_gender" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                    <option value="" ${!p.gender ? 'selected' : ''}>${t('unspecified')}</option>
+                    <option value="male" ${p.gender === 'male' ? 'selected' : ''}>${t('male')}</option>
+                    <option value="female" ${p.gender === 'female' ? 'selected' : ''}>${t('female')}</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Любимая сторона и Телефон -->
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-slate-400 font-semibold mb-1">${t('preferredSide')}</label>
+                  <select id="edit_preferred_side" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                    <option value="both" ${p.preferred_side === 'both' ? 'selected' : ''}>${t('bothSides')}</option>
+                    <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
+                    <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-slate-400 font-semibold mb-1">${t('phone')}</label>
+                  <input type="text" id="edit_phone" placeholder="+373 60 217 449" value="${p.phone || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                </div>
+              </div>
+
+              <div class="flex gap-2 pt-1">
+                <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl btn-3d uppercase tracking-wider text-xs shadow-lg shadow-emerald-500/20">
+                  💾 Сохранить изменения
+                </button>
+                <button type="button" onclick="toggleProfileEditForm()" class="px-4 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl btn-3d text-xs">
+                  Отмена
+                </button>
+              </div>
+            </form>
+          </div>
+
+          ${creatorAdminPanelHtml}
+
+          <!-- 3. МУЛЬТИ-ТАБОВЫЙ НАЦИОНАЛЬНЫЙ РЕЙТИНГ МОЛДОВЫ (В САМОМ НИЗУ) -->
           <div class="bg-slate-900/60 p-3.5 rounded-3xl border border-white/5 space-y-3">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
               🇲🇩 Система Рейтингов Молдовы
@@ -1651,89 +1794,6 @@
             <div class="divide-y divide-white/5">
               ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные игроки отсутствуют...</p>'}
             </div>
-          </div>
-
-          <!-- 2. Главная Карточка профиля -->
-          <div class="bg-gradient-to-r from-blue-600 via-cyan-600 to-teal-500 p-4 rounded-3xl text-white shadow-xl shadow-blue-500/20 shimmer-border space-y-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <h2 class="text-lg font-black tracking-tight">${p.first_name} ${p.last_name || ''}</h2>
-                <p class="text-xs opacity-90 font-medium">Lvl: <strong class="text-amber-300 font-extrabold">${p.skill_level || 2.5}</strong> • ${sideLabel}${genderLabel}${ageLabel}</p>
-              </div>
-              <div class="w-11 h-11 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-2xl font-black">
-                🎾
-              </div>
-            </div>
-
-            <!-- Детализированная шкала рейтингов -->
-            <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/20 text-center font-mono">
-              <div class="bg-slate-950/40 p-2 rounded-xl border border-white/10">
-                <p class="text-[9px] text-cyan-200 uppercase font-black">🏆 Американо</p>
-                <p class="text-xs font-black text-white mt-0.5">${p.rating_americano || 1000} <span class="text-[9px]">PTS</span></p>
-              </div>
-              <div class="bg-slate-950/40 p-2 rounded-xl border border-white/10">
-                <p class="text-[9px] text-emerald-200 uppercase font-black">🤝 Дружеский</p>
-                <p class="text-xs font-black text-white mt-0.5">${p.rating_friendly || 1000} <span class="text-[9px]">PTS</span></p>
-              </div>
-              <div class="bg-slate-950/40 p-2 rounded-xl border border-white/10">
-                <p class="text-[9px] text-amber-200 uppercase font-black">⚔️ Соревнование</p>
-                <p class="text-xs font-black text-white mt-0.5">${p.rating_competitive || 1000} <span class="text-[9px]">ELO</span></p>
-              </div>
-            </div>
-
-            <!-- Статистика игр -->
-            <div class="grid grid-cols-4 gap-1 pt-1 text-center font-bold">
-              <div>
-                <p class="text-[9px] opacity-75 uppercase">Матчи</p>
-                <p class="text-xs font-black">${total}</p>
-              </div>
-              <div>
-                <p class="text-[9px] opacity-75 uppercase">Победы</p>
-                <p class="text-xs font-black text-emerald-300">${wins}</p>
-              </div>
-              <div>
-                <p class="text-[9px] opacity-75 uppercase">Поражения</p>
-                <p class="text-xs font-black text-rose-300">${losses}</p>
-              </div>
-              <div>
-                <p class="text-[9px] opacity-75 uppercase">Винрейт</p>
-                <p class="text-xs font-black text-amber-300">${winrate}%</p>
-              </div>
-            </div>
-          </div>
-
-          ${creatorAdminPanelHtml}
-
-          <!-- 3. Настройки профиля пользователя -->
-          <div class="bg-slate-900/60 p-3.5 rounded-3xl border border-white/5 space-y-3">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('editProfile')}</h3>
-            
-            <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
-              <!-- Дата рождения и Пол -->
-              <div class="grid grid-cols-2 gap-2.5">
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">${t('birthDate')}</label>
-                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
-                </div>
-                <div>
-                  <label class="block text-slate-400 font-semibold mb-1">${t('gender')}</label>
-                  <select id="edit_gender" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
-                    <option value="" ${!p.gender ? 'selected' : ''}>${t('unspecified')}</option>
-                    <option value="male" ${p.gender === 'male' ? 'selected' : ''}>${t('male')}</option>
-                    <option value="female" ${p.gender === 'female' ? 'selected' : ''}>${t('female')}</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label class="block text-slate-400 font-semibold mb-1">${t('phone')}</label>
-                <input type="text" id="edit_phone" placeholder="+373 60 217 449" value="${p.phone || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white">
-              </div>
-
-              <button type="submit" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-black rounded-xl btn-3d uppercase tracking-wider text-xs shadow-lg shadow-blue-500/20">
-                ${t('saveProfile')}
-              </button>
-            </form>
           </div>
         </div>
       `;
@@ -1843,6 +1903,7 @@
       e.preventDefault();
       const birthDate = document.getElementById('edit_birth_date').value || null;
       const gender = document.getElementById('edit_gender').value || null;
+      const preferredSide = document.getElementById('edit_preferred_side').value || 'both';
       const phone = document.getElementById('edit_phone').value.trim();
 
       try {
@@ -1851,6 +1912,7 @@
           .update({
             birth_date: birthDate,
             gender: gender,
+            preferred_side: preferredSide,
             phone: phone,
             updated_at: new Date().toISOString()
           })
@@ -1858,6 +1920,7 @@
 
         if (error) throw error;
 
+        isProfileEditOpen = false; // Автоматически закрываем форму после сохранения
         alert('Профиль успешно сохранен!');
         await syncUserProfile();
         renderProfileTab();
