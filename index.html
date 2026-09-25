@@ -181,6 +181,24 @@
     </div>
   </div>
 
+  <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИНФОРМАЦИИ ОБ ИГРОКЕ -->
+  <div id="modal-view-player" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <h3 class="text-sm font-black text-emerald-400 uppercase italic tracking-wide flex items-center gap-2" id="m-view-player-title">
+          👤 Карточка игрока
+        </h3>
+        <button onclick="closeViewPlayerModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <div id="view-player-card-content" class="space-y-3 text-xs"></div>
+
+      <button onclick="closeViewPlayerModal()" class="w-full py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs btn-3d" id="m-view-player-close">
+        Закрыть
+      </button>
+    </div>
+  </div>
+
   <!-- МОДАЛЬНОЕ ОКНО УПРАВЛЕНИЯ ИГРОКОМ ДЛЯ СОЗДАТЕЛЯ -->
   <div id="modal-admin-player" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
@@ -224,15 +242,15 @@
               <span class="font-bold text-emerald-400">+373 60 217 449</span>
             </div>
             <div class="flex justify-between items-center text-slate-300">
-              <span class="text-slate-500">Телефон:</span>
+              <span class="text-slate-500" id="m-donate-phone-label">Телефон:</span>
               <span class="font-bold text-emerald-400">060217449</span>
             </div>
           </div>
-          <p class="text-[9px] text-slate-500 italic text-center">* Добровольные пожертвования на развитие комьюнити</p>
+          <p class="text-[9px] text-slate-500 italic text-center" id="m-donate-footer">* Добровольные пожертвования на развитие комьюнити</p>
         </div>
       </div>
 
-      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs">
+      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs btn-3d" id="m-support-close-btn">
         Закрыть
       </button>
     </div>
@@ -255,11 +273,11 @@
 
         <div>
           <h4 class="text-base font-black text-white">Victor Popovici</h4>
-          <p class="text-xs text-cyan-400 font-semibold">Founder & Developer • @kizdoi</p>
+          <p class="text-xs text-cyan-400 font-semibold" id="m-creator-role">Founder & Developer • @kizdoi</p>
         </div>
 
         <p class="text-slate-300 text-xs leading-relaxed" id="m-creator-desc">
-          Платформа **Padel Moldova** создана для объединения игроков, удобного поиска слотов и проведения турниров по всей Молдове.
+          Платформа Padel Moldova создана для объединения игроков, удобного поиска слотов и проведения турниров по всей Молдове.
         </p>
 
         <a id="creator-tg-link" href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-cyan-500/20">
@@ -267,7 +285,7 @@
         </a>
       </div>
 
-      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs">
+      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs btn-3d" id="m-creator-close-btn">
         Закрыть
       </button>
     </div>
@@ -413,6 +431,9 @@
         unspecified: "Не указан",
         preferredSide: "Удобная сторона",
         phone: "Номер телефона",
+        privacySetting: "Конфиденциальность профиля",
+        privacyPublic: "🔓 Открытый профиль (виден в рейтинге)",
+        privacyPrivate: "🔒 Закрытый профиль (скрыт от других)",
         saveProfile: "Сохранить профиль",
         stats: "Статистика игрока",
         matches: "Матчи",
@@ -433,7 +454,29 @@
         sendBtn: "Отправить",
         creatorTag: "👑 Организатор",
         quickImportBtn: "⚡ Импортировать из Слота",
-        guestOption: "➕ Ввести вручную (Гость)"
+        guestOption: "➕ Ввести вручную (Гость)",
+        
+        // Support Modal
+        mSupportTitle: "Поддержка и Помощь",
+        mSupportDesc: "Возникли вопросы, предложения или нашли ошибку? Свяжитесь напрямую с нашей службой поддержки.",
+        mSupportTgBtn: "💬 Написать в Telegram (@kizdoi)",
+        mDonateTitle: "☕ Поддержать Padel Moldova",
+        mDonateDesc: "Если вам нравится платформа, вы можете сделать добровольный взнос на развитие серверов и новые функции:",
+        mDonatePhoneLabel: "Телефон:",
+        mDonateFooter: "* Добровольные пожертвования на развитие комьюнити",
+        mCloseBtn: "Закрыть",
+
+        // Creator Modal
+        mCreatorTitle: "Разработчик Проекта",
+        mCreatorRole: "Founder & Developer • @kizdoi",
+        mCreatorDesc: "Платформа Padel Moldova создана для объединения игроков, удобного поиска слотов и проведения турниров по всей Молдове.",
+        mCreatorTgBtn: "📩 Связаться с Виктором (@kizdoi)",
+
+        // View Player Modal
+        mViewPlayerTitle: "👤 Карточка игрока",
+        mPrivateProfileNotice: "🔒 Этот игрок сделал свой профиль приватным.",
+        mPublicUsername: "Telegram",
+        mNoUsername: "Не указан"
       },
       ro: {
         tabBooking: "Sloturi",
@@ -460,6 +503,9 @@
         unspecified: "Nespecificat",
         preferredSide: "Partea preferată",
         phone: "Număr de telefon",
+        privacySetting: "Confidențialitatea profilului",
+        privacyPublic: "🔓 Profil Public (vizibil în clasament)",
+        privacyPrivate: "🔒 Profil Privat (ascuns pentru alții)",
         saveProfile: "Salvează profilul",
         stats: "Statistici jucător",
         matches: "Meciuri",
@@ -480,7 +526,29 @@
         sendBtn: "Trimite",
         creatorTag: "👑 Organizator",
         quickImportBtn: "⚡ Importă din Slot",
-        guestOption: "➕ Introdu manual (Oaspete)"
+        guestOption: "➕ Introdu manual (Oaspete)",
+
+        // Support Modal
+        mSupportTitle: "Suport și Ajutor",
+        mSupportDesc: "Ai întrebări, sugestii sau ai găsit o eroare? Contactează direct serviciul nostru de suport.",
+        mSupportTgBtn: "💬 Scrie pe Telegram (@kizdoi)",
+        mDonateTitle: "☕ Susține Padel Moldova",
+        mDonateDesc: "Dacă îți place platforma, poți face o donație voluntară pentru dezvoltarea serverelor și funcții noi:",
+        mDonatePhoneLabel: "Telefon:",
+        mDonateFooter: "* Donații voluntare pentru dezvoltarea comunității",
+        mCloseBtn: "Închide",
+
+        // Creator Modal
+        mCreatorTitle: "Dezvoltatorul Proiectului",
+        mCreatorRole: "Fondator & Dezvoltator • @kizdoi",
+        mCreatorDesc: "Platforma Padel Moldova este creată pentru a uni jucătorii, a găsi ușor sloturi și a organiza turnee în toată Moldova.",
+        mCreatorTgBtn: "📩 Contactează-l pe Victor (@kizdoi)",
+
+        // View Player Modal
+        mViewPlayerTitle: "👤 Fișa jucătorului",
+        mPrivateProfileNotice: "🔒 Acest jucător și-a setat profilul ca fiind privat.",
+        mPublicUsername: "Telegram",
+        mNoUsername: "Nespecificat"
       },
       en: {
         tabBooking: "Slots",
@@ -507,6 +575,9 @@
         unspecified: "Unspecified",
         preferredSide: "Preferred side",
         phone: "Phone Number",
+        privacySetting: "Profile Privacy",
+        privacyPublic: "🔓 Public Profile (visible in leaderboard)",
+        privacyPrivate: "🔒 Private Profile (hidden from others)",
         saveProfile: "Save Profile",
         stats: "Player Statistics",
         matches: "Matches",
@@ -527,7 +598,29 @@
         sendBtn: "Send",
         creatorTag: "👑 Host",
         quickImportBtn: "⚡ Import from Slot",
-        guestOption: "➕ Enter manually (Guest)"
+        guestOption: "➕ Enter manually (Guest)",
+
+        // Support Modal
+        mSupportTitle: "Support & Help",
+        mSupportDesc: "Have questions, feedback, or found a bug? Reach out directly to our support team.",
+        mSupportTgBtn: "💬 Message on Telegram (@kizdoi)",
+        mDonateTitle: "☕ Support Padel Moldova",
+        mDonateDesc: "If you enjoy the platform, you can make a voluntary donation for server upgrades and new features:",
+        mDonatePhoneLabel: "Phone:",
+        mDonateFooter: "* Voluntary community development support",
+        mCloseBtn: "Close",
+
+        // Creator Modal
+        mCreatorTitle: "Project Developer",
+        mCreatorRole: "Founder & Developer • @kizdoi",
+        mCreatorDesc: "Padel Moldova platform was created to connect players, simplify slot bookings, and host tournaments across Moldova.",
+        mCreatorTgBtn: "📩 Contact Victor (@kizdoi)",
+
+        // View Player Modal
+        mViewPlayerTitle: "👤 Player Card",
+        mPrivateProfileNotice: "🔒 This player has set their profile to private.",
+        mPublicUsername: "Telegram",
+        mNoUsername: "Not specified"
       }
     };
 
@@ -557,6 +650,27 @@
       document.getElementById('txt-tab-profile').innerText = t('tabProfile');
       document.getElementById('txt-btn-support').innerText = t('btnSupport');
       document.getElementById('txt-btn-creator').innerText = t('btnCreator');
+
+      // Обновление статических элементов модального окна Support
+      document.getElementById('m-support-title').innerText = t('mSupportTitle');
+      document.getElementById('m-support-desc').innerText = t('mSupportDesc');
+      document.getElementById('support-tg-link').innerText = t('mSupportTgBtn');
+      document.getElementById('m-donate-title').innerText = t('mDonateTitle');
+      document.getElementById('m-donate-desc').innerText = t('mDonateDesc');
+      document.getElementById('m-donate-phone-label').innerText = t('mDonatePhoneLabel');
+      document.getElementById('m-donate-footer').innerText = t('mDonateFooter');
+      document.getElementById('m-support-close-btn').innerText = t('mCloseBtn');
+
+      // Обновление статических элементов модального окна Creator
+      document.getElementById('m-creator-title').innerText = t('mCreatorTitle');
+      document.getElementById('m-creator-role').innerText = t('mCreatorRole');
+      document.getElementById('m-creator-desc').innerText = t('mCreatorDesc');
+      document.getElementById('creator-tg-link').innerText = t('mCreatorTgBtn');
+      document.getElementById('m-creator-close-btn').innerText = t('mCloseBtn');
+
+      // Обновление заголовков просмотра игроков
+      document.getElementById('m-view-player-title').innerText = t('mViewPlayerTitle');
+      document.getElementById('m-view-player-close').innerText = t('mCloseBtn');
 
       switchTab(activeTab);
     }
@@ -708,7 +822,7 @@
       try {
         const { data, error } = await supabaseClient
           .from('profiles')
-          .select('id, first_name, last_name, username, skill_level, rating_americano, rating_friendly, rating_competitive, preferred_side, phone, birth_date, gender, total_matches_played, wins, losses')
+          .select('id, first_name, last_name, username, skill_level, rating_americano, rating_friendly, rating_competitive, preferred_side, phone, birth_date, gender, total_matches_played, wins, losses, is_public_profile')
           .order('total_matches_played', { ascending: false });
         
         if (!error && data) {
@@ -761,6 +875,7 @@
             preferred_side: 'both',
             birth_date: null,
             gender: null,
+            is_public_profile: true,
             total_matches_played: 0,
             wins: 0,
             losses: 0,
@@ -914,7 +1029,7 @@
               <div class="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl space-y-1">
                 ${isMatchCreator ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-emerald-300">Слот #${i}: <span onclick="openAdminPlayerModalById('${p.user_id}')" class="${isUserCreator() ? 'cursor-pointer underline decoration-dotted hover:text-amber-300' : ''}">${name}</span></span>
+                  <span class="text-xs font-bold text-emerald-300">Слот #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline decoration-dotted hover:text-amber-300">${name}</span></span>
                   <div class="flex items-center gap-2">
                     <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
                     ${isCreator ? `<button onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d" title="Удалить из слота">❌</button>` : ''}
@@ -1579,6 +1694,95 @@
       } else prompt('Скопируйте вашу карточку:', shareText);
     }
 
+    // --- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИГРОКА ---
+    function openViewPlayerModalById(userId) {
+      const player = platformProfilesList.find(item => String(item.id) === String(userId));
+      if (!player) return;
+
+      const modal = document.getElementById('modal-view-player');
+      const content = document.getElementById('view-player-card-content');
+
+      const isMe = String(player.id) === String(tgUser.id);
+      const isPublic = player.is_public_profile !== false;
+      const canViewDetails = isMe || isPublic || isUserCreator();
+
+      if (!canViewDetails) {
+        content.innerHTML = `
+          <div class="bg-slate-900 p-4 rounded-2xl border border-rose-500/30 text-center space-y-2">
+            <span class="text-3xl block">🔒</span>
+            <h4 class="text-sm font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
+            <p class="text-xs text-rose-300 leading-relaxed font-semibold">
+              ${t('mPrivateProfileNotice')}
+            </p>
+          </div>
+        `;
+      } else {
+        const calculatedAge = calculateAge(player.birth_date);
+        const ageStr = calculatedAge ? `${calculatedAge} лет` : t('unspecified');
+        let genderLabel = t('unspecified');
+        if (player.gender === 'male') genderLabel = t('male');
+        else if (player.gender === 'female') genderLabel = t('female');
+
+        let sideLabel = t('bothSides');
+        if (player.preferred_side === 'left') sideLabel = t('leftSide');
+        if (player.preferred_side === 'right') sideLabel = t('rightSide');
+
+        const wins = player.wins || 0;
+        const losses = player.losses || 0;
+        const total = player.total_matches_played || (wins + losses);
+        const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
+
+        const tgHandle = player.username ? `@${player.username}` : t('mNoUsername');
+        const tgLink = player.username ? `<a href="https://t.me/${player.username}" target="_blank" class="text-cyan-400 font-bold underline">@${player.username}</a>` : `<span class="text-slate-400 italic">${t('mNoUsername')}</span>`;
+
+        content.innerHTML = `
+          <div class="bg-gradient-to-r from-blue-600/20 via-cyan-600/20 to-teal-500/20 border border-cyan-500/40 p-4 rounded-2xl space-y-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-base font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
+                <p class="text-xs text-cyan-300 font-bold mt-0.5">${t('mPublicUsername')}: ${tgLink}</p>
+              </div>
+              <span class="px-2.5 py-1 bg-amber-400 text-slate-950 font-black text-xs rounded-lg uppercase shadow">Lvl ${player.skill_level || 2.5}</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-950/60 p-2.5 rounded-xl border border-white/5">
+              <div><span class="text-slate-400">${t('gender')}:</span> <strong class="text-slate-200">${genderLabel}</strong></div>
+              <div><span class="text-slate-400">${t('birthDate')}:</span> <strong class="text-slate-200">${ageStr}</strong></div>
+              <div class="col-span-2"><span class="text-slate-400">${t('preferredSide')}:</span> <strong class="text-emerald-400">${sideLabel}</strong></div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5 text-center font-mono text-[10px]">
+              <div class="bg-slate-950/80 p-2 rounded-xl border border-white/5">
+                <span class="text-slate-400 uppercase block">🏆 Американо</span>
+                <strong class="text-purple-300 text-xs font-black">${player.rating_americano || 1000}</strong>
+              </div>
+              <div class="bg-slate-950/80 p-2 rounded-xl border border-white/5">
+                <span class="text-slate-400 uppercase block">🤝 Дружеский</span>
+                <strong class="text-blue-300 text-xs font-black">${player.rating_friendly || 1000}</strong>
+              </div>
+              <div class="bg-slate-950/80 p-2 rounded-xl border border-white/5">
+                <span class="text-slate-400 uppercase block">⚔️ Ranked</span>
+                <strong class="text-amber-300 text-xs font-black">${player.rating_competitive || 1000}</strong>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-center font-bold text-[10px] bg-slate-950/40 p-2 rounded-xl">
+              <div><p class="text-slate-500 uppercase">${t('matches')}</p><p class="text-xs text-white">${total}</p></div>
+              <div><p class="text-slate-500 uppercase">${t('wins')}</p><p class="text-xs text-emerald-400">${wins}</p></div>
+              <div><p class="text-slate-500 uppercase">${t('losses')}</p><p class="text-xs text-rose-400">${losses}</p></div>
+              <div><p class="text-slate-500 uppercase">${t('winrate')}</p><p class="text-xs text-amber-300">${winrate}%</p></div>
+            </div>
+          </div>
+        `;
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeViewPlayerModal() {
+      document.getElementById('modal-view-player').classList.add('hidden');
+    }
+
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
       container.innerHTML = `<div class="text-center py-10 text-slate-400">Загрузка профиля...</div>`;
@@ -1595,6 +1799,7 @@
         phone: '+373 60 217 449',
         birth_date: null,
         gender: null,
+        is_public_profile: true,
         total_matches_played: 0,
         wins: 0,
         losses: 0
@@ -1629,6 +1834,7 @@
         sortedList.sort((a, b) => (b.rating_competitive || 1000) - (a.rating_competitive || 1000));
       }
 
+      // В НАЦИОНАЛЬНОМ РЕЙТИНГЕ НЕ ОТОБРАЖАЕМ @USERNAME НАПРЯМУЮ, НО ДЕЛАЕМ КЛИКАБЕЛЬНЫМ ДЛЯ ПРОСМОТРА
       let leaderboardRows = sortedList.map((item, index) => {
         let valBadge = '';
         if (currentLeaderboardTab === 'national') valBadge = `Lvl ${item.skill_level || 2.5}`;
@@ -1639,13 +1845,15 @@
         let itemGenderIcon = item.gender === 'male' ? '👨 ' : (item.gender === 'female' ? '👩 ' : '');
         let itemAge = calculateAge(item.birth_date);
         let itemAgeStr = itemAge ? ` (${itemAge} л.)` : '';
-        let userHandle = item.username ? ` <span class="text-[10px] text-slate-400 font-mono">@${item.username}</span>` : '';
+        let lockIcon = item.is_public_profile === false ? ' 🔒' : '';
 
         return `
-          <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs">
+          <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs hover:bg-white/5 transition-colors">
             <div class="flex items-center gap-2">
               <span class="font-black ${index < 3 ? 'text-amber-400 font-mono text-sm' : 'text-slate-500'}">#${index + 1}</span>
-              <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white ${isUserCreator() ? 'cursor-pointer underline decoration-dotted hover:text-amber-300' : ''}">${itemGenderIcon}${item.first_name} ${item.last_name || ''}${userHandle}${itemAgeStr}</span>
+              <span onclick="openViewPlayerModalById('${item.id}')" class="font-bold text-white cursor-pointer underline decoration-dotted hover:text-emerald-300">
+                ${itemGenderIcon}${item.first_name} ${item.last_name || ''}${itemAgeStr}${lockIcon}
+              </span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2.5 py-1 rounded-full uppercase">${valBadge}</span>
@@ -1679,6 +1887,8 @@
           </div>
         `;
       }
+
+      const isPublicProf = p.is_public_profile !== false;
 
       container.innerHTML = `
         <div class="space-y-4">
@@ -1781,6 +1991,15 @@
                   <label class="block text-slate-400 font-semibold mb-1">${t('phone')}</label>
                   <input type="text" id="edit_phone" placeholder="+373 60 217 449" value="${p.phone || ''}" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
                 </div>
+              </div>
+
+              <!-- НАСТРОЙКА КОНФИДЕНЦИАЛЬНОСТИ -->
+              <div>
+                <label class="block text-slate-400 font-semibold mb-1">${t('privacySetting')}</label>
+                <select id="edit_privacy" class="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                  <option value="true" ${isPublicProf ? 'selected' : ''}>${t('privacyPublic')}</option>
+                  <option value="false" ${!isPublicProf ? 'selected' : ''}>${t('privacyPrivate')}</option>
+                </select>
               </div>
 
               <div class="flex gap-2 pt-1">
@@ -1931,6 +2150,7 @@
       const gender = document.getElementById('edit_gender').value || null;
       const preferredSide = document.getElementById('edit_preferred_side').value || 'both';
       const phone = document.getElementById('edit_phone').value.trim();
+      const isPublic = document.getElementById('edit_privacy').value === 'true';
 
       try {
         const { error } = await supabaseClient
@@ -1940,6 +2160,7 @@
             gender: gender,
             preferred_side: preferredSide,
             phone: phone,
+            is_public_profile: isPublic,
             updated_at: new Date().toISOString()
           })
           .eq('id', tgUser.id);
