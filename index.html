@@ -578,9 +578,8 @@
     let activeTab = 'booking';
     let localAmericanoState = null;
     let currentUserProfile = null;
-    let localMatchMessages = {};
     let platformProfilesList = [];
-    let currentAmericanoPlayerCount = 4; // Хранит текущее фиксированное количество игроков
+    let currentAmericanoPlayerCount = 4;
 
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
@@ -812,11 +811,12 @@
           }
         }
 
-        let messagesList = localMatchMessages[matchId] || [];
+        // Загрузка сообщений из базы данных Supabase
+        let messagesList = [];
         try {
           const { data: dbMsgs } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
-          if (dbMsgs && dbMsgs.length > 0) messagesList = dbMsgs;
-        } catch(e){}
+          if (dbMsgs) messagesList = dbMsgs;
+        } catch(e) {}
 
         let chatHtml = messagesList.map(m => `
           <div class="p-2 bg-slate-950/80 rounded-xl border border-white/5 space-y-0.5">
@@ -888,12 +888,11 @@
         created_at: new Date().toISOString()
       };
 
-      if (!localMatchMessages[matchId]) localMatchMessages[matchId] = [];
-      localMatchMessages[matchId].push(newMsg);
-
       try {
         await supabaseClient.from('match_messages').insert([newMsg]);
-      } catch(e){}
+      } catch(e) {
+        showError('Ошибка отправки сообщения: ' + e.message);
+      }
 
       input.value = '';
       renderMatchDetails(matchId);
@@ -927,7 +926,6 @@
               </select>
             </div>
             
-            <!-- Кнопки +/- игроков -->
             <div class="flex gap-1">
               <button onclick="adjustPlayerCount(-1)" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm btn-3d" title="Убрать игрока">➖</button>
               <button onclick="adjustPlayerCount(1)" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm btn-3d" title="Добавить игрока">➕</button>
@@ -983,7 +981,6 @@
       const container = document.getElementById('names-container');
       if (!container) return;
 
-      // Сохраняем уже введённые данные пользователей, чтобы не терять при изменении количества
       const existingData = [];
       for (let i = 1; i <= 8; i++) {
         const sel = document.getElementById(`player_select_${i}`);
@@ -1024,7 +1021,6 @@
 
       container.innerHTML = html;
 
-      // Устанавливаем выбранные селекты
       for (let i = 1; i <= count; i++) {
         const saved = existingData[i - 1];
         const sel = document.getElementById(`player_select_${i}`);
@@ -1066,7 +1062,6 @@
           return;
         }
 
-        // Устанавливаем количество игроков равным количеству в слоте (в пределах от 4 до 8)
         let count = rawPlayers.length;
         if (count < 4) count = 4;
         if (count > 8) count = 8;
