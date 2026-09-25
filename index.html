@@ -38,7 +38,6 @@
       z-index: 1;
     }
 
-    /* Эффект матового стекла */
     .glass-card {
       background: rgba(18, 26, 43, 0.82);
       backdrop-filter: blur(18px);
@@ -48,10 +47,7 @@
       position: relative;
     }
 
-    /* Анимированная рамка */
-    .shimmer-border {
-      position: relative;
-    }
+    .shimmer-border { position: relative; }
     .shimmer-border::before {
       content: '';
       position: absolute;
@@ -259,7 +255,9 @@
         chatTitle: "💬 Чат участников слота",
         chatPlaceholder: "Напишите сообщение...",
         sendBtn: "Отправить",
-        creatorTag: "👑 Организатор игры"
+        creatorTag: "👑 Организатор игры",
+        quickImportBtn: "⚡ Импортировать участников из Слота",
+        guestOption: "➕ Ввести имя вручную (Гость)"
       },
       ro: {
         tabBooking: "Sloturi",
@@ -298,7 +296,9 @@
         chatTitle: "💬 Chat jucători",
         chatPlaceholder: "Scrie un mesaj...",
         sendBtn: "Trimite",
-        creatorTag: "👑 Organizator joc"
+        creatorTag: "👑 Organizator joc",
+        quickImportBtn: "⚡ Importă jucătorii din Slot",
+        guestOption: "➕ Introdu manual (Oaspete)"
       },
       en: {
         tabBooking: "Slots",
@@ -337,7 +337,9 @@
         chatTitle: "💬 Slot Chat",
         chatPlaceholder: "Type a message...",
         sendBtn: "Send",
-        creatorTag: "👑 Game Host"
+        creatorTag: "👑 Game Host",
+        quickImportBtn: "⚡ Import players from Slot",
+        guestOption: "➕ Enter manually (Guest)"
       }
     };
 
@@ -400,6 +402,7 @@
     let localAmericanoState = null;
     let currentUserProfile = null;
     let localMatchMessages = {};
+    let platformProfilesList = []; // Все зарегистрированные профили платформы
 
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
@@ -439,7 +442,16 @@
       }
 
       await syncUserProfile();
+      await fetchAllPlatformProfiles();
       setLanguage(currentLang);
+    }
+
+    async function fetchAllPlatformProfiles() {
+      if (!supabaseClient) return;
+      try {
+        const { data } = await supabaseClient.from('profiles').select('*').order('first_name', { ascending: true });
+        platformProfilesList = data || [];
+      } catch(e) {}
     }
 
     function switchTab(tab) {
@@ -622,7 +634,6 @@
           }
         }
 
-        // Загрузка сообщений чата
         let messagesList = localMatchMessages[matchId] || [];
         try {
           const { data: dbMsgs } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
@@ -652,7 +663,6 @@
               <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
             </div>
 
-            <!-- Список слотов -->
             <div class="border-t border-white/10 pt-3">
               <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
               <div class="space-y-2">${slotsHtml}</div>
@@ -672,7 +682,6 @@
               </div>
             </div>
 
-            <!-- Кнопки действий -->
             <div class="space-y-2 pt-2">
               ${!isJoined && !isFull ? `<button onclick="joinMatch('${match.id}',${players.length + 1})" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">${t('joinSlot')}</button>` : ''}
               ${isJoined ? `<button onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">${t('leaveGame')}</button>` : ''}
@@ -712,8 +721,8 @@
       renderMatchDetails(matchId);
     }
 
-    // --- ВКЛАДКА 2: БЫСТРЫЙ АМЕРИКАНО ---
-    function renderQuickAmericano() {
+    // --- ВКЛАДКА 2: БЫСТРЫЙ АМЕРИКАНО (ПРОФЕССИОНАЛЬНЫЙ СЕЛЕКТОР ИГРОКОВ) ---
+    async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
 
       if (localAmericanoState && localAmericanoState.rounds) {
@@ -721,9 +730,11 @@
         return;
       }
 
+      await fetchAllPlatformProfiles();
+
       container.innerHTML = `
         <h2 class="text-base font-extrabold mb-1 text-purple-300 uppercase italic tracking-wide">🏆 Быстрый Американо</h2>
-        <p class="text-xs text-slate-400 mb-4">Настройка турнира с авто-генерацией сетки.</p>
+        <p class="text-xs text-slate-400 mb-3">Настройка турнира с возможностью выбора зарегистрированных игроков.</p>
 
         <div class="space-y-3.5">
           <div class="grid grid-cols-2 gap-2.5">
@@ -745,7 +756,12 @@
             </div>
           </div>
 
-          <div id="names-container" class="space-y-2 pt-2"></div>
+          <!-- Быстрый импорт участников из забронированных слотов -->
+          <button onclick="importPlayersFromCurrentSlot()" class="w-full py-2 bg-purple-500/10 border border-purple-500/30 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/20 btn-3d">
+            ${t('quickImportBtn')}
+          </button>
+
+          <div id="names-container" class="space-y-2.5 pt-1"></div>
 
           <button onclick="startQuickAmericano()" class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider neon-glow-purple btn-3d mt-4">
             🚀 Начать турнир
@@ -759,14 +775,107 @@
     function renderNameInputs() {
       const count = parseInt(document.getElementById('quick_player_count').value) || 4;
       const container = document.getElementById('names-container');
-      let html = '<label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Имена участников:</label>';
+      
+      let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
+      
+      platformProfilesList.forEach(p => {
+        const name = `${p.first_name} ${p.last_name || ''}`.trim();
+        optionsHtml += `<option value="${p.id}" data-name="${name}">${name} (Lvl ${p.skill_level || 2.5})</option>`;
+      });
+
+      let html = '<label class="block text-xs font-semibold text-slate-400 mb-1 uppercase">Выбор и состав участников:</label>';
 
       for (let i = 1; i <= count; i++) {
+        const defaultName = (i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Игрок ${i}`;
+        
         html += `
-          <input type="text" id="player_name_${i}" value="Игрок ${i}" placeholder="Имя игрока ${i}" class="w-full p-2.5 bg-slate-900/80 border border-slate-700/60 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+          <div class="p-2.5 bg-slate-900/80 border border-slate-800 rounded-2xl space-y-1.5">
+            <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
+              <span>Игрок #${i}</span>
+              <span id="player_badge_${i}" class="text-purple-400"></span>
+            </div>
+            <div class="space-y-1.5">
+              <select id="player_select_${i}" onchange="onPlayerSelectChange(${i})" class="w-full p-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs font-bold text-white focus:outline-none focus:border-purple-500">
+                ${optionsHtml}
+              </select>
+              <input type="text" id="player_name_${i}" value="${defaultName}" placeholder="Имя игрока ${i}" class="w-full p-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+            </div>
+          </div>
         `;
       }
+
       container.innerHTML = html;
+
+      // Авто-выбор текущего юзера в Слот 1
+      setTimeout(() => {
+        const sel1 = document.getElementById('player_select_1');
+        if (sel1) {
+          const userOpt = Array.from(sel1.options).find(o => String(o.value) === String(tgUser.id));
+          if (userOpt) {
+            sel1.value = tgUser.id;
+            onPlayerSelectChange(1);
+          }
+        }
+      }, 50);
+    }
+
+    function onPlayerSelectChange(slotIdx) {
+      const select = document.getElementById(`player_select_${slotIdx}`);
+      const input = document.getElementById(`player_name_${slotIdx}`);
+      const badge = document.getElementById(`player_badge_${slotIdx}`);
+
+      if (select.value === 'custom') {
+        input.classList.remove('hidden');
+        badge.innerText = 'ГОСТЬ';
+      } else {
+        const selectedOpt = select.options[select.selectedIndex];
+        input.value = selectedOpt.getAttribute('data-name');
+        input.classList.add('hidden');
+        badge.innerText = 'ПРЕМИУМ ИГРОК';
+      }
+    }
+
+    async function importPlayersFromCurrentSlot() {
+      const startParam = getStartParam();
+      if (!startParam) {
+        alert('Нет активного созданного слота. Сначала откройте или создайте игру в разделе «Слоты».');
+        return;
+      }
+
+      try {
+        const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', startParam);
+        if (!rawPlayers || rawPlayers.length === 0) {
+          alert('В этом слоте пока нет зарегистрированных игроков.');
+          return;
+        }
+
+        const countSelect = document.getElementById('quick_player_count');
+        if (rawPlayers.length >= 8) countSelect.value = "8";
+        else if (rawPlayers.length >= 6) countSelect.value = "6";
+        else countSelect.value = "4";
+
+        renderNameInputs();
+
+        setTimeout(() => {
+          rawPlayers.forEach((p, idx) => {
+            const slotNum = idx + 1;
+            const select = document.getElementById(`player_select_${slotNum}`);
+            const input = document.getElementById(`player_name_${slotNum}`);
+
+            if (select && p.user_id) {
+              const opt = Array.from(select.options).find(o => String(o.value) === String(p.user_id));
+              if (opt) {
+                select.value = p.user_id;
+                onPlayerSelectChange(slotNum);
+              } else if (p.profiles?.first_name) {
+                input.value = `${p.profiles.first_name} ${p.profiles.last_name || ''}`.trim();
+              }
+            }
+          });
+          alert(`Успешно импортировано ${rawPlayers.length} игроков из слота!`);
+        }, 100);
+
+      } catch(e) { alert('Ошибка импорта: ' + e.message); }
     }
 
     function startQuickAmericano() {
@@ -775,8 +884,14 @@
       const players = [];
 
       for (let i = 1; i <= count; i++) {
+        const select = document.getElementById(`player_select_${i}`);
         const inputName = document.getElementById(`player_name_${i}`).value.trim();
-        players.push({ id: i - 1, name: inputName || `Игрок ${i}` });
+        
+        players.push({ 
+          id: i - 1, 
+          name: inputName || `Игрок ${i}`,
+          userId: select && select.value !== 'custom' ? select.value : null
+        });
       }
 
       const baseRotation = AMERICANO_ROTATIONS[count];
@@ -893,12 +1008,37 @@
             ${leaderboardHtml}
           </div>
 
+          <!-- Запись результатов в профили зарегистрированных игроков -->
+          <button onclick="syncResultsToPlatformProfiles()" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
+            🏆 Записать результаты в Личный Рейтинг
+          </button>
+
           <div class="space-y-2 pt-2">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Матчи и Счёт</h3>
             ${roundsHtml}
           </div>
         </div>
       `;
+    }
+
+    async function syncResultsToPlatformProfiles() {
+      if (!localAmericanoState || !localAmericanoState.players) return;
+
+      try {
+        for (const p of localAmericanoState.players) {
+          if (p.userId) {
+            const { data } = await supabaseClient.from('profiles').select('*').eq('id', p.userId).maybeSingle();
+            if (data) {
+              const currentMatches = data.total_matches_played || 0;
+              await supabaseClient.from('profiles').update({
+                total_matches_played: currentMatches + 1,
+                updated_at: new Date()
+              }).eq('id', p.userId);
+            }
+          }
+        }
+        alert('Результаты турнира успешно сохранены в статистику профилей!');
+      } catch(e) { alert('Ошибка записи: ' + e.message); }
     }
 
     function saveQuickScore(roundId) {
