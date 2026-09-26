@@ -121,24 +121,6 @@
       100% { background-position: 0% 0%; }
     }
 
-    /* 3D-АНИМАЦИЯ ПАДЕЛ-РАКЕТКИ */
-    .floating-racket {
-      perspective: 1000px;
-      animation: float3DPadel 4s ease-in-out infinite;
-      transform-style: preserve-3d;
-    }
-
-    @keyframes float3DPadel {
-      0%, 100% { 
-        transform: translateY(0px) rotateY(-14deg) rotateX(8deg) rotate(-6deg) scale(1);
-        filter: drop-shadow(0 10px 15px rgba(16, 185, 129, 0.3));
-      }
-      50% { 
-        transform: translateY(-7px) rotateY(14deg) rotateX(-8deg) rotate(6deg) scale(1.04);
-        filter: drop-shadow(0 18px 25px rgba(16, 185, 129, 0.5));
-      }
-    }
-
     @keyframes popInOut {
       0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
       20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
@@ -160,7 +142,7 @@
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white">
 
-  <!-- Холст анимированных мячей -->
+  <!-- Холст анимированных мячей заднего фона -->
   <canvas id="ball-canvas"></canvas>
 
   <!-- Всплывающий тост -->
@@ -181,39 +163,9 @@
         <div class="flex items-center justify-between gap-2">
           
           <div class="flex items-center gap-3">
-            <!-- ЭКСКЛЮЗИВНАЯ 3D-ПАДЕЛ-РАКЕТКА В ШАПКЕ -->
-            <div class="floating-racket">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-500 to-cyan-400 p-0.5 shadow-xl shadow-emerald-500/30">
-                <div class="w-full h-full bg-slate-950/85 rounded-[14px] flex items-center justify-center relative overflow-hidden border border-white/20">
-                  <svg class="w-8 h-8 drop-shadow-[0_4px_10px_rgba(16,185,129,0.7)]" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Голова падел-ракетки -->
-                    <path d="M32 6C20.9543 6 12 14.9543 12 26C12 34.5 17.3 41.75 24.8 44.7L24 58C24 59.1046 24.8954 60 26 60H38C39.1046 60 40 59.1046 40 58L39.2 44.7C46.7 41.75 52 34.5 52 26C52 14.9543 43.0457 6 32 6Z" fill="url(#p-racket-grad)" stroke="#10b981" stroke-width="2.5"/>
-                    <!-- Ручка -->
-                    <rect x="28" y="46" width="8" height="12" rx="2" fill="#1e293b" stroke="#34d399" stroke-width="1.2"/>
-                    <!-- Отверстия (Перфорация) Падел-ракетки -->
-                    <circle cx="26" cy="18" r="1.8" fill="#090d16"/>
-                    <circle cx="32" cy="18" r="1.8" fill="#090d16"/>
-                    <circle cx="38" cy="18" r="1.8" fill="#090d16"/>
-                    <circle cx="23" cy="24" r="1.8" fill="#090d16"/>
-                    <circle cx="29" cy="24" r="1.8" fill="#090d16"/>
-                    <circle cx="35" cy="24" r="1.8" fill="#090d16"/>
-                    <circle cx="41" cy="24" r="1.8" fill="#090d16"/>
-                    <circle cx="26" cy="30" r="1.8" fill="#090d16"/>
-                    <circle cx="32" cy="30" r="1.8" fill="#090d16"/>
-                    <circle cx="38" cy="30" r="1.8" fill="#090d16"/>
-                    <circle cx="32" cy="36" r="1.8" fill="#090d16"/>
-                    <!-- Около-орбитальный желтый мяч -->
-                    <circle cx="49" cy="14" r="3.8" fill="#ccff00" stroke="#ffffff" stroke-width="1"/>
-                    <defs>
-                      <linearGradient id="p-racket-grad" x1="12" y1="6" x2="52" y2="60" gradientUnits="userSpaceOnUse">
-                        <stop stop-color="#1e293b"/>
-                        <stop offset="0.5" stop-color="#0f172a"/>
-                        <stop offset="1" stop-color="#064e3b"/>
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
-              </div>
+            <!-- ДИНАМИЧЕСКАЯ 3D ПАДЕЛ-РАКЕТКА С НАБИВАНИЕМ МЯЧА -->
+            <div class="w-14 h-14 rounded-2xl bg-slate-950/80 border border-emerald-500/40 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/20 overflow-hidden relative">
+              <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
             </div>
 
             <div>
@@ -460,7 +412,181 @@
   </div>
 
   <script>
-    // --- 1. CANVAS АНИМАЦИЯ МЯЧЕЙ ---
+    // --- 1. АНИМАЦИЯ ПАДЕЛ-РАКЕТКИ С НАБИВАНИЕМ МЯЧА В ШАПКЕ ---
+    function initHeaderPadelAnimation() {
+      const cvs = document.getElementById('header-padel-canvas');
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
+
+      const dpr = window.devicePixelRatio || 1;
+      const size = 64;
+      cvs.width = size * dpr;
+      cvs.height = size * dpr;
+      ctx.scale(dpr, dpr);
+
+      let ball = { x: 32, y: 12, vx: 0.2, vy: 0, r: 4.5, squashX: 1, squashY: 1 };
+      let racket = { x: 32, y: 46, targetY: 46, angle: 0, targetAngle: 0, hitFlash: 0 };
+      let particles = [];
+
+      function animate() {
+        ctx.clearRect(0, 0, size, size);
+
+        // Гравитация и перемещение мяча
+        ball.vy += 0.18;
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+
+        // Отскоки от левой и правой стенок иконки
+        if (ball.x < 11) { ball.x = 11; ball.vx = Math.abs(ball.vx); }
+        if (ball.x > 53) { ball.x = 53; ball.vx = -Math.abs(ball.vx); }
+
+        // Пружинная физика ракетки (возврат к центру)
+        racket.y += (racket.targetY - racket.y) * 0.2;
+        racket.targetY += (46 - racket.targetY) * 0.15;
+        racket.angle += (racket.targetAngle - racket.angle) * 0.2;
+        racket.targetAngle += (0 - racket.targetAngle) * 0.15;
+        if (racket.hitFlash > 0) racket.hitFlash -= 0.08;
+
+        // Проверка касания мяча и ракетки
+        const hitZoneY = racket.y - 12;
+        if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 8 && Math.abs(ball.x - racket.x) < 18) {
+          ball.y = hitZoneY - ball.r;
+          ball.vy = -(3.6 + Math.random() * 0.6); // случайная высота отскока
+          ball.vx = (ball.x - racket.x) * 0.08 + (Math.random() - 0.5) * 0.5; // случайный угол
+          ball.squashX = 1.35;
+          ball.squashY = 0.65;
+
+          racket.targetY = 51; // отдача ракетки вниз
+          racket.targetAngle = ball.vx * 0.12; // наклон в сторону удара
+          racket.hitFlash = 1.0;
+
+          // Искры при ударе
+          for (let i = 0; i < 5; i++) {
+            particles.push({
+              x: ball.x,
+              y: ball.y,
+              vx: (Math.random() - 0.5) * 2,
+              vy: -Math.random() * 1.5,
+              life: 1.0,
+              color: Math.random() > 0.5 ? '#10b981' : '#ccff00'
+            });
+          }
+        }
+
+        // Восстановление формы мяча
+        ball.squashX += (1 - ball.squashX) * 0.15;
+        ball.squashY += (1 - ball.squashY) * 0.15;
+
+        // Страховка от потери мяча
+        if (ball.y > size + 10) {
+          ball.x = 32;
+          ball.y = 10;
+          ball.vx = (Math.random() - 0.5) * 0.4;
+          ball.vy = 0;
+        }
+
+        // ОРИГИНАЛЬНАЯ РИСОВКА ПАДЕЛ-РАКЕТКИ
+        ctx.save();
+        ctx.translate(racket.x, racket.y);
+        ctx.rotate(racket.angle);
+
+        // Рукоятка
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(-2.5, 8, 5, 13, 2);
+        else ctx.rect(-2.5, 8, 5, 13);
+        ctx.fillStyle = '#1e293b';
+        ctx.fill();
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Обмотка на ручке
+        ctx.beginPath();
+        ctx.moveTo(-2, 11); ctx.lineTo(2, 13);
+        ctx.moveTo(-2, 15); ctx.lineTo(2, 17);
+        ctx.strokeStyle = '#059669';
+        ctx.stroke();
+
+        // Голова падел-ракетки (Анатомический овальный карбоновый профиль)
+        ctx.beginPath();
+        ctx.ellipse(0, -6, 14, 16, 0, 0, Math.PI * 2);
+        
+        const rGrad = ctx.createLinearGradient(-14, -22, 14, 10);
+        rGrad.addColorStop(0, '#1e293b');
+        rGrad.addColorStop(0.5, '#0f172a');
+        rGrad.addColorStop(1, '#042f2e');
+        ctx.fillStyle = rGrad;
+        ctx.shadowColor = racket.hitFlash > 0 ? '#10b981' : 'rgba(16, 185, 129, 0.4)';
+        ctx.shadowBlur = 8 + racket.hitFlash * 10;
+        ctx.fill();
+
+        ctx.strokeStyle = racket.hitFlash > 0 ? '#6ee7b7' : '#10b981';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Перфорация (Отверстия Падел-Ракетки)
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#030712';
+        const holePositions = [
+          [-6, -14], [0, -14], [6, -14],
+          [-8, -8], [-2, -8], [4, -8], [8, -8],
+          [-8, -2], [-2, -2], [4, -2], [8, -2],
+          [-6, 4], [0, 4], [6, 4]
+        ];
+        holePositions.forEach(([hx, hy]) => {
+          ctx.beginPath();
+          ctx.arc(hx, hy, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        ctx.restore();
+
+        // РИСОВАНИЕ ИСКР
+        particles.forEach((p, idx) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= 0.05;
+          if (p.life <= 0) {
+            particles.splice(idx, 1);
+            return;
+          }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.life * 2, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.life;
+          ctx.fill();
+          ctx.globalAlpha = 1.0;
+        });
+
+        // РИСОВАНИЕ НЕОНОВОГО ПАДЕЛ-МЯЧА
+        ctx.save();
+        ctx.translate(ball.x, ball.y);
+        ctx.scale(ball.squashX, ball.squashY);
+
+        ctx.beginPath();
+        ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#ccff00';
+        ctx.shadowColor = '#ccff00';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+
+        // Шов на мяче
+        ctx.beginPath();
+        ctx.arc(-1.2, 0, ball.r * 0.75, -Math.PI * 0.4, Math.PI * 0.4);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.9;
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+
+        ctx.restore();
+
+        requestAnimationFrame(animate);
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    // --- 2. CANVAS АНИМАЦИЯ ФОНОВЫХ МЯЧЕЙ ---
     const canvas = document.getElementById('ball-canvas');
     const ctx = canvas.getContext('2d');
     let width, height;
@@ -1189,7 +1315,8 @@
     async function initApp() {
       document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
       
-      // Загрузка только личного сеанса Американо
+      initHeaderPadelAnimation();
+
       const savedState = localStorage.getItem(getAmericanoStorageKey());
       if (savedState) {
         try { localAmericanoState = JSON.parse(savedState); } catch(e){}
@@ -1679,7 +1806,6 @@
     async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
       
-      // Читаем ТОЛЬКО личный сеанс текущего пользователя
       const savedState = localStorage.getItem(getAmericanoStorageKey());
       if (savedState) {
         try { localAmericanoState = JSON.parse(savedState); } catch(e){ localAmericanoState = null; }
@@ -2066,7 +2192,7 @@
             <button onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold btn-3d border border-white/20">${t('resetBtn')}</button>
           </div>
 
-          <!-- НОВАЯ КНОПКА ОТМЕНЫ / СБРОСА ТУРНИРА -->
+          <!-- КНОПКА ОТМЕНЫ / СБРОСА ТУРНИРА -->
           <button onclick="confirmCancelAmericano()" class="w-full py-3 bg-gradient-to-r from-rose-600/80 to-red-600/80 hover:from-rose-500 hover:to-red-500 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-rose-500/20 border border-rose-400/30 flex items-center justify-center gap-2">
             <span>🛑</span> <span>${t('cancelTournamentBtn')}</span>
           </button>
