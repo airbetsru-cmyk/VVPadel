@@ -499,6 +499,36 @@
     // Инициализация персонального слота пользователя
     let currentActiveMatchId = localStorage.getItem(getSlotStorageKey()) || null;
 
+    // --- СТРОГАЯ ПРОВЕРКА НА ПОДЛИННОСТЬ ПОЛЬЗОВАТЕЛЯ (Исключение фейковых/тестовых аккаунтов) ---
+    function isValidRealUser(p) {
+      if (!p || !p.id || !p.first_name) return false;
+
+      const idStr = String(p.id).trim();
+      const numericId = parseInt(idStr, 10);
+
+      // Исключаем нечисловые ID, фейковые тестовые ID (< 100000) и дефолтный гостевой ID 777777 для списков
+      if (isNaN(numericId) || numericId <= 100000 || numericId === 777777) return false;
+
+      const firstName = String(p.first_name).trim().toLowerCase();
+      const lastName = String(p.last_name || '').trim().toLowerCase();
+      const fullName = `${firstName} ${lastName}`.trim();
+
+      // Список слов-маркеров тестовых или невалидных профилей
+      const fakeKeywords = [
+        'test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 
+        'admin', 'админ', 'dummy', 'fake', 'user', 'пользователь', 'sample', 
+        'null', 'undefined', 'noname', 'без имени'
+      ];
+
+      for (const kw of fakeKeywords) {
+        if (firstName === kw || lastName === kw || fullName.includes(kw)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
     // --- ANIMATION & CANVAS ---
     function initHeaderPadelAnimation() {
       const cvs = document.getElementById('header-padel-canvas');
@@ -712,7 +742,7 @@
     }
     animateBalls();
 
-    // --- МИНИ-ИГРА Мotion Padel Simulator ---
+    // --- МИНИ-ИГРА Motion Padel Simulator ---
     let gameLoopReq = null;
     let isGameRunning = false;
     let currentGameScore = 0;
@@ -1032,16 +1062,6 @@
       const m = today.getMonth() - birthDate.getMonth();
       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
       return age >= 0 ? age : null;
-    }
-
-    function isValidRealUser(p) {
-      if (!p || !p.id || !p.first_name) return false;
-      const idStr = String(p.id).trim();
-      const numericId = parseInt(idStr, 10);
-      if (numericId !== 777777 && (isNaN(numericId) || numericId < 100000)) return false;
-      const firstName = String(p.first_name).trim().toLowerCase();
-      if (firstName === 'test' || firstName === 'тест' || firstName.startsWith('игрок ')) return false;
-      return true;
     }
 
     function getHistoricalPointsForUser(userId, userName) {
@@ -1465,7 +1485,17 @@
       if (!supabaseClient) return;
       try {
         const { data, error } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false });
-        if (!error && data) platformProfilesList = data.filter(isValidRealUser);
+        if (!error && data) {
+          // Фильтрация ТОЛЬКО ПОДЛИННЫХ пользователей
+          platformProfilesList = data.filter(isValidRealUser);
+
+          // Если текущий профиль пользователя существует и валиден, гарантируем его присутствие в списке
+          if (currentUserProfile && isValidRealUser(currentUserProfile)) {
+            if (!platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
+              platformProfilesList.push(currentUserProfile);
+            }
+          }
+        }
       } catch(e) {}
     }
 
@@ -1582,7 +1612,7 @@
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    // --- ВКЛАДКА 1: СЛОТЫ (ИДИВИДУАЛЬНО ДЛЯ КАЖДОГО ПОЛЬЗОВАТЕЛЯ) ---
+    // --- ВКЛАДКА 1: СЛОТЫ (ИНДИВИДУАЛЬНО ДЛЯ КАЖДОГО ПОЛЬЗОВАТЕЛЯ) ---
     function createNewSlotClick() {
       currentActiveMatchId = null;
       localStorage.removeItem(getSlotStorageKey());
@@ -2018,6 +2048,8 @@
       }
       
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
+      
+      // Генерация вариантов выбора СТРОГО из настоящих пользователей платформы
       platformProfilesList.forEach(p => {
         const name = `${p.first_name} ${p.last_name || ''}`.trim();
         const usernameTag = p.username ? ` (@${p.username})` : '';
@@ -2052,7 +2084,7 @@
         const saved = existingData[i - 1];
         const sel = document.getElementById(`player_select_${i}`);
         if (sel) {
-          sel.value = saved ? saved.selectVal : (i === 1 ? tgUser.id : 'custom');
+          sel.value = saved ? saved.selectVal : (i === 1 && isValidRealUser(currentUserProfile) ? tgUser.id : 'custom');
           onPlayerSelectChange(i);
         }
       }
@@ -2787,7 +2819,7 @@
             </h3>
 
             <div class="divide-y divide-white/5">
-              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные игроки отсутствуют...</p>'}
+              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные реальные игроки пока отсутствуют...</p>'}
             </div>
           </div>
         </div>
