@@ -224,12 +224,8 @@
     </div>
   </div>
 
-  <!-- ========================================================= -->
-  <!-- ИНТЕРАКТИВНАЯ ИГРА "MOTION PADEL SIMULATOR" (С ВЫБОРОМ РЕЖИМА) -->
-  <!-- ========================================================= -->
+  <!-- ИНТЕРАКТИВНАЯ ИГРА "MOTION PADEL SIMULATOR" -->
   <div id="modal-padel-game" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-50 hidden flex flex-col items-center justify-between p-4 overflow-hidden select-none">
-    
-    <!-- Шапка игры -->
     <div class="w-full max-w-md flex justify-between items-center glass-subcard p-3 rounded-2xl border border-emerald-500/40 z-20">
       <div class="flex items-center gap-2">
         <span class="text-xl">🎾</span>
@@ -248,11 +244,9 @@
       </div>
     </div>
 
-    <!-- Игровой Холст -->
     <div class="relative w-full max-w-md flex-1 my-3 flex items-center justify-center overflow-hidden rounded-3xl border border-emerald-500/20 bg-slate-950/60 shadow-2xl">
       <canvas id="padel-motion-canvas" class="w-full h-full block cursor-pointer"></canvas>
 
-      <!-- Стартовый Оверлей Выбора Режима -->
       <div id="game-start-overlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4 z-30">
         <div class="w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-3xl shadow-xl shadow-emerald-500/20 animate-bounce">
           🎾
@@ -264,19 +258,16 @@
         </div>
 
         <div class="w-full space-y-2.5 pt-2">
-          <!-- Режим 1: Джойстик / Сенсор -->
           <button onclick="startGameWithMode('touch')" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 border border-emerald-300">
             <span>👆</span> <span>Касание / Джойстик (Пальцем)</span>
           </button>
 
-          <!-- Режим 2: Гироскоп -->
           <button onclick="startGameWithMode('gyro')" class="w-full py-3.5 bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-2">
             <span>📱</span> <span>Гироскоп (Наклон телефона)</span>
           </button>
         </div>
       </div>
 
-      <!-- Экран Game Over + Таблица Лидеров -->
       <div id="game-over-overlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center space-y-3 z-30 hidden">
         <span class="text-4xl block">💥</span>
         <div>
@@ -284,7 +275,6 @@
           <p class="text-xs text-slate-300">Ваш результат: <strong id="go-score" class="text-emerald-400 text-sm">0</strong> очков</p>
         </div>
 
-        <!-- Таблица Рекордов Платформы -->
         <div class="w-full glass-subcard p-3 rounded-2xl border border-white/10 space-y-2 text-left max-h-48 overflow-y-auto">
           <h5 class="text-[10px] font-black text-amber-300 uppercase tracking-wider flex justify-between">
             <span>🏆 ТОП-ИГРОКИ ПЛАТФОРМЫ</span>
@@ -298,7 +288,6 @@
         </button>
       </div>
     </div>
-
   </div>
 
   <!-- МОДАЛЬНОЕ ОКНО ОПЛАТЫ PRO -->
@@ -492,11 +481,25 @@
   </div>
 
   <script>
-    // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
-    // Автоматическое восстановление сохраненного слота из localStorage
-    let currentActiveMatchId = localStorage.getItem('padel_last_active_match_id') || null;
+    // --- Telegram Пользователь ---
+    const tg = window.Telegram?.WebApp;
+    if (tg) { try { tg.ready(); tg.expand(); } catch(e) {} }
 
-    // --- 1. АНИМАЦИЯ ПАДЕЛ-РАКЕТКИ С НАБИВАНИЕМ МЯЧА В ШАПКЕ ---
+    const tgUser = tg?.initDataUnsafe?.user || {
+      id: 777777,
+      first_name: 'Victor',
+      last_name: 'Popovici',
+      username: 'kizdoi'
+    };
+
+    // --- УНИКАЛЬНЫЕ КЛЮЧИ ЛОКАЛЬНОГО ХРАНИЛИЩА ДЛЯ КАЖДОГО ПОЛЬЗОВАТЕЛЯ ---
+    function getSlotStorageKey() { return `padel_active_match_id_${tgUser.id || 'guest'}`; }
+    function getAmericanoStorageKey() { return `quick_americano_state_${tgUser.id || 'guest'}`; }
+
+    // Инициализация персонального слота пользователя
+    let currentActiveMatchId = localStorage.getItem(getSlotStorageKey()) || null;
+
+    // --- ANIMATION & CANVAS ---
     function initHeaderPadelAnimation() {
       const cvs = document.getElementById('header-padel-canvas');
       if (!cvs) return;
@@ -515,23 +518,19 @@
       function animate() {
         ctx.clearRect(0, 0, size, size);
 
-        // Гравитация и перемещение мяча
         ball.vy += 0.18;
         ball.x += ball.vx;
         ball.y += ball.vy;
 
-        // Отскоки от левой и правой стенок иконки
         if (ball.x < 11) { ball.x = 11; ball.vx = Math.abs(ball.vx); }
         if (ball.x > 53) { ball.x = 53; ball.vx = -Math.abs(ball.vx); }
 
-        // Пружинная физика ракетки
         racket.y += (racket.targetY - racket.y) * 0.2;
         racket.targetY += (46 - racket.targetY) * 0.15;
         racket.angle += (racket.targetAngle - racket.angle) * 0.2;
         racket.targetAngle += (0 - racket.targetAngle) * 0.15;
         if (racket.hitFlash > 0) racket.hitFlash -= 0.08;
 
-        // Проверка касания мяча и ракетки
         const hitZoneY = racket.y - 12;
         if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 8 && Math.abs(ball.x - racket.x) < 18) {
           ball.y = hitZoneY - ball.r;
@@ -544,34 +543,26 @@
           racket.targetAngle = ball.vx * 0.12;
           racket.hitFlash = 1.0;
 
-          // Искры при ударе
           for (let i = 0; i < 5; i++) {
             particles.push({
-              x: ball.x,
-              y: ball.y,
-              vx: (Math.random() - 0.5) * 2,
-              vy: -Math.random() * 1.5,
-              life: 1.0,
-              color: Math.random() > 0.5 ? '#10b981' : '#ccff00'
+              x: ball.x, y: ball.y,
+              vx: (Math.random() - 0.5) * 2, vy: -Math.random() * 1.5,
+              life: 1.0, color: Math.random() > 0.5 ? '#10b981' : '#ccff00'
             });
           }
         }
 
-        // Восстановление формы мяча
         ball.squashX += (1 - ball.squashX) * 0.15;
         ball.squashY += (1 - ball.squashY) * 0.15;
 
-        // Страховка от потери мяча
         if (ball.y > size + 10) {
           ball.x = 32; ball.y = 10; ball.vx = (Math.random() - 0.5) * 0.4; ball.vy = 0;
         }
 
-        // РИСОВАНИЕ РАКЕТКИ
         ctx.save();
         ctx.translate(racket.x, racket.y);
         ctx.rotate(racket.angle);
 
-        // Рукоятка
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(-2.5, 8, 5, 13, 2);
         else ctx.rect(-2.5, 8, 5, 13);
@@ -581,14 +572,12 @@
         ctx.lineWidth = 1;
         ctx.stroke();
 
-        // Обмотка на ручке
         ctx.beginPath();
         ctx.moveTo(-2, 11); ctx.lineTo(2, 13);
         ctx.moveTo(-2, 15); ctx.lineTo(2, 17);
         ctx.strokeStyle = '#059669';
         ctx.stroke();
 
-        // Голова ракетки
         ctx.beginPath();
         ctx.ellipse(0, -6, 14, 16, 0, 0, Math.PI * 2);
         
@@ -605,7 +594,6 @@
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Отверстия
         ctx.shadowBlur = 0;
         ctx.fillStyle = '#030712';
         const holePositions = [
@@ -615,26 +603,18 @@
           [-6, 4], [0, 4], [6, 4]
         ];
         holePositions.forEach(([hx, hy]) => {
-          ctx.beginPath();
-          ctx.arc(hx, hy, 1.2, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.beginPath(); ctx.arc(hx, hy, 1.2, 0, Math.PI * 2); ctx.fill();
         });
 
         ctx.restore();
 
-        // ИСКРЫ
         particles.forEach((p, idx) => {
           p.x += p.vx; p.y += p.vy; p.life -= 0.05;
           if (p.life <= 0) { particles.splice(idx, 1); return; }
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.life * 2, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.globalAlpha = p.life;
-          ctx.fill();
-          ctx.globalAlpha = 1.0;
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.life * 2, 0, Math.PI * 2);
+          ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fill(); ctx.globalAlpha = 1.0;
         });
 
-        // МЯЧ
         ctx.save();
         ctx.translate(ball.x, ball.y);
         ctx.scale(ball.squashX, ball.squashY);
@@ -661,7 +641,6 @@
       requestAnimationFrame(animate);
     }
 
-    // --- 2. CANVAS АНИМАЦИЯ ФОНОВЫХ МЯЧЕЙ ---
     const canvas = document.getElementById('ball-canvas');
     const ctx = canvas.getContext('2d');
     let width, height;
@@ -733,13 +712,11 @@
     }
     animateBalls();
 
-    // =========================================================================
-    // --- 3. ИНТЕРАКТИВНАЯ МИНИ-ИГРА С ВЫБОРОМ УПРАВЛЕНИЯ (СЕНСОР ИЛИ ГИРОСКОП) ---
-    // =========================================================================
+    // --- МИНИ-ИГРА Мotion Padel Simulator ---
     let gameLoopReq = null;
     let isGameRunning = false;
     let currentGameScore = 0;
-    let gameControlMode = 'touch'; // 'touch' (джойстик/палец) или 'gyro' (наклон)
+    let gameControlMode = 'touch';
     let userHighScore = parseInt(localStorage.getItem('padel_motion_high_score') || '0', 10);
 
     let gCanvas, gCtx;
@@ -766,7 +743,6 @@
       gCanvas.height = gHeight * dpr;
       gCtx.scale(dpr, dpr);
 
-      // Привязчики прямого касания экрана для режима Джойстик / Сенсор
       const handlePointerMove = (clientX) => {
         if (!isGameRunning || gameControlMode !== 'touch') return;
         const cRect = gCanvas.getBoundingClientRect();
@@ -817,11 +793,11 @@
 
     function handleGyroscopeMotion(e) {
       if (!isGameRunning || gameControlMode !== 'gyro') return;
-      let gamma = e.gamma || 0; // Наклон влево/вправо (-90 до 90)
+      let gamma = e.gamma || 0;
       if (gamma > 35) gamma = 35;
       if (gamma < -35) gamma = -35;
 
-      const norm = (gamma + 35) / 70; // 0.0 - 1.0
+      const norm = (gamma + 35) / 70;
       gRacket.targetX = norm * gWidth;
       gRacket.tiltAngle = (gamma / 35) * 0.35;
     }
@@ -849,7 +825,6 @@
     function runMotionGameLoop() {
       if (!isGameRunning) return;
 
-      // 1. Физика Ракетки
       const prevX = gRacket.x;
       gRacket.x += (gRacket.targetX - gRacket.x) * 0.3;
       gRacket.vx = gRacket.x - prevX;
@@ -862,7 +837,6 @@
         gRacket.tiltAngle = (gRacket.vx / 15) * 0.3;
       }
 
-      // 2. Физика Мяча & Гравитация
       gBall.vy += 0.22;
       gBall.vx += gBall.spin * 0.04;
       gBall.x += gBall.vx;
@@ -871,7 +845,6 @@
 
       gBall.vx *= 0.992;
 
-      // Отскок от стен
       if (gBall.x - gBall.r <= 0) {
         gBall.x = gBall.r;
         gBall.vx = Math.abs(gBall.vx) * 0.9;
@@ -883,13 +856,11 @@
         gBall.spin = -gBall.spin;
       }
 
-      // Отскок от потолка
       if (gBall.y - gBall.r <= 0) {
         gBall.y = gBall.r;
         gBall.vy = Math.abs(gBall.vy);
       }
 
-      // 3. Коллизия Мяча с Ракеткой
       const racketTop = gRacket.y - 10;
       if (
         gBall.vy > 0 &&
@@ -931,16 +902,13 @@
       gBall.squashX += (1 - gBall.squashX) * 0.12;
       gBall.squashY += (1 - gBall.squashY) * 0.12;
 
-      // 4. Проигрыш
       if (gBall.y - gBall.r > gHeight) {
         triggerPadelGameOver();
         return;
       }
 
-      // RENDER
       gCtx.clearRect(0, 0, gWidth, gHeight);
 
-      // Разметка корта
       gCtx.strokeStyle = 'rgba(255,255,255,0.06)';
       gCtx.lineWidth = 2;
       gCtx.strokeRect(10, 10, gWidth - 20, gHeight - 20);
@@ -948,7 +916,6 @@
       gCtx.moveTo(10, gHeight / 2); gCtx.lineTo(gWidth - 10, gHeight / 2);
       gCtx.stroke();
 
-      // Искры
       gParticles.forEach((p, idx) => {
         p.x += p.vx; p.y += p.vy; p.life -= 0.04;
         if (p.life <= 0) { gParticles.splice(idx, 1); return; }
@@ -956,7 +923,6 @@
         gCtx.fillStyle = p.color; gCtx.globalAlpha = p.life; gCtx.fill(); gCtx.globalAlpha = 1.0;
       });
 
-      // Ракетка
       gCtx.save();
       gCtx.translate(gRacket.x, gRacket.y);
       gCtx.rotate(gRacket.tiltAngle || 0);
@@ -987,7 +953,6 @@
       }
       gCtx.restore();
 
-      // Мяч
       gCtx.save();
       gCtx.translate(gBall.x, gBall.y);
       gCtx.scale(gBall.squashX, gBall.squashY);
@@ -1218,7 +1183,6 @@
       document.getElementById('txt-btn-support').innerText = t('btnSupport');
       document.getElementById('txt-btn-creator').innerText = t('btnCreator');
 
-      // Перерисовываем текущую активную вкладку без сброса слота
       switchTab(activeTab);
     }
 
@@ -1303,7 +1267,7 @@
       setTimeout(() => { toast.classList.add('hidden'); }, 2500);
     }
 
-    // --- 4. SUPABASE И TELEGRAM ---
+    // --- SUPABASE И ТЕЛЕГРАМ ---
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot';
@@ -1358,20 +1322,10 @@
       box.classList.remove('hidden'); box.innerHTML = `<strong>Инфо:</strong> ${msg}`;
     }
 
-    const tg = window.Telegram?.WebApp;
-    if (tg) { try { tg.ready(); tg.expand(); } catch(e) {} }
-
-    const tgUser = tg?.initDataUnsafe?.user || {
-      id: 777777,
-      first_name: 'Victor',
-      last_name: 'Popovici',
-      username: 'kizdoi'
-    };
-
-    function getAmericanoStorageKey() { return `quick_americano_state_${tgUser.id || 'guest'}`; }
     function isUserCreator() {
       return String(tgUser.id) === '777777' || tgUser.username === 'kizdoi' || CREATOR_TELEGRAM_IDS.includes(tgUser.username) || CREATOR_TELEGRAM_IDS.includes(tgUser.first_name);
     }
+    
     function getStartParam() {
       if (tg?.initDataUnsafe?.start_param) return tg.initDataUnsafe.start_param;
       const urlParams = new URLSearchParams(window.location.search);
@@ -1528,8 +1482,11 @@
       if (tab === 'booking') {
         btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
         
-        // Надежный выбор созданного слота из переменной или локального хранилища
-        const matchIdToRender = currentActiveMatchId || localStorage.getItem('padel_last_active_match_id') || getStartParam();
+        // ПЕРСОНАЛЬНАЯ ПРОВЕРКА: Реферальная ссылка ИЛИ Уникальный слот текущего пользователя
+        const directStartParam = getStartParam();
+        const userSavedSlot = localStorage.getItem(getSlotStorageKey());
+        const matchIdToRender = directStartParam || currentActiveMatchId || userSavedSlot;
+
         if (matchIdToRender) {
           renderMatchDetails(matchIdToRender);
         } else {
@@ -1625,10 +1582,10 @@
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    // --- ВКЛАДКА 1: СЛОТЫ ---
+    // --- ВКЛАДКА 1: СЛОТЫ (ИДИВИДУАЛЬНО ДЛЯ КАЖДОГО ПОЛЬЗОВАТЕЛЯ) ---
     function createNewSlotClick() {
       currentActiveMatchId = null;
-      localStorage.removeItem('padel_last_active_match_id');
+      localStorage.removeItem(getSlotStorageKey());
       renderCreateMatchForm();
     }
 
@@ -1701,9 +1658,9 @@
 
         await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]);
         
-        // Фиксируем ID созданного слота
+        // Сохраняем ID созданного слота СТРОГО В ПЕРСОНАЛЬНЫЙ КЛЮЧ ПОЛЬЗОВАТЕЛЯ
         currentActiveMatchId = match.id;
-        localStorage.setItem('padel_last_active_match_id', match.id);
+        localStorage.setItem(getSlotStorageKey(), match.id);
 
         renderMatchDetails(match.id);
       } catch (err) {
@@ -1732,7 +1689,7 @@
         alert('Слот успешно удалён.');
 
         currentActiveMatchId = null;
-        localStorage.removeItem('padel_last_active_match_id');
+        localStorage.removeItem(getSlotStorageKey());
 
         renderCreateMatchForm();
       } catch(e) { alert('Ошибка: ' + e.message); }
@@ -1740,7 +1697,6 @@
 
     async function renderMatchDetails(matchId) {
       currentActiveMatchId = matchId;
-      localStorage.setItem('padel_last_active_match_id', matchId);
 
       const container = document.getElementById('main-content');
       container.innerHTML = `<div class="text-center py-10 text-slate-400">${t('loadingMatch')}</div>`;
@@ -2485,7 +2441,7 @@
       }
     }
 
-    // --- ВКЛАДКА 3: ПРОФИЛЬ, ДИВИЗИОНЫ И PRO ПОДПИСКА ---
+    // --- ВКЛАДКА 3: ПРОФИЛЬ ---
     function setLeaderboardTab(tab) {
       currentLeaderboardTab = tab;
       renderProfileTab();
@@ -2740,7 +2696,6 @@
 
       container.innerHTML = `
         <div class="space-y-4">
-          <!-- 1. КАРТОЧКА ПРОФИЛЯ -->
           <div class="${p.is_premium ? 'glass-card-pro' : 'glass-card'} p-4 rounded-3xl text-white shadow-xl space-y-3 relative backdrop-blur-md">
             
             <div class="flex items-start justify-between gap-2">
@@ -2778,7 +2733,6 @@
 
           ${proBannerStatus}
 
-          <!-- 2. ФОРМА НАСТРОЕК -->
           <div id="profile-edit-box" class="${isProfileEditOpen ? '' : 'hidden'} glass-subcard p-4 rounded-3xl border border-cyan-500/40 space-y-3 shadow-2xl">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
               <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider">${t('profileEditTitle')}</h3>
@@ -2827,7 +2781,6 @@
 
           ${creatorAdminPanelHtml}
 
-          <!-- 3. НАЦИОНАЛЬНЫЙ РЕЙТИНГ И ЛИГИ МОЛДОВЫ -->
           <div class="glass-subcard p-3.5 rounded-3xl border border-white/10 space-y-3">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">
               ${t('ratingSystemTitle')}
@@ -2942,6 +2895,11 @@
       try {
         await syncUserProfile();
         await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: tgUser.id, slot_number: nextSlot }]);
+        
+        // Присоединение фиксирует слот для этого пользователя
+        currentActiveMatchId = matchId;
+        localStorage.setItem(getSlotStorageKey(), matchId);
+
         triggerSlotCelebration();
         renderMatchDetails(matchId);
       } catch (err) { alert('Ошибка: ' + err.message); }
