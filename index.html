@@ -231,7 +231,7 @@
   <div id="modal-pay-pro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card-pro p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
-        <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2" id="m-pay-title">
+        <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
           👑 Подписка Padel Moldova PRO
         </h3>
         <button onclick="closePayProModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
@@ -276,11 +276,29 @@
     </div>
   </div>
 
+  <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ АКТИВНОЙ PRO-ПОДПИСКИ -->
+  <div id="modal-pro-details" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card-pro p-5 rounded-3xl w-full max-w-sm space-y-4">
+      <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
+        <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
+          👑 Моя Премиум-Подписка PRO
+        </h3>
+        <button onclick="closeProDetailsModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <div id="pro-details-content" class="space-y-3 text-xs"></div>
+
+      <button onclick="closeProDetailsModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
+        Закрыть
+      </button>
+    </div>
+  </div>
+
   <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИСТОРИИ ТУРНИРА -->
   <div id="modal-view-tourney" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4 max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-center border-b border-white/10 pb-3 flex-shrink-0">
-        <h3 class="text-sm font-black text-purple-300 uppercase italic tracking-wide flex items-center gap-2" id="m-tourney-title">
+        <h3 class="text-sm font-black text-purple-300 uppercase italic tracking-wide flex items-center gap-2">
           🏆 Просмотр турнира
         </h3>
         <button onclick="closeTourneyModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
@@ -519,7 +537,7 @@
       return totalPts;
     }
 
-    // --- 2. МУЛЬТИЯЗЫЧНОСТЬ ---
+    // --- МУЛЬТИЯЗЫЧНОСТЬ ---
     const TRANSLATIONS = {
       ru: {
         tabBooking: "Слоты",
@@ -576,11 +594,6 @@
         settingsBtn: "Настройки",
         ratingAmericano: "Американо",
         ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы",
-        myMatchHistoryTitle: "📜 История моих игр (Американо)",
-        last7Days: "За 7 дней",
-        withPartner: "С партнёром",
-        vsOpponents: "Против",
-        emptyPersonalHistory: "История сыгранных матчей пока пуста...",
         tourneyHistoryTitle: "📜 История турниров (за 7 дней)",
         autoCleanup: "Автоочистка",
         winnerLabel: "Победитель",
@@ -598,7 +611,7 @@
         loadingProfile: "Загрузка профиля...",
         slotNotFound: "Слот не найден или был удалён.",
         chatEmptyMsg: "Обсудите детали матча. Напишите первое сообщение!",
-        quickAmericanoDesc: "Настройка турнира с возможностью выбора зарегистрированных игроков.",
+        quickAmericanoDesc: "Персональный калькулятор турнира Американо.",
         startTournamentBtn: "🚀 Начать турнир",
         calculatorTitle: "🏆 Калькулятор",
         roundsCountLabel: "Всего игр",
@@ -675,11 +688,6 @@
         settingsBtn: "Setări",
         ratingAmericano: "Americano",
         ratingSystemTitle: "🇲🇩 Sistemul de Clasament și Ligi Moldova",
-        myMatchHistoryTitle: "📜 Istoricul meciurilor mele (Americano)",
-        last7Days: "Ultimele 7 zile",
-        withPartner: "Cu partenerul",
-        vsOpponents: "Contra",
-        emptyPersonalHistory: "Istoricul meciurilor este gol...",
         tourneyHistoryTitle: "📜 Istoricul turneelor (ultimele 7 zile)",
         autoCleanup: "Curățare automată",
         winnerLabel: "Câștigător",
@@ -697,7 +705,7 @@
         loadingProfile: "Se încarcă profilul...",
         slotNotFound: "Slotul nu a fost găsit sau a fost șters.",
         chatEmptyMsg: "Discutați detaliile meciului. Scrieți primul mesaj!",
-        quickAmericanoDesc: "Configurare turneu cu opțiunea de a selecta jucătorii înregistrați.",
+        quickAmericanoDesc: "Calculator personal pentru turneul Americano.",
         startTournamentBtn: "🚀 Începe turneul",
         calculatorTitle: "🏆 Calculator",
         roundsCountLabel: "Total jocuri",
@@ -774,11 +782,6 @@
         settingsBtn: "Settings",
         ratingAmericano: "Americano",
         ratingSystemTitle: "🇲🇩 Moldova Ranking & Division System",
-        myMatchHistoryTitle: "📜 My Match History (Americano)",
-        last7Days: "Last 7 days",
-        withPartner: "With partner",
-        vsOpponents: "Against",
-        emptyPersonalHistory: "Your match history is empty...",
         tourneyHistoryTitle: "📜 Tournament History (Last 7 days)",
         autoCleanup: "Auto-cleanup",
         winnerLabel: "Winner",
@@ -796,7 +799,7 @@
         loadingProfile: "Loading profile...",
         slotNotFound: "Slot not found or was deleted.",
         chatEmptyMsg: "Discuss game details. Send the first message!",
-        quickAmericanoDesc: "Tournament setup with option to select registered players.",
+        quickAmericanoDesc: "Personal Americano tournament calculator.",
         startTournamentBtn: "🚀 Start Tournament",
         calculatorTitle: "🏆 Calculator",
         roundsCountLabel: "Total games",
@@ -853,6 +856,52 @@
 
     function openPayProModal() { document.getElementById('modal-pay-pro').classList.remove('hidden'); }
     function closePayProModal() { document.getElementById('modal-pay-pro').classList.add('hidden'); }
+
+    function openProDetailsModal() {
+      if (!currentUserProfile || !currentUserProfile.is_premium) return;
+      const modal = document.getElementById('modal-pro-details');
+      const content = document.getElementById('pro-details-content');
+
+      const expDate = currentUserProfile.premium_until ? new Date(currentUserProfile.premium_until) : new Date(Date.now() + 30*24*3600*1000);
+      const dateFormatted = expDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const daysLeft = Math.max(0, Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)));
+
+      content.innerHTML = `
+        <div class="space-y-3">
+          <div class="glass-subcard p-3 rounded-2xl border border-amber-500/40 text-center space-y-1 bg-amber-500/10">
+            <span class="text-xs text-amber-300 font-black uppercase">Статус подписки: АКТИВЕН</span>
+            <p class="text-xl font-black text-white">Осталось ${daysLeft} дней</p>
+            <p class="text-[10px] text-slate-300">Действительна до: <strong class="text-amber-300">${dateFormatted}</strong></p>
+          </div>
+
+          <div class="glass-subcard p-3 rounded-2xl border border-white/10 space-y-2">
+            <h4 class="font-bold text-amber-300 uppercase text-[11px]">✨ Ваши активированные привилегии:</h4>
+            <ul class="space-y-1.5 text-slate-200 text-[11px]">
+              <li class="flex items-center gap-1.5">
+                <span>🛡️</span> <span>Защитные карты (Shield Cards): <strong class="text-emerald-400">${currentUserProfile.shield_cards || 2} шт.</strong></span>
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span>⚡</span> <span>Приоритетный доступ (Early Access к новым слотам)</span>
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span>👑</span> <span>Золотая неоновая рамка и знак PRO в рейтинге</span>
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span>♾️</span> <span>Безлимитное создание турниров и слотов</span>
+              </li>
+            </ul>
+          </div>
+
+          <button onclick="closeProDetailsModal(); openPayProModal();" class="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
+            ➕ Продлить PRO ещё на 30 дней
+          </button>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeProDetailsModal() { document.getElementById('modal-pro-details').classList.add('hidden'); }
 
     const RANDOM_CELEBRATION_TEXTS = [
       "Tu vopshe esti chempion 🏆",
@@ -945,6 +994,11 @@
       username: 'kizdoi'
     };
 
+    // Персональный ключ сессии Американо для каждого пользователя
+    function getAmericanoStorageKey() {
+      return `quick_americano_state_${tgUser.id || 'guest'}`;
+    }
+
     function isUserCreator() {
       return String(tgUser.id) === '777777' || tgUser.username === 'kizdoi' || CREATOR_TELEGRAM_IDS.includes(tgUser.username) || CREATOR_TELEGRAM_IDS.includes(tgUser.first_name);
     }
@@ -960,7 +1014,7 @@
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) { showError('Ошибка базы: ' + e.message); }
 
-    // --- БЕЗОПАСНОЕ ОБНОВЛЕНИЕ В SUPABASE БЕЗ ВЫПАДЕНИЯ В ОШИБКУ КАНАЛА ---
+    // --- БЕЗОПАСНОЕ ОБНОВЛЕНИЕ В SUPABASE ---
     async function safeUpdateProfile(userId, updateObj) {
       if (!supabaseClient) return;
       try {
@@ -996,6 +1050,7 @@
       const history = cleanAndGetAmericanoHistory();
       history.unshift({
         id: 'am_' + Date.now(),
+        creatorId: tgUser.id,
         timestamp: new Date().toISOString(),
         ...tournamentData
       });
@@ -1056,7 +1111,7 @@
           `;
         }).join('');
       } else {
-        roundsHtml = `<p class="text-xs text-slate-400 italic text-center py-2">${t('emptyPersonalHistory')}</p>`;
+        roundsHtml = `<p class="text-xs text-slate-400 italic text-center py-2">История пуста...</p>`;
       }
 
       content.innerHTML = `
@@ -1086,7 +1141,8 @@
     async function initApp() {
       document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
       
-      const savedState = localStorage.getItem('quick_americano_state');
+      // Загрузка только личного сеанса Американо
+      const savedState = localStorage.getItem(getAmericanoStorageKey());
       if (savedState) {
         try { localAmericanoState = JSON.parse(savedState); } catch(e){}
       }
@@ -1168,7 +1224,7 @@
       } catch (err) { console.log('Profile sync err:', err); }
     }
 
-    // --- ЛОКАЛЬНОЕ И БАЗОВОЕ ХРАНЕНИЕ ЗАЯВОК НА PRO ---
+    // --- ЛОКАЛЬНОЕ ХРАНЕНИЕ ЗАЯВОК НА PRO ---
     function getPendingProRequestsList() {
       let localReqs = [];
       try {
@@ -1238,6 +1294,7 @@
         if (p) {
           p.is_premium = true;
           p.payment_pending = false;
+          p.premium_until = untilDate.toISOString();
         }
 
         alert('Премиум PRO активирован на 30 дней!');
@@ -1570,9 +1627,18 @@
       renderMatchDetails(matchId);
     }
 
-    // --- ВКЛАДКА 2: БЫСТРЫЙ АМЕРИКАНО ---
+    // --- ВКЛАДКА 2: БЫСТРЫЙ ИЗОЛИРОВАННЫЙ АМЕРИКАНО ---
     async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
+      
+      // Читаем ТОЛЬКО личный сеанс текущего пользователя
+      const savedState = localStorage.getItem(getAmericanoStorageKey());
+      if (savedState) {
+        try { localAmericanoState = JSON.parse(savedState); } catch(e){ localAmericanoState = null; }
+      } else {
+        localAmericanoState = null;
+      }
+
       if (localAmericanoState && localAmericanoState.rounds) {
         renderQuickAmericanoBoard(container);
         return;
@@ -1836,7 +1902,7 @@
       }
 
       localAmericanoState = { players, rounds, cycles };
-      localStorage.setItem('quick_americano_state', JSON.stringify(localAmericanoState));
+      localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
       renderQuickAmericano();
     }
 
@@ -2104,7 +2170,7 @@
         round.score_b = scoreB;
         round.completed = (scoreA > 0 || scoreB > 0);
         
-        localStorage.setItem('quick_americano_state', JSON.stringify(localAmericanoState));
+        localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
         renderQuickAmericanoBoard(document.getElementById('main-content'));
       }
     }
@@ -2112,7 +2178,7 @@
     function resetQuickAmericano() {
       if (confirm('Начать новый турнир? Счёт будет сброшен.')) {
         localAmericanoState = null;
-        localStorage.removeItem('quick_americano_state');
+        localStorage.removeItem(getAmericanoStorageKey());
         renderQuickAmericano();
       }
     }
@@ -2164,7 +2230,7 @@
           <div class="glass-subcard p-4 rounded-2xl border border-rose-500/30 text-center space-y-2">
             <span class="text-3xl block">🔒</span>
             <h4 class="text-sm font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
-            <p class="text-xs text-rose-300 leading-relaxed font-semibold">${t('mPrivateProfileNotice')}</p>
+            <p class="text-xs text-rose-300 leading-relaxed font-semibold">Этот профиль приватный.</p>
           </div>
         `;
       } else {
@@ -2182,14 +2248,14 @@
         const total = player.total_matches_played || (wins + losses + draws);
         const winrate = total > 0 ? Math.round(((wins + draws * 0.5) / total) * 100) : 0;
 
-        const tgLink = player.username ? `<a href="https://t.me/${player.username}" target="_blank" class="text-cyan-400 font-bold underline">@${player.username}</a>` : `<span class="text-slate-400 italic">${t('mNoUsername')}</span>`;
+        const tgLink = player.username ? `<a href="https://t.me/${player.username}" target="_blank" class="text-cyan-400 font-bold underline">@${player.username}</a>` : `<span class="text-slate-400 italic">Не указан</span>`;
 
         content.innerHTML = `
           <div class="${player.is_premium ? 'glass-card-pro' : 'glass-subcard'} border p-4 rounded-2xl space-y-3">
             <div class="flex items-start justify-between">
               <div>
                 <h4 class="text-base font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
-                <p class="text-xs text-cyan-300 font-bold mt-0.5">${t('mPublicUsername')}: ${tgLink}</p>
+                <p class="text-xs text-cyan-300 font-bold mt-0.5">Telegram: ${tgLink}</p>
               </div>
               <span class="px-2.5 py-1 bg-amber-400 text-slate-950 font-black text-xs rounded-lg uppercase shadow">Lvl ${player.skill_level || 2.5}</span>
             </div>
@@ -2336,16 +2402,35 @@
 
       let proBannerStatus = '';
       if (p.is_premium) {
+        const expDate = p.premium_until ? new Date(p.premium_until) : new Date(Date.now() + 30*24*3600*1000);
+        const dateFormatted = expDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const daysLeft = Math.max(0, Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)));
+
         proBannerStatus = `
-          <div class="p-3 bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/40 rounded-2xl flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">👑</span>
-              <div>
-                <h4 class="text-xs font-black text-amber-300 uppercase">${t('proApprovedStatus')}</h4>
-                <p class="text-[10px] text-slate-300">Вам доступны все PRO-бонусы и Shield Cards</p>
+          <div onclick="openProDetailsModal()" class="p-4 bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/20 border border-amber-500/50 rounded-2xl cursor-pointer hover:border-amber-400/80 transition-all space-y-2.5 shadow-lg shadow-amber-500/10 btn-3d">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">👑</span>
+                <div>
+                  <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('proApprovedStatus')}</h4>
+                  <p class="text-[10px] text-amber-200/80 font-medium">Нажмите для подробностей и бонусов 🔍</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-black text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-400 px-2.5 py-1 rounded-xl shadow uppercase">
+                ${daysLeft} дн.
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[10px] pt-2 border-t border-amber-500/30">
+              <div class="glass-subcard p-2 rounded-xl text-center">
+                <span class="text-slate-400 block">Действителен до:</span>
+                <strong class="text-amber-300 font-bold">${dateFormatted}</strong>
+              </div>
+              <div class="glass-subcard p-2 rounded-xl text-center">
+                <span class="text-slate-400 block">Защитные карты:</span>
+                <strong class="text-emerald-400 font-bold">🛡️ ${p.shield_cards || 2} шт.</strong>
               </div>
             </div>
-            <span class="text-xs font-black text-amber-400 bg-amber-500/20 px-2.5 py-1 rounded-xl">ACTIVE</span>
           </div>
         `;
       } else if (p.payment_pending) {
