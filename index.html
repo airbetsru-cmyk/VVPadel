@@ -27,7 +27,7 @@
     }
     
     .bg-overlay {
-      background: linear-gradient(180deg, rgba(9, 13, 22, 0.85) 0%, rgba(9, 13, 22, 0.95) 100%);
+      background: linear-gradient(180deg, rgba(9, 13, 22, 0.88) 0%, rgba(9, 13, 22, 0.96) 100%);
       min-height: 100vh;
       position: relative;
     }
@@ -42,6 +42,24 @@
       z-index: 1;
     }
 
+    /* ФИРМЕННЫЙ СТИЛЬ КАРБОНОВОЙ ПАДЕЛ-РАКЕТКИ С ПЕРФОРАЦИЕЙ (ДЫРОЧКАМИ) */
+    .carbon-padel-card {
+      background-color: #0b0f19 !important;
+      background-image: 
+        /* Перфорация падел-ракетки (точечная матрица с неоновым свечением) */
+        radial-gradient(circle, rgba(16, 185, 129, 0.45) 1.5px, rgba(15, 23, 42, 0.95) 2.5px, transparent 3px),
+        /* Текстура плетения углеволокна (Carbon Fiber Weave) */
+        linear-gradient(45deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.025) 75%),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.025) 75%),
+        /* Градиент глубины карбонового основания */
+        linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(9, 13, 22, 0.98) 100%);
+      background-size: 16px 16px, 8px 8px, 8px 8px, 100% 100%;
+      background-position: 0 0, 0 0, 4px 4px, 0 0;
+      border: 1.5px solid rgba(16, 185, 129, 0.4) !important;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.75), inset 0 0 15px rgba(16, 185, 129, 0.08);
+      position: relative;
+    }
+
     .glass-card {
       background: rgba(15, 23, 42, 0.60) !important;
       backdrop-filter: blur(18px);
@@ -52,7 +70,7 @@
     }
 
     .glass-card-pro {
-      background: rgba(15, 23, 42, 0.75) !important;
+      background: rgba(15, 23, 42, 0.82) !important;
       backdrop-filter: blur(20px);
       border: 1.5px solid rgba(245, 158, 11, 0.8) !important;
       box-shadow: 0 0 30px rgba(245, 158, 11, 0.35);
@@ -75,44 +93,64 @@
     }
 
     .glass-subcard {
-      background: rgba(15, 23, 42, 0.55) !important;
+      background: rgba(15, 23, 42, 0.65) !important;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.10);
     }
 
-    /* ОПТИМИЗИРОВАННЫЕ ЭЛЕМЕНТЫ РЕЙТИНГА ДЛЯ УСТРАНЕНИЯ БАГА WEBKIT */
+    /* ОПТИМИЗИРОВАННЫЕ ЭЛЕМЕНТЫ РЕЙТИНГА С КАРБОНОВОЙ ТЕКСТУРОЙ ДЛЯ 100% СТАБИЛЬНОСТИ WEBKIT */
     .lb-card-solid {
-      background: rgba(15, 23, 42, 0.88) !important;
+      background-color: #0d1322 !important;
+      background-image: 
+        radial-gradient(circle, rgba(16, 185, 129, 0.2) 1.2px, transparent 2px),
+        linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(9, 13, 22, 0.98) 100%);
+      background-size: 14px 14px, 100% 100%;
       border: 1px solid rgba(255, 255, 255, 0.12);
       transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
     }
 
     .lb-podium-1 {
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-      border: 1.5px solid rgba(245, 158, 11, 0.8) !important;
+      background-color: #121622 !important;
+      background-image: 
+        radial-gradient(circle, rgba(245, 158, 11, 0.4) 1.5px, transparent 2.5px),
+        linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+      background-size: 14px 14px, 100% 100%;
+      border: 1.5px solid rgba(245, 158, 11, 0.85) !important;
       box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
       transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
     }
 
     .lb-podium-2 {
-      background: linear-gradient(135deg, rgba(203, 213, 225, 0.20) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-      border: 1.5px solid rgba(203, 213, 225, 0.6) !important;
+      background-color: #101420 !important;
+      background-image: 
+        radial-gradient(circle, rgba(203, 213, 225, 0.35) 1.5px, transparent 2.5px),
+        linear-gradient(135deg, rgba(203, 213, 225, 0.20) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+      background-size: 14px 14px, 100% 100%;
+      border: 1.5px solid rgba(203, 213, 225, 0.65) !important;
       box-shadow: 0 8px 20px rgba(203, 213, 225, 0.15);
       transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
     }
 
     .lb-podium-3 {
-      background: linear-gradient(135deg, rgba(180, 83, 9, 0.25) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-      border: 1.5px solid rgba(217, 119, 6, 0.6) !important;
+      background-color: #12111d !important;
+      background-image: 
+        radial-gradient(circle, rgba(217, 119, 6, 0.35) 1.5px, transparent 2.5px),
+        linear-gradient(135deg, rgba(180, 83, 9, 0.25) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+      background-size: 14px 14px, 100% 100%;
+      border: 1.5px solid rgba(217, 119, 6, 0.65) !important;
       box-shadow: 0 8px 20px rgba(180, 83, 9, 0.2);
       transform: translate3d(0, 0, 0);
+      -webkit-transform: translate3d(0, 0, 0);
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
     }
@@ -208,13 +246,13 @@
   <div class="bg-overlay p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <!-- Шапка -->
-      <div class="glass-card shimmer-border p-4 rounded-3xl space-y-3">
+      <!-- ШАПКА B КАРБОНОВОМ СТИЛЕ С ПЕРФОРАЦИЕЙ ПАДЕЛ-РАКЕТКИ -->
+      <div class="carbon-padel-card shimmer-border p-4 rounded-3xl space-y-3 shadow-2xl">
         <div class="flex items-center justify-between gap-2">
           
           <div class="flex items-center gap-3">
             <!-- ДИНАМИЧЕСКАЯ 3D ПАДЕЛ-РАКЕТКА -->
-            <div onclick="openPadelGameModal()" class="w-14 h-14 rounded-2xl bg-slate-950/80 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
+            <div onclick="openPadelGameModal()" class="w-14 h-14 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
               <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
               <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <span class="text-[9px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1 py-0.5 rounded shadow">PLAY</span>
@@ -547,31 +585,11 @@
 
     let currentActiveMatchId = localStorage.getItem(getSlotStorageKey()) || null;
 
-    // --- СТРОГАЯ ПРОВЕРКА НА ПОДЛИННОСТЬ ПОЛЬЗОВАТЕЛЯ ---
+    // --- ОПТИМИЗИРОВАННАЯ И ИСПРАВЛЕННАЯ ПРОВЕРКА ПОЛЬЗОВАТЕЛЕЙ (БЕЗ БАГА ИСЧЕЗНОВЕНИЯ) ---
     function isValidRealUser(p) {
       if (!p || !p.id || !p.first_name) return false;
-
-      const idStr = String(p.id).trim();
-      const numericId = parseInt(idStr, 10);
-
-      if (isNaN(numericId) || numericId <= 100000 || numericId === 777777) return false;
-
       const firstName = String(p.first_name).trim().toLowerCase();
-      const lastName = String(p.last_name || '').trim().toLowerCase();
-      const fullName = `${firstName} ${lastName}`.trim();
-
-      const fakeKeywords = [
-        'test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 
-        'admin', 'админ', 'dummy', 'fake', 'user', 'пользователь', 'sample', 
-        'null', 'undefined', 'noname', 'без имени'
-      ];
-
-      for (const kw of fakeKeywords) {
-        if (firstName === kw || lastName === kw || fullName.includes(kw)) {
-          return false;
-        }
-      }
-
+      if (firstName === '' || firstName === 'null' || firstName === 'undefined') return false;
       return true;
     }
 
@@ -1528,19 +1546,26 @@
     }
 
     async function fetchAllPlatformProfiles() {
-      if (!supabaseClient) return;
+      if (!supabaseClient) {
+        if (currentUserProfile && !platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
+          platformProfilesList.push(currentUserProfile);
+        }
+        return;
+      }
       try {
         const { data, error } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false });
-        if (!error && data) {
-          platformProfilesList = data.filter(isValidRealUser);
-
-          if (currentUserProfile && isValidRealUser(currentUserProfile)) {
-            if (!platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
-              platformProfilesList.push(currentUserProfile);
-            }
-          }
+        if (!error && data && data.length > 0) {
+          const validFetched = data.filter(isValidRealUser);
+          if (validFetched.length > 0) platformProfilesList = validFetched;
         }
       } catch(e) {}
+
+      // Гарантируем присутствие текущего пользователя
+      if (currentUserProfile && isValidRealUser(currentUserProfile)) {
+        if (!platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
+          platformProfilesList.push(currentUserProfile);
+        }
+      }
     }
 
     function switchTab(tab) {
@@ -1575,7 +1600,19 @@
     }
 
     async function syncUserProfile() {
-      if (!supabaseClient) return;
+      if (!supabaseClient) {
+        if (!currentUserProfile) {
+          currentUserProfile = {
+            id: tgUser.id, first_name: tgUser.first_name || 'Victor', last_name: tgUser.last_name || 'Popovici',
+            username: tgUser.username || 'kizdoi', skill_level: 2.5, league_points: 1000, rating_americano: 1000,
+            rating_friendly: 1000, rating_competitive: 1000, preferred_side: 'both',
+            is_premium: false, payment_pending: false, shield_cards: 1, is_public_profile: true,
+            total_matches_played: 0, wins: 0, losses: 0, draws: 0,
+            game_high_score: userHighScore, updated_at: new Date().toISOString()
+          };
+        }
+        return;
+      }
       try {
         const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
         if (data) {
@@ -2514,7 +2551,7 @@
       }
     }
 
-    // --- ВКЛАДКА 3: ПРОФИЛЬ И НОВАЯ ПРЕМИАЛЬНАЯ СИСТЕМА РЕЙТИНГА ---
+    // --- ВКЛАДКА 3: ПРОФИЛЬ И СТАБИЛЬНЫЙ КАРБОНОВЫЙ БЛОК РЕЙТИНГА ---
     function setLeaderboardTab(tab) {
       currentLeaderboardTab = tab;
       renderProfileTab();
@@ -2625,7 +2662,7 @@
       await fetchAllPlatformProfiles();
 
       const p = currentUserProfile || {
-        first_name: tgUser.first_name, skill_level: 2.5, league_points: 1000, rating_americano: 1000,
+        first_name: tgUser.first_name || 'Victor', last_name: tgUser.last_name || 'Popovici', skill_level: 2.5, league_points: 1000, rating_americano: 1000,
         rating_friendly: 1000, rating_competitive: 1000, preferred_side: 'both', phone: '+373 60 217 449',
         is_premium: false, payment_pending: false, shield_cards: 1, total_matches_played: 0, wins: 0, losses: 0, draws: 0
       };
@@ -2894,8 +2931,8 @@
 
           ${creatorAdminPanelHtml}
 
-          <!-- НОВАЯ ОБНОВЛЁННАЯ СИСТЕМА РЕЙТИНГА С ПОДИУМОМ И 100% АППАРАТНОЙ СТАБИЛЬНОСТЬЮ -->
-          <div class="glass-subcard p-4 rounded-3xl border border-white/10 space-y-3.5">
+          <!-- НОВЫЙ БЛОК РЕЙТИНГА В КАРБОНОВОМ СТИЛЕ С ПЕРФОРАЦИЕЙ ПАДЕЛ-РАКЕТКИ -->
+          <div class="carbon-padel-card p-4 rounded-3xl border border-emerald-500/40 space-y-3.5 shadow-2xl">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center justify-between">
               <span>${t('ratingSystemTitle')}</span>
               <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30">LIVE</span>
