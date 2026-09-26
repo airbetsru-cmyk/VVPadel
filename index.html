@@ -483,6 +483,9 @@
   </div>
 
   <script>
+    // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
+    let currentActiveMatchId = null; // Хранит ID открытого/созданного слота
+
     // --- 1. АНИМАЦИЯ ПАДЕЛ-РАКЕТКИ С НАБИВАНИЕМ МЯЧА В ШАПКЕ ---
     function initHeaderPadelAnimation() {
       const cvs = document.getElementById('header-padel-canvas');
@@ -1096,7 +1099,8 @@
         matchesAndScoreTitle: "Матчи и Счёт", placeLabel: "место", place1: "🥇 1-е МЕСТО", place2: "🥈 2-е МЕСТО",
         place3: "🥉 3-е МЕСТО", matchRoundLabel: "Круг", matchGameLabel: "Игра", courtLabel: "Корт",
         completedStatus: "Завершён", pendingStatus: "Ожидает", okBtn: "ОК", viewTourneyDetails: "Смотреть матчи",
-        tourneyMatchesTitle: "Матчи турнира", pricePerPlayerLabel: "Цена за игрока (MDL)", deleteSlotBtn: "🗑️ Удалить слот"
+        tourneyMatchesTitle: "Матчи турнира", pricePerPlayerLabel: "Цена за игрока (MDL)", deleteSlotBtn: "🗑️ Удалить слот",
+        backToCreate: "➕ Создать другой слот"
       },
       ro: {
         tabBooking: "Sloturi", tabAmericano: "Americano", tabProfile: "Profil",
@@ -1128,7 +1132,8 @@
         matchesAndScoreTitle: "Meciuri și Scor", placeLabel: "locul", place1: "🥇 LOCUL 1", place2: "🥈 LOCUL 2",
         place3: "🥉 LOCUL 3", matchRoundLabel: "Runda", matchGameLabel: "Jocul", courtLabel: "Teren",
         completedStatus: "Finalizat", pendingStatus: "În așteptare", okBtn: "OK", viewTourneyDetails: "Vezi meciurile",
-        tourneyMatchesTitle: "Meciurile turneului", pricePerPlayerLabel: "Preț per jucător (MDL)", deleteSlotBtn: "🗑️ Șterge slotul"
+        tourneyMatchesTitle: "Meciurile turneului", pricePerPlayerLabel: "Preț per jucător (MDL)", deleteSlotBtn: "🗑️ Șterge slotul",
+        backToCreate: "➕ Creează alt slot"
       },
       en: {
         tabBooking: "Slots", tabAmericano: "Americano", tabProfile: "Profile",
@@ -1160,7 +1165,8 @@
         matchesAndScoreTitle: "Matches & Score", placeLabel: "place", place1: "🥇 1st PLACE", place2: "🥈 2nd PLACE",
         place3: "🥉 3rd PLACE", matchRoundLabel: "Round", matchGameLabel: "Game", courtLabel: "Court",
         completedStatus: "Completed", pendingStatus: "Pending", okBtn: "OK", viewTourneyDetails: "View Matches",
-        tourneyMatchesTitle: "Tournament Matches", pricePerPlayerLabel: "Price per player (MDL)", deleteSlotBtn: "🗑️ Delete slot"
+        tourneyMatchesTitle: "Tournament Matches", pricePerPlayerLabel: "Price per player (MDL)", deleteSlotBtn: "🗑️ Delete slot",
+        backToCreate: "➕ Create another slot"
       }
     };
 
@@ -1491,8 +1497,8 @@
 
       if (tab === 'booking') {
         btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
-        const startParam = getStartParam();
-        if (startParam) renderMatchDetails(startParam);
+        const matchIdToRender = currentActiveMatchId || getStartParam();
+        if (matchIdToRender) renderMatchDetails(matchIdToRender);
         else renderCreateMatchForm();
       } else if (tab === 'americano') {
         btnAmericano.className = 'py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-xs uppercase tracking-wider neon-glow-purple btn-3d';
@@ -1586,6 +1592,7 @@
 
     // --- ВКЛАДКА 1: СЛОТЫ ---
     function renderCreateMatchForm() {
+      currentActiveMatchId = null;
       const container = document.getElementById('main-content');
       container.innerHTML = `
         <h2 class="text-base font-extrabold mb-4 text-white uppercase italic tracking-wide">${t('createGame')}</h2>
@@ -1653,6 +1660,7 @@
         if (error) throw error;
 
         await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]);
+        currentActiveMatchId = match.id;
         renderMatchDetails(match.id);
       } catch (err) {
         showError('Ошибка создания: ' + err.message);
@@ -1678,11 +1686,13 @@
         const { error } = await supabaseClient.from('matches').delete().eq('id', matchId);
         if (error) throw error;
         alert('Слот успешно удалён.');
+        currentActiveMatchId = null;
         renderCreateMatchForm();
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
     async function renderMatchDetails(matchId) {
+      currentActiveMatchId = matchId;
       const container = document.getElementById('main-content');
       container.innerHTML = `<div class="text-center py-10 text-slate-400">${t('loadingMatch')}</div>`;
 
@@ -1791,13 +1801,18 @@
         container.innerHTML = `
           <div class="space-y-4">
             <div>
-              <div class="flex justify-between items-start">
+              <div class="flex justify-between items-center mb-2">
+                <button onclick="currentActiveMatchId = null; renderCreateMatchForm();" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-bold rounded-xl text-xs btn-3d border border-white/10 flex items-center gap-1">
+                  ⬅️ ${t('backToCreate')}
+                </button>
                 <span class="px-2.5 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-black uppercase tracking-wider rounded-lg">
                   ${match.match_type}
                 </span>
+              </div>
+              <div class="flex justify-between items-start">
+                <h2 class="text-xl font-black mt-1 text-white">${match.custom_location}</h2>
                 <span class="text-xs font-black text-emerald-400">${match.price_per_player} MDL / pers</span>
               </div>
-              <h2 class="text-xl font-black mt-2 text-white">${match.custom_location}</h2>
               <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
             </div>
 
@@ -2056,11 +2071,11 @@
     }
 
     async function importPlayersFromCurrentSlot() {
-      const startParam = getStartParam();
-      if (!startParam) { alert('Нет активного созданного слота.'); return; }
+      const slotIdToImport = currentActiveMatchId || getStartParam();
+      if (!slotIdToImport) { alert('Нет активного созданного слота.'); return; }
 
       try {
-        const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', startParam);
+        const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', slotIdToImport);
         if (!rawPlayers || rawPlayers.length === 0) { alert('В этом слоте нет зарегистрированных игроков.'); return; }
 
         let count = rawPlayers.length;
