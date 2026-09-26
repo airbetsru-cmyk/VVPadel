@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Padel Moldova</title>
+  <title>Padel Moldova - Ranking & Slots</title>
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <!-- Supabase JS Client -->
@@ -40,7 +40,7 @@
       z-index: 1;
     }
 
-    /* 50% FROSTED GLASS EFFECT */
+    /* GLASS CARDS */
     .glass-card {
       background: rgba(15, 23, 42, 0.50) !important;
       backdrop-filter: blur(18px);
@@ -50,6 +50,30 @@
       position: relative;
     }
 
+    /* PREMIER PRO NEON CARD */
+    .glass-card-pro {
+      background: rgba(15, 23, 42, 0.70) !important;
+      backdrop-filter: blur(20px);
+      border: 1.5px solid rgba(245, 158, 11, 0.8) !important;
+      box-shadow: 0 0 30px rgba(245, 158, 11, 0.35);
+      position: relative;
+    }
+
+    .glass-card-pro::after {
+      content: '👑 PRO MEMBER';
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+      color: #020617;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
+    }
+
     .glass-subcard {
       background: rgba(15, 23, 42, 0.50) !important;
       backdrop-filter: blur(14px);
@@ -57,7 +81,7 @@
       border: 1px solid rgba(255, 255, 255, 0.10);
     }
 
-    /* БЕГАЮЩИЙ ГРАДИЕНТ ПО ЧАСОВОЙ СТРЕЛКЕ (ВЕРХНИЙ БЛОК) */
+    /* БЕГАЮЩИЙ ГРАДИЕНТ */
     .shimmer-border { position: relative; }
     .shimmer-border::before {
       content: '';
@@ -79,7 +103,6 @@
       100% { background-position: 300% 0%; }
     }
 
-    /* БЕГАЮЩИЙ ГРАДИЕНТ ПРОТИВ ЧАСОВОЙ СТРЕЛКИ (НИЖНИЙ БЛОК) */
     .shimmer-border-reverse { position: relative; }
     .shimmer-border-reverse::before {
       content: '';
@@ -106,14 +129,14 @@
       transform-style: preserve-3d;
     }
     @keyframes float3d {
-      0%, 100% { transform: translateY(0px) rotate(-5deg) rotateY(0deg); }
-      50% { transform: translateY(-6px) rotate(5deg) rotateY(15deg); }
+      0%, 100% { transform: translateY(0px) rotate(-5deg); }
+      50% { transform: translateY(-6px) rotate(5deg); }
     }
 
     @keyframes popInOut {
-      0% { transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); opacity: 0; }
-      20% { transform: translate(-50%, -50%) scale(1.1) rotate(3deg); opacity: 1; }
-      80% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+      0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+      20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
       100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
     }
 
@@ -123,23 +146,21 @@
 
     .neon-glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.45); }
     .neon-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.45); }
+    .neon-glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); }
     .neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.45); }
 
     .btn-3d { transition: all 0.15s ease; }
     .btn-3d:active { transform: translateY(2px) scale(0.98); }
 
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(1);
-      cursor: pointer;
-    }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
   </style>
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white">
 
-  <!-- Холст анимированных падающих мячей -->
+  <!-- Холст анимированных мячей -->
   <canvas id="ball-canvas"></canvas>
 
-  <!-- Всплывающий салют и текст -->
+  <!-- Всплывающий тост -->
   <div id="celebration-toast" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none hidden">
     <div class="glass-card shimmer-border px-6 py-4 rounded-3xl text-center shadow-2xl bg-slate-950/80 border-2 border-emerald-400">
       <span class="text-3xl block mb-1">🎾🔥</span>
@@ -197,10 +218,10 @@
         </div>
       </div>
 
-      <!-- Ошибки -->
+      <!-- Блок ошибок -->
       <div id="error-box" class="hidden bg-rose-500/20 border border-rose-500/40 text-rose-200 p-3.5 rounded-2xl text-xs font-mono break-all backdrop-blur-md"></div>
 
-      <!-- Главный контент С РЕВЕРСИВНЫМ БЕГАЮЩИМ ГРАДИЕНТОМ -->
+      <!-- Главный Контент -->
       <div id="main-content" class="glass-card shimmer-border-reverse p-5 rounded-3xl min-h-[300px]">
         <div class="flex justify-center items-center py-16 text-slate-400 font-semibold text-sm">
           <div class="animate-pulse flex items-center gap-2">
@@ -209,6 +230,55 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНОЕ ОКНО ОПЛАТЫ PRO -->
+  <div id="modal-pay-pro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card-pro p-5 rounded-3xl w-full max-w-sm space-y-4">
+      <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
+        <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2" id="m-pay-title">
+          👑 Подписка Padel Moldova PRO
+        </h3>
+        <button onclick="closePayProModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/40 p-3 rounded-2xl space-y-2">
+          <h4 class="font-extrabold text-amber-300 uppercase text-[11px]" id="m-pay-benefits-title">🔥 Преимущества PRO-подписки:</h4>
+          <ul class="space-y-1 text-slate-200 text-[11px]">
+            <li>✨ **Золотая рамка и бейдж PRO** в рейтинге</li>
+            <li>⚡ **Early Access**: Приоритетные слоты</li>
+            <li>🛡️ **1 Shield Card**: Защита от списания LP при поражении</li>
+            <li>📈 **PRO-Аналитика**: Графики формы и H2H статистика</li>
+            <li>♾️ **Безлимитное создание** турниров и слотов</li>
+          </ul>
+        </div>
+
+        <div class="glass-subcard p-3 rounded-2xl border border-white/10 space-y-2">
+          <p class="text-slate-300 font-semibold text-[11px]" id="m-pay-details-desc">Для активации переведите **150 MDL** за 1 месяц:</p>
+
+          <div class="glass-subcard p-2.5 rounded-xl border border-amber-500/30 space-y-1 font-mono text-[11px]">
+            <div class="flex justify-between items-center text-slate-300">
+              <span class="text-slate-400">MIA Plăți Instant:</span>
+              <span class="font-bold text-emerald-400">+373 60 217 449</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span class="text-slate-400">Получатель:</span>
+              <span class="font-bold text-amber-300">Victor Popovici</span>
+            </div>
+          </div>
+          <p class="text-[9px] text-slate-400 italic text-center">* В комментарии к переводу укажите ваше имя в Telegram</p>
+        </div>
+
+        <button onclick="submitProPaymentRequest()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
+          ✅ Я оплатил, отправить заявку
+        </button>
+      </div>
+
+      <button onclick="closePayProModal()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs btn-3d border border-white/10" id="m-pay-close">
+        Закрыть
+      </button>
     </div>
   </div>
 
@@ -230,7 +300,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИНФОРМАЦИИ ОБ ИГРОКЕ -->
+  <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИГРОКА -->
   <div id="modal-view-player" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -283,7 +353,7 @@
 
         <div class="glass-subcard p-3.5 rounded-2xl border border-amber-500/30 space-y-2 mt-3">
           <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wide" id="m-donate-title">☕ Поддержать Padel Moldova</h4>
-          <p class="text-[11px] text-slate-300" id="m-donate-desc">Если вам нравится платформа, вы можете сделать добровольный взнос на развитие серверов и новые функции:</p>
+          <p class="text-[11px] text-slate-300" id="m-donate-desc">Если вам нравится платформа, вы можете сделать добровольный взнос на развитие серверов:</p>
 
           <div class="glass-subcard p-2.5 rounded-xl border border-white/10 space-y-1.5 font-mono text-[11px]">
             <div class="flex justify-between items-center text-slate-300">
@@ -295,7 +365,6 @@
               <span class="font-bold text-emerald-400">060217449</span>
             </div>
           </div>
-          <p class="text-[9px] text-slate-400 italic text-center" id="m-donate-footer">* Добровольные пожертвования на развитие комьюнити</p>
         </div>
       </div>
 
@@ -326,7 +395,7 @@
         </div>
 
         <p class="text-slate-300 text-xs leading-relaxed" id="m-creator-desc">
-          Платформа Padel Moldova создана для объединения игроков, удобного поиска слотов и проведения турниров по всей Молдове.
+          Платформа Padel Moldova создана для объединения игроков, проведения турниров и роста рейтинга по всей Молдове.
         </p>
 
         <a id="creator-tg-link" href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-cyan-500/20">
@@ -413,16 +482,22 @@
     }
     animateBalls();
 
-    // --- ФУНКЦИИ ВАЛИДАЦИИ И РАСЧЁТА ---
+    // --- ЛИГИ И ДИВИЗИОНЫ ---
+    function getPlayerLeague(lp = 1000) {
+      if (lp >= 2100) return { title: 'Master', badge: '👑', color: 'text-amber-300 border-amber-400/50 bg-amber-500/20' };
+      if (lp >= 1800) return { title: 'Platinum', badge: '💎', color: 'text-cyan-300 border-cyan-400/50 bg-cyan-500/20' };
+      if (lp >= 1500) return { title: 'Gold', badge: '🥇', color: 'text-yellow-400 border-yellow-500/50 bg-yellow-500/20' };
+      if (lp >= 1200) return { title: 'Silver', badge: '🥈', color: 'text-slate-300 border-slate-400/50 bg-slate-500/20' };
+      return { title: 'Bronze', badge: '🥉', color: 'text-amber-600 border-amber-700/50 bg-amber-800/20' };
+    }
+
     function calculateAge(birthDateStr) {
       if (!birthDateStr) return null;
       const today = new Date();
       const birthDate = new Date(birthDateStr);
       let age = today.getFullYear() - birthDate.getFullYear();
       const m = today.getMonth() - birthDate.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
       return age >= 0 ? age : null;
     }
 
@@ -430,16 +505,13 @@
       if (!p || !p.id || !p.first_name) return false;
       const idStr = String(p.id).trim();
       const numericId = parseInt(idStr, 10);
-      
       if (numericId !== 777777 && (isNaN(numericId) || numericId < 100000)) return false;
-      
       const firstName = String(p.first_name).trim().toLowerCase();
       if (firstName === 'test' || firstName === 'тест' || firstName.startsWith('игрок ')) return false;
-      
       return true;
     }
 
-    // --- 2. ПОЛНАЯ МУЛЬТИЯЗЫЧНОСТЬ (I18N) ---
+    // --- 2. ПОЛНАЯ МУЛЬТИЯЗЫЧНОСТЬ ---
     const TRANSLATIONS = {
       ru: {
         tabBooking: "Слоты",
@@ -494,18 +566,25 @@
         quickImportBtn: "⚡ Импортировать из Слота",
         guestOption: "➕ Ввести вручную (Гость)",
 
+        getProBtn: "💎 Оформить PRO (150 MDL/мес)",
+        proPendingStatus: "⏳ Заявка на PRO отправлена. Ожидается проверка оплаты.",
+        proApprovedStatus: "👑 Премиум PRO активен",
+        pendingRequestsTitle: "⏳ Заявки на подтверждение PRO оплаты",
+        approveProBtn: "✅ Подтвердить PRO",
+        rejectProBtn: "❌ Отклонить",
+
         mSupportTitle: "Поддержка и Помощь",
         mSupportDesc: "Возникли вопросы, предложения или нашли ошибку? Свяжитесь напрямую с нашей службой поддержки.",
         mSupportTgBtn: "💬 Написать в Telegram (@kizdoi)",
         mDonateTitle: "☕ Поддержать Padel Moldova",
-        mDonateDesc: "Если вам нравится платформа, вы можете сделать добровольный взнос на развитие серверов и новые функции:",
+        mDonateDesc: "Если вам нравится платформа, вы можете сделать добровольный взнос на развитие серверов:",
         mDonatePhoneLabel: "Телефон:",
         mDonateFooter: "* Добровольные пожертвования на развитие комьюнити",
         mCloseBtn: "Закрыть",
 
         mCreatorTitle: "Разработчик Проекта",
         mCreatorRole: "Founder & Developer • @kizdoi",
-        mCreatorDesc: "Платформа Padel Moldova создана для объединения игроков, удобного поиска слотов и проведения турниров по всей Молдове.",
+        mCreatorDesc: "Платформа Padel Moldova создана для объединения игроков, проведения турниров и роста рейтинга по всей Молдове.",
         mCreatorTgBtn: "📩 Связаться с Виктором (@kizdoi)",
 
         mViewPlayerTitle: "👤 Карточка игрока",
@@ -519,7 +598,7 @@
         ratingFriendly: "Дружеский",
         ratingCompetitive: "Ranked",
         ratingNational: "Общий",
-        ratingSystemTitle: "🇲🇩 Система Рейтингов Молдовы",
+        ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы",
         myMatchHistoryTitle: "📜 История моих игр (Американо)",
         last7Days: "За 7 дней",
         withPartner: "С партнёром",
@@ -540,7 +619,7 @@
         finishRegBtn: "🔒 Завершить",
         deleteSlotBtn: "🗑️ Удалить слот",
         profileEditTitle: "✏️ Редактирование Данных Профиля",
-        creatorPanelTitle: "👑 Панель Создателя: Управление Игроками",
+        creatorPanelTitle: "👑 Панель Создателя: Управление Платформой",
         allRegisteredPlayers: "Все зарегистрированные игроки платформы:",
         gamesLabel: "игр",
         pointsLabel: "PTS",
@@ -626,11 +705,18 @@
         quickImportBtn: "⚡ Importă din Slot",
         guestOption: "➕ Introdu manual (Oaspete)",
 
+        getProBtn: "💎 Activează PRO (150 MDL/lună)",
+        proPendingStatus: "⏳ Cererea PRO a fost trimisă. În așteptarea verificării plății.",
+        proApprovedStatus: "👑 Premium PRO este activ",
+        pendingRequestsTitle: "⏳ Solicitări de confirmare plată PRO",
+        approveProBtn: "✅ Confirmă PRO",
+        rejectProBtn: "❌ Respinge",
+
         mSupportTitle: "Suport și Ajutor",
         mSupportDesc: "Ai întrebări, sugestii sau ai găsit o eroare? Contactează direct serviciul nostru de suport.",
         mSupportTgBtn: "💬 Scrie pe Telegram (@kizdoi)",
         mDonateTitle: "☕ Susține Padel Moldova",
-        mDonateDesc: "Dacă îți place platforma, poți face o donație voluntară pentru dezvoltarea serverelor și funcții noi:",
+        mDonateDesc: "Dacă îți place platforma, poți face o donație voluntară pentru dezvoltarea serverelor:",
         mDonatePhoneLabel: "Telefon:",
         mDonateFooter: "* Donații voluntare pentru dezvoltarea comunității",
         mCloseBtn: "Închide",
@@ -651,7 +737,7 @@
         ratingFriendly: "Amical",
         ratingCompetitive: "Ranked",
         ratingNational: "General",
-        ratingSystemTitle: "🇲🇩 Sistemul de Clasament Moldova",
+        ratingSystemTitle: "🇲🇩 Sistemul de Clasament și Ligi Moldova",
         myMatchHistoryTitle: "📜 Istoricul meciurilor mele (Americano)",
         last7Days: "Ultimele 7 zile",
         withPartner: "Cu partenerul",
@@ -672,7 +758,7 @@
         finishRegBtn: "🔒 Finalizează",
         deleteSlotBtn: "🗑️ Șterge slotul",
         profileEditTitle: "✏️ Editare Date Profil",
-        creatorPanelTitle: "👑 Panou Autor: Administrare Jucători",
+        creatorPanelTitle: "👑 Panou Autor: Administrare Platformă",
         allRegisteredPlayers: "Toți jucătorii înregistrați pe platformă:",
         gamesLabel: "jocuri",
         pointsLabel: "PTS",
@@ -758,11 +844,18 @@
         quickImportBtn: "⚡ Import from Slot",
         guestOption: "➕ Enter manually (Guest)",
 
+        getProBtn: "💎 Get PRO (150 MDL/month)",
+        proPendingStatus: "⏳ PRO application submitted. Awaiting payment verification.",
+        proApprovedStatus: "👑 Premium PRO Active",
+        pendingRequestsTitle: "⏳ PRO Payment Requests Pending",
+        approveProBtn: "✅ Approve PRO",
+        rejectProBtn: "❌ Reject",
+
         mSupportTitle: "Support & Help",
         mSupportDesc: "Have questions, feedback, or found a bug? Reach out directly to our support team.",
         mSupportTgBtn: "💬 Message on Telegram (@kizdoi)",
         mDonateTitle: "☕ Support Padel Moldova",
-        mDonateDesc: "If you enjoy the platform, you can make a voluntary donation for server upgrades and new features:",
+        mDonateDesc: "If you enjoy the platform, you can make a voluntary donation for server upgrades:",
         mDonatePhoneLabel: "Phone:",
         mDonateFooter: "* Voluntary community development support",
         mCloseBtn: "Close",
@@ -783,7 +876,7 @@
         ratingFriendly: "Friendly",
         ratingCompetitive: "Ranked",
         ratingNational: "Overall",
-        ratingSystemTitle: "🇲🇩 Moldova Ranking System",
+        ratingSystemTitle: "🇲🇩 Moldova Ranking & Division System",
         myMatchHistoryTitle: "📜 My Match History (Americano)",
         last7Days: "Last 7 days",
         withPartner: "With partner",
@@ -804,7 +897,7 @@
         finishRegBtn: "🔒 Close",
         deleteSlotBtn: "🗑️ Delete Slot",
         profileEditTitle: "✏️ Edit Profile Data",
-        creatorPanelTitle: "👑 Creator Panel: Player Management",
+        creatorPanelTitle: "👑 Creator Panel: Platform Management",
         allRegisteredPlayers: "All registered platform players:",
         gamesLabel: "games",
         pointsLabel: "PTS",
@@ -843,9 +936,7 @@
     let currentLeaderboardTab = 'national'; 
     let isProfileEditOpen = false; 
 
-    function t(key) {
-      return TRANSLATIONS[currentLang][key] || key;
-    }
+    function t(key) { return TRANSLATIONS[currentLang][key] || key; }
 
     function setLanguage(lang) {
       currentLang = lang;
@@ -853,11 +944,7 @@
       
       ['ru', 'ro', 'en'].forEach(l => {
         const btn = document.getElementById(`lang-${l}`);
-        if (l === lang) {
-          btn.className = "px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10";
-        } else {
-          btn.className = "px-2 py-0.5 rounded-lg text-slate-400 hover:text-white";
-        }
+        if (btn) btn.className = l === lang ? "px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10" : "px-2 py-0.5 rounded-lg text-slate-400 hover:text-white";
       });
 
       document.getElementById('txt-tab-booking').innerText = t('tabBooking');
@@ -866,57 +953,30 @@
       document.getElementById('txt-btn-support').innerText = t('btnSupport');
       document.getElementById('txt-btn-creator').innerText = t('btnCreator');
 
-      document.getElementById('m-support-title').innerText = t('mSupportTitle');
-      document.getElementById('m-support-desc').innerText = t('mSupportDesc');
-      document.getElementById('support-tg-link').innerText = t('mSupportTgBtn');
-      document.getElementById('m-donate-title').innerText = t('mDonateTitle');
-      document.getElementById('m-donate-desc').innerText = t('mDonateDesc');
-      document.getElementById('m-donate-phone-label').innerText = t('mDonatePhoneLabel');
-      document.getElementById('m-donate-footer').innerText = t('mDonateFooter');
-      document.getElementById('m-support-close-btn').innerText = t('mCloseBtn');
-
-      document.getElementById('m-creator-title').innerText = t('mCreatorTitle');
-      document.getElementById('m-creator-role').innerText = t('mCreatorRole');
-      document.getElementById('m-creator-desc').innerText = t('mCreatorDesc');
-      document.getElementById('creator-tg-link').innerText = t('mCreatorTgBtn');
-      document.getElementById('m-creator-close-btn').innerText = t('mCloseBtn');
-
-      document.getElementById('m-view-player-title').innerText = t('mViewPlayerTitle');
-      document.getElementById('m-view-player-close').innerText = t('mCloseBtn');
-
       switchTab(activeTab);
     }
 
-    function openSupportModal() {
-      document.getElementById('modal-support').classList.remove('hidden');
-    }
-
-    function openCreatorModal() {
-      document.getElementById('modal-creator').classList.remove('hidden');
-    }
-
+    function openSupportModal() { document.getElementById('modal-support').classList.remove('hidden'); }
+    function openCreatorModal() { document.getElementById('modal-creator').classList.remove('hidden'); }
     function closeModals() {
       document.getElementById('modal-support').classList.add('hidden');
       document.getElementById('modal-creator').classList.add('hidden');
     }
+
+    function openPayProModal() { document.getElementById('modal-pay-pro').classList.remove('hidden'); }
+    function closePayProModal() { document.getElementById('modal-pay-pro').classList.add('hidden'); }
 
     const RANDOM_CELEBRATION_TEXTS = [
       "Tu vopshe esti chempion 🏆",
       "Aiii Malaceaga! 🔥",
       "Azi tati kizdele dupa padel is atali 😎",
       "Tei Cacat, tei Parfumat 🎾✨",
-      "Vamoooooos! 🚀",
-      "Vezi s nu intarzii ⏰"
+      "Vamoooooos! 🚀"
     ];
 
     function triggerSlotCelebration() {
       if (window.confetti) {
-        window.confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 },
-          colors: ['#10b981', '#ccff00', '#3b82f6', '#f59e0b']
-        });
+        window.confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#10b981', '#ccff00', '#3b82f6', '#f59e0b'] });
       }
 
       const randomMsg = RANDOM_CELEBRATION_TEXTS[Math.floor(Math.random() * RANDOM_CELEBRATION_TEXTS.length)];
@@ -928,9 +988,7 @@
       void toast.offsetWidth;
       toast.classList.add('toast-pop');
 
-      setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 2500);
+      setTimeout(() => { toast.classList.add('hidden'); }, 2500);
     }
 
     // --- 3. SUPABASE И TELEGRAM ---
@@ -1012,26 +1070,19 @@
     let supabaseClient = null;
     try {
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } catch (e) {
-      showError('Ошибка базы: ' + e.message);
-    }
+    } catch (e) { showError('Ошибка базы: ' + e.message); }
 
     // --- УПРАВЛЕНИЕ ИСТОРИЕЙ АМЕРИКАНО (7 ДНЕЙ) ---
     function cleanAndGetAmericanoHistory() {
       const historyRaw = localStorage.getItem('padel_americano_history_v2');
       if (!historyRaw) return [];
-      
       try {
         const history = JSON.parse(historyRaw);
         const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-        
         const freshHistory = history.filter(item => new Date(item.timestamp).getTime() > oneWeekAgo);
-        
         localStorage.setItem('padel_americano_history_v2', JSON.stringify(freshHistory));
         return freshHistory;
-      } catch(e) {
-        return [];
-      }
+      } catch(e) { return []; }
     }
 
     function saveAmericanoToHistory(tournamentData) {
@@ -1044,7 +1095,6 @@
       localStorage.setItem('padel_americano_history_v2', JSON.stringify(history));
     }
 
-    // --- ПРОСМОТР ДЕТАЛЕЙ ПРОШЛОГО ТУРНИРА ---
     function openHistoryTourneyModal(tourneyId) {
       const history = cleanAndGetAmericanoHistory();
       const tourney = history.find(t => t.id === tourneyId);
@@ -1055,7 +1105,6 @@
 
       const dt = new Date(tourney.timestamp).toLocaleString([], { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
 
-      // Лидерборд
       let lbHtml = '';
       if (tourney.leaderboard && tourney.leaderboard.length > 0) {
         lbHtml = tourney.leaderboard.map((item, idx) => {
@@ -1077,7 +1126,6 @@
         }).join('');
       }
 
-      // Матчи
       let roundsHtml = '';
       if (tourney.rounds && tourney.rounds.length > 0) {
         roundsHtml = tourney.rounds.map(r => {
@@ -1123,15 +1171,10 @@
         </div>
       `;
 
-      document.getElementById('m-tourney-title').innerText = `🏆 ${t('viewTourneyDetails')}`;
-      document.getElementById('m-tourney-close').innerText = t('mCloseBtn');
-
       modal.classList.remove('hidden');
     }
 
-    function closeTourneyModal() {
-      document.getElementById('modal-view-tourney').classList.add('hidden');
-    }
+    function closeTourneyModal() { document.getElementById('modal-view-tourney').classList.add('hidden'); }
 
     async function initApp() {
       document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
@@ -1197,17 +1240,16 @@
             last_name: tgUser.last_name || null,
             username: tgUser.username || null,
             skill_level: 2.5,
+            league_points: 1000,
             rating_americano: 1000,
             rating_friendly: 1000,
             rating_competitive: 1000,
             preferred_side: 'both',
-            birth_date: null,
-            gender: null,
+            is_premium: false,
+            payment_pending: false,
+            shield_cards: 1,
             is_public_profile: true,
             total_matches_played: 0,
-            matches_americano: 0,
-            matches_friendly: 0,
-            matches_competitive: 0,
             wins: 0,
             losses: 0,
             draws: 0,
@@ -1217,6 +1259,78 @@
           currentUserProfile = newProf;
         }
       } catch (err) { console.log('Profile sync err:', err); }
+    }
+
+    // --- ОТПРАВКА ЗАЯВКИ НА PRO ОПЛАТУ ---
+    async function submitProPaymentRequest() {
+      try {
+        if (supabaseClient) {
+          await supabaseClient
+            .from('profiles')
+            .update({ 
+              payment_pending: true,
+              updated_at: new Date().toISOString() 
+            })
+            .eq('id', tgUser.id);
+        }
+
+        if (currentUserProfile) {
+          currentUserProfile.payment_pending = true;
+        }
+
+        closePayProModal();
+        alert('Заявка на активицию PRO успешно отправлена создателю! Доступ будет открыт сразу после проверки перевода.');
+        renderProfileTab();
+      } catch(e) {
+        alert('Ошибка отправки заявки: ' + e.message);
+      }
+    }
+
+    // --- УПРАВЛЕНИЕ ОПЛАТАМИ СОЗДАТЕЛЕМ (ОКНО ОДОБРЕНИЯ) ---
+    async function approveUserProStatus(userId) {
+      try {
+        const untilDate = new Date();
+        untilDate.setDate(untilDate.getDate() + 30);
+
+        if (supabaseClient) {
+          await supabaseClient
+            .from('profiles')
+            .update({
+              is_premium: true,
+              payment_pending: false,
+              premium_until: untilDate.toISOString(),
+              shield_cards: 2,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', userId);
+        }
+
+        alert('Премиум PRO активирован на 30 дней!');
+        await fetchAllPlatformProfiles();
+        renderProfileTab();
+      } catch(e) {
+        alert('Ошибка подтверждения: ' + e.message);
+      }
+    }
+
+    async function rejectUserProStatus(userId) {
+      try {
+        if (supabaseClient) {
+          await supabaseClient
+            .from('profiles')
+            .update({
+              payment_pending: false,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', userId);
+        }
+
+        alert('Заявка отклонена.');
+        await fetchAllPlatformProfiles();
+        renderProfileTab();
+      } catch(e) {
+        alert('Ошибка: ' + e.message);
+      }
     }
 
     // --- ВКЛАДКА 1: БРОНИРОВАНИЕ И СЛОТЫ ---
@@ -1313,34 +1427,23 @@
     async function updateMatchPrice(matchId) {
       const newPrice = parseFloat(document.getElementById(`edit_price_${matchId}`).value) || 0;
       try {
-        const { error } = await supabaseClient
-          .from('matches')
-          .update({ price_per_player: newPrice })
-          .eq('id', matchId);
-
+        const { error } = await supabaseClient.from('matches').update({ price_per_player: newPrice }).eq('id', matchId);
         if (error) throw error;
         alert('Цена успешно обновлена!');
         renderMatchDetails(matchId);
-      } catch (e) {
-        alert('Ошибка изменения цены: ' + e.message);
-      }
+      } catch (e) { alert('Ошибка: ' + e.message); }
     }
 
     async function deleteMatchByCreator(matchId) {
-      if (!confirm('Вы уверены, что хотите полностью удалить этот слот? Ссылка станет недействительной.')) return;
-
+      if (!confirm('Вы уверены, что хотите полностью удалить этот слот?')) return;
       try {
         await supabaseClient.from('match_messages').delete().eq('match_id', matchId);
         await supabaseClient.from('match_players').delete().eq('match_id', matchId);
         const { error } = await supabaseClient.from('matches').delete().eq('id', matchId);
-
         if (error) throw error;
-
         alert('Слот успешно удалён.');
         renderCreateMatchForm();
-      } catch(e) {
-        alert('Ошибка удаления слота: ' + e.message);
-      }
+      } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
     async function renderMatchDetails(matchId) {
@@ -1360,7 +1463,6 @@
         const isJoined = players.some(p => String(p.user_id) === String(tgUser.id));
         const isMatchCreator = String(match.creator_id) === String(tgUser.id) || isUserCreator();
         const isRegClosed = match.is_registration_closed === true;
-        const isFull = players.length >= match.max_players;
 
         const dateStr = new Date(match.scheduled_at).toLocaleString(currentLang === 'ro' ? 'ro-RO' : (currentLang === 'en' ? 'en-US' : 'ru-RU'), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
         const shareUrl = `https://t.me/${shareBotUsername}/app?startapp=${match.id}`;
@@ -1368,7 +1470,6 @@
         let slotsHtml = '';
         const displayLimit = isRegClosed ? players.length : match.max_players;
 
-        // ВЫБОР КОНКРЕТНОГО СЛОТА
         for (let i = 1; i <= displayLimit; i++) {
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
           if (p) {
@@ -1382,7 +1483,7 @@
                   <span class="text-xs font-bold text-emerald-300">Слот #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline decoration-dotted hover:text-amber-300">${name}</span></span>
                   <div class="flex items-center gap-2">
                     <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
-                    ${isMatchCreator ? `<button onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d" title="Удалить из слота">❌</button>` : ''}
+                    ${isMatchCreator ? `<button onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d">❌</button>` : ''}
                   </div>
                 </div>
               </div>`;
@@ -1401,22 +1502,15 @@
 
         let messagesList = [];
         try {
-          const { data: dbMsgs, error } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
-          if (!error && dbMsgs) {
-            messagesList = dbMsgs;
-          } else {
-            throw new Error('Fallback to local');
-          }
-        } catch(e) {
-          const localKey = `padel_chat_${matchId}`;
-          messagesList = JSON.parse(localStorage.getItem(localKey) || '[]');
-        }
+          const { data: dbMsgs } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
+          if (dbMsgs) messagesList = dbMsgs;
+        } catch(e) {}
 
         let chatHtml = messagesList.map(m => {
           const isMe = String(m.user_id) === String(tgUser.id);
           return `
             <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-0.5">
-              <div class="max-w-[85%] p-2.5 rounded-2xl text-xs space-y-1 ${isMe ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md shadow-emerald-500/10' : 'glass-subcard text-slate-200 border border-white/10 rounded-bl-none'}">
+              <div class="max-w-[85%] p-2.5 rounded-2xl text-xs space-y-1 ${isMe ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md' : 'glass-subcard text-slate-200 border border-white/10 rounded-bl-none'}">
                 <div class="flex justify-between items-center gap-3 text-[9px] opacity-75 font-bold uppercase">
                   <span>${m.sender_name || 'Игрок'}</span>
                   <span>${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
@@ -1439,51 +1533,26 @@
                     <p class="text-[10px] text-slate-400">${t('hostPanelDesc')}</p>
                   </div>
                 </div>
-                <span class="px-2.5 py-1 text-[10px] font-black rounded-lg uppercase tracking-wider ${isRegClosed ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'}">
-                  ${isRegClosed ? t('regStatusClosed') : t('regStatusOpen')}
-                </span>
               </div>
 
               <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs">
                 <span class="font-bold text-slate-300 pl-1">${t('pricePerPlayerLabel')}</span>
                 <div class="flex items-center gap-1.5">
-                  <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1.5 glass-subcard border border-slate-600 rounded-lg text-center text-white font-black focus:outline-none focus:border-amber-500 transition-colors">
-                  <button onclick="updateMatchPrice('${match.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black rounded-lg btn-3d">💾</button>
-                </div>
-              </div>
-
-              <div class="flex items-center justify-between p-2.5 glass-subcard rounded-xl border border-white/5 text-xs">
-                <span class="font-bold text-slate-300">${t('totalSlotsLabel')} <strong class="text-amber-400 font-black text-sm">${match.max_players}</strong></span>
-                <div class="flex items-center gap-1.5">
-                  <button onclick="adjustMatchMaxPlayers('${match.id}', ${match.max_players}, -1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-lg btn-3d" title="Убрать 1 слот">➖</button>
-                  <button onclick="adjustMatchMaxPlayers('${match.id}', ${match.max_players}, 1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-lg btn-3d" title="Добавить 1 слот">➕</button>
+                  <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1.5 glass-subcard border border-slate-600 rounded-lg text-center text-white font-black">
+                  <button onclick="updateMatchPrice('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-2 pt-1">
-                ${isRegClosed ? `
-                  <button onclick="toggleRegistration('${match.id}', false)" id="btn-toggle-reg" class="py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20 flex items-center justify-center gap-1">
-                    ${t('openRegBtn')}
-                  </button>
-                ` : `
-                  <button onclick="toggleRegistration('${match.id}', true)" id="btn-toggle-reg" class="py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-extrabold rounded-xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-1">
-                    ${t('finishRegBtn')}
-                  </button>
-                `}
-                
-                <button onclick="deleteMatchByCreator('${match.id}')" class="py-2.5 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-extrabold rounded-xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-1">
+                <button onclick="toggleRegistration('${match.id}', ${!isRegClosed})" class="py-2.5 bg-amber-500/20 text-amber-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
+                  ${isRegClosed ? t('openRegBtn') : t('finishRegBtn')}
+                </button>
+                <button onclick="deleteMatchByCreator('${match.id}')" class="py-2.5 bg-rose-500/20 text-rose-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
                   ${t('deleteSlotBtn')}
                 </button>
               </div>
             </div>
           `;
-        }
-
-        let joinButtonHtml = '';
-        if (isRegClosed) {
-          joinButtonHtml = `<div class="p-3 glass-subcard border border-amber-500/30 text-amber-300 rounded-2xl text-xs font-bold text-center flex items-center justify-center gap-1.5">
-            ${t('regStatusClosed')}
-          </div>`;
         }
 
         container.innerHTML = `
@@ -1512,15 +1581,14 @@
                 ${chatHtml.length > 0 ? chatHtml : `<p class="text-xs text-slate-400 text-center py-12 italic">${t('chatEmptyMsg')}</p>`}
               </div>
               <div class="flex gap-2">
-                <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-3 glass-subcard border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-500 transition-all">
-                <button onclick="sendChatMessage('${match.id}')" class="px-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase tracking-wider shadow-lg shadow-emerald-500/20">
+                <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-3 glass-subcard border border-slate-700/80 rounded-xl text-xs text-white">
+                <button onclick="sendChatMessage('${match.id}')" class="px-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
                   ${t('sendBtn')}
                 </button>
               </div>
             </div>
 
             <div class="space-y-2 pt-2">
-              ${joinButtonHtml}
               ${isJoined ? `<button onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">${t('leaveGame')}</button>` : ''}
               <button onclick="copyShareLink('${shareUrl}')" class="w-full py-3 bg-slate-800/80 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">${t('copyLink')}</button>
             </div>
@@ -1529,82 +1597,25 @@
 
         const chatBox = document.getElementById('chat-box');
         if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-      } catch (err) {
-        showError('Ошибка загрузки: ' + err.message);
-      }
-    }
-
-    async function adjustMatchMaxPlayers(matchId, currentMax, delta) {
-      const newMax = currentMax + delta;
-      if (newMax < 1) {
-        alert('Минимальное количество мест: 1');
-        return;
-      }
-
-      try {
-        const updatePayload = { max_players: newMax };
-        if (delta > 0) {
-          updatePayload.is_registration_closed = false;
-        }
-
-        const { error } = await supabaseClient
-          .from('matches')
-          .update(updatePayload)
-          .eq('id', matchId);
-
-        if (error) throw error;
-
-        renderMatchDetails(matchId);
-      } catch(e) {
-        alert('Ошибка изменения количества мест: ' + e.message);
-      }
+      } catch (err) { showError('Ошибка загрузки: ' + err.message); }
     }
 
     async function kickPlayer(matchId, userId) {
-      if (!confirm('Вы действительно хотите исключить этого игрока из слота?')) return;
-
+      if (!confirm('Исключить этого игрока из слота?')) return;
       try {
-        const { error } = await supabaseClient
-          .from('match_players')
-          .delete()
-          .eq('match_id', matchId)
-          .eq('user_id', userId);
-
-        if (error) throw error;
-
+        await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', userId);
         renderMatchDetails(matchId);
-      } catch(e) {
-        alert('Ошибка исключения игрока: ' + e.message);
-      }
+      } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
     async function toggleRegistration(matchId, closeStatus) {
-      const btn = document.getElementById('btn-toggle-reg');
-      if (btn) {
-        btn.disabled = true;
-        btn.innerText = 'Обновление...';
-      }
-
       try {
-        const { error } = await supabaseClient
-          .from('matches')
-          .update({ is_registration_closed: closeStatus })
-          .eq('id', matchId);
-
-        if (error) throw error;
-
+        await supabaseClient.from('matches').update({ is_registration_closed: closeStatus }).eq('id', matchId);
         renderMatchDetails(matchId);
-      } catch(e) {
-        alert('Ошибка при изменении статуса: ' + e.message);
-        if (btn) btn.disabled = false;
-      }
+      } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    function handleChatKeyPress(e, matchId) {
-      if (e.key === 'Enter') {
-        sendChatMessage(matchId);
-      }
-    }
+    function handleChatKeyPress(e, matchId) { if (e.key === 'Enter') sendChatMessage(matchId); }
 
     async function sendChatMessage(matchId) {
       const input = document.getElementById('chat_input');
@@ -1619,16 +1630,7 @@
         created_at: new Date().toISOString()
       };
 
-      try {
-        const { error } = await supabaseClient.from('match_messages').insert([newMsg]);
-        if (error) throw error;
-      } catch(e) {
-        const localKey = `padel_chat_${matchId}`;
-        const existing = JSON.parse(localStorage.getItem(localKey) || '[]');
-        existing.push(newMsg);
-        localStorage.setItem(localKey, JSON.stringify(existing));
-      }
-
+      try { await supabaseClient.from('match_messages').insert([newMsg]); } catch(e){}
       input.value = '';
       renderMatchDetails(matchId);
     }
@@ -1636,7 +1638,6 @@
     // --- ВКЛАДКА 2: БЫСТРЫЙ АМЕРИКАНО ---
     async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
-
       if (localAmericanoState && localAmericanoState.rounds) {
         renderQuickAmericanoBoard(container);
         return;
@@ -1696,8 +1697,8 @@
             </div>
             
             <div class="flex gap-1">
-              <button onclick="adjustPlayerCount(-1)" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm btn-3d" title="Убрать игрока">➖</button>
-              <button onclick="adjustPlayerCount(1)" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-sm btn-3d" title="Добавить игрока">➕</button>
+              <button onclick="adjustPlayerCount(-1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➖</button>
+              <button onclick="adjustPlayerCount(1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➕</button>
             </div>
           </div>
 
@@ -1743,7 +1744,6 @@
 
       const select = document.getElementById('quick_player_count');
       if (select) select.value = currentAmericanoPlayerCount;
-
       renderNameInputs();
     }
 
@@ -1756,9 +1756,7 @@
       for (let i = 1; i <= 8; i++) {
         const sel = document.getElementById(`player_select_${i}`);
         const inp = document.getElementById(`player_name_${i}`);
-        if (sel && inp) {
-          existingData.push({ selectVal: sel.value, nameVal: inp.value });
-        }
+        if (sel && inp) existingData.push({ selectVal: sel.value, nameVal: inp.value });
       }
       
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
@@ -1822,14 +1820,14 @@
     async function importPlayersFromCurrentSlot() {
       const startParam = getStartParam();
       if (!startParam) {
-        alert('Нет активного созданного слота. Сначала откройте или создайте игру в разделе «Слоты».');
+        alert('Нет активного созданного слота.');
         return;
       }
 
       try {
         const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', startParam);
         if (!rawPlayers || rawPlayers.length === 0) {
-          alert('В этом слоте пока нет зарегистрированных игроков.');
+          alert('В этом слоте нет зарегистрированных игроков.');
           return;
         }
 
@@ -1860,7 +1858,7 @@
               }
             }
           });
-          alert(`Успешно импортировано ${rawPlayers.length} игроков из слота!`);
+          alert(`Успешно импортировано ${rawPlayers.length} игроков!`);
         }, 100);
 
       } catch(e) { alert('Ошибка импорта: ' + e.message); }
@@ -1874,7 +1872,6 @@
       for (let i = 1; i <= count; i++) {
         const select = document.getElementById(`player_select_${i}`);
         const inputName = document.getElementById(`player_name_${i}`).value.trim();
-        
         players.push({ 
           id: i - 1, 
           name: inputName || `Player ${i}`,
@@ -1910,7 +1907,6 @@
 
     function renderQuickAmericanoBoard(container) {
       const { players, rounds, cycles } = localAmericanoState;
-
       const leaderboard = players.map(p => ({ ...p, points: 0, matches: 0, wins: 0, losses: 0, draws: 0 }));
 
       rounds.forEach(r => {
@@ -1988,9 +1984,9 @@
               <div class="flex-1 text-center font-bold text-white">${pA1} / ${pA2}</div>
               
               <div class="flex items-center gap-1">
-                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500 focus:outline-none">
+                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
                 <span class="font-black text-slate-500">:</span>
-                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500 focus:outline-none">
+                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
                 
                 <button onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
                   ${t('okBtn')}
@@ -2060,11 +2056,10 @@
 
       if (navigator.clipboard) {
         navigator.clipboard.writeText(text);
-        alert('Итоговый отчёт скопирован! Вставьте его в Telegram-чат.');
+        alert('Итоговый отчёт скопирован!');
       } else prompt('Скопируйте текст отчёта:', text);
     }
 
-    // --- ОБНОВЛЕНИЕ РЕЙТИНГОВ И СТАТИСТИКИ В БАЗЕ ---
     async function syncResultsToPlatformProfiles() {
       if (!localAmericanoState || !localAmericanoState.players) return;
 
@@ -2072,7 +2067,7 @@
       const completedRounds = rounds.filter(r => r.completed);
 
       if (completedRounds.length === 0) {
-        alert('Заполните хотя бы один сыгранный матч перед сохранением.');
+        alert('Заполните хотя бы один матч.');
         return;
       }
 
@@ -2121,36 +2116,29 @@
           if (stat.userId && supabaseClient) {
             const { data } = await supabaseClient
               .from('profiles')
-              .select('rating_americano, total_matches_played, matches_americano, wins, losses, draws')
+              .select('league_points, rating_americano, total_matches_played, wins, losses, draws')
               .eq('id', stat.userId)
               .maybeSingle();
             
             if (data) {
+              const currentLp = data.league_points || 1000;
               const currentRating = data.rating_americano || 1000;
               const currentMatches = data.total_matches_played || 0;
-              const currentAmericanoMatches = data.matches_americano || 0;
               const currentWins = data.wins || 0;
               const currentLosses = data.losses || 0;
               const currentDraws = data.draws || 0;
 
               const updateData = {
+                league_points: currentLp + stat.pointsGained,
                 rating_americano: currentRating + stat.pointsGained,
                 total_matches_played: currentMatches + stat.matchesCount,
-                matches_americano: currentAmericanoMatches + stat.matchesCount,
                 wins: currentWins + stat.wins,
                 losses: currentLosses + stat.losses,
                 draws: currentDraws + stat.draws,
                 updated_at: new Date().toISOString()
               };
 
-              let { error } = await supabaseClient.from('profiles').update(updateData).eq('id', stat.userId);
-              
-              if (error && error.message.includes('matches_americano')) {
-                delete updateData.matches_americano;
-                delete updateData.draws;
-                await supabaseClient.from('profiles').update(updateData).eq('id', stat.userId);
-              }
-
+              await supabaseClient.from('profiles').update(updateData).eq('id', stat.userId);
               updatedCount++;
             }
           }
@@ -2163,11 +2151,9 @@
           leaderboard: sortedLeaderboard
         });
 
-        alert(`Турнир завершён! Обновлена статистика для зарегистрированных игроков (${updatedCount}). Турнир сохранён в историю.`);
+        alert(`Турнир завершён! Статистика игроков (${updatedCount}) обновлена.`);
         await fetchAllPlatformProfiles();
-      } catch(e) { 
-        alert('Ошибка записи результатов: ' + e.message); 
-      }
+      } catch(e) { alert('Ошибка записи: ' + e.message); }
     }
 
     function saveQuickScore(roundId) {
@@ -2189,14 +2175,14 @@
     }
 
     function resetQuickAmericano() {
-      if (confirm('Начать новый турнир? Текущий счёт будет сброшен.')) {
+      if (confirm('Начать новый турнир? Счёт будет сброшен.')) {
         localAmericanoState = null;
         localStorage.removeItem('quick_americano_state');
         renderQuickAmericano();
       }
     }
 
-    // --- ВКЛАДКА 3: ПРОФИЛЬ И СИСТЕМА РЕЙТИНГОВ ---
+    // --- ВКЛАДКА 3: ПРОФИЛЬ, ДИВИЗИОНЫ И PRO ПОДПИСКА ---
     function setLeaderboardTab(tab) {
       currentLeaderboardTab = tab;
       renderProfileTab();
@@ -2206,31 +2192,26 @@
       isProfileEditOpen = !isProfileEditOpen;
       const formBox = document.getElementById('profile-edit-box');
       if (formBox) {
-        if (isProfileEditOpen) {
-          formBox.classList.remove('hidden');
-        } else {
-          formBox.classList.add('hidden');
-        }
+        if (isProfileEditOpen) formBox.classList.remove('hidden');
+        else formBox.classList.add('hidden');
       }
     }
 
     function shareMyProfileCard() {
       if (!currentUserProfile) return;
       const p = currentUserProfile;
-      const calculatedAge = calculateAge(p.birth_date);
-      const ageStr = calculatedAge ? `${calculatedAge} лет` : '';
-      const genderStr = p.gender === 'male' ? '👨' : (p.gender === 'female' ? '👩' : '');
+      const league = getPlayerLeague(p.league_points || 1000);
       const userTag = p.username ? ` (@${p.username})` : '';
-      
-      const shareText = `🎾 Игрок Padel Moldova:\n👤 ${p.first_name} ${p.last_name || ''}${userTag} ${genderStr} ${ageStr}\n⭐ Level: ${p.skill_level || 2.5}\n🏆 Американо: ${p.rating_americano || 1000} PTS\n⚔️ Ranked: ${p.rating_competitive || 1000} ELO`;
-      
+      const isPro = p.is_premium ? '👑 PRO' : 'FREE';
+
+      const shareText = `🎾 Игрок Padel Moldova:\n👤 ${p.first_name} ${p.last_name || ''}${userTag} [${isPro}]\n🏆 Дивизион: ${league.badge} ${league.title} (${p.league_points || 1000} LP)\n⭐ Skill Level: ${p.skill_level || 2.5}`;
+
       if (navigator.clipboard) {
         navigator.clipboard.writeText(shareText);
-        alert('Карточка профиля скопирована в буфер обмена!');
-      } else prompt('Скопируйте вашу карточку:', shareText);
+        alert('Карточка профиля скопирована!');
+      } else prompt('Скопируйте вашей карточкой:', shareText);
     }
 
-    // --- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИГРОКА ---
     function openViewPlayerModalById(userId) {
       const player = platformProfilesList.find(item => String(item.id) === String(userId));
       if (!player) return;
@@ -2247,9 +2228,7 @@
           <div class="glass-subcard p-4 rounded-2xl border border-rose-500/30 text-center space-y-2">
             <span class="text-3xl block">🔒</span>
             <h4 class="text-sm font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
-            <p class="text-xs text-rose-300 leading-relaxed font-semibold">
-              ${t('mPrivateProfileNotice')}
-            </p>
+            <p class="text-xs text-rose-300 leading-relaxed font-semibold">${t('mPrivateProfileNotice')}</p>
           </div>
         `;
       } else {
@@ -2259,10 +2238,7 @@
         if (player.gender === 'male') genderLabel = t('male');
         else if (player.gender === 'female') genderLabel = t('female');
 
-        let sideLabel = t('bothSides');
-        if (player.preferred_side === 'left') sideLabel = t('leftSide');
-        if (player.preferred_side === 'right') sideLabel = t('rightSide');
-
+        const league = getPlayerLeague(player.league_points || 1000);
         const wins = player.wins || 0;
         const losses = player.losses || 0;
         const draws = player.draws || 0;
@@ -2272,7 +2248,7 @@
         const tgLink = player.username ? `<a href="https://t.me/${player.username}" target="_blank" class="text-cyan-400 font-bold underline">@${player.username}</a>` : `<span class="text-slate-400 italic">${t('mNoUsername')}</span>`;
 
         content.innerHTML = `
-          <div class="bg-gradient-to-r from-blue-600/30 via-cyan-600/30 to-teal-500/30 border border-cyan-500/40 p-4 rounded-2xl space-y-3 backdrop-blur-md">
+          <div class="${player.is_premium ? 'glass-card-pro' : 'glass-subcard'} border p-4 rounded-2xl space-y-3">
             <div class="flex items-start justify-between">
               <div>
                 <h4 class="text-base font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
@@ -2281,25 +2257,16 @@
               <span class="px-2.5 py-1 bg-amber-400 text-slate-950 font-black text-xs rounded-lg uppercase shadow">Lvl ${player.skill_level || 2.5}</span>
             </div>
 
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-black border ${league.color}">
+                ${league.badge} ${league.title} (${player.league_points || 1000} LP)
+              </span>
+              ${player.is_premium ? `<span class="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-black text-[9px] rounded-md uppercase">PRO MEMBER</span>` : ''}
+            </div>
+
             <div class="grid grid-cols-2 gap-2 text-[11px] glass-subcard p-2.5 rounded-xl border border-white/10">
               <div><span class="text-slate-400">${t('gender')}:</span> <strong class="text-slate-200">${genderLabel}</strong></div>
               <div><span class="text-slate-400">${t('ageLabel')}:</span> <strong class="text-slate-200">${ageStr}</strong></div>
-              <div class="col-span-2"><span class="text-slate-400">${t('preferredSide')}:</span> <strong class="text-emerald-400">${sideLabel}</strong></div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-1.5 text-center font-mono text-[10px]">
-              <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <span class="text-slate-400 uppercase block">🏆 ${t('ratingAmericano')}</span>
-                <strong class="text-purple-300 text-xs font-black">${player.rating_americano || 1000}</strong>
-              </div>
-              <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <span class="text-slate-400 uppercase block">🤝 ${t('ratingFriendly')}</span>
-                <strong class="text-blue-300 text-xs font-black">${player.rating_friendly || 1000}</strong>
-              </div>
-              <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <span class="text-slate-400 uppercase block">⚔️ ${t('ratingCompetitive')}</span>
-                <strong class="text-amber-300 text-xs font-black">${player.rating_competitive || 1000}</strong>
-              </div>
             </div>
 
             <div class="grid grid-cols-4 gap-1 text-center font-bold text-[10px] glass-subcard p-2 rounded-xl border border-white/10">
@@ -2315,9 +2282,7 @@
       modal.classList.remove('hidden');
     }
 
-    function closeViewPlayerModal() {
-      document.getElementById('modal-view-player').classList.add('hidden');
-    }
+    function closeViewPlayerModal() { document.getElementById('modal-view-player').classList.add('hidden'); }
 
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
@@ -2328,18 +2293,16 @@
       const p = currentUserProfile || {
         first_name: tgUser.first_name,
         skill_level: 2.5,
+        league_points: 1000,
         rating_americano: 1000,
         rating_friendly: 1000,
         rating_competitive: 1000,
         preferred_side: 'both',
         phone: '+373 60 217 449',
-        birth_date: null,
-        gender: null,
-        is_public_profile: true,
+        is_premium: false,
+        payment_pending: false,
+        shield_cards: 1,
         total_matches_played: 0,
-        matches_americano: 0,
-        matches_friendly: 0,
-        matches_competitive: 0,
         wins: 0,
         losses: 0,
         draws: 0
@@ -2351,21 +2314,11 @@
       const total = p.total_matches_played || (wins + losses + draws);
       const winrate = total > 0 ? Math.round(((wins + draws * 0.5) / total) * 100) : 0;
 
-      const calculatedAge = calculateAge(p.birth_date);
-      let ageLabel = calculatedAge ? ` • 🎂 ${calculatedAge} лет` : '';
-
-      let genderLabel = '';
-      if (p.gender === 'male') genderLabel = ` • 👨 ${t('male')}`;
-      else if (p.gender === 'female') genderLabel = ` • 👩 ${t('female')}`;
-
-      let sideLabel = t('bothSides');
-      if (p.preferred_side === 'left') sideLabel = t('leftSide');
-      if (p.preferred_side === 'right') sideLabel = t('rightSide');
+      const myLeague = getPlayerLeague(p.league_points || 1000);
 
       let sortedList = [...platformProfilesList];
-
       if (currentLeaderboardTab === 'national') {
-        sortedList.sort((a, b) => (b.skill_level || 2.5) - (a.skill_level || 2.5));
+        sortedList.sort((a, b) => (b.league_points || 1000) - (a.league_points || 1000));
       } else if (currentLeaderboardTab === 'americano') {
         sortedList.sort((a, b) => (b.rating_americano || 1000) - (a.rating_americano || 1000));
       } else if (currentLeaderboardTab === 'friendly') {
@@ -2375,134 +2328,103 @@
       }
 
       let leaderboardRows = sortedList.map((item, index) => {
-        let valBadge = '';
-        let matchCountDisplay = 0;
+        const league = getPlayerLeague(item.league_points || 1000);
+        let valBadge = `${item.league_points || 1000} LP`;
 
-        if (currentLeaderboardTab === 'national') {
-          valBadge = `Lvl ${item.skill_level || 2.5}`;
-          matchCountDisplay = item.total_matches_played || 0;
-        } else if (currentLeaderboardTab === 'americano') {
-          valBadge = `${item.rating_americano || 1000} PTS`;
-          matchCountDisplay = item.matches_americano !== undefined ? item.matches_americano : (item.total_matches_played || 0);
-        } else if (currentLeaderboardTab === 'friendly') {
-          valBadge = `${item.rating_friendly || 1000} PTS`;
-          matchCountDisplay = item.matches_friendly || 0;
-        } else if (currentLeaderboardTab === 'competitive') {
-          valBadge = `${item.rating_competitive || 1000} ELO`;
-          matchCountDisplay = item.matches_competitive || 0;
-        }
-
-        let itemGenderIcon = item.gender === 'male' ? '👨 ' : (item.gender === 'female' ? '👩 ' : '');
-        let itemAge = calculateAge(item.birth_date);
-        let itemAgeStr = itemAge ? ` (${itemAge} л.)` : '';
         let lockIcon = item.is_public_profile === false ? ' 🔒' : '';
+        let proBadge = item.is_premium ? ' 👑' : '';
 
         return `
           <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs hover:bg-white/5 transition-colors">
             <div class="flex items-center gap-2">
               <span class="font-black ${index < 3 ? 'text-amber-400 font-mono text-sm' : 'text-slate-500'}">#${index + 1}</span>
               <span onclick="openViewPlayerModalById('${item.id}')" class="font-bold text-white cursor-pointer underline decoration-dotted hover:text-emerald-300">
-                ${itemGenderIcon}${item.first_name} ${item.last_name || ''}${itemAgeStr}${lockIcon}
+                ${item.first_name} ${item.last_name || ''}${proBadge}${lockIcon}
               </span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2.5 py-1 rounded-full uppercase">${valBadge}</span>
-              <span class="font-extrabold text-slate-400 text-[11px]">${matchCountDisplay} ${t('gamesLabel')}</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-black border ${league.color}">${league.badge} ${valBadge}</span>
             </div>
           </div>
         `;
       }).join('');
 
-      const allHistory = cleanAndGetAmericanoHistory();
-      const myPersonalMatches = [];
-
-      allHistory.forEach(tourney => {
-        const myIndexInTourney = tourney.players.findIndex(pl => String(pl.userId) === String(tgUser.id) || pl.name.toLowerCase().includes((tgUser.first_name||'').toLowerCase()));
-        if (myIndexInTourney !== -1) {
-          tourney.rounds.forEach(r => {
-            if (r.completed) {
-              const inTeamA = r.team_a.includes(myIndexInTourney);
-              const inTeamB = r.team_b.includes(myIndexInTourney);
-              if (inTeamA || inTeamB) {
-                const partnerIdx = inTeamA ? r.team_a.find(idx => idx !== myIndexInTourney) : r.team_b.find(idx => idx !== myIndexInTourney);
-                const opponentIndices = inTeamA ? r.team_b : r.team_a;
-                
-                const partnerName = tourney.players[partnerIdx]?.name || 'Partner';
-                const opp1 = tourney.players[opponentIndices[0]]?.name || 'Opponent 1';
-                const opp2 = tourney.players[opponentIndices[1]]?.name || 'Opponent 2';
-
-                const myScore = inTeamA ? r.score_a : r.score_b;
-                const oppScore = inTeamA ? r.score_b : r.score_a;
-                const isWin = myScore > oppScore;
-                const isDraw = myScore === oppScore;
-
-                myPersonalMatches.push({
-                  date: tourney.timestamp,
-                  partner: partnerName,
-                  opponents: `${opp1} / ${opp2}`,
-                  score: `${myScore} : ${oppScore}`,
-                  isWin,
-                  isDraw
-                });
-              }
-            }
-          });
-        }
-      });
-
-      let myMatchesHtml = `<p class="text-xs text-slate-400 py-3 text-center italic">${t('emptyPersonalHistory')}</p>`;
-      if (myPersonalMatches.length > 0) {
-        myMatchesHtml = myPersonalMatches.map(m => {
-          let statusTag = m.isWin ? '<span class="text-emerald-400 font-black text-sm">W</span>' : (m.isDraw ? '<span class="text-amber-300 font-black text-sm">D</span>' : '<span class="text-rose-400 font-black text-sm">L</span>');
-          return `
-            <div class="p-2.5 glass-subcard border border-white/10 rounded-xl flex items-center justify-between text-xs">
-              <div>
-                <div class="font-bold text-white flex items-center gap-1.5">
-                  ${statusTag}
-                  <span>${t('withPartner')}: <strong class="text-cyan-300">${m.partner}</strong></span>
-                </div>
-                <p class="text-[10px] text-slate-400">${t('vsOpponents')}: ${m.opponents}</p>
-              </div>
-              <div class="text-right">
-                <span class="font-black ${m.isWin ? 'text-emerald-400' : (m.isDraw ? 'text-amber-300' : 'text-rose-400')} text-xs">${m.score}</span>
-                <p class="text-[9px] text-slate-500">${new Date(m.date).toLocaleDateString()}</p>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
-
       let creatorAdminPanelHtml = '';
       if (isUserCreator()) {
+        const pendingUsers = platformProfilesList.filter(u => u.payment_pending === true);
+
+        let pendingRequestsHtml = pendingUsers.length > 0 ? pendingUsers.map(u => `
+          <div class="p-3 glass-subcard rounded-2xl border border-amber-500/50 flex items-center justify-between gap-2">
+            <div>
+              <span class="font-black text-white text-xs">${u.first_name} ${u.last_name || ''}</span>
+              <p class="text-[10px] text-amber-300 font-mono">@${u.username || u.id} • MIA 150 MDL</p>
+            </div>
+            <div class="flex gap-1">
+              <button onclick="approveUserProStatus('${u.id}')" class="px-2.5 py-1 bg-emerald-500 text-slate-950 font-black rounded-lg text-[10px] btn-3d">${t('approveProBtn')}</button>
+              <button onclick="rejectUserProStatus('${u.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg text-[10px] btn-3d">${t('rejectProBtn')}</button>
+            </div>
+          </div>
+        `).join('') : `<p class="text-[11px] text-slate-400 italic">Нет новых заявок на оплату.</p>`;
+
         let allUsersManagementRows = sortedList.map(item => `
           <div class="flex items-center justify-between p-2 glass-subcard rounded-xl text-xs gap-2 border border-white/5">
-            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[140px] cursor-pointer underline decoration-dotted hover:text-amber-300">${item.first_name} (${item.username ? '@' + item.username : 'без юзера'})</span>
-            <span class="text-[10px] bg-purple-500/20 text-purple-300 font-bold px-2 py-0.5 rounded">Lvl ${item.skill_level || 2.5}</span>
+            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[130px] cursor-pointer underline decoration-dotted hover:text-amber-300">${item.first_name} (${item.username ? '@' + item.username : 'без юзера'})</span>
+            <div class="flex items-center gap-1">
+              <span class="text-[9px] ${item.is_premium ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-700 text-slate-300'} px-1.5 py-0.5 rounded">${item.is_premium ? 'PRO' : 'FREE'}</span>
+            </div>
           </div>
         `).join('');
 
         creatorAdminPanelHtml = `
-          <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl space-y-3 glass-subcard">
-            <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              ${t('creatorPanelTitle')}
-            </h3>
+          <div class="bg-amber-500/10 border border-amber-500/40 p-4 rounded-3xl space-y-3 glass-subcard">
+            <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('creatorPanelTitle')}</h3>
             
             <div class="space-y-2">
-              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">${t('allRegisteredPlayers')}</p>
-              <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
-                ${allUsersManagementRows}
-              </div>
+              <h4 class="text-[11px] font-black text-amber-400 uppercase">${t('pendingRequestsTitle')}</h4>
+              <div class="space-y-1.5">${pendingRequestsHtml}</div>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-white/10">
+              <p class="text-[11px] text-slate-300 font-bold uppercase">${t('allRegisteredPlayers')}</p>
+              <div class="max-h-40 overflow-y-auto space-y-1.5 pr-1">${allUsersManagementRows}</div>
             </div>
           </div>
         `;
       }
 
-      const isPublicProf = p.is_public_profile !== false;
+      let proBannerStatus = '';
+      if (p.is_premium) {
+        proBannerStatus = `
+          <div class="p-3 bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/40 rounded-2xl flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">👑</span>
+              <div>
+                <h4 class="text-xs font-black text-amber-300 uppercase">${t('proApprovedStatus')}</h4>
+                <p class="text-[10px] text-slate-300">Вам доступны все PRO-бонусы и Shield Cards</p>
+              </div>
+            </div>
+            <span class="text-xs font-black text-amber-400 bg-amber-500/20 px-2.5 py-1 rounded-xl">ACTIVE</span>
+          </div>
+        `;
+      } else if (p.payment_pending) {
+        proBannerStatus = `
+          <div class="p-3 bg-amber-500/20 border border-amber-500/50 rounded-2xl space-y-1 text-center">
+            <p class="text-xs font-bold text-amber-300">${t('proPendingStatus')}</p>
+            <p class="text-[9px] text-slate-300">Создатель проверяет перевод MIA (060217449)</p>
+          </div>
+        `;
+      } else {
+        proBannerStatus = `
+          <button onclick="openPayProModal()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+            <span>💎</span> <span>${t('getProBtn')}</span>
+          </button>
+        `;
+      }
 
       container.innerHTML = `
         <div class="space-y-4">
-          <!-- 1. ГЛАВНАЯ КАРТОЧКА ПРОФИЛЯ ИГРОКА -->
-          <div class="bg-gradient-to-r from-blue-600/40 via-cyan-600/40 to-teal-500/40 p-4 rounded-3xl text-white shadow-xl shimmer-border space-y-3 relative backdrop-blur-md">
+          <!-- 1. КАРТОЧКА ПРОФИЛЯ -->
+          <div class="${p.is_premium ? 'glass-card-pro' : 'glass-card'} p-4 rounded-3xl text-white shadow-xl space-y-3 relative backdrop-blur-md">
             
             <div class="flex items-start justify-between gap-2">
               <div>
@@ -2510,74 +2432,51 @@
                   <h2 class="text-lg font-black tracking-tight">${p.first_name} ${p.last_name || ''}</h2>
                   <span class="px-2 py-0.5 bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg uppercase shadow">Lvl ${p.skill_level || 2.5}</span>
                 </div>
-                <p class="text-xs opacity-90 font-semibold mt-1">🎾 ${sideLabel}${genderLabel}${ageLabel}</p>
+                
+                <div class="flex items-center gap-1.5 mt-1.5">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black border ${myLeague.color} flex items-center gap-1">
+                    <span>${myLeague.badge}</span> ${myLeague.title} (${p.league_points || 1000} LP)
+                  </span>
+                  <span class="px-2 py-0.5 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9px] font-black rounded-full">
+                    🛡️ ${p.shield_cards || 1} Shield
+                  </span>
+                </div>
               </div>
 
               <div class="flex items-center gap-1.5">
-                <button onclick="shareMyProfileCard()" class="p-2 glass-subcard border border-white/20 rounded-xl text-white text-xs font-bold btn-3d" title="Поделиться карточкой">
-                  📤
-                </button>
-                <button onclick="toggleProfileEditForm()" class="px-2.5 py-1.5 glass-subcard border border-white/30 rounded-xl text-white text-xs font-extrabold btn-3d flex items-center gap-1 shadow">
+                <button onclick="shareMyProfileCard()" class="p-2 glass-subcard border border-white/20 rounded-xl text-white text-xs font-bold btn-3d">📤</button>
+                <button onclick="toggleProfileEditForm()" class="px-2.5 py-1.5 glass-subcard border border-white/30 rounded-xl text-white text-xs font-extrabold btn-3d flex items-center gap-1">
                   ✏️ <span>${t('settingsBtn')}</span>
                 </button>
               </div>
             </div>
 
-            <!-- Детализированная шкала очков -->
-            <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/20 text-center font-mono">
-              <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <p class="text-[9px] text-cyan-200 uppercase font-black">🏆 ${t('ratingAmericano')}</p>
-                <p class="text-xs font-black text-white mt-0.5">${p.rating_americano || 1000} <span class="text-[9px]">PTS</span></p>
-              </div>
-              <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <p class="text-[9px] text-emerald-200 uppercase font-black">🤝 ${t('ratingFriendly')}</p>
-                <p class="text-xs font-black text-white mt-0.5">${p.rating_friendly || 1000} <span class="text-[9px]">PTS</span></p>
-              </div>
-              <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <p class="text-[9px] text-amber-200 uppercase font-black">⚔️ ${t('ratingCompetitive')}</p>
-                <p class="text-xs font-black text-white mt-0.5">${p.rating_competitive || 1000} <span class="text-[9px]">ELO</span></p>
-              </div>
-            </div>
-
-            <!-- Статистика матчей -->
-            <div class="grid grid-cols-4 gap-1 pt-1 text-center font-bold">
-              <div>
-                <p class="text-[9px] opacity-75 uppercase">${t('matches')}</p>
-                <p class="text-xs font-black">${total}</p>
-              </div>
-              <div>
-                <p class="text-[9px] opacity-75 uppercase">${t('wins')}</p>
-                <p class="text-xs font-black text-emerald-300">${wins}</p>
-              </div>
-              <div>
-                <p class="text-[9px] opacity-75 uppercase">${t('losses')}</p>
-                <p class="text-xs font-black text-rose-300">${losses}</p>
-              </div>
-              <div>
-                <p class="text-[9px] opacity-75 uppercase">${t('winrate')}</p>
-                <p class="text-xs font-black text-amber-300">${winrate}%</p>
-              </div>
+            <div class="grid grid-cols-4 gap-1 pt-2 border-t border-white/10 text-center font-bold">
+              <div><p class="text-[9px] opacity-75 uppercase">${t('matches')}</p><p class="text-xs font-black">${total}</p></div>
+              <div><p class="text-[9px] opacity-75 uppercase">${t('wins')}</p><p class="text-xs font-black text-emerald-300">${wins}</p></div>
+              <div><p class="text-[9px] opacity-75 uppercase">${t('losses')}</p><p class="text-xs font-black text-rose-300">${losses}</p></div>
+              <div><p class="text-[9px] opacity-75 uppercase">${t('winrate')}</p><p class="text-xs font-black text-amber-300">${winrate}%</p></div>
             </div>
           </div>
 
-          <!-- 2. ФОРМА НАСТРОЕК ПРОФИЛЯ -->
-          <div id="profile-edit-box" class="${isProfileEditOpen ? '' : 'hidden'} glass-subcard p-4 rounded-3xl border border-cyan-500/40 space-y-3 shadow-2xl transition-all">
+          ${proBannerStatus}
+
+          <!-- 2. ФОРМА НАСТРОЕК -->
+          <div id="profile-edit-box" class="${isProfileEditOpen ? '' : 'hidden'} glass-subcard p-4 rounded-3xl border border-cyan-500/40 space-y-3 shadow-2xl">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
-              <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                ${t('profileEditTitle')}
-              </h3>
-              <button onclick="toggleProfileEditForm()" class="text-slate-400 hover:text-white font-bold text-sm px-1.5">✕</button>
+              <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider">${t('profileEditTitle')}</h3>
+              <button onclick="toggleProfileEditForm()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
             </div>
             
             <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
               <div class="grid grid-cols-2 gap-2.5">
                 <div>
                   <label class="block text-slate-300 font-semibold mb-1">${t('birthDate')}</label>
-                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
                 </div>
                 <div>
                   <label class="block text-slate-300 font-semibold mb-1">${t('gender')}</label>
-                  <select id="edit_gender" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                  <select id="edit_gender" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
                     <option value="" ${!p.gender ? 'selected' : ''}>${t('unspecified')}</option>
                     <option value="male" ${p.gender === 'male' ? 'selected' : ''}>${t('male')}</option>
                     <option value="female" ${p.gender === 'female' ? 'selected' : ''}>${t('female')}</option>
@@ -2588,7 +2487,7 @@
               <div class="grid grid-cols-2 gap-2.5">
                 <div>
                   <label class="block text-slate-300 font-semibold mb-1">${t('preferredSide')}</label>
-                  <select id="edit_preferred_side" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                  <select id="edit_preferred_side" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
                     <option value="both" ${p.preferred_side === 'both' ? 'selected' : ''}>${t('bothSides')}</option>
                     <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
                     <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
@@ -2597,72 +2496,34 @@
 
                 <div>
                   <label class="block text-slate-300 font-semibold mb-1">${t('phone')}</label>
-                  <input type="text" id="edit_phone" placeholder="+373 60 217 449" value="${p.phone || ''}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
+                  <input type="text" id="edit_phone" value="${p.phone || ''}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
                 </div>
               </div>
 
-              <div>
-                <label class="block text-slate-300 font-semibold mb-1">${t('privacySetting')}</label>
-                <select id="edit_privacy" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white focus:outline-none focus:border-cyan-500">
-                  <option value="true" ${isPublicProf ? 'selected' : ''}>${t('privacyPublic')}</option>
-                  <option value="false" ${!isPublicProf ? 'selected' : ''}>${t('privacyPrivate')}</option>
-                </select>
-              </div>
-
               <div class="flex gap-2 pt-1">
-                <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl btn-3d uppercase tracking-wider text-xs shadow-lg shadow-emerald-500/20">
+                <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl btn-3d uppercase text-xs">
                   ${t('saveChanges')}
-                </button>
-                <button type="button" onclick="toggleProfileEditForm()" class="px-4 py-3 bg-slate-800/80 text-slate-300 font-bold rounded-xl btn-3d text-xs border border-white/10">
-                  ${t('cancelBtn')}
                 </button>
               </div>
             </form>
           </div>
 
-          <!-- 3. ЛИЧНАЯ ИСТОРИЯ ИГР И НАПАРНИКОВ -->
-          <div class="glass-subcard p-3.5 rounded-3xl border border-white/10 space-y-2.5">
-            <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center justify-between">
-              <span>${t('myMatchHistoryTitle')}</span>
-              <span class="text-[10px] text-slate-400 font-medium">${t('last7Days')}</span>
-            </h3>
-            <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-              ${myMatchesHtml}
-            </div>
-          </div>
-
           ${creatorAdminPanelHtml}
 
-          <!-- 4. МУЛЬТИ-ТАБОВЫЙ НАЦИОНАЛЬНЫЙ РЕЙТИНГ МОЛДОВЫ -->
+          <!-- 3. НАЦИОНАЛЬНЫЙ РЕЙТИНГ И ЛИГИ МОЛДОВЫ -->
           <div class="glass-subcard p-3.5 rounded-3xl border border-white/10 space-y-3">
-            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">
               ${t('ratingSystemTitle')}
             </h3>
 
-            <div class="grid grid-cols-4 gap-1 glass-subcard p-1 rounded-xl text-[10px] font-extrabold uppercase text-center border border-white/10">
-              <button onclick="setLeaderboardTab('national')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'national' ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
-                🇲🇩 ${t('ratingNational')}
-              </button>
-              <button onclick="setLeaderboardTab('americano')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'americano' ? 'bg-purple-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
-                🏆 ${t('ratingAmericano')}
-              </button>
-              <button onclick="setLeaderboardTab('friendly')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'friendly' ? 'bg-blue-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
-                🤝 ${t('ratingFriendly')}
-              </button>
-              <button onclick="setLeaderboardTab('competitive')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'competitive' ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
-                ⚔️ ${t('ratingCompetitive')}
-              </button>
-            </div>
-
             <div class="divide-y divide-white/5">
-              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Настоящие зарегистрированные игроки пока отсутствуют...</p>'}
+              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные игроки отсутствуют...</p>'}
             </div>
           </div>
         </div>
       `;
     }
 
-    // --- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ ИГРОКА СОЗДАТЕЛЕМ ---
     function openAdminPlayerModalById(userId) {
       if (!isUserCreator()) return;
       const player = platformProfilesList.find(item => String(item.id) === String(userId));
@@ -2678,42 +2539,32 @@
             <p class="text-[10px] text-slate-400 font-mono">ID: ${player.id} ${player.username ? '(@' + player.username + ')' : ''}</p>
           </div>
 
-          <div>
-            <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">Национальный Уровень (Skill Level 1.0 - 7.0)</label>
-            <input type="number" step="0.1" min="1.0" max="7.0" id="ap_skill" value="${player.skill_level || 2.5}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
-          </div>
-
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('ratingAmericano')}</label>
-              <input type="number" id="ap_americano" value="${player.rating_americano || 1000}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-purple-300 text-center text-xs">
+              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">League Points (LP)</label>
+              <input type="number" id="ap_lp" value="${player.league_points || 1000}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
             </div>
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('ratingFriendly')}</label>
-              <input type="number" id="ap_friendly" value="${player.rating_friendly || 1000}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-blue-300 text-center text-xs">
-            </div>
-            <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('ratingCompetitive')}</label>
-              <input type="number" id="ap_competitive" value="${player.rating_competitive || 1000}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-amber-300 text-center text-xs">
+              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">Skill Level (1.0 - 7.0)</label>
+              <input type="number" step="0.1" id="ap_skill" value="${player.skill_level || 2.5}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
             </div>
           </div>
 
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('matches')}</label>
-              <input type="number" min="0" id="ap_matches" value="${player.total_matches_played || 0}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-white text-center text-xs">
+              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">PRO Статус</label>
+              <select id="ap_pro" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+                <option value="true" ${player.is_premium ? 'selected' : ''}>👑 PRO Active</option>
+                <option value="false" ${!player.is_premium ? 'selected' : ''}>🆓 Free User</option>
+              </select>
             </div>
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('wins')}</label>
-              <input type="number" min="0" id="ap_wins" value="${player.wins || 0}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-emerald-400 text-center text-xs">
-            </div>
-            <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('losses')}</label>
-              <input type="number" min="0" id="ap_losses" value="${player.losses || 0}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-rose-400 text-center text-xs">
+              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">Shield Cards</label>
+              <input type="number" id="ap_shields" value="${player.shield_cards || 1}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
             </div>
           </div>
 
-          <button onclick="saveAdminPlayerChanges('${player.id}')" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl uppercase tracking-wider text-xs btn-3d mt-2 shadow-lg shadow-emerald-500/20">
+          <button onclick="saveAdminPlayerChanges('${player.id}')" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl uppercase text-xs btn-3d mt-2">
             ${t('saveChanges')}
           </button>
         </div>
@@ -2722,44 +2573,34 @@
       modal.classList.remove('hidden');
     }
 
-    function closeAdminPlayerModal() {
-      document.getElementById('modal-admin-player').classList.add('hidden');
-    }
+    function closeAdminPlayerModal() { document.getElementById('modal-admin-player').classList.add('hidden'); }
 
     async function saveAdminPlayerChanges(userId) {
+      const newLp = parseInt(document.getElementById('ap_lp').value) || 1000;
       const newSkill = parseFloat(document.getElementById('ap_skill').value) || 2.5;
-      const newAmericano = parseInt(document.getElementById('ap_americano').value) || 1000;
-      const newFriendly = parseInt(document.getElementById('ap_friendly').value) || 1000;
-      const newCompetitive = parseInt(document.getElementById('ap_competitive').value) || 1000;
-
-      const newMatches = parseInt(document.getElementById('ap_matches').value) || 0;
-      const newWins = parseInt(document.getElementById('ap_wins').value) || 0;
-      const newLosses = parseInt(document.getElementById('ap_losses').value) || 0;
+      const isPro = document.getElementById('ap_pro').value === 'true';
+      const shields = parseInt(document.getElementById('ap_shields').value) || 1;
 
       try {
         const { error } = await supabaseClient
           .from('profiles')
           .update({
+            league_points: newLp,
+            rating_americano: newLp,
             skill_level: newSkill,
-            rating_americano: newAmericano,
-            rating_friendly: newFriendly,
-            rating_competitive: newCompetitive,
-            total_matches_played: newMatches,
-            wins: newWins,
-            losses: newLosses,
+            is_premium: isPro,
+            shield_cards: shields,
             updated_at: new Date().toISOString()
           })
           .eq('id', userId);
 
         if (error) throw error;
 
-        alert('Данные игрока и рейтинги успешно обновлены!');
+        alert('Данные игрока обновлены!');
         closeAdminPlayerModal();
         await fetchAllPlatformProfiles();
         switchTab(activeTab);
-      } catch(e) {
-        alert('Ошибка обновления: ' + e.message);
-      }
+      } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
     async function saveProfileData(e) {
@@ -2768,50 +2609,33 @@
       const gender = document.getElementById('edit_gender').value || null;
       const preferredSide = document.getElementById('edit_preferred_side').value || 'both';
       const phone = document.getElementById('edit_phone').value.trim();
-      const isPublic = document.getElementById('edit_privacy').value === 'true';
-
-      const updatePayload = {
-        birth_date: birthDate,
-        gender: gender,
-        preferred_side: preferredSide,
-        phone: phone,
-        updated_at: new Date().toISOString()
-      };
 
       try {
-        let { error } = await supabaseClient
+        const { error } = await supabaseClient
           .from('profiles')
-          .update({ ...updatePayload, is_public_profile: isPublic })
+          .update({
+            birth_date: birthDate,
+            gender: gender,
+            preferred_side: preferredSide,
+            phone: phone,
+            updated_at: new Date().toISOString()
+          })
           .eq('id', tgUser.id);
 
-        if (error && error.message.includes('is_public_profile')) {
-          const fallbackRes = await supabaseClient
-            .from('profiles')
-            .update(updatePayload)
-            .eq('id', tgUser.id);
-
-          if (fallbackRes.error) throw fallbackRes.error;
-        } else if (error) {
-          throw error;
-        }
+        if (error) throw error;
 
         isProfileEditOpen = false;
-        alert('Профиль успешно сохранен!');
+        alert('Профиль сохранён!');
         await syncUserProfile();
-        if (currentUserProfile) currentUserProfile.is_public_profile = isPublic;
         renderProfileTab();
-      } catch(err) {
-        alert('Ошибка сохранения: ' + err.message);
-      }
+      } catch(err) { alert('Ошибка: ' + err.message); }
     }
 
     async function joinMatch(matchId, nextSlot) {
       try {
         await syncUserProfile();
         await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: tgUser.id, slot_number: nextSlot }]);
-        
         triggerSlotCelebration();
-
         renderMatchDetails(matchId);
       } catch (err) { alert('Ошибка: ' + err.message); }
     }
@@ -2826,8 +2650,7 @@
     function copyShareLink(url) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(url);
-        if (tg?.showAlert) tg.showAlert('Ссылка скопирована!');
-        else alert('Ссылка скопирована!');
+        alert('Ссылка скопирована!');
       } else prompt('Скопируйте ссылку:', url);
     }
 
