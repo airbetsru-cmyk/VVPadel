@@ -43,20 +43,21 @@
     /* 50% FROSTED GLASS EFFECT */
     .glass-card {
       background: rgba(15, 23, 42, 0.50) !important;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
       position: relative;
     }
 
     .glass-subcard {
-      background: rgba(15, 23, 42, 0.45) !important;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.50) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.10);
     }
 
+    /* БЕГАЮЩИЙ ГРАДИЕНТ ПО ЧАСОВОЙ СТРЕЛКЕ (ВЕРХНИЙ БЛОК) */
     .shimmer-border { position: relative; }
     .shimmer-border::before {
       content: '';
@@ -76,6 +77,28 @@
     @keyframes borderShimmer {
       0% { background-position: 0% 0%; }
       100% { background-position: 300% 0%; }
+    }
+
+    /* БЕГАЮЩИЙ ГРАДИЕНТ ПРОТИВ ЧАСОВОЙ СТРЕЛКИ (НИЖНИЙ БЛОК) */
+    .shimmer-border-reverse { position: relative; }
+    .shimmer-border-reverse::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.6), rgba(139, 92, 246, 0.6), rgba(59, 130, 246, 0.6), rgba(16, 185, 129, 0.6));
+      background-size: 300% 100%;
+      animation: borderShimmerReverse 4s linear infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    @keyframes borderShimmerReverse {
+      0% { background-position: 300% 0%; }
+      100% { background-position: 0% 0%; }
     }
 
     .floating-racket {
@@ -177,8 +200,8 @@
       <!-- Ошибки -->
       <div id="error-box" class="hidden bg-rose-500/20 border border-rose-500/40 text-rose-200 p-3.5 rounded-2xl text-xs font-mono break-all backdrop-blur-md"></div>
 
-      <!-- Главный контент -->
-      <div id="main-content" class="glass-card p-5 rounded-3xl min-h-[300px]">
+      <!-- Главный контент С РЕВЕРСИВНЫМ БЕГАЮЩИМ ГРАДИЕНТОМ -->
+      <div id="main-content" class="glass-card shimmer-border-reverse p-5 rounded-3xl min-h-[300px]">
         <div class="flex justify-center items-center py-16 text-slate-400 font-semibold text-sm">
           <div class="animate-pulse flex items-center gap-2">
             <span>Загрузка платформы...</span>
@@ -398,7 +421,7 @@
       return true;
     }
 
-    // --- 2. МУЛЬТИЯЗЫЧНОСТЬ ---
+    // --- 2. ПОЛНАЯ МУЛЬТИЯЗЫЧНОСТЬ (I18N) ---
     const TRANSLATIONS = {
       ru: {
         tabBooking: "Слоты",
@@ -430,6 +453,8 @@
         privacyPublic: "🔓 Открытый профиль (виден в рейтинге)",
         privacyPrivate: "🔒 Закрытый профиль (скрыт от других)",
         saveProfile: "Сохранить профиль",
+        saveChanges: "💾 Сохранить изменения",
+        cancelBtn: "Отмена",
         stats: "Статистика игрока",
         matches: "Матчи",
         wins: "Победы",
@@ -468,7 +493,65 @@
         mViewPlayerTitle: "👤 Карточка игрока",
         mPrivateProfileNotice: "🔒 Этот игрок сделал свой профиль приватным.",
         mPublicUsername: "Telegram",
-        mNoUsername: "Не указан"
+        mNoUsername: "Не указан",
+
+        settingsBtn: "Настройки",
+        shareCard: "Поделиться",
+        ratingAmericano: "Американо",
+        ratingFriendly: "Дружеский",
+        ratingCompetitive: "Ranked",
+        ratingNational: "Общий",
+        ratingSystemTitle: "🇲🇩 Система Рейтингов Молдовы",
+        myMatchHistoryTitle: "📜 История моих игр (Американо)",
+        last7Days: "За 7 дней",
+        withPartner: "С партнёром",
+        vsOpponents: "Против",
+        emptyPersonalHistory: "История сыгранных матчей пока пуста...",
+        tourneyHistoryTitle: "📜 История турниров (за 7 дней)",
+        autoCleanup: "Автоочистка",
+        winnerLabel: "Победитель",
+        participantsCount: "Участников",
+        gamesCount: "игр(ы)",
+        hostPanel: "Панель Организатора Слота",
+        hostPanelDesc: "Управление составом, местами и ценой",
+        regStatusClosed: "🔒 ЗАКРЫТА",
+        regStatusOpen: "🟢 ОТКРЫТА",
+        pricePerPlayerLabel: "Цена с игрока (MDL):",
+        totalSlotsLabel: "Всего мест:",
+        openRegBtn: "🔓 Открыть",
+        finishRegBtn: "🔒 Завершить",
+        deleteSlotBtn: "🗑️ Удалить слот",
+        profileEditTitle: "✏️ Редактирование Данных Профиля",
+        creatorPanelTitle: "👑 Панель Создателя: Управление Игроками",
+        allRegisteredPlayers: "Все зарегистрированные игроки платформы:",
+        gamesLabel: "игр",
+        pointsLabel: "PTS",
+        eloLabel: "ELO",
+        reportTgBtn: "📋 Отчёт в Telegram",
+        recordRatingBtn: "🏆 Записать в Рейтинг",
+        loadingMatch: "Загрузка матча...",
+        loadingProfile: "Загрузка профиля...",
+        slotNotFound: "Слот не найден или был удалён.",
+        chatEmptyMsg: "Обсудите детали матча. Напишите первое сообщение!",
+        quickAmericanoDesc: "Настройка турнира с возможностью выбора зарегистрированных игроков.",
+        startTournamentBtn: "🚀 Начать турнир",
+        calculatorTitle: "🏆 Калькулятор",
+        roundsCountLabel: "Всего игр",
+        cyclesLabel: "круга",
+        cycleSingleLabel: "круг",
+        resetBtn: "Сбросить",
+        leaderboardTitle: "Общий Лидерборд",
+        matchesAndScoreTitle: "Матчи и Счёт",
+        placeLabel: "место",
+        place1: "🥇 1-е МЕСТО",
+        place2: "🥈 2-е МЕСТО",
+        place3: "🥉 3-е МЕСТО",
+        matchRoundLabel: "Круг",
+        matchGameLabel: "Игра",
+        courtLabel: "Корт",
+        completedStatus: "Завершён",
+        pendingStatus: "Ожидает",
+        okBtn: "ОК"
       },
       ro: {
         tabBooking: "Sloturi",
@@ -500,6 +583,8 @@
         privacyPublic: "🔓 Profil Public (vizibil în clasament)",
         privacyPrivate: "🔒 Profil Privat (ascuns pentru alții)",
         saveProfile: "Salvează profilul",
+        saveChanges: "💾 Salvează modificările",
+        cancelBtn: "Anulează",
         stats: "Statistici jucător",
         matches: "Meciuri",
         wins: "Victorii",
@@ -538,7 +623,65 @@
         mViewPlayerTitle: "👤 Fișa jucătorului",
         mPrivateProfileNotice: "🔒 Acest jucător și-a setat profilul ca fiind privat.",
         mPublicUsername: "Telegram",
-        mNoUsername: "Nespecificat"
+        mNoUsername: "Nespecificat",
+
+        settingsBtn: "Setări",
+        shareCard: "Distribuie",
+        ratingAmericano: "Americano",
+        ratingFriendly: "Amical",
+        ratingCompetitive: "Ranked",
+        ratingNational: "General",
+        ratingSystemTitle: "🇲🇩 Sistemul de Clasament Moldova",
+        myMatchHistoryTitle: "📜 Istoricul meciurilor mele (Americano)",
+        last7Days: "Ultimele 7 zile",
+        withPartner: "Cu partenerul",
+        vsOpponents: "Contra",
+        emptyPersonalHistory: "Istoricul meciurilor este gol...",
+        tourneyHistoryTitle: "📜 Istoricul turneelor (ultimele 7 zile)",
+        autoCleanup: "Curățare automată",
+        winnerLabel: "Câștigător",
+        participantsCount: "Participanți",
+        gamesCount: "jocuri",
+        hostPanel: "Panou Organizator Slot",
+        hostPanelDesc: "Gestionare echipă, locuri și preț",
+        regStatusClosed: "🔒 ÎNCHISĂ",
+        regStatusOpen: "🟢 DESCHISĂ",
+        pricePerPlayerLabel: "Preț per jucător (MDL):",
+        totalSlotsLabel: "Locuri totale:",
+        openRegBtn: "🔓 Deschide",
+        finishRegBtn: "🔒 Finalizează",
+        deleteSlotBtn: "🗑️ Șterge slotul",
+        profileEditTitle: "✏️ Editare Date Profil",
+        creatorPanelTitle: "👑 Panou Autor: Administrare Jucători",
+        allRegisteredPlayers: "Toți jucătorii înregistrați pe platformă:",
+        gamesLabel: "jocuri",
+        pointsLabel: "PTS",
+        eloLabel: "ELO",
+        reportTgBtn: "📋 Raport pe Telegram",
+        recordRatingBtn: "🏆 Înregistrează în Clasament",
+        loadingMatch: "Se încarcă meciul...",
+        loadingProfile: "Se încarcă profilul...",
+        slotNotFound: "Slotul nu a fost găsit sau a fost șters.",
+        chatEmptyMsg: "Discutați detaliile meciului. Scrieți primul mesaj!",
+        quickAmericanoDesc: "Configurare turneu cu opțiunea de a selecta jucătorii înregistrați.",
+        startTournamentBtn: "🚀 Începe turneul",
+        calculatorTitle: "🏆 Calculator",
+        roundsCountLabel: "Total jocuri",
+        cyclesLabel: "runde",
+        cycleSingleLabel: "rundă",
+        resetBtn: "Resetează",
+        leaderboardTitle: "Clasament General",
+        matchesAndScoreTitle: "Meciuri și Scor",
+        placeLabel: "locul",
+        place1: "🥇 LOCUL 1",
+        place2: "🥈 LOCUL 2",
+        place3: "🥉 LOCUL 3",
+        matchRoundLabel: "Runda",
+        matchGameLabel: "Jocul",
+        courtLabel: "Teren",
+        completedStatus: "Finalizat",
+        pendingStatus: "În așteptare",
+        okBtn: "OK"
       },
       en: {
         tabBooking: "Slots",
@@ -570,6 +713,8 @@
         privacyPublic: "🔓 Public Profile (visible in leaderboard)",
         privacyPrivate: "🔒 Private Profile (hidden from others)",
         saveProfile: "Save Profile",
+        saveChanges: "💾 Save Changes",
+        cancelBtn: "Cancel",
         stats: "Player Statistics",
         matches: "Matches",
         wins: "Wins",
@@ -608,7 +753,65 @@
         mViewPlayerTitle: "👤 Player Card",
         mPrivateProfileNotice: "🔒 This player has set their profile to private.",
         mPublicUsername: "Telegram",
-        mNoUsername: "Not specified"
+        mNoUsername: "Not specified",
+
+        settingsBtn: "Settings",
+        shareCard: "Share",
+        ratingAmericano: "Americano",
+        ratingFriendly: "Friendly",
+        ratingCompetitive: "Ranked",
+        ratingNational: "Overall",
+        ratingSystemTitle: "🇲🇩 Moldova Ranking System",
+        myMatchHistoryTitle: "📜 My Match History (Americano)",
+        last7Days: "Last 7 days",
+        withPartner: "With partner",
+        vsOpponents: "Against",
+        emptyPersonalHistory: "Your match history is empty...",
+        tourneyHistoryTitle: "📜 Tournament History (Last 7 days)",
+        autoCleanup: "Auto-cleanup",
+        winnerLabel: "Winner",
+        participantsCount: "Participants",
+        gamesCount: "game(s)",
+        hostPanel: "Slot Host Panel",
+        hostPanelDesc: "Manage players, slots and price",
+        regStatusClosed: "🔒 CLOSED",
+        regStatusOpen: "🟢 OPEN",
+        pricePerPlayerLabel: "Price per player (MDL):",
+        totalSlotsLabel: "Total slots:",
+        openRegBtn: "🔓 Open",
+        finishRegBtn: "🔒 Close",
+        deleteSlotBtn: "🗑️ Delete Slot",
+        profileEditTitle: "✏️ Edit Profile Data",
+        creatorPanelTitle: "👑 Creator Panel: Player Management",
+        allRegisteredPlayers: "All registered platform players:",
+        gamesLabel: "games",
+        pointsLabel: "PTS",
+        eloLabel: "ELO",
+        reportTgBtn: "📋 Telegram Report",
+        recordRatingBtn: "🏆 Record to Leaderboard",
+        loadingMatch: "Loading game...",
+        loadingProfile: "Loading profile...",
+        slotNotFound: "Slot not found or was deleted.",
+        chatEmptyMsg: "Discuss game details. Send the first message!",
+        quickAmericanoDesc: "Tournament setup with option to select registered players.",
+        startTournamentBtn: "🚀 Start Tournament",
+        calculatorTitle: "🏆 Calculator",
+        roundsCountLabel: "Total games",
+        cyclesLabel: "rounds",
+        cycleSingleLabel: "round",
+        resetBtn: "Reset",
+        leaderboardTitle: "Overall Leaderboard",
+        matchesAndScoreTitle: "Matches & Score",
+        placeLabel: "place",
+        place1: "🥇 1st PLACE",
+        place2: "🥈 2nd PLACE",
+        place3: "🥉 3rd PLACE",
+        matchRoundLabel: "Round",
+        matchGameLabel: "Game",
+        courtLabel: "Court",
+        completedStatus: "Completed",
+        pendingStatus: "Pending",
+        okBtn: "OK"
       }
     };
 
@@ -1010,7 +1213,6 @@
       }
     }
 
-    // --- УДАЛЕНИЕ СЛОТА СОЗДАТЕЛЕМ ---
     async function deleteMatchByCreator(matchId) {
       if (!confirm('Вы уверены, что хотите полностью удалить этот слот? Ссылка станет недействительной.')) return;
 
@@ -1030,12 +1232,12 @@
 
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
-      container.innerHTML = `<div class="text-center py-10 text-slate-400">Загрузка матча...</div>`;
+      container.innerHTML = `<div class="text-center py-10 text-slate-400">${t('loadingMatch')}</div>`;
 
       try {
         const { data: match } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
         if (!match) {
-          container.innerHTML = `<div class="text-center py-8 text-rose-300 font-bold">Слот не найден или был удалён.</div>`;
+          container.innerHTML = `<div class="text-center py-8 text-rose-300 font-bold">${t('slotNotFound')}</div>`;
           return;
         }
 
@@ -1053,6 +1255,7 @@
         let slotsHtml = '';
         const displayLimit = isRegClosed ? players.length : match.max_players;
 
+        // ВЫБОР КОНКРЕТНОГО СЛОТА
         for (let i = 1; i <= displayLimit; i++) {
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
           if (p) {
@@ -1072,8 +1275,13 @@
               </div>`;
           } else if (!isRegClosed) {
             slotsHtml += `
-              <div class="p-3 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-400 text-xs font-semibold flex justify-between items-center">
-                <span>Слот #${i}: ${t('free')}</span>
+              <div class="p-3 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
+                <span>Слот #${i}: <strong class="text-emerald-400 font-bold">${t('free')}</strong></span>
+                ${!isJoined ? `
+                  <button onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20">
+                    ${t('joinSlot')} #${i}
+                  </button>
+                ` : ''}
               </div>`;
           }
         }
@@ -1114,17 +1322,17 @@
                 <div class="flex items-center gap-2">
                   <span class="text-base">👑</span>
                   <div>
-                    <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">Панель Организатора Слотa</h4>
-                    <p class="text-[10px] text-slate-400">Управление составом, местами и ценой</p>
+                    <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('hostPanel')}</h4>
+                    <p class="text-[10px] text-slate-400">${t('hostPanelDesc')}</p>
                   </div>
                 </div>
                 <span class="px-2.5 py-1 text-[10px] font-black rounded-lg uppercase tracking-wider ${isRegClosed ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'}">
-                  ${isRegClosed ? '🔒 ЗАКРЫТА' : '🟢 ОТКРЫТА'}
+                  ${isRegClosed ? t('regStatusClosed') : t('regStatusOpen')}
                 </span>
               </div>
 
               <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs">
-                <span class="font-bold text-slate-300 pl-1">Цена с игрока (MDL):</span>
+                <span class="font-bold text-slate-300 pl-1">${t('pricePerPlayerLabel')}</span>
                 <div class="flex items-center gap-1.5">
                   <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1.5 glass-subcard border border-slate-600 rounded-lg text-center text-white font-black focus:outline-none focus:border-amber-500 transition-colors">
                   <button onclick="updateMatchPrice('${match.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-black rounded-lg btn-3d">💾</button>
@@ -1132,26 +1340,26 @@
               </div>
 
               <div class="flex items-center justify-between p-2.5 glass-subcard rounded-xl border border-white/5 text-xs">
-                <span class="font-bold text-slate-300">Всего мест: <strong class="text-amber-400 font-black text-sm">${match.max_players}</strong></span>
+                <span class="font-bold text-slate-300">${t('totalSlotsLabel')} <strong class="text-amber-400 font-black text-sm">${match.max_players}</strong></span>
                 <div class="flex items-center gap-1.5">
-                  <button onclick="adjustMatchMaxPlayers('${match.id}', ${match.max_players}, -1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-lg btn-3d" title="Убрать 1 слот">➖ Слот</button>
-                  <button onclick="adjustMatchMaxPlayers('${match.id}', ${match.max_players}, 1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-lg btn-3d" title="Добавить 1 слот">➕ Слот</button>
+                  <button onclick="adjustMatchMaxPlayers('${match.id}', ${match.max_players}, -1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-lg btn-3d" title="Убрать 1 слот">➖</button>
+                  <button onclick="adjustMatchMaxPlayers('${match.id}', ${match.max_players}, 1)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-lg btn-3d" title="Добавить 1 слот">➕</button>
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-2 pt-1">
                 ${isRegClosed ? `
                   <button onclick="toggleRegistration('${match.id}', false)" id="btn-toggle-reg" class="py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20 flex items-center justify-center gap-1">
-                    🔓 Открыть
+                    ${t('openRegBtn')}
                   </button>
                 ` : `
                   <button onclick="toggleRegistration('${match.id}', true)" id="btn-toggle-reg" class="py-2.5 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 font-extrabold rounded-xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-1">
-                    🔒 Завершить
+                    ${t('finishRegBtn')}
                   </button>
                 `}
                 
                 <button onclick="deleteMatchByCreator('${match.id}')" class="py-2.5 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-extrabold rounded-xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-1">
-                  🗑️ Удалить слот
+                  ${t('deleteSlotBtn')}
                 </button>
               </div>
             </div>
@@ -1161,10 +1369,8 @@
         let joinButtonHtml = '';
         if (isRegClosed) {
           joinButtonHtml = `<div class="p-3 glass-subcard border border-amber-500/30 text-amber-300 rounded-2xl text-xs font-bold text-center flex items-center justify-center gap-1.5">
-            🔒 Регистрация на матч завершена
+            ${t('regStatusClosed')}
           </div>`;
-        } else if (!isJoined && !isFull) {
-          joinButtonHtml = `<button onclick="joinMatch('${match.id}', ${players.length + 1})" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">${t('joinSlot')}</button>`;
         }
 
         container.innerHTML = `
@@ -1183,14 +1389,14 @@
             ${creatorControlsHtml}
 
             <div class="border-t border-white/10 pt-3">
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
+              <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
               <div class="space-y-2">${slotsHtml}</div>
             </div>
 
             <div class="border-t border-white/10 pt-3 space-y-2">
-              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">${t('chatTitle')}</h3>
+              <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">${t('chatTitle')}</h3>
               <div id="chat-box" class="h-44 overflow-y-auto space-y-2.5 p-3 glass-subcard rounded-2xl border border-white/10 shadow-inner">
-                ${chatHtml.length > 0 ? chatHtml : '<p class="text-xs text-slate-400 text-center py-12 italic">Обсудите детали матча. Напишите первое сообщение!</p>'}
+                ${chatHtml.length > 0 ? chatHtml : `<p class="text-xs text-slate-400 text-center py-12 italic">${t('chatEmptyMsg')}</p>`}
               </div>
               <div class="flex gap-2">
                 <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-3 glass-subcard border border-slate-700/80 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-500 transition-all">
@@ -1331,8 +1537,8 @@
         historyHtml = `
           <div class="mt-6 pt-4 border-t border-white/10 space-y-2.5">
             <h3 class="text-xs font-black text-purple-300 uppercase tracking-wider flex items-center justify-between">
-              <span>📜 История турниров (за 7 дней)</span>
-              <span class="text-[10px] text-slate-400 font-normal">Автоочистка</span>
+              <span>${t('tourneyHistoryTitle')}</span>
+              <span class="text-[10px] text-slate-400 font-normal">${t('autoCleanup')}</span>
             </h3>
             <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
               ${history.map(item => {
@@ -1342,11 +1548,11 @@
                   <div class="p-3 glass-subcard border border-purple-500/30 rounded-2xl space-y-1.5 text-xs">
                     <div class="flex justify-between items-center text-slate-400 text-[10px] font-bold">
                       <span>📅 ${dt}</span>
-                      <span class="text-amber-400">🥇 Победитель: ${topWinner}</span>
+                      <span class="text-amber-400">🥇 ${t('winnerLabel')}: ${topWinner}</span>
                     </div>
                     <div class="flex justify-between items-center text-white font-medium">
-                      <span>Участников: ${item.players.length}</span>
-                      <span class="text-purple-300 font-bold">${item.rounds.filter(r=>r.completed).length} игр(ы)</span>
+                      <span>${t('participantsCount')}: ${item.players.length}</span>
+                      <span class="text-purple-300 font-bold">${item.rounds.filter(r=>r.completed).length} ${t('gamesCount')}</span>
                     </div>
                   </div>
                 `;
@@ -1357,19 +1563,19 @@
       }
 
       container.innerHTML = `
-        <h2 class="text-base font-extrabold mb-1 text-purple-300 uppercase italic tracking-wide">🏆 Быстрый Американо</h2>
-        <p class="text-xs text-slate-400 mb-3">Настройка турнира с возможностью выбора зарегистрированных игроков.</p>
+        <h2 class="text-base font-extrabold mb-1 text-purple-300 uppercase italic tracking-wide">🏆 ${t('tabAmericano')}</h2>
+        <p class="text-xs text-slate-400 mb-3">${t('quickAmericanoDesc')}</p>
 
         <div class="space-y-3.5">
           <div class="grid grid-cols-2 gap-2.5 items-end">
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Участники</label>
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('participantsCount')}</label>
               <select id="quick_player_count" onchange="onPlayerCountChange()" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
-                <option value="4" ${currentAmericanoPlayerCount === 4 ? 'selected' : ''}>4 игрока</option>
-                <option value="5" ${currentAmericanoPlayerCount === 5 ? 'selected' : ''}>5 игроков</option>
-                <option value="6" ${currentAmericanoPlayerCount === 6 ? 'selected' : ''}>6 игроков</option>
-                <option value="7" ${currentAmericanoPlayerCount === 7 ? 'selected' : ''}>7 игроков</option>
-                <option value="8" ${currentAmericanoPlayerCount === 8 ? 'selected' : ''}>8 игроков</option>
+                <option value="4" ${currentAmericanoPlayerCount === 4 ? 'selected' : ''}>4 ${t('gamesLabel')}</option>
+                <option value="5" ${currentAmericanoPlayerCount === 5 ? 'selected' : ''}>5 ${t('gamesLabel')}</option>
+                <option value="6" ${currentAmericanoPlayerCount === 6 ? 'selected' : ''}>6 ${t('gamesLabel')}</option>
+                <option value="7" ${currentAmericanoPlayerCount === 7 ? 'selected' : ''}>7 ${t('gamesLabel')}</option>
+                <option value="8" ${currentAmericanoPlayerCount === 8 ? 'selected' : ''}>8 ${t('gamesLabel')}</option>
               </select>
             </div>
             
@@ -1380,11 +1586,11 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">Круги</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('cyclesLabel')}</label>
             <select id="quick_cycles" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
-              <option value="1">1 круг</option>
-              <option value="2">2 круга</option>
-              <option value="3">3 круга</option>
+              <option value="1">1 ${t('cycleSingleLabel')}</option>
+              <option value="2">2 ${t('cyclesLabel')}</option>
+              <option value="3">3 ${t('cyclesLabel')}</option>
             </select>
           </div>
 
@@ -1395,7 +1601,7 @@
           <div id="names-container" class="space-y-2.5 pt-1"></div>
 
           <button onclick="startQuickAmericano()" class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider neon-glow-purple btn-3d mt-4">
-            🚀 Начать турнир
+            ${t('startTournamentBtn')}
           </button>
 
           ${historyHtml}
@@ -1446,23 +1652,23 @@
         optionsHtml += `<option value="${p.id}" data-name="${name}">${name}${usernameTag} (Lvl ${p.skill_level || 2.5})</option>`;
       });
 
-      let html = '<label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">Состав участников:</label>';
+      let html = `<label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}:</label>`;
 
       for (let i = 1; i <= count; i++) {
         const saved = existingData[i - 1];
-        const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Игрок ${i}`);
+        const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Player ${i}`);
 
         html += `
           <div class="p-2.5 glass-subcard rounded-2xl space-y-1.5 border border-white/10">
             <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
-              <span>Игрок #${i}</span>
+              <span>Player #${i}</span>
               <span id="player_badge_${i}" class="text-purple-300"></span>
             </div>
             <div class="space-y-1.5">
               <select id="player_select_${i}" onchange="onPlayerSelectChange(${i})" class="w-full p-2 glass-subcard rounded-xl text-xs font-bold text-white focus:outline-none focus:border-purple-500">
                 ${optionsHtml}
               </select>
-              <input type="text" id="player_name_${i}" value="${defaultName}" placeholder="Имя игрока ${i}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+              <input type="text" id="player_name_${i}" value="${defaultName}" placeholder="Name ${i}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
             </div>
           </div>
         `;
@@ -1555,7 +1761,7 @@
         
         players.push({ 
           id: i - 1, 
-          name: inputName || `Игрок ${i}`,
+          name: inputName || `Player ${i}`,
           userId: select && select.value !== 'custom' ? select.value : null
         });
       }
@@ -1621,17 +1827,17 @@
 
       let leaderboardHtml = sortedLeaderboard.map((item, index) => {
         let cardStyle = "glass-subcard border-white/10";
-        let badge = `<span class="text-slate-400 font-bold">${index + 1} место</span>`;
+        let badge = `<span class="text-slate-400 font-bold">${index + 1} ${t('placeLabel')}</span>`;
 
         if (index === 0) {
           cardStyle = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/50 shadow-lg shadow-amber-500/10";
-          badge = `<span class="text-amber-400 font-black">🥇 1-е МЕСТО</span>`;
+          badge = `<span class="text-amber-400 font-black">${t('place1')}</span>`;
         } else if (index === 1) {
           cardStyle = "bg-gradient-to-r from-slate-300/20 to-slate-400/10 border-slate-300/40";
-          badge = `<span class="text-slate-200 font-black">🥈 2-е МЕСТО</span>`;
+          badge = `<span class="text-slate-200 font-black">${t('place2')}</span>`;
         } else if (index === 2) {
           cardStyle = "bg-gradient-to-r from-amber-700/20 to-amber-800/10 border-amber-700/40";
-          badge = `<span class="text-amber-500 font-black">🥉 3-е МЕСТО</span>`;
+          badge = `<span class="text-amber-500 font-black">${t('place3')}</span>`;
         }
 
         const scoreDetail = item.draws > 0 ? `${item.wins}W / ${item.draws}D / ${item.losses}L` : `${item.wins}W / ${item.losses}L`;
@@ -1659,8 +1865,8 @@
         return `
           <div class="p-3 border border-white/10 rounded-2xl glass-subcard space-y-2 text-xs">
             <div class="flex justify-between items-center text-slate-300 font-semibold">
-              <span>Круг ${r.cycle} • Игра #${r.round} ${r.court ? `(Корт #${r.court})` : ''}</span>
-              ${r.completed ? '<span class="text-emerald-400 font-black">Завершён</span>' : '<span class="text-amber-400 font-semibold">Ожидает</span>'}
+              <span>${t('matchRoundLabel')} ${r.cycle} • ${t('matchGameLabel')} #${r.round} ${r.court ? `(${t('courtLabel')} #${r.court})` : ''}</span>
+              ${r.completed ? `<span class="text-emerald-400 font-black">${t('completedStatus')}</span>` : `<span class="text-amber-400 font-semibold">${t('pendingStatus')}</span>`}
             </div>
             <div class="flex items-center justify-between gap-1.5">
               <div class="flex-1 text-center font-bold text-white">${pA1} / ${pA2}</div>
@@ -1671,7 +1877,7 @@
                 <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500 focus:outline-none">
                 
                 <button onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
-                  ОК
+                  ${t('okBtn')}
                 </button>
               </div>
 
@@ -1685,28 +1891,28 @@
         <div class="space-y-4">
           <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 backdrop-blur-md p-4 rounded-2xl text-white flex justify-between items-center shadow-lg border border-white/10">
             <div>
-              <h2 class="text-base font-black uppercase tracking-wide">🏆 Калькулятор</h2>
-              <p class="text-xs opacity-90">Всего игр: ${rounds.length} (${cycles || 1} ${cycles > 1 ? 'круга' : 'круг'})</p>
+              <h2 class="text-base font-black uppercase tracking-wide">${t('calculatorTitle')}</h2>
+              <p class="text-xs opacity-90">${t('roundsCountLabel')}: ${rounds.length} (${cycles || 1} ${cycles > 1 ? t('cyclesLabel') : t('cycleSingleLabel')})</p>
             </div>
-            <button onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold btn-3d border border-white/20">Сбросить</button>
+            <button onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold btn-3d border border-white/20">${t('resetBtn')}</button>
           </div>
 
           <div class="space-y-2">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Общий Лидерборд</h3>
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">${t('leaderboardTitle')}</h3>
             ${leaderboardHtml}
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <button onclick="syncResultsToPlatformProfiles()" class="py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
-              🏆 Записать в Рейтинг
+              ${t('recordRatingBtn')}
             </button>
             <button onclick="shareAmericanoResultsSummary()" class="py-3 bg-slate-800/80 hover:bg-slate-700/80 text-purple-300 border border-purple-500/40 font-bold rounded-xl text-xs btn-3d flex items-center justify-center gap-1">
-              📋 Отчёт в Telegram
+              ${t('reportTgBtn')}
             </button>
           </div>
 
           <div class="space-y-2 pt-2">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Матчи и Счёт</h3>
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">${t('matchesAndScoreTitle')}</h3>
             ${roundsHtml}
           </div>
         </div>
@@ -1742,7 +1948,7 @@
       } else prompt('Скопируйте текст отчёта:', text);
     }
 
-    // --- ОБНОЛЕНИЕ РЕЙТИНГОВ И СТАТИСТИКИ В БАЗЕ С УЧЕТОМ НИЧЬИХ ---
+    // --- ОБНОВЛЕНИЕ РЕЙТИНГОВ И СТАТИСТИКИ В БАЗЕ ---
     async function syncResultsToPlatformProfiles() {
       if (!localAmericanoState || !localAmericanoState.players) return;
 
@@ -1967,15 +2173,15 @@
 
             <div class="grid grid-cols-3 gap-1.5 text-center font-mono text-[10px]">
               <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <span class="text-slate-400 uppercase block">🏆 Американо</span>
+                <span class="text-slate-400 uppercase block">🏆 ${t('ratingAmericano')}</span>
                 <strong class="text-purple-300 text-xs font-black">${player.rating_americano || 1000}</strong>
               </div>
               <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <span class="text-slate-400 uppercase block">🤝 Дружеский</span>
+                <span class="text-slate-400 uppercase block">🤝 ${t('ratingFriendly')}</span>
                 <strong class="text-blue-300 text-xs font-black">${player.rating_friendly || 1000}</strong>
               </div>
               <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <span class="text-slate-400 uppercase block">⚔️ Ranked</span>
+                <span class="text-slate-400 uppercase block">⚔️ ${t('ratingCompetitive')}</span>
                 <strong class="text-amber-300 text-xs font-black">${player.rating_competitive || 1000}</strong>
               </div>
             </div>
@@ -1999,7 +2205,7 @@
 
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
-      container.innerHTML = `<div class="text-center py-10 text-slate-400">Загрузка профиля...</div>`;
+      container.innerHTML = `<div class="text-center py-10 text-slate-400">${t('loadingProfile')}</div>`;
 
       await fetchAllPlatformProfiles();
 
@@ -2033,8 +2239,8 @@
       let ageLabel = calculatedAge ? ` • 🎂 ${calculatedAge} лет` : '';
 
       let genderLabel = '';
-      if (p.gender === 'male') genderLabel = ' • 👨 Мужской';
-      else if (p.gender === 'female') genderLabel = ' • 👩 Женский';
+      if (p.gender === 'male') genderLabel = ` • 👨 ${t('male')}`;
+      else if (p.gender === 'female') genderLabel = ` • 👩 ${t('female')}`;
 
       let sideLabel = t('bothSides');
       if (p.preferred_side === 'left') sideLabel = t('leftSide');
@@ -2052,7 +2258,6 @@
         sortedList.sort((a, b) => (b.rating_competitive || 1000) - (a.rating_competitive || 1000));
       }
 
-      // ОПРЕДЕЛЕНИЕ СЧЁТЧИКА МАТЧЕЙ В ЗАВИСИМОСТИ ОТ ВКЛАДКИ
       let leaderboardRows = sortedList.map((item, index) => {
         let valBadge = '';
         let matchCountDisplay = 0;
@@ -2086,7 +2291,7 @@
             </div>
             <div class="flex items-center gap-2">
               <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-extrabold px-2.5 py-1 rounded-full uppercase">${valBadge}</span>
-              <span class="font-extrabold text-slate-400 text-[11px]">${matchCountDisplay} игр</span>
+              <span class="font-extrabold text-slate-400 text-[11px]">${matchCountDisplay} ${t('gamesLabel')}</span>
             </div>
           </div>
         `;
@@ -2106,9 +2311,9 @@
                 const partnerIdx = inTeamA ? r.team_a.find(idx => idx !== myIndexInTourney) : r.team_b.find(idx => idx !== myIndexInTourney);
                 const opponentIndices = inTeamA ? r.team_b : r.team_a;
                 
-                const partnerName = tourney.players[partnerIdx]?.name || 'Партнёр';
-                const opp1 = tourney.players[opponentIndices[0]]?.name || 'Соперник 1';
-                const opp2 = tourney.players[opponentIndices[1]]?.name || 'Соперник 2';
+                const partnerName = tourney.players[partnerIdx]?.name || 'Partner';
+                const opp1 = tourney.players[opponentIndices[0]]?.name || 'Opponent 1';
+                const opp2 = tourney.players[opponentIndices[1]]?.name || 'Opponent 2';
 
                 const myScore = inTeamA ? r.score_a : r.score_b;
                 const oppScore = inTeamA ? r.score_b : r.score_a;
@@ -2129,7 +2334,7 @@
         }
       });
 
-      let myMatchesHtml = '<p class="text-xs text-slate-400 py-3 text-center italic">История сыгранных матчей пока пуста...</p>';
+      let myMatchesHtml = `<p class="text-xs text-slate-400 py-3 text-center italic">${t('emptyPersonalHistory')}</p>`;
       if (myPersonalMatches.length > 0) {
         myMatchesHtml = myPersonalMatches.map(m => {
           let statusTag = m.isWin ? '<span class="text-emerald-400 font-black text-sm">W</span>' : (m.isDraw ? '<span class="text-amber-300 font-black text-sm">D</span>' : '<span class="text-rose-400 font-black text-sm">L</span>');
@@ -2138,9 +2343,9 @@
               <div>
                 <div class="font-bold text-white flex items-center gap-1.5">
                   ${statusTag}
-                  <span>С партнерoм: <strong class="text-cyan-300">${m.partner}</strong></span>
+                  <span>${t('withPartner')}: <strong class="text-cyan-300">${m.partner}</strong></span>
                 </div>
-                <p class="text-[10px] text-slate-400">Против: ${m.opponents}</p>
+                <p class="text-[10px] text-slate-400">${t('vsOpponents')}: ${m.opponents}</p>
               </div>
               <div class="text-right">
                 <span class="font-black ${m.isWin ? 'text-emerald-400' : (m.isDraw ? 'text-amber-300' : 'text-rose-400')} text-xs">${m.score}</span>
@@ -2163,11 +2368,11 @@
         creatorAdminPanelHtml = `
           <div class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl space-y-3 glass-subcard">
             <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
-              👑 Панель Создателя: Управление Игроками
+              ${t('creatorPanelTitle')}
             </h3>
             
             <div class="space-y-2">
-              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">Все зарегистрированные игроки платформы:</p>
+              <p class="text-[11px] text-slate-300 font-bold uppercase tracking-wider">${t('allRegisteredPlayers')}</p>
               <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1">
                 ${allUsersManagementRows}
               </div>
@@ -2197,7 +2402,7 @@
                   📤
                 </button>
                 <button onclick="toggleProfileEditForm()" class="px-2.5 py-1.5 glass-subcard border border-white/30 rounded-xl text-white text-xs font-extrabold btn-3d flex items-center gap-1 shadow">
-                  ✏️ <span>Настройки</span>
+                  ✏️ <span>${t('settingsBtn')}</span>
                 </button>
               </div>
             </div>
@@ -2205,15 +2410,15 @@
             <!-- Детализированная шкала очков -->
             <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/20 text-center font-mono">
               <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <p class="text-[9px] text-cyan-200 uppercase font-black">🏆 Американо</p>
+                <p class="text-[9px] text-cyan-200 uppercase font-black">🏆 ${t('ratingAmericano')}</p>
                 <p class="text-xs font-black text-white mt-0.5">${p.rating_americano || 1000} <span class="text-[9px]">PTS</span></p>
               </div>
               <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <p class="text-[9px] text-emerald-200 uppercase font-black">🤝 Дружеский</p>
+                <p class="text-[9px] text-emerald-200 uppercase font-black">🤝 ${t('ratingFriendly')}</p>
                 <p class="text-xs font-black text-white mt-0.5">${p.rating_friendly || 1000} <span class="text-[9px]">PTS</span></p>
               </div>
               <div class="glass-subcard p-2 rounded-xl border border-white/10">
-                <p class="text-[9px] text-amber-200 uppercase font-black">⚔️ Соревнование</p>
+                <p class="text-[9px] text-amber-200 uppercase font-black">⚔️ ${t('ratingCompetitive')}</p>
                 <p class="text-xs font-black text-white mt-0.5">${p.rating_competitive || 1000} <span class="text-[9px]">ELO</span></p>
               </div>
             </div>
@@ -2221,19 +2426,19 @@
             <!-- Статистика матчей -->
             <div class="grid grid-cols-4 gap-1 pt-1 text-center font-bold">
               <div>
-                <p class="text-[9px] opacity-75 uppercase">Матчи</p>
+                <p class="text-[9px] opacity-75 uppercase">${t('matches')}</p>
                 <p class="text-xs font-black">${total}</p>
               </div>
               <div>
-                <p class="text-[9px] opacity-75 uppercase">Победы</p>
+                <p class="text-[9px] opacity-75 uppercase">${t('wins')}</p>
                 <p class="text-xs font-black text-emerald-300">${wins}</p>
               </div>
               <div>
-                <p class="text-[9px] opacity-75 uppercase">Поражения</p>
+                <p class="text-[9px] opacity-75 uppercase">${t('losses')}</p>
                 <p class="text-xs font-black text-rose-300">${losses}</p>
               </div>
               <div>
-                <p class="text-[9px] opacity-75 uppercase">Винрейт</p>
+                <p class="text-[9px] opacity-75 uppercase">${t('winrate')}</p>
                 <p class="text-xs font-black text-amber-300">${winrate}%</p>
               </div>
             </div>
@@ -2243,7 +2448,7 @@
           <div id="profile-edit-box" class="${isProfileEditOpen ? '' : 'hidden'} glass-subcard p-4 rounded-3xl border border-cyan-500/40 space-y-3 shadow-2xl transition-all">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
               <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                ✏️ Редактирование Данных Профиля
+                ${t('profileEditTitle')}
               </h3>
               <button onclick="toggleProfileEditForm()" class="text-slate-400 hover:text-white font-bold text-sm px-1.5">✕</button>
             </div>
@@ -2290,10 +2495,10 @@
 
               <div class="flex gap-2 pt-1">
                 <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl btn-3d uppercase tracking-wider text-xs shadow-lg shadow-emerald-500/20">
-                  💾 Сохранить изменения
+                  ${t('saveChanges')}
                 </button>
                 <button type="button" onclick="toggleProfileEditForm()" class="px-4 py-3 bg-slate-800/80 text-slate-300 font-bold rounded-xl btn-3d text-xs border border-white/10">
-                  Отмена
+                  ${t('cancelBtn')}
                 </button>
               </div>
             </form>
@@ -2302,8 +2507,8 @@
           <!-- 3. ЛИЧНАЯ ИСТОРИЯ ИГР И НАПАРНИКОВ -->
           <div class="glass-subcard p-3.5 rounded-3xl border border-white/10 space-y-2.5">
             <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center justify-between">
-              <span>📜 История моих игр (Американо)</span>
-              <span class="text-[10px] text-slate-400 font-medium">За 7 дней</span>
+              <span>${t('myMatchHistoryTitle')}</span>
+              <span class="text-[10px] text-slate-400 font-medium">${t('last7Days')}</span>
             </h3>
             <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
               ${myMatchesHtml}
@@ -2315,21 +2520,21 @@
           <!-- 4. МУЛЬТИ-ТАБОВЫЙ НАЦИОНАЛЬНЫЙ РЕЙТИНГ МОЛДОВЫ -->
           <div class="glass-subcard p-3.5 rounded-3xl border border-white/10 space-y-3">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              🇲🇩 Система Рейтингов Молдовы
+              ${t('ratingSystemTitle')}
             </h3>
 
             <div class="grid grid-cols-4 gap-1 glass-subcard p-1 rounded-xl text-[10px] font-extrabold uppercase text-center border border-white/10">
               <button onclick="setLeaderboardTab('national')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'national' ? 'bg-emerald-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
-                🇲🇩 Общий
+                🇲🇩 ${t('ratingNational')}
               </button>
               <button onclick="setLeaderboardTab('americano')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'americano' ? 'bg-purple-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
-                🏆 Американо
+                🏆 ${t('ratingAmericano')}
               </button>
               <button onclick="setLeaderboardTab('friendly')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'friendly' ? 'bg-blue-500 text-white font-black' : 'text-slate-400 hover:text-white'}">
-                🤝 Дружеский
+                🤝 ${t('ratingFriendly')}
               </button>
               <button onclick="setLeaderboardTab('competitive')" class="py-1.5 rounded-lg ${currentLeaderboardTab === 'competitive' ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}">
-                ⚔️ Ranked
+                ⚔️ ${t('ratingCompetitive')}
               </button>
             </div>
 
@@ -2364,36 +2569,36 @@
 
           <div class="grid grid-cols-3 gap-2">
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">Американо</label>
+              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('ratingAmericano')}</label>
               <input type="number" id="ap_americano" value="${player.rating_americano || 1000}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-purple-300 text-center text-xs">
             </div>
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">Дружеский</label>
+              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('ratingFriendly')}</label>
               <input type="number" id="ap_friendly" value="${player.rating_friendly || 1000}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-blue-300 text-center text-xs">
             </div>
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">Ranked (ELO)</label>
+              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('ratingCompetitive')}</label>
               <input type="number" id="ap_competitive" value="${player.rating_competitive || 1000}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-amber-300 text-center text-xs">
             </div>
           </div>
 
           <div class="grid grid-cols-3 gap-2">
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">Матчи</label>
+              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('matches')}</label>
               <input type="number" min="0" id="ap_matches" value="${player.total_matches_played || 0}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-white text-center text-xs">
             </div>
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">Победы</label>
+              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('wins')}</label>
               <input type="number" min="0" id="ap_wins" value="${player.wins || 0}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-emerald-400 text-center text-xs">
             </div>
             <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">Поражения</label>
+              <label class="block text-slate-300 font-semibold mb-1 text-[9px] uppercase">${t('losses')}</label>
               <input type="number" min="0" id="ap_losses" value="${player.losses || 0}" class="w-full p-2 glass-subcard border border-slate-700 rounded-xl font-bold text-rose-400 text-center text-xs">
             </div>
           </div>
 
           <button onclick="saveAdminPlayerChanges('${player.id}')" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl uppercase tracking-wider text-xs btn-3d mt-2 shadow-lg shadow-emerald-500/20">
-            💾 Сохранить изменения
+            ${t('saveChanges')}
           </button>
         </div>
       `;
