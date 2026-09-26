@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Padel Moldova - Ranking & Slots</title>
+  <title>Padel Moldova - Ranking, Slots & Motion Game</title>
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <!-- Supabase JS Client -->
@@ -145,7 +145,7 @@
   <!-- Холст анимированных мячей заднего фона -->
   <canvas id="ball-canvas"></canvas>
 
-  <!-- Всплывающий тост -->
+  <!-- Всплывающий тост празднования -->
   <div id="celebration-toast" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none hidden">
     <div class="glass-card shimmer-border px-6 py-4 rounded-3xl text-center shadow-2xl bg-slate-950/80 border-2 border-emerald-400">
       <span class="text-3xl block mb-1">🎾🔥</span>
@@ -163,9 +163,12 @@
         <div class="flex items-center justify-between gap-2">
           
           <div class="flex items-center gap-3">
-            <!-- ДИНАМИЧЕСКАЯ 3D ПАДЕЛ-РАКЕТКА С НАБИВАНИЕМ МЯЧА -->
-            <div class="w-14 h-14 rounded-2xl bg-slate-950/80 border border-emerald-500/40 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/20 overflow-hidden relative">
+            <!-- ДИНАМИЧЕСКАЯ 3D ПАДЕЛ-РАКЕТКА (КЛИКАБЕЛЬНАЯ ДЛЯ ЗАПУСКА МИНИ-ИГРЫ) -->
+            <div onclick="openPadelGameModal()" class="w-14 h-14 rounded-2xl bg-slate-950/80 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
               <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
+              <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span class="text-[9px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1 py-0.5 rounded shadow">PLAY</span>
+              </div>
             </div>
 
             <div>
@@ -219,6 +222,74 @@
       </div>
 
     </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- ИНТЕРАКТИВНАЯ ИГРА "MOTION PADEL SIMULATOR" -->
+  <!-- ========================================== -->
+  <div id="modal-padel-game" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-50 hidden flex flex-col items-center justify-between p-4 overflow-hidden select-none">
+    
+    <!-- Шапка игры -->
+    <div class="w-full max-w-md flex justify-between items-center glass-subcard p-3 rounded-2xl border border-emerald-500/40 z-20">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🎾</span>
+        <div>
+          <h3 class="text-xs font-black text-emerald-400 uppercase tracking-wide">Padel Motion 3D</h3>
+          <p class="text-[9px] text-slate-400 font-mono">Наклоняй смартфон влево/вправо</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="text-right">
+          <span class="text-[9px] text-slate-400 uppercase font-bold block">Счёт / Рекорд</span>
+          <span class="text-sm font-black text-white"><span id="game-current-score" class="text-emerald-400">0</span> / <span id="game-high-score" class="text-amber-300">0</span></span>
+        </div>
+        <button onclick="closePadelGameModal()" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center border border-white/10 btn-3d">✕</button>
+      </div>
+    </div>
+
+    <!-- Игровой Холст -->
+    <div class="relative w-full max-w-md flex-1 my-3 flex items-center justify-center overflow-hidden rounded-3xl border border-emerald-500/20 bg-slate-950/60 shadow-2xl">
+      <canvas id="padel-motion-canvas" class="w-full h-full block"></canvas>
+
+      <!-- Стартовый Оверлей -->
+      <div id="game-start-overlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-4 z-30">
+        <div class="w-16 h-16 rounded-3xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-3xl shadow-xl shadow-emerald-500/20 animate-bounce">
+          📱
+        </div>
+        <div class="space-y-1">
+          <h4 class="text-lg font-black text-white uppercase italic">Управляй телефоном!</h4>
+          <p class="text-xs text-slate-300 max-w-xs">Двигай и наклоняй телефон влево и вправо, как настоящую ракетку, чтобы набивать мяч!</p>
+        </div>
+
+        <button id="btn-request-sensor" onclick="initAndStartGame()" class="px-8 py-3.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-xl shadow-emerald-500/30">
+          🚀 Начать игру
+        </button>
+      </div>
+
+      <!-- Экран Game Over + Таблица Лидеров -->
+      <div id="game-over-overlay" class="absolute inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center space-y-3 z-30 hidden">
+        <span class="text-4xl block">💥</span>
+        <div>
+          <h4 class="text-lg font-black text-rose-400 uppercase tracking-wide">Мяч упущен!</h4>
+          <p class="text-xs text-slate-300">Ваш результат: <strong id="go-score" class="text-emerald-400 text-sm">0</strong> очков</p>
+        </div>
+
+        <!-- Таблица Рекордов Платформы -->
+        <div class="w-full glass-subcard p-3 rounded-2xl border border-white/10 space-y-2 text-left max-h-48 overflow-y-auto">
+          <h5 class="text-[10px] font-black text-amber-300 uppercase tracking-wider flex justify-between">
+            <span>🏆 ТОП-ИГРОКИ ПЛАТФОРМЫ</span>
+            <span>РЕКОРД</span>
+          </h5>
+          <div id="game-leaderboard-list" class="space-y-1 text-xs divide-y divide-white/5"></div>
+        </div>
+
+        <button onclick="restartPadelGame()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-emerald-500/30">
+          🔄 Попробовать снова
+        </button>
+      </div>
+    </div>
+
   </div>
 
   <!-- МОДАЛЬНОЕ ОКНО ОПЛАТЫ PRO -->
@@ -440,7 +511,7 @@
         if (ball.x < 11) { ball.x = 11; ball.vx = Math.abs(ball.vx); }
         if (ball.x > 53) { ball.x = 53; ball.vx = -Math.abs(ball.vx); }
 
-        // Пружинная физика ракетки (возврат к центру)
+        // Пружинная физика ракетки
         racket.y += (racket.targetY - racket.y) * 0.2;
         racket.targetY += (46 - racket.targetY) * 0.15;
         racket.angle += (racket.targetAngle - racket.angle) * 0.2;
@@ -451,13 +522,13 @@
         const hitZoneY = racket.y - 12;
         if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 8 && Math.abs(ball.x - racket.x) < 18) {
           ball.y = hitZoneY - ball.r;
-          ball.vy = -(3.6 + Math.random() * 0.6); // случайная высота отскока
-          ball.vx = (ball.x - racket.x) * 0.08 + (Math.random() - 0.5) * 0.5; // случайный угол
+          ball.vy = -(3.6 + Math.random() * 0.6);
+          ball.vx = (ball.x - racket.x) * 0.08 + (Math.random() - 0.5) * 0.5;
           ball.squashX = 1.35;
           ball.squashY = 0.65;
 
-          racket.targetY = 51; // отдача ракетки вниз
-          racket.targetAngle = ball.vx * 0.12; // наклон в сторону удара
+          racket.targetY = 51;
+          racket.targetAngle = ball.vx * 0.12;
           racket.hitFlash = 1.0;
 
           // Искры при ударе
@@ -479,13 +550,10 @@
 
         // Страховка от потери мяча
         if (ball.y > size + 10) {
-          ball.x = 32;
-          ball.y = 10;
-          ball.vx = (Math.random() - 0.5) * 0.4;
-          ball.vy = 0;
+          ball.x = 32; ball.y = 10; ball.vx = (Math.random() - 0.5) * 0.4; ball.vy = 0;
         }
 
-        // ОРИГИНАЛЬНАЯ РИСОВКА ПАДЕЛ-РАКЕТКИ
+        // РИСОВАНИЕ РАКЕТКИ
         ctx.save();
         ctx.translate(racket.x, racket.y);
         ctx.rotate(racket.angle);
@@ -507,7 +575,7 @@
         ctx.strokeStyle = '#059669';
         ctx.stroke();
 
-        // Голова падел-ракетки (Анатомический овальный карбоновый профиль)
+        // Голова ракетки
         ctx.beginPath();
         ctx.ellipse(0, -6, 14, 16, 0, 0, Math.PI * 2);
         
@@ -524,7 +592,7 @@
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Перфорация (Отверстия Падел-Ракетки)
+        // Отверстия
         ctx.shadowBlur = 0;
         ctx.fillStyle = '#030712';
         const holePositions = [
@@ -541,15 +609,10 @@
 
         ctx.restore();
 
-        // РИСОВАНИЕ ИСКР
+        // ИСКРЫ
         particles.forEach((p, idx) => {
-          p.x += p.vx;
-          p.y += p.vy;
-          p.life -= 0.05;
-          if (p.life <= 0) {
-            particles.splice(idx, 1);
-            return;
-          }
+          p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+          if (p.life <= 0) { particles.splice(idx, 1); return; }
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.life * 2, 0, Math.PI * 2);
           ctx.fillStyle = p.color;
@@ -558,7 +621,7 @@
           ctx.globalAlpha = 1.0;
         });
 
-        // РИСОВАНИЕ НЕОНОВОГО ПАДЕЛ-МЯЧА
+        // МЯЧ
         ctx.save();
         ctx.translate(ball.x, ball.y);
         ctx.scale(ball.squashX, ball.squashY);
@@ -570,7 +633,6 @@
         ctx.shadowBlur = 8;
         ctx.fill();
 
-        // Шов на мяче
         ctx.beginPath();
         ctx.arc(-1.2, 0, ball.r * 0.75, -Math.PI * 0.4, Math.PI * 0.4);
         ctx.strokeStyle = '#ffffff';
@@ -658,6 +720,306 @@
     }
     animateBalls();
 
+    // ==============================================================
+    // --- 3. ИНТЕРАКТИВНАЯ ГИРОСКОПИЧЕСКАЯ ИГРА "MOTION PADEL 3D" ---
+    // ==============================================================
+    let gameLoopReq = null;
+    let isGameRunning = false;
+    let currentGameScore = 0;
+    let userHighScore = parseInt(localStorage.getItem('padel_motion_high_score') || '0', 10);
+
+    let gCanvas, gCtx;
+    let gWidth = 360, gHeight = 520;
+
+    let gRacket = { x: 180, y: 440, w: 76, h: 22, vx: 0, targetX: 180, tiltAngle: 0 };
+    let gBall = { x: 180, y: 100, vx: 2, vy: 3, r: 8, spin: 0, rotation: 0, squashX: 1, squashY: 1 };
+    let gParticles = [];
+
+    function openPadelGameModal() {
+      document.getElementById('modal-padel-game').classList.remove('hidden');
+      document.getElementById('game-high-score').innerText = userHighScore;
+      document.getElementById('game-start-overlay').classList.remove('hidden');
+      document.getElementById('game-over-overlay').classList.add('hidden');
+
+      gCanvas = document.getElementById('padel-motion-canvas');
+      gCtx = gCanvas.getContext('2d');
+
+      const rect = gCanvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      gWidth = rect.width || 360;
+      gHeight = rect.height || 520;
+      gCanvas.width = gWidth * dpr;
+      gCanvas.height = gHeight * dpr;
+      gCtx.scale(dpr, dpr);
+
+      // Инициализация мыши / свайпов в качестве фоллбэка
+      gCanvas.onmousemove = (e) => {
+        if (!isGameRunning) return;
+        const cRect = gCanvas.getBoundingClientRect();
+        gRacket.targetX = e.clientX - cRect.left;
+      };
+
+      gCanvas.ontouchmove = (e) => {
+        if (!isGameRunning || !e.touches[0]) return;
+        const cRect = gCanvas.getBoundingClientRect();
+        gRacket.targetX = e.touches[0].clientX - cRect.left;
+      };
+    }
+
+    function closePadelGameModal() {
+      isGameRunning = false;
+      if (gameLoopReq) cancelAnimationFrame(gameLoopReq);
+      document.getElementById('modal-padel-game').classList.add('hidden');
+    }
+
+    function initAndStartGame() {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+          .then(permissionState => {
+            if (permissionState === 'granted') {
+              window.addEventListener('deviceorientation', handleGyroscopeMotion);
+            }
+          })
+          .catch(console.error);
+      } else {
+        window.addEventListener('deviceorientation', handleGyroscopeMotion);
+      }
+
+      document.getElementById('game-start-overlay').classList.add('hidden');
+      restartPadelGame();
+    }
+
+    function handleGyroscopeMotion(e) {
+      if (!isGameRunning) return;
+      let gamma = e.gamma || 0; // Наклон влево/вправо (-90 до 90)
+      if (gamma > 35) gamma = 35;
+      if (gamma < -35) gamma = -35;
+
+      const norm = (gamma + 35) / 70; // 0.0 - 1.0
+      gRacket.targetX = norm * gWidth;
+      gRacket.tiltAngle = (gamma / 35) * 0.35; // Наклон ракетки
+    }
+
+    function restartPadelGame() {
+      currentGameScore = 0;
+      document.getElementById('game-current-score').innerText = 0;
+      document.getElementById('game-over-overlay').classList.add('hidden');
+
+      gRacket.x = gWidth / 2;
+      gRacket.targetX = gWidth / 2;
+      gRacket.y = gHeight - 70;
+
+      gBall.x = gWidth / 2;
+      gBall.y = 80;
+      gBall.vx = (Math.random() - 0.5) * 4;
+      gBall.vy = 4;
+      gBall.spin = 0;
+
+      isGameRunning = true;
+      if (gameLoopReq) cancelAnimationFrame(gameLoopReq);
+      runMotionGameLoop();
+    }
+
+    function runMotionGameLoop() {
+      if (!isGameRunning) return;
+
+      // 1. Физика Ракетки
+      const prevX = gRacket.x;
+      gRacket.x += (gRacket.targetX - gRacket.x) * 0.25;
+      gRacket.vx = gRacket.x - prevX;
+
+      const halfW = gRacket.w / 2;
+      if (gRacket.x < halfW) gRacket.x = halfW;
+      if (gRacket.x > gWidth - halfW) gRacket.x = gWidth - halfW;
+
+      // 2. Физика Мяча & Гравитация
+      gBall.vy += 0.22;
+      gBall.vx += gBall.spin * 0.04;
+      gBall.x += gBall.vx;
+      gBall.y += gBall.vy;
+      gBall.rotation += gBall.spin * 0.1;
+
+      gBall.vx *= 0.995;
+
+      // Отскок от стен
+      if (gBall.x - gBall.r <= 0) {
+        gBall.x = gBall.r;
+        gBall.vx = Math.abs(gBall.vx) * 0.9;
+        gBall.spin = -gBall.spin;
+      }
+      if (gBall.x + gBall.r >= gWidth) {
+        gBall.x = gWidth - gBall.r;
+        gBall.vx = -Math.abs(gBall.vx) * 0.9;
+        gBall.spin = -gBall.spin;
+      }
+
+      // Отскок от потолка
+      if (gBall.y - gBall.r <= 0) {
+        gBall.y = gBall.r;
+        gBall.vy = Math.abs(gBall.vy);
+      }
+
+      // 3. Коллизия Мяча с Ракеткой
+      const racketTop = gRacket.y - 10;
+      if (
+        gBall.vy > 0 &&
+        gBall.y + gBall.r >= racketTop &&
+        gBall.y - gBall.r <= racketTop + 14 &&
+        Math.abs(gBall.x - gRacket.x) <= halfW + 6
+      ) {
+        gBall.y = racketTop - gBall.r;
+        gBall.vy = -(Math.abs(gBall.vy) * 0.96 + 1.2);
+        if (gBall.vy < -11) gBall.vy = -11;
+
+        const offset = (gBall.x - gRacket.x) / halfW;
+        gBall.vx = offset * 4.5 + gRacket.vx * 0.4;
+        gBall.spin = gRacket.vx * 0.5;
+
+        gBall.squashX = 1.3;
+        gBall.squashY = 0.7;
+
+        if (navigator.vibrate) navigator.vibrate(20);
+
+        for (let i = 0; i < 8; i++) {
+          gParticles.push({
+            x: gBall.x, y: gBall.y,
+            vx: (Math.random() - 0.5) * 4, vy: -Math.random() * 3,
+            life: 1.0, color: Math.random() > 0.4 ? '#ccff00' : '#10b981'
+          });
+        }
+
+        currentGameScore++;
+        document.getElementById('game-current-score').innerText = currentGameScore;
+        if (currentGameScore > userHighScore) {
+          userHighScore = currentGameScore;
+          localStorage.setItem('padel_motion_high_score', userHighScore);
+          document.getElementById('game-high-score').innerText = userHighScore;
+          saveUserGameScoreToProfile(userHighScore);
+        }
+      }
+
+      gBall.squashX += (1 - gBall.squashX) * 0.12;
+      gBall.squashY += (1 - gBall.squashY) * 0.12;
+
+      // 4. Проигрыш
+      if (gBall.y - gBall.r > gHeight) {
+        triggerPadelGameOver();
+        return;
+      }
+
+      // RENDER
+      gCtx.clearRect(0, 0, gWidth, gHeight);
+
+      // Разметка корта
+      gCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+      gCtx.lineWidth = 2;
+      gCtx.strokeRect(10, 10, gWidth - 20, gHeight - 20);
+      gCtx.beginPath();
+      gCtx.moveTo(10, gHeight / 2); gCtx.lineTo(gWidth - 10, gHeight / 2);
+      gCtx.stroke();
+
+      // Искры
+      gParticles.forEach((p, idx) => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.04;
+        if (p.life <= 0) { gParticles.splice(idx, 1); return; }
+        gCtx.beginPath(); gCtx.arc(p.x, p.y, p.life * 3, 0, Math.PI * 2);
+        gCtx.fillStyle = p.color; gCtx.globalAlpha = p.life; gCtx.fill(); gCtx.globalAlpha = 1.0;
+      });
+
+      // Ракетка
+      gCtx.save();
+      gCtx.translate(gRacket.x, gRacket.y);
+      gCtx.rotate(gRacket.tiltAngle || 0);
+
+      gCtx.fillStyle = '#1e293b';
+      gCtx.fillRect(-4, 6, 8, 16);
+      gCtx.strokeStyle = '#10b981';
+      gCtx.strokeRect(-4, 6, 8, 16);
+
+      gCtx.beginPath();
+      gCtx.ellipse(0, -8, halfW, 14, 0, 0, Math.PI * 2);
+      const rGrad = gCtx.createLinearGradient(-halfW, -20, halfW, 10);
+      rGrad.addColorStop(0, '#1e293b');
+      rGrad.addColorStop(0.5, '#0f172a');
+      rGrad.addColorStop(1, '#042f2e');
+      gCtx.fillStyle = rGrad;
+      gCtx.shadowColor = '#10b981';
+      gCtx.shadowBlur = 12;
+      gCtx.fill();
+      gCtx.strokeStyle = '#34d399';
+      gCtx.lineWidth = 2;
+      gCtx.stroke();
+
+      gCtx.shadowBlur = 0;
+      gCtx.fillStyle = '#030712';
+      for (let hx = -halfW + 10; hx <= halfW - 10; hx += 12) {
+        gCtx.beginPath(); gCtx.arc(hx, -8, 1.8, 0, Math.PI * 2); gCtx.fill();
+      }
+      gCtx.restore();
+
+      // Мяч
+      gCtx.save();
+      gCtx.translate(gBall.x, gBall.y);
+      gCtx.scale(gBall.squashX, gBall.squashY);
+      gCtx.rotate(gBall.rotation);
+
+      gCtx.beginPath();
+      gCtx.arc(0, 0, gBall.r, 0, Math.PI * 2);
+      gCtx.fillStyle = '#ccff00';
+      gCtx.shadowColor = '#ccff00';
+      gCtx.shadowBlur = 12;
+      gCtx.fill();
+
+      gCtx.beginPath();
+      gCtx.arc(-2, 0, gBall.r * 0.7, -Math.PI * 0.4, Math.PI * 0.4);
+      gCtx.strokeStyle = '#ffffff';
+      gCtx.lineWidth = 1;
+      gCtx.shadowBlur = 0;
+      gCtx.stroke();
+      gCtx.restore();
+
+      gameLoopReq = requestAnimationFrame(runMotionGameLoop);
+    }
+
+    async function triggerPadelGameOver() {
+      isGameRunning = false;
+      document.getElementById('go-score').innerText = currentGameScore;
+      document.getElementById('game-over-overlay').classList.remove('hidden');
+
+      renderGameLeaderboard();
+    }
+
+    async function saveUserGameScoreToProfile(score) {
+      if (!tgUser.id) return;
+      await safeUpdateProfile(tgUser.id, { game_high_score: score, updated_at: new Date().toISOString() });
+    }
+
+    function renderGameLeaderboard() {
+      const listContainer = document.getElementById('game-leaderboard-list');
+      if (!listContainer) return;
+
+      let sorted = [...platformProfilesList];
+      sorted.forEach(p => {
+        if (String(p.id) === String(tgUser.id) && userHighScore > (p.game_high_score || 0)) {
+          p.game_high_score = userHighScore;
+        }
+      });
+
+      sorted.sort((a, b) => (b.game_high_score || 0) - (a.game_high_score || 0));
+
+      let html = sorted.slice(0, 5).map((item, idx) => {
+        const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `${idx + 1}.`));
+        return `
+          <div class="flex justify-between items-center py-1">
+            <span class="font-bold text-white truncate max-w-[180px]">${medal} ${item.first_name} ${item.last_name || ''}</span>
+            <span class="font-black text-amber-300 font-mono">${item.game_high_score || 0} PTS</span>
+          </div>
+        `;
+      }).join('');
+
+      listContainer.innerHTML = html || `<p class="text-[10px] text-slate-400 italic">Таблица пуста</p>`;
+    }
+
     // --- ЛИГИ И ДИВИЗИОНЫ ---
     function getPlayerLeague(lp = 1000) {
       if (lp >= 2100) return { title: 'Master', badge: '👑', color: 'text-amber-300 border-amber-400/50 bg-amber-500/20' };
@@ -687,7 +1049,6 @@
       return true;
     }
 
-    // --- РАСЧЁТ ОЧКОВ И LP ИЗ ИСТОРИИ ТУРНИРОВ ---
     function getHistoricalPointsForUser(userId, userName) {
       const history = cleanAndGetAmericanoHistory();
       let totalPts = 0;
@@ -697,9 +1058,7 @@
             (l.userId && String(l.userId) === String(userId)) ||
             (userName && l.name && l.name.toLowerCase().trim() === userName.toLowerCase().trim())
           );
-          if (item) {
-            totalPts += (item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0));
-          }
+          if (item) totalPts += (item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0));
         }
       });
       return totalPts;
@@ -708,292 +1067,100 @@
     // --- МУЛЬТИЯЗЫЧНОСТЬ ---
     const TRANSLATIONS = {
       ru: {
-        tabBooking: "Слоты",
-        tabAmericano: "Американо",
-        tabProfile: "Профиль",
-        btnSupport: "Support",
-        btnCreator: "Creator",
-        createGame: "Создать новую игру",
-        location: "Локация / Корт",
-        maxPlayers: "Мест",
-        format: "Формат",
-        dateTime: "Дата и время",
-        price: "Цена с игрока (MDL)",
-        notes: "Заметки / Пожелания",
-        generateLink: "Сформировать ссылку на игру",
-        joinSlot: "Занять слот",
-        leaveGame: "Покинуть игру",
-        copyLink: "📋 Скопировать ссылку на игру",
-        editProfile: "Настройки профиля",
-        birthDate: "Дата рождения",
-        ageLabel: "Возраст",
-        gender: "Пол",
-        male: "Мужской 👨",
-        female: "Женский 👩",
-        unspecified: "Не указан",
-        preferredSide: "Удобная сторона",
-        phone: "Номер телефона",
-        saveChanges: "💾 Сохранить изменения",
-        stats: "Статистика игрока",
-        matches: "Матчи",
-        wins: "Победы",
-        losses: "Поражения",
-        winrate: "Винрейт",
-        leftSide: "Слева",
-        rightSide: "Справа",
-        bothSides: "Обе стороны",
-        friendly: "Дружеский",
-        competitive: "Рейтинговый",
-        americanoFormat: "Американо",
-        occupied: "Занят",
-        free: "Свободно",
-        chatTitle: "💬 Чат участников слота",
-        chatPlaceholder: "Напишите сообщение...",
-        sendBtn: "Отправить",
-        creatorTag: "👑 Организатор",
-        quickImportBtn: "⚡ Импортировать из Слота",
-        guestOption: "➕ Ввести вручную (Гость)",
-        getProBtn: "💎 Оформить PRO (150 MDL/мес)",
-        proPendingStatus: "⏳ Заявка на PRO отправлена. Ожидается проверка оплаты.",
-        proApprovedStatus: "👑 Премиум PRO активен",
-        pendingRequestsTitle: "⏳ Заявки на подтверждение PRO оплаты",
-        approveProBtn: "✅ Подтвердить PRO",
-        rejectProBtn: "❌ Отклонить",
-        settingsBtn: "Настройки",
-        ratingAmericano: "Американо",
-        ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы",
-        tourneyHistoryTitle: "📜 История турниров (за 7 дней)",
-        autoCleanup: "Автоочистка",
-        winnerLabel: "Победитель",
-        participantsCount: "Участников",
-        gamesCount: "игр(ы)",
-        hostPanel: "Панель Организатора Слота",
-        hostPanelDesc: "Управление составом, местами и ценой",
-        profileEditTitle: "✏️ Редактирование Данных Профиля",
-        creatorPanelTitle: "👑 Панель Создателя: Управление Платформой",
-        allRegisteredPlayers: "Все зарегистрированные игроки платформы:",
-        gamesLabel: "игр",
-        reportTgBtn: "📋 Отчёт в Telegram",
-        recordRatingBtn: "🏆 Записать в Рейтинг",
-        cancelTournamentBtn: "🛑 Отменить / Сбросить турнир",
-        confirmCancelMsg: "Вы действительно хотите отменить турнир и вернуться к настройкам? Все несохранённые результаты этого сеанса будут сброшены.",
-        loadingMatch: "Загрузка матча...",
-        loadingProfile: "Загрузка профиля...",
-        slotNotFound: "Слот не найден или был удалён.",
-        chatEmptyMsg: "Обсудите детали матча. Напишите первое сообщение!",
-        quickAmericanoDesc: "Персональный калькулятор турнира Американо.",
-        startTournamentBtn: "🚀 Начать турнир",
-        calculatorTitle: "🏆 Калькулятор",
-        roundsCountLabel: "Всего игр",
-        cyclesLabel: "круга",
-        cycleSingleLabel: "круг",
-        resetBtn: "Сбросить",
-        leaderboardTitle: "Общий Лидерборд",
-        matchesAndScoreTitle: "Матчи и Счёт",
-        placeLabel: "место",
-        place1: "🥇 1-е МЕСТО",
-        place2: "🥈 2-е МЕСТО",
-        place3: "🥉 3-е МЕСТО",
-        matchRoundLabel: "Круг",
-        matchGameLabel: "Игра",
-        courtLabel: "Корт",
-        completedStatus: "Завершён",
-        pendingStatus: "Ожидает",
-        okBtn: "ОК",
-        viewTourneyDetails: "Смотреть матчи",
-        tourneyMatchesTitle: "Матчи турнира"
+        tabBooking: "Слоты", tabAmericano: "Американо", tabProfile: "Профиль",
+        btnSupport: "Support", btnCreator: "Creator", createGame: "Создать новую игру",
+        location: "Локация / Корт", maxPlayers: "Мест", format: "Формат", dateTime: "Дата и время",
+        price: "Цена с игрока (MDL)", notes: "Заметки / Пожелания", generateLink: "Сформировать ссылку на игру",
+        joinSlot: "Занять слот", leaveGame: "Покинуть игру", copyLink: "📋 Скопировать ссылку на игру",
+        editProfile: "Настройки профиля", birthDate: "Дата рождения", ageLabel: "Возраст", gender: "Пол",
+        male: "Мужской 👨", female: "Женский 👩", unspecified: "Не указан", preferredSide: "Удобная сторона",
+        phone: "Номер телефона", saveChanges: "💾 Сохранить изменения", stats: "Статистика игрока",
+        matches: "Матчи", wins: "Победы", losses: "Поражения", winrate: "Винрейт", leftSide: "Слева",
+        rightSide: "Справа", bothSides: "Обе стороны", friendly: "Дружеский", competitive: "Рейтинговый",
+        americanoFormat: "Американо", occupied: "Занят", free: "Свободно", chatTitle: "💬 Чат участников слота",
+        chatPlaceholder: "Напишите сообщение...", sendBtn: "Отправить", creatorTag: "👑 Организатор",
+        quickImportBtn: "⚡ Импортировать из Слота", guestOption: "➕ Ввести вручную (Гость)",
+        getProBtn: "💎 Оформить PRO (150 MDL/мес)", proPendingStatus: "⏳ Заявка на PRO отправлена. Ожидается проверка оплаты.",
+        proApprovedStatus: "👑 Премиум PRO активен", pendingRequestsTitle: "⏳ Заявки на подтверждение PRO оплаты",
+        approveProBtn: "✅ Подтвердить PRO", rejectProBtn: "❌ Отклонить", settingsBtn: "Настройки",
+        ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы", tourneyHistoryTitle: "📜 История турниров (за 7 дней)",
+        autoCleanup: "Автоочистка", winnerLabel: "Победитель", participantsCount: "Участников", gamesCount: "игр(ы)",
+        hostPanel: "Панель Организатора Слота", hostPanelDesc: "Управление составом, местами и ценой", profileEditTitle: "✏️ Редактирование Данных Профиля",
+        creatorPanelTitle: "👑 Панель Создателя: Управление Платформой", allRegisteredPlayers: "Все зарегистрированные игроки платформы:",
+        gamesLabel: "игр", reportTgBtn: "📋 Отчёт в Telegram", recordRatingBtn: "🏆 Записать в Рейтинг",
+        cancelTournamentBtn: "🛑 Отменить / Сбросить турнир", confirmCancelMsg: "Вы действительно хотите отменить турнир?",
+        loadingMatch: "Загрузка матча...", loadingProfile: "Загрузка профиля...", slotNotFound: "Слот не найден или был удалён.",
+        chatEmptyMsg: "Обсудите детали матча. Напишите первое сообщение!", quickAmericanoDesc: "Персональный калькулятор турнира Американо.",
+        startTournamentBtn: "🚀 Начать турнир", calculatorTitle: "🏆 Калькулятор", roundsCountLabel: "Всего игр",
+        cyclesLabel: "круга", cycleSingleLabel: "круг", resetBtn: "Сбросить", leaderboardTitle: "Общий Лидерборд",
+        matchesAndScoreTitle: "Матчи и Счёт", placeLabel: "место", place1: "🥇 1-е МЕСТО", place2: "🥈 2-е МЕСТО",
+        place3: "🥉 3-е МЕСТО", matchRoundLabel: "Круг", matchGameLabel: "Игра", courtLabel: "Корт",
+        completedStatus: "Завершён", pendingStatus: "Ожидает", okBtn: "ОК", viewTourneyDetails: "Смотреть матчи",
+        tourneyMatchesTitle: "Матчи турнира", pricePerPlayerLabel: "Цена за игрока (MDL)", deleteSlotBtn: "🗑️ Удалить слот"
       },
       ro: {
-        tabBooking: "Sloturi",
-        tabAmericano: "Americano",
-        tabProfile: "Profil",
-        btnSupport: "Suport",
-        btnCreator: "Autor",
-        createGame: "Creează joc nou",
-        location: "Locație / Teren",
-        maxPlayers: "Locuri",
-        format: "Format",
-        dateTime: "Data și ora",
-        price: "Preț per jucător (MDL)",
-        notes: "Note / Detalii",
-        generateLink: "Generează link-ul jocului",
-        joinSlot: "Ocupă un loc",
-        leaveGame: "Părăsește jocul",
-        copyLink: "📋 Copiază link-ul jocului",
-        editProfile: "Setări profil",
-        birthDate: "Data nașterii",
-        ageLabel: "Vârstă",
-        gender: "Gen",
-        male: "Masculin 👨",
-        female: "Feminin 👩",
-        unspecified: "Nespecificat",
-        preferredSide: "Partea preferată",
-        phone: "Număr de telefon",
-        saveChanges: "💾 Salvează modificările",
-        stats: "Statistici jucător",
-        matches: "Meciuri",
-        wins: "Victorii",
-        losses: "Înfrângeri",
-        winrate: "Rată de câștig",
-        leftSide: "Stânga",
-        rightSide: "Dreapta",
-        bothSides: "Ambele părți",
-        friendly: "Amical",
-        competitive: "Competitiv",
-        americanoFormat: "Americano",
-        occupied: "Ocupat",
-        free: "Liber",
-        chatTitle: "💬 Chat jucători",
-        chatPlaceholder: "Scrie un mesaj...",
-        sendBtn: "Trimite",
-        creatorTag: "👑 Organizator",
-        quickImportBtn: "⚡ Importă din Slot",
-        guestOption: "➕ Introdu manual (Oaspete)",
-        getProBtn: "💎 Activează PRO (150 MDL/lună)",
-        proPendingStatus: "⏳ Cererea PRO a fost trimisă. În așteptarea verificării plății.",
-        proApprovedStatus: "👑 Premium PRO este activ",
-        pendingRequestsTitle: "⏳ Solicitări de confirmare plată PRO",
-        approveProBtn: "✅ Confirmă PRO",
-        rejectProBtn: "❌ Respinge",
-        settingsBtn: "Setări",
-        ratingAmericano: "Americano",
-        ratingSystemTitle: "🇲🇩 Sistemul de Clasament și Ligi Moldova",
-        tourneyHistoryTitle: "📜 Istoricul turneelor (ultimele 7 zile)",
-        autoCleanup: "Curățare automată",
-        winnerLabel: "Câștigător",
-        participantsCount: "Participanți",
-        gamesCount: "jocuri",
-        hostPanel: "Panou Organizator Slot",
-        hostPanelDesc: "Gestionare echipă, locuri și preț",
-        profileEditTitle: "✏️ Editare Date Profil",
-        creatorPanelTitle: "👑 Panou Autor: Administrare Platformă",
-        allRegisteredPlayers: "Toți jucătorii înregistrați pe platformă:",
-        gamesLabel: "jocuri",
-        reportTgBtn: "📋 Raport pe Telegram",
-        recordRatingBtn: "🏆 Înregistrează în Clasament",
-        cancelTournamentBtn: "🛑 Anulează / Resetează turneul",
-        confirmCancelMsg: "Doriți într-adevăr să anulați turneul și să reveniți la setări? Rezultatele nesalvate vor fi șterse.",
-        loadingMatch: "Se încarcă meciul...",
-        loadingProfile: "Se încarcă profilul...",
-        slotNotFound: "Slotul nu a fost găsit sau a fost șters.",
-        chatEmptyMsg: "Discutați detaliile meciului. Scrieți primul mesaj!",
-        quickAmericanoDesc: "Calculator personal pentru turneul Americano.",
-        startTournamentBtn: "🚀 Începe turneul",
-        calculatorTitle: "🏆 Calculator",
-        roundsCountLabel: "Total jocuri",
-        cyclesLabel: "runde",
-        cycleSingleLabel: "rundă",
-        resetBtn: "Resetează",
-        leaderboardTitle: "Clasament General",
-        matchesAndScoreTitle: "Meciuri și Scor",
-        placeLabel: "locul",
-        place1: "🥇 LOCUL 1",
-        place2: "🥈 LOCUL 2",
-        place3: "🥉 LOCUL 3",
-        matchRoundLabel: "Runda",
-        matchGameLabel: "Jocul",
-        courtLabel: "Teren",
-        completedStatus: "Finalizat",
-        pendingStatus: "În așteptare",
-        okBtn: "OK",
-        viewTourneyDetails: "Vezi meciurile",
-        tourneyMatchesTitle: "Meciurile turneului"
+        tabBooking: "Sloturi", tabAmericano: "Americano", tabProfile: "Profil",
+        btnSupport: "Suport", btnCreator: "Autor", createGame: "Creează joc nou",
+        location: "Locație / Teren", maxPlayers: "Locuri", format: "Format", dateTime: "Data și ora",
+        price: "Preț per jucător (MDL)", notes: "Note / Detalii", generateLink: "Generează link-ul jocului",
+        joinSlot: "Ocupă un loc", leaveGame: "Părăsește jocul", copyLink: "📋 Copiază link-ul jocului",
+        editProfile: "Setări profil", birthDate: "Data nașterii", ageLabel: "Vârstă", gender: "Gen",
+        male: "Masculin 👨", female: "Feminin 👩", unspecified: "Nespecificat", preferredSide: "Partea preferată",
+        phone: "Număr de telefon", saveChanges: "💾 Salvează modificările", stats: "Statistici jucător",
+        matches: "Meciuri", wins: "Victorii", losses: "Înfrângeri", winrate: "Rată de câștig", leftSide: "Stânga",
+        rightSide: "Dreapta", bothSides: "Ambele părți", friendly: "Amical", competitive: "Competitiv",
+        americanoFormat: "Americano", occupied: "Ocupat", free: "Liber", chatTitle: "💬 Chat jucători",
+        chatPlaceholder: "Scrie un mesaj...", sendBtn: "Trimite", creatorTag: "👑 Organizator",
+        quickImportBtn: "⚡ Importă din Slot", guestOption: "➕ Introdu manual (Oaspete)",
+        getProBtn: "💎 Activează PRO (150 MDL/lună)", proPendingStatus: "⏳ Cererea PRO a fost trimisă.",
+        proApprovedStatus: "👑 Premium PRO este activ", pendingRequestsTitle: "⏳ Solicitări de confirmare plată PRO",
+        approveProBtn: "✅ Confirmă PRO", rejectProBtn: "❌ Respinge", settingsBtn: "Setări",
+        ratingSystemTitle: "🇲🇩 Sistemul de Clasament și Ligi Moldova", tourneyHistoryTitle: "📜 Istoricul turneelor",
+        autoCleanup: "Curățare automată", winnerLabel: "Câștigător", participantsCount: "Participanți", gamesCount: "jocuri",
+        hostPanel: "Panou Organizator Slot", hostPanelDesc: "Gestionare echipă, locuri și preț", profileEditTitle: "✏️ Editare Date Profil",
+        creatorPanelTitle: "👑 Panou Autor", allRegisteredPlayers: "Toți jucătorii înregistrați pe platformă:",
+        gamesLabel: "jocuri", reportTgBtn: "📋 Raport pe Telegram", recordRatingBtn: "🏆 Înregistrează în Clasament",
+        cancelTournamentBtn: "🛑 Anulează / Resetează turneul", confirmCancelMsg: "Doriți într-adevăr să anulați turneul?",
+        loadingMatch: "Se încarcă meciul...", loadingProfile: "Se încarcă profilul...", slotNotFound: "Slotul nu a fost găsit.",
+        chatEmptyMsg: "Discutați detaliile meciului.", quickAmericanoDesc: "Calculator personal pentru turneul Americano.",
+        startTournamentBtn: "🚀 Începe turneul", calculatorTitle: "🏆 Calculator", roundsCountLabel: "Total jocuri",
+        cyclesLabel: "runde", cycleSingleLabel: "rundă", resetBtn: "Resetează", leaderboardTitle: "Clasament General",
+        matchesAndScoreTitle: "Meciuri și Scor", placeLabel: "locul", place1: "🥇 LOCUL 1", place2: "🥈 LOCUL 2",
+        place3: "🥉 LOCUL 3", matchRoundLabel: "Runda", matchGameLabel: "Jocul", courtLabel: "Teren",
+        completedStatus: "Finalizat", pendingStatus: "În așteptare", okBtn: "OK", viewTourneyDetails: "Vezi meciurile",
+        tourneyMatchesTitle: "Meciurile turneului", pricePerPlayerLabel: "Preț per jucător (MDL)", deleteSlotBtn: "🗑️ Șterge slotul"
       },
       en: {
-        tabBooking: "Slots",
-        tabAmericano: "Americano",
-        tabProfile: "Profile",
-        btnSupport: "Support",
-        btnCreator: "Creator",
-        createGame: "Create New Game",
-        location: "Location / Court",
-        maxPlayers: "Slots",
-        format: "Format",
-        dateTime: "Date & Time",
-        price: "Price per player (MDL)",
-        notes: "Notes / Details",
-        generateLink: "Generate Game Link",
-        joinSlot: "Take Slot",
-        leaveGame: "Leave Game",
-        copyLink: "📋 Copy Game Link",
-        editProfile: "Profile Settings",
-        birthDate: "Date of Birth",
-        ageLabel: "Age",
-        gender: "Gender",
-        male: "Male 👨",
-        female: "Female 👩",
-        unspecified: "Unspecified",
-        preferredSide: "Preferred side",
-        phone: "Phone Number",
-        saveChanges: "💾 Save Changes",
-        stats: "Player Statistics",
-        matches: "Matches",
-        wins: "Wins",
-        losses: "Losses",
-        winrate: "Winrate",
-        leftSide: "Left",
-        rightSide: "Right",
-        bothSides: "Both sides",
-        friendly: "Friendly",
-        competitive: "Ranked",
-        americanoFormat: "Americano",
-        occupied: "Occupied",
-        free: "Free",
-        chatTitle: "💬 Slot Chat",
-        chatPlaceholder: "Type a message...",
-        sendBtn: "Send",
-        creatorTag: "👑 Host",
-        quickImportBtn: "⚡ Import from Slot",
-        guestOption: "➕ Enter manually (Guest)",
-        getProBtn: "💎 Get PRO (150 MDL/month)",
-        proPendingStatus: "⏳ PRO application submitted. Awaiting payment verification.",
-        proApprovedStatus: "👑 Premium PRO Active",
-        pendingRequestsTitle: "⏳ PRO Payment Requests Pending",
-        approveProBtn: "✅ Approve PRO",
-        rejectProBtn: "❌ Reject",
-        settingsBtn: "Settings",
-        ratingAmericano: "Americano",
-        ratingSystemTitle: "🇲🇩 Moldova Ranking & Division System",
-        tourneyHistoryTitle: "📜 Tournament History (Last 7 days)",
-        autoCleanup: "Auto-cleanup",
-        winnerLabel: "Winner",
-        participantsCount: "Participants",
-        gamesCount: "game(s)",
-        hostPanel: "Slot Host Panel",
-        hostPanelDesc: "Manage players, slots and price",
-        profileEditTitle: "✏️ Edit Profile Data",
-        creatorPanelTitle: "👑 Creator Panel: Platform Management",
-        allRegisteredPlayers: "All registered platform players:",
-        gamesLabel: "games",
-        reportTgBtn: "📋 Telegram Report",
-        recordRatingBtn: "🏆 Record to Leaderboard",
-        cancelTournamentBtn: "🛑 Cancel / Reset Tournament",
-        confirmCancelMsg: "Are you sure you want to cancel the tournament and return to settings? Unsaved results will be lost.",
-        loadingMatch: "Loading game...",
-        loadingProfile: "Loading profile...",
-        slotNotFound: "Slot not found or was deleted.",
-        chatEmptyMsg: "Discuss game details. Send the first message!",
-        quickAmericanoDesc: "Personal Americano tournament calculator.",
-        startTournamentBtn: "🚀 Start Tournament",
-        calculatorTitle: "🏆 Calculator",
-        roundsCountLabel: "Total games",
-        cyclesLabel: "rounds",
-        cycleSingleLabel: "round",
-        resetBtn: "Reset",
-        leaderboardTitle: "Overall Leaderboard",
-        matchesAndScoreTitle: "Matches & Score",
-        placeLabel: "place",
-        place1: "🥇 1st PLACE",
-        place2: "🥈 2nd PLACE",
-        place3: "🥉 3rd PLACE",
-        matchRoundLabel: "Round",
-        matchGameLabel: "Game",
-        courtLabel: "Court",
-        completedStatus: "Completed",
-        pendingStatus: "Pending",
-        okBtn: "OK",
-        viewTourneyDetails: "View Matches",
-        tourneyMatchesTitle: "Tournament Matches"
+        tabBooking: "Slots", tabAmericano: "Americano", tabProfile: "Profile",
+        btnSupport: "Support", btnCreator: "Creator", createGame: "Create New Game",
+        location: "Location / Court", maxPlayers: "Slots", format: "Format", dateTime: "Date & Time",
+        price: "Price per player (MDL)", notes: "Notes / Details", generateLink: "Generate Game Link",
+        joinSlot: "Take Slot", leaveGame: "Leave Game", copyLink: "📋 Copy Game Link",
+        editProfile: "Profile Settings", birthDate: "Date of Birth", ageLabel: "Age", gender: "Gender",
+        male: "Male 👨", female: "Female 👩", unspecified: "Unspecified", preferredSide: "Preferred side",
+        phone: "Phone Number", saveChanges: "💾 Save Changes", stats: "Player Statistics",
+        matches: "Matches", wins: "Wins", losses: "Losses", winrate: "Winrate", leftSide: "Left",
+        rightSide: "Right", bothSides: "Both sides", friendly: "Friendly", competitive: "Ranked",
+        americanoFormat: "Americano", occupied: "Occupied", free: "Free", chatTitle: "💬 Slot Chat",
+        chatPlaceholder: "Type a message...", sendBtn: "Send", creatorTag: "👑 Host",
+        quickImportBtn: "⚡ Import from Slot", guestOption: "➕ Enter manually (Guest)",
+        getProBtn: "💎 Get PRO (150 MDL/month)", proPendingStatus: "⏳ PRO application submitted.",
+        proApprovedStatus: "👑 Premium PRO Active", pendingRequestsTitle: "⏳ PRO Payment Requests Pending",
+        approveProBtn: "✅ Approve PRO", rejectProBtn: "❌ Reject", settingsBtn: "Settings",
+        ratingSystemTitle: "🇲🇩 Moldova Ranking & Division System", tourneyHistoryTitle: "📜 Tournament History",
+        autoCleanup: "Auto-cleanup", winnerLabel: "Winner", participantsCount: "Participants", gamesCount: "game(s)",
+        hostPanel: "Slot Host Panel", hostPanelDesc: "Manage players, slots and price", profileEditTitle: "✏️ Edit Profile Data",
+        creatorPanelTitle: "👑 Creator Panel", allRegisteredPlayers: "All registered platform players:",
+        gamesLabel: "games", reportTgBtn: "📋 Telegram Report", recordRatingBtn: "🏆 Record to Leaderboard",
+        cancelTournamentBtn: "🛑 Cancel / Reset Tournament", confirmCancelMsg: "Are you sure you want to cancel?",
+        loadingMatch: "Loading game...", loadingProfile: "Loading profile...", slotNotFound: "Slot not found.",
+        chatEmptyMsg: "Discuss game details.", quickAmericanoDesc: "Personal Americano tournament calculator.",
+        startTournamentBtn: "🚀 Start Tournament", calculatorTitle: "🏆 Calculator", roundsCountLabel: "Total games",
+        cyclesLabel: "rounds", cycleSingleLabel: "round", resetBtn: "Reset", leaderboardTitle: "Overall Leaderboard",
+        matchesAndScoreTitle: "Matches & Score", placeLabel: "place", place1: "🥇 1st PLACE", place2: "🥈 2nd PLACE",
+        place3: "🥉 3rd PLACE", matchRoundLabel: "Round", matchGameLabel: "Game", courtLabel: "Court",
+        completedStatus: "Completed", pendingStatus: "Pending", okBtn: "OK", viewTourneyDetails: "View Matches",
+        tourneyMatchesTitle: "Tournament Matches", pricePerPlayerLabel: "Price per player (MDL)", deleteSlotBtn: "🗑️ Delete slot"
       }
     };
 
@@ -1004,9 +1171,7 @@
     function t(key) { return TRANSLATIONS[currentLang][key] || key; }
 
     function setLanguage(lang) {
-      currentLang = lang;
-      localStorage.setItem('padel_lang', lang);
-      
+      currentLang = lang; localStorage.setItem('padel_lang', lang);
       ['ru', 'ro', 'en'].forEach(l => {
         const btn = document.getElementById(`lang-${l}`);
         if (btn) btn.className = l === lang ? "px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10" : "px-2 py-0.5 rounded-lg text-slate-400 hover:text-white";
@@ -1102,7 +1267,7 @@
       setTimeout(() => { toast.classList.add('hidden'); }, 2500);
     }
 
-    // --- 3. SUPABASE И TELEGRAM ---
+    // --- 4. SUPABASE И TELEGRAM ---
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot';
@@ -1154,8 +1319,7 @@
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
       const box = document.getElementById('error-box');
-      box.classList.remove('hidden');
-      box.innerHTML = `<strong>Инфо:</strong> ${msg}`;
+      box.classList.remove('hidden'); box.innerHTML = `<strong>Инфо:</strong> ${msg}`;
     }
 
     const tg = window.Telegram?.WebApp;
@@ -1168,15 +1332,10 @@
       username: 'kizdoi'
     };
 
-    // Персональный ключ сессии Американо для каждого пользователя
-    function getAmericanoStorageKey() {
-      return `quick_americano_state_${tgUser.id || 'guest'}`;
-    }
-
+    function getAmericanoStorageKey() { return `quick_americano_state_${tgUser.id || 'guest'}`; }
     function isUserCreator() {
       return String(tgUser.id) === '777777' || tgUser.username === 'kizdoi' || CREATOR_TELEGRAM_IDS.includes(tgUser.username) || CREATOR_TELEGRAM_IDS.includes(tgUser.first_name);
     }
-
     function getStartParam() {
       if (tg?.initDataUnsafe?.start_param) return tg.initDataUnsafe.start_param;
       const urlParams = new URLSearchParams(window.location.search);
@@ -1188,18 +1347,14 @@
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) { showError('Ошибка базы: ' + e.message); }
 
-    // --- БЕЗОПАСНОЕ ОБНОВЛЕНИЕ В SUPABASE ---
     async function safeUpdateProfile(userId, updateObj) {
       if (!supabaseClient) return;
       try {
         let { error } = await supabaseClient.from('profiles').update(updateObj).eq('id', userId);
         if (error && error.message && error.message.includes('column')) {
           const safeObj = { ...updateObj };
-          delete safeObj.is_premium;
-          delete safeObj.payment_pending;
-          delete safeObj.premium_until;
-          delete safeObj.league_points;
-          delete safeObj.shield_cards;
+          delete safeObj.is_premium; delete safeObj.payment_pending; delete safeObj.premium_until;
+          delete safeObj.league_points; delete safeObj.shield_cards; delete safeObj.game_high_score;
           if (Object.keys(safeObj).length > 0) {
             await supabaseClient.from('profiles').update(safeObj).eq('id', userId);
           }
@@ -1207,7 +1362,6 @@
       } catch(e) {}
     }
 
-    // --- УПРАВЛЕНИЕ ИСТОРИЕЙ АМЕРИКАНО (7 ДНЕЙ) ---
     function cleanAndGetAmericanoHistory() {
       const historyRaw = localStorage.getItem('padel_americano_history_v2');
       if (!historyRaw) return [];
@@ -1222,12 +1376,7 @@
 
     function saveAmericanoToHistory(tournamentData) {
       const history = cleanAndGetAmericanoHistory();
-      history.unshift({
-        id: 'am_' + Date.now(),
-        creatorId: tgUser.id,
-        timestamp: new Date().toISOString(),
-        ...tournamentData
-      });
+      history.unshift({ id: 'am_' + Date.now(), creatorId: tgUser.id, timestamp: new Date().toISOString(), ...tournamentData });
       localStorage.setItem('padel_americano_history_v2', JSON.stringify(history));
     }
 
@@ -1238,7 +1387,6 @@
 
       const modal = document.getElementById('modal-view-tourney');
       const content = document.getElementById('view-tourney-content');
-
       const dt = new Date(tourney.timestamp).toLocaleString([], { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
 
       let lbHtml = '';
@@ -1306,7 +1454,6 @@
           </div>
         </div>
       `;
-
       modal.classList.remove('hidden');
     }
 
@@ -1314,13 +1461,10 @@
 
     async function initApp() {
       document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
-      
       initHeaderPadelAnimation();
 
       const savedState = localStorage.getItem(getAmericanoStorageKey());
-      if (savedState) {
-        try { localAmericanoState = JSON.parse(savedState); } catch(e){}
-      }
+      if (savedState) { try { localAmericanoState = JSON.parse(savedState); } catch(e){} }
 
       await syncUserProfile();
       await fetchAllPlatformProfiles();
@@ -1330,14 +1474,8 @@
     async function fetchAllPlatformProfiles() {
       if (!supabaseClient) return;
       try {
-        const { data, error } = await supabaseClient
-          .from('profiles')
-          .select('*')
-          .order('total_matches_played', { ascending: false });
-        
-        if (!error && data) {
-          platformProfilesList = data.filter(isValidRealUser);
-        }
+        const { data, error } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false });
+        if (!error && data) platformProfilesList = data.filter(isValidRealUser);
       } catch(e) {}
     }
 
@@ -1371,27 +1509,18 @@
         const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
         if (data) {
           currentUserProfile = data;
+          if (data.game_high_score && data.game_high_score > userHighScore) {
+            userHighScore = data.game_high_score;
+            localStorage.setItem('padel_motion_high_score', userHighScore);
+          }
         } else {
           const newProf = {
-            id: tgUser.id,
-            first_name: tgUser.first_name || 'Игрок',
-            last_name: tgUser.last_name || null,
-            username: tgUser.username || null,
-            skill_level: 2.5,
-            league_points: 1000,
-            rating_americano: 1000,
-            rating_friendly: 1000,
-            rating_competitive: 1000,
-            preferred_side: 'both',
-            is_premium: false,
-            payment_pending: false,
-            shield_cards: 1,
-            is_public_profile: true,
-            total_matches_played: 0,
-            wins: 0,
-            losses: 0,
-            draws: 0,
-            updated_at: new Date().toISOString()
+            id: tgUser.id, first_name: tgUser.first_name || 'Игрок', last_name: tgUser.last_name || null,
+            username: tgUser.username || null, skill_level: 2.5, league_points: 1000, rating_americano: 1000,
+            rating_friendly: 1000, rating_competitive: 1000, preferred_side: 'both',
+            is_premium: false, payment_pending: false, shield_cards: 1, is_public_profile: true,
+            total_matches_played: 0, wins: 0, losses: 0, draws: 0,
+            game_high_score: userHighScore, updated_at: new Date().toISOString()
           };
           await safeUpdateProfile(tgUser.id, newProf);
           currentUserProfile = newProf;
@@ -1399,108 +1528,63 @@
       } catch (err) { console.log('Profile sync err:', err); }
     }
 
-    // --- ЛОКАЛЬНОЕ ХРАНЕНИЕ ЗАЯВОК НА PRO ---
     function getPendingProRequestsList() {
       let localReqs = [];
-      try {
-        localReqs = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
-      } catch(e) {}
-
+      try { localReqs = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e) {}
       const dbPending = platformProfilesList.filter(u => u.payment_pending === true);
       const reqMap = new Map();
-
       localReqs.forEach(r => reqMap.set(String(r.id), r));
       dbPending.forEach(u => reqMap.set(String(u.id), { id: u.id, first_name: u.first_name, last_name: u.last_name, username: u.username }));
-
       return Array.from(reqMap.values());
     }
 
-    // --- ОТПРАВКА ЗАЯВКИ НА PRO ОПЛАТУ ---
     async function submitProPaymentRequest() {
       try {
-        const reqItem = {
-          id: tgUser.id,
-          first_name: tgUser.first_name || 'Игрок',
-          last_name: tgUser.last_name || '',
-          username: tgUser.username || '',
-          timestamp: new Date().toISOString()
-        };
-
-        let currentLocal = [];
-        try { currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e){}
+        const reqItem = { id: tgUser.id, first_name: tgUser.first_name || 'Игрок', last_name: tgUser.last_name || '', username: tgUser.username || '', timestamp: new Date().toISOString() };
+        let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(tgUser.id));
         currentLocal.push(reqItem);
         localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
 
-        if (currentUserProfile) {
-          currentUserProfile.payment_pending = true;
-        }
-
+        if (currentUserProfile) currentUserProfile.payment_pending = true;
         await safeUpdateProfile(tgUser.id, { payment_pending: true, updated_at: new Date().toISOString() });
 
         closePayProModal();
-        alert('Заявка на активицию PRO успешно отправлена создателю! Доступ будет открыт сразу после проверки перевода.');
+        alert('Заявка на активицию PRO успешно отправлена создателю!');
         renderProfileTab();
-      } catch(e) {
-        alert('Ошибка отправки заявки: ' + e.message);
-      }
+      } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    // --- УПРАВЛЕНИЕ ОПЛАТАМИ СОЗДАТЕЛЕМ (ОКНО ОДОБРЕНИЯ) ---
     async function approveUserProStatus(userId) {
       try {
-        const untilDate = new Date();
-        untilDate.setDate(untilDate.getDate() + 30);
-
-        await safeUpdateProfile(userId, {
-          is_premium: true,
-          payment_pending: false,
-          premium_until: untilDate.toISOString(),
-          shield_cards: 2,
-          updated_at: new Date().toISOString()
-        });
-
-        let currentLocal = [];
-        try { currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e){}
+        const untilDate = new Date(); untilDate.setDate(untilDate.getDate() + 30);
+        await safeUpdateProfile(userId, { is_premium: true, payment_pending: false, premium_until: untilDate.toISOString(), shield_cards: 2, updated_at: new Date().toISOString() });
+        
+        let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
         localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
-
-        const p = platformProfilesList.find(item => String(item.id) === String(userId));
-        if (p) {
-          p.is_premium = true;
-          p.payment_pending = false;
-          p.premium_until = untilDate.toISOString();
-        }
 
         alert('Премиум PRO активирован на 30 дней!');
         await fetchAllPlatformProfiles();
         renderProfileTab();
-      } catch(e) {
-        alert('Ошибка подтверждения: ' + e.message);
-      }
+      } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
     async function rejectUserProStatus(userId) {
       try {
         await safeUpdateProfile(userId, { payment_pending: false, updated_at: new Date().toISOString() });
-
-        let currentLocal = [];
-        try { currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e){}
+        
+        let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
         localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
-
-        const p = platformProfilesList.find(item => String(item.id) === String(userId));
-        if (p) p.payment_pending = false;
 
         alert('Заявка отклонена.');
         await fetchAllPlatformProfiles();
         renderProfileTab();
-      } catch(e) {
-        alert('Ошибка: ' + e.message);
-      }
+      } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    // --- ВКЛАДКА 1: БРОНИРОВАНИЕ И СЛОТЫ ---
+    // --- ВКЛАДКА 1: СЛОТЫ ---
     function renderCreateMatchForm() {
       const container = document.getElementById('main-content');
       container.innerHTML = `
@@ -1515,9 +1599,7 @@
             <div>
               <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('maxPlayers')}</label>
               <select id="max_players" class="w-full p-3 glass-subcard rounded-xl text-sm font-semibold text-white">
-                <option value="4">4 ${t('maxPlayers').toLowerCase()} (2х2)</option>
-                <option value="6">6 ${t('maxPlayers').toLowerCase()} (Americano)</option>
-                <option value="8">8 ${t('maxPlayers').toLowerCase()} (2 корта)</option>
+                <option value="4">4 (2х2)</option> <option value="6">6 (Americano)</option> <option value="8">8 (2 корта)</option>
               </select>
             </div>
             <div>
@@ -1546,48 +1628,35 @@
             <input type="text" id="notes" placeholder="Level 2.5+" class="w-full p-3 glass-subcard rounded-xl text-sm text-white">
           </div>
 
-          <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl shadow-lg text-sm uppercase tracking-wider neon-glow-emerald btn-3d mt-2">
+          <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-sm uppercase tracking-wider neon-glow-emerald btn-3d mt-2">
             ${t('generateLink')}
           </button>
         </form>
       `;
-
-      const defaultTime = new Date(Date.now() + 2 * 3600 * 1000).toISOString().slice(0, 16);
-      document.getElementById('scheduled_at').value = defaultTime;
+      document.getElementById('scheduled_at').value = new Date(Date.now() + 2 * 3600 * 1000).toISOString().slice(0, 16);
     }
 
     async function handleCreateMatch(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
-      btn.disabled = true;
+      if (btn) btn.disabled = true;
 
       try {
         await syncUserProfile();
-
         const matchData = {
-          creator_id: tgUser.id,
-          custom_location: document.getElementById('custom_location').value,
-          max_players: parseInt(document.getElementById('max_players').value),
-          match_type: document.getElementById('match_type').value,
-          scheduled_at: new Date(document.getElementById('scheduled_at').value).toISOString(),
-          price_per_player: parseFloat(document.getElementById('price_per_player').value) || 0,
-          notes: document.getElementById('notes').value,
-          is_registration_closed: false
+          creator_id: tgUser.id, custom_location: document.getElementById('custom_location').value,
+          max_players: parseInt(document.getElementById('max_players').value), match_type: document.getElementById('match_type').value,
+          scheduled_at: new Date(document.getElementById('scheduled_at').value).toISOString(), price_per_player: parseFloat(document.getElementById('price_per_player').value) || 0,
+          notes: document.getElementById('notes').value, is_registration_closed: false
         };
-
         const { data: match, error } = await supabaseClient.from('matches').insert([matchData]).select().single();
         if (error) throw error;
 
-        await supabaseClient.from('match_players').insert([{
-          match_id: match.id,
-          user_id: tgUser.id,
-          slot_number: 1
-        }]);
-
+        await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]);
         renderMatchDetails(match.id);
       } catch (err) {
         showError('Ошибка создания: ' + err.message);
-        btn.disabled = false;
+        if (btn) btn.disabled = false;
       }
     }
 
@@ -1619,10 +1688,7 @@
 
       try {
         const { data: match } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
-        if (!match) {
-          container.innerHTML = `<div class="text-center py-8 text-rose-300 font-bold">${t('slotNotFound')}</div>`;
-          return;
-        }
+        if (!match) { container.innerHTML = `<div class="text-center py-8 text-rose-300 font-bold">${t('slotNotFound')}</div>`; return; }
 
         const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', matchId);
         const players = rawPlayers || [];
@@ -1790,11 +1856,8 @@
       if (!text) return;
 
       const newMsg = {
-        match_id: matchId,
-        user_id: tgUser.id,
-        sender_name: tgUser.first_name || 'Игрок',
-        message_text: text,
-        created_at: new Date().toISOString()
+        match_id: matchId, user_id: tgUser.id, sender_name: tgUser.first_name || 'Игрок',
+        message_text: text, created_at: new Date().toISOString()
       };
 
       try { await supabaseClient.from('match_messages').insert([newMsg]); } catch(e){}
@@ -1802,7 +1865,7 @@
       renderMatchDetails(matchId);
     }
 
-    // --- ВКЛАДКА 2: БЫСТРЫЙ ИЗОЛИРОВАННЫЙ АМЕРИКАНО ---
+    // --- ВКЛАДКА 2: АМЕРИКАНО ---
     async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
       
@@ -1994,17 +2057,11 @@
 
     async function importPlayersFromCurrentSlot() {
       const startParam = getStartParam();
-      if (!startParam) {
-        alert('Нет активного созданного слота.');
-        return;
-      }
+      if (!startParam) { alert('Нет активного созданного слота.'); return; }
 
       try {
         const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', startParam);
-        if (!rawPlayers || rawPlayers.length === 0) {
-          alert('В этом слоте нет зарегистрированных игроков.');
-          return;
-        }
+        if (!rawPlayers || rawPlayers.length === 0) { alert('В этом слоте нет зарегистрированных игроков.'); return; }
 
         let count = rawPlayers.length;
         if (count < 4) count = 4;
@@ -2192,7 +2249,6 @@
             <button onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold btn-3d border border-white/20">${t('resetBtn')}</button>
           </div>
 
-          <!-- КНОПКА ОТМЕНЫ / СБРОСА ТУРНИРА -->
           <button onclick="confirmCancelAmericano()" class="w-full py-3 bg-gradient-to-r from-rose-600/80 to-red-600/80 hover:from-rose-500 hover:to-red-500 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-rose-500/20 border border-rose-400/30 flex items-center justify-center gap-2">
             <span>🛑</span> <span>${t('cancelTournamentBtn')}</span>
           </button>
@@ -2263,13 +2319,8 @@
         const playerStats = {};
         players.forEach(p => {
           playerStats[p.id] = {
-            userId: p.userId,
-            name: p.name,
-            pointsGained: 0,
-            wins: 0,
-            losses: 0,
-            draws: 0,
-            matchesCount: 0
+            userId: p.userId, name: p.name, pointsGained: 0,
+            wins: 0, losses: 0, draws: 0, matchesCount: 0
           };
         });
 
@@ -2388,7 +2439,7 @@
     function shareMyProfileCard() {
       if (!currentUserProfile) return;
       const p = currentUserProfile;
-      const calculatedLP = 1000 + getHistoricalPointsForUser(p.id, p.first_name);
+      const calculatedLP = (p.league_points || 1000) + getHistoricalPointsForUser(p.id, p.first_name);
       const league = getPlayerLeague(calculatedLP);
       const userTag = p.username ? ` (@${p.username})` : '';
       const isPro = p.is_premium ? '👑 PRO' : 'FREE';
@@ -2481,21 +2532,9 @@
       await fetchAllPlatformProfiles();
 
       const p = currentUserProfile || {
-        first_name: tgUser.first_name,
-        skill_level: 2.5,
-        league_points: 1000,
-        rating_americano: 1000,
-        rating_friendly: 1000,
-        rating_competitive: 1000,
-        preferred_side: 'both',
-        phone: '+373 60 217 449',
-        is_premium: false,
-        payment_pending: false,
-        shield_cards: 1,
-        total_matches_played: 0,
-        wins: 0,
-        losses: 0,
-        draws: 0
+        first_name: tgUser.first_name, skill_level: 2.5, league_points: 1000, rating_americano: 1000,
+        rating_friendly: 1000, rating_competitive: 1000, preferred_side: 'both', phone: '+373 60 217 449',
+        is_premium: false, payment_pending: false, shield_cards: 1, total_matches_played: 0, wins: 0, losses: 0, draws: 0
       };
 
       const wins = p.wins || 0;
