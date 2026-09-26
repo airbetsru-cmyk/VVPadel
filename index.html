@@ -47,6 +47,7 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
       position: relative;
+      transform: translateZ(0);
     }
 
     .glass-card-pro {
@@ -55,6 +56,7 @@
       border: 1.5px solid rgba(245, 158, 11, 0.8) !important;
       box-shadow: 0 0 30px rgba(245, 158, 11, 0.35);
       position: relative;
+      transform: translateZ(0);
     }
 
     .glass-card-pro::after {
@@ -77,6 +79,20 @@
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.10);
+      transform: translateZ(0);
+    }
+
+    /* Кастомный скроллбар для идеальной отрисовки списков */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(16, 185, 129, 0.4);
+      border-radius: 8px;
     }
 
     .shimmer-border { position: relative; }
@@ -163,7 +179,7 @@
         <div class="flex items-center justify-between gap-2">
           
           <div class="flex items-center gap-3">
-            <!-- ДИНАМИЧЕСКАЯ 3D ПАДЕЛ-РАКЕТКА (КЛИКАБЕЛЬНАЯ ДЛЯ ЗАПУСКА МИНИ-ИГРЫ) -->
+            <!-- ДИНАМИЧЕСКАЯ 3D ПАДЕЛ-РАКЕТКА -->
             <div onclick="openPadelGameModal()" class="w-14 h-14 rounded-2xl bg-slate-950/80 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
               <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
               <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -499,21 +515,19 @@
     // Инициализация персонального слота пользователя
     let currentActiveMatchId = localStorage.getItem(getSlotStorageKey()) || null;
 
-    // --- СТРОГАЯ ПРОВЕРКА НА ПОДЛИННОСТЬ ПОЛЬЗОВАТЕЛЯ (Исключение фейковых/тестовых аккаунтов) ---
+    // --- СТРОГАЯ ПРОВЕРКА НА ПОДЛИННОСТЬ ПОЛЬЗОВАТЕЛЯ ---
     function isValidRealUser(p) {
       if (!p || !p.id || !p.first_name) return false;
 
       const idStr = String(p.id).trim();
       const numericId = parseInt(idStr, 10);
 
-      // Исключаем нечисловые ID, фейковые тестовые ID (< 100000) и дефолтный гостевой ID 777777 для списков
       if (isNaN(numericId) || numericId <= 100000 || numericId === 777777) return false;
 
       const firstName = String(p.first_name).trim().toLowerCase();
       const lastName = String(p.last_name || '').trim().toLowerCase();
       const fullName = `${firstName} ${lastName}`.trim();
 
-      // Список слов-маркеров тестовых или невалидных профилей
       const fakeKeywords = [
         'test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 
         'admin', 'админ', 'dummy', 'fake', 'user', 'пользователь', 'sample', 
@@ -1486,10 +1500,8 @@
       try {
         const { data, error } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false });
         if (!error && data) {
-          // Фильтрация ТОЛЬКО ПОДЛИННЫХ пользователей
           platformProfilesList = data.filter(isValidRealUser);
 
-          // Если текущий профиль пользователя существует и валиден, гарантируем его присутствие в списке
           if (currentUserProfile && isValidRealUser(currentUserProfile)) {
             if (!platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
               platformProfilesList.push(currentUserProfile);
@@ -1512,7 +1524,6 @@
       if (tab === 'booking') {
         btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
         
-        // ПЕРСОНАЛЬНАЯ ПРОВЕРКА: Реферальная ссылка ИЛИ Уникальный слот текущего пользователя
         const directStartParam = getStartParam();
         const userSavedSlot = localStorage.getItem(getSlotStorageKey());
         const matchIdToRender = directStartParam || currentActiveMatchId || userSavedSlot;
@@ -1612,7 +1623,7 @@
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    // --- ВКЛАДКА 1: СЛОТЫ (ИНДИВИДУАЛЬНО ДЛЯ КАЖДОГО ПОЛЬЗОВАТЕЛЯ) ---
+    // --- ВКЛАДКА 1: СЛОТЫ ---
     function createNewSlotClick() {
       currentActiveMatchId = null;
       localStorage.removeItem(getSlotStorageKey());
@@ -1688,7 +1699,6 @@
 
         await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]);
         
-        // Сохраняем ID созданного слота СТРОГО В ПЕРСОНАЛЬНЫЙ КЛЮЧ ПОЛЬЗОВАТЕЛЯ
         currentActiveMatchId = match.id;
         localStorage.setItem(getSlotStorageKey(), match.id);
 
@@ -2049,7 +2059,6 @@
       
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
       
-      // Генерация вариантов выбора СТРОГО из настоящих пользователей платформы
       platformProfilesList.forEach(p => {
         const name = `${p.first_name} ${p.last_name || ''}`.trim();
         const usernameTag = p.username ? ` (@${p.username})` : '';
@@ -2473,7 +2482,7 @@
       }
     }
 
-    // --- ВКЛАДКА 3: ПРОФИЛЬ ---
+    // --- ВКЛАДКА 3: ПРОФИЛЬ И РЕЙТИНГ (ИСПРАВЛЕН БАГ ОТРЕСОВКИ > 7 ИГРОКОВ) ---
     function setLeaderboardTab(tab) {
       currentLeaderboardTab = tab;
       renderProfileTab();
@@ -2613,6 +2622,7 @@
         sortedList.sort((a, b) => (b.rating_competitive || 1000) - (a.rating_competitive || 1000));
       }
 
+      // Генерация строк списка рейтинга с поддержкой 3D-композитинга для предотвращения срезки
       let leaderboardRows = sortedList.map((item, index) => {
         const league = getPlayerLeague(item.computedLP);
         let valBadge = `${item.computedLP} LP`;
@@ -2621,7 +2631,7 @@
         let proBadge = item.is_premium ? ' 👑' : '';
 
         return `
-          <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs hover:bg-white/5 transition-colors">
+          <div class="flex items-center justify-between p-2.5 rounded-xl border border-white/5 text-xs hover:bg-white/5 transition-colors" style="transform: translateZ(0);">
             <div class="flex items-center gap-2">
               <span class="font-black ${index < 3 ? 'text-amber-400 font-mono text-sm' : 'text-slate-500'}">#${index + 1}</span>
               <span onclick="openViewPlayerModalById('${item.id}')" class="font-bold text-white cursor-pointer underline decoration-dotted hover:text-emerald-300">
@@ -2672,7 +2682,7 @@
 
             <div class="space-y-2 pt-2 border-t border-white/10">
               <p class="text-[11px] text-slate-300 font-bold uppercase">${t('allRegisteredPlayers')}</p>
-              <div class="max-h-40 overflow-y-auto space-y-1.5 pr-1">${allUsersManagementRows}</div>
+              <div class="max-h-40 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">${allUsersManagementRows}</div>
             </div>
           </div>
         `;
@@ -2813,12 +2823,13 @@
 
           ${creatorAdminPanelHtml}
 
+          <!-- ИЗОЛИРОВАННЫЙ БЛОК РЕЙТИНГА С СОБСТВЕННЫМ СКРОЛЛБАРОМИ И GPU-ОТРИСОВКОЙ -->
           <div class="glass-subcard p-3.5 rounded-3xl border border-white/10 space-y-3">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">
               ${t('ratingSystemTitle')}
             </h3>
 
-            <div class="divide-y divide-white/5">
+            <div class="max-h-[380px] overflow-y-auto pr-1 space-y-1 custom-scrollbar" style="-webkit-overflow-scrolling: touch; transform: translateZ(0);">
               ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные реальные игроки пока отсутствуют...</p>'}
             </div>
           </div>
@@ -2928,7 +2939,6 @@
         await syncUserProfile();
         await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: tgUser.id, slot_number: nextSlot }]);
         
-        // Присоединение фиксирует слот для этого пользователя
         currentActiveMatchId = matchId;
         localStorage.setItem(getSlotStorageKey(), matchId);
 
