@@ -40,7 +40,6 @@
       z-index: 1;
     }
 
-    /* GLASS CARDS */
     .glass-card {
       background: rgba(15, 23, 42, 0.50) !important;
       backdrop-filter: blur(18px);
@@ -50,7 +49,6 @@
       position: relative;
     }
 
-    /* PREMIER PRO NEON CARD */
     .glass-card-pro {
       background: rgba(15, 23, 42, 0.70) !important;
       backdrop-filter: blur(20px);
@@ -81,7 +79,6 @@
       border: 1px solid rgba(255, 255, 255, 0.10);
     }
 
-    /* БЕГАЮЩИЙ ГРАДИЕНТ */
     .shimmer-border { position: relative; }
     .shimmer-border::before {
       content: '';
@@ -140,13 +137,10 @@
       100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
     }
 
-    .toast-pop {
-      animation: popInOut 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
+    .toast-pop { animation: popInOut 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
     .neon-glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.45); }
     .neon-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.45); }
-    .neon-glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.45); }
     .neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.45); }
 
     .btn-3d { transition: all 0.15s ease; }
@@ -245,18 +239,18 @@
 
       <div class="space-y-3 text-xs">
         <div class="bg-gradient-to-r from-amber-500/20 to-yellow-500/10 border border-amber-500/40 p-3 rounded-2xl space-y-2">
-          <h4 class="font-extrabold text-amber-300 uppercase text-[11px]" id="m-pay-benefits-title">🔥 Преимущества PRO-подписки:</h4>
+          <h4 class="font-extrabold text-amber-300 uppercase text-[11px]">🔥 Преимущества PRO-подписки:</h4>
           <ul class="space-y-1 text-slate-200 text-[11px]">
             <li>✨ **Золотая рамка и бейдж PRO** в рейтинге</li>
             <li>⚡ **Early Access**: Приоритетные слоты</li>
-            <li>🛡️ **1 Shield Card**: Защита от списания LP при поражении</li>
+            <li>🛡️ **2 Shield Cards**: Защита от списания LP при поражении</li>
             <li>📈 **PRO-Аналитика**: Графики формы и H2H статистика</li>
             <li>♾️ **Безлимитное создание** турниров и слотов</li>
           </ul>
         </div>
 
         <div class="glass-subcard p-3 rounded-2xl border border-white/10 space-y-2">
-          <p class="text-slate-300 font-semibold text-[11px]" id="m-pay-details-desc">Для активации переведите **150 MDL** за 1 месяц:</p>
+          <p class="text-slate-300 font-semibold text-[11px]">Для активации переведите **150 MDL** за 1 месяц:</p>
 
           <div class="glass-subcard p-2.5 rounded-xl border border-amber-500/30 space-y-1 font-mono text-[11px]">
             <div class="flex justify-between items-center text-slate-300">
@@ -276,7 +270,7 @@
         </button>
       </div>
 
-      <button onclick="closePayProModal()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs btn-3d border border-white/10" id="m-pay-close">
+      <button onclick="closePayProModal()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs btn-3d border border-white/10">
         Закрыть
       </button>
     </div>
@@ -294,7 +288,7 @@
 
       <div id="view-tourney-content" class="space-y-3 text-xs overflow-y-auto pr-1 flex-1"></div>
 
-      <button onclick="closeTourneyModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10 flex-shrink-0" id="m-tourney-close">
+      <button onclick="closeTourneyModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10 flex-shrink-0">
         Закрыть
       </button>
     </div>
@@ -304,7 +298,7 @@
   <div id="modal-view-player" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
-        <h3 class="text-sm font-black text-emerald-400 uppercase italic tracking-wide flex items-center gap-2" id="m-view-player-title">
+        <h3 class="text-sm font-black text-emerald-400 uppercase italic tracking-wide flex items-center gap-2">
           👤 Карточка игрока
         </h3>
         <button onclick="closeViewPlayerModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
@@ -312,7 +306,7 @@
 
       <div id="view-player-card-content" class="space-y-3 text-xs"></div>
 
-      <button onclick="closeViewPlayerModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10" id="m-view-player-close">
+      <button onclick="closeViewPlayerModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
         Закрыть
       </button>
     </div>
@@ -337,38 +331,34 @@
     <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
-          🛠️ <span id="m-support-title">Поддержка и Помощь</span>
+          🛠️ <span>Поддержка и Помощь</span>
         </h3>
         <button onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div class="space-y-3 text-xs">
-        <p class="text-slate-300 leading-relaxed" id="m-support-desc">
+        <p class="text-slate-300 leading-relaxed">
           Возникли вопросы, предложения или нашли ошибку? Свяжитесь напрямую с нашей службой поддержки.
         </p>
 
-        <a id="support-tg-link" href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20">
+        <a href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20">
           💬 Написать в Telegram (@kizdoi)
         </a>
 
         <div class="glass-subcard p-3.5 rounded-2xl border border-amber-500/30 space-y-2 mt-3">
-          <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wide" id="m-donate-title">☕ Поддержать Padel Moldova</h4>
-          <p class="text-[11px] text-slate-300" id="m-donate-desc">Если вам нравится платформа, вы можете сделать добровольный взнос на развитие серверов:</p>
+          <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wide">☕ Поддержать Padel Moldova</h4>
+          <p class="text-[11px] text-slate-300">Если вам нравится платформа, вы можете сделать добровольный взнос:</p>
 
           <div class="glass-subcard p-2.5 rounded-xl border border-white/10 space-y-1.5 font-mono text-[11px]">
             <div class="flex justify-between items-center text-slate-300">
               <span class="text-slate-400">MIA Plăți Instant:</span>
               <span class="font-bold text-emerald-400">+373 60 217 449</span>
             </div>
-            <div class="flex justify-between items-center text-slate-300">
-              <span class="text-slate-400" id="m-donate-phone-label">Телефон:</span>
-              <span class="font-bold text-emerald-400">060217449</span>
-            </div>
           </div>
         </div>
       </div>
 
-      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10" id="m-support-close-btn">
+      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
         Закрыть
       </button>
     </div>
@@ -379,7 +369,7 @@
     <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="text-sm font-black text-cyan-300 uppercase italic tracking-wide flex items-center gap-2">
-          👨‍💻 <span id="m-creator-title">Разработчик Проекта</span>
+          👨‍💻 <span>Разработчик Проекта</span>
         </h3>
         <button onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
@@ -391,19 +381,19 @@
 
         <div>
           <h4 class="text-base font-black text-white">Victor Popovici</h4>
-          <p class="text-xs text-cyan-400 font-semibold" id="m-creator-role">Founder & Developer • @kizdoi</p>
+          <p class="text-xs text-cyan-400 font-semibold">Founder & Developer • @kizdoi</p>
         </div>
 
-        <p class="text-slate-300 text-xs leading-relaxed" id="m-creator-desc">
+        <p class="text-slate-300 text-xs leading-relaxed">
           Платформа Padel Moldova создана для объединения игроков, проведения турниров и роста рейтинга по всей Молдове.
         </p>
 
-        <a id="creator-tg-link" href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-cyan-500/20">
+        <a href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-cyan-500/20">
           📩 Связаться с Виктором (@kizdoi)
         </a>
       </div>
 
-      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10" id="m-creator-close-btn">
+      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
         Закрыть
       </button>
     </div>
@@ -511,7 +501,25 @@
       return true;
     }
 
-    // --- 2. ПОЛНАЯ МУЛЬТИЯЗЫЧНОСТЬ ---
+    // --- РАСЧЁТ ОЧКОВ И LP ИЗ ИСТОРИИ ТУРНИРОВ ---
+    function getHistoricalPointsForUser(userId, userName) {
+      const history = cleanAndGetAmericanoHistory();
+      let totalPts = 0;
+      history.forEach(tourney => {
+        if (tourney.leaderboard && Array.isArray(tourney.leaderboard)) {
+          const item = tourney.leaderboard.find(l => 
+            (l.userId && String(l.userId) === String(userId)) ||
+            (userName && l.name && l.name.toLowerCase().trim() === userName.toLowerCase().trim())
+          );
+          if (item) {
+            totalPts += (item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0));
+          }
+        }
+      });
+      return totalPts;
+    }
+
+    // --- 2. МУЛЬТИЯЗЫЧНОСТЬ ---
     const TRANSLATIONS = {
       ru: {
         tabBooking: "Слоты",
@@ -539,18 +547,12 @@
         unspecified: "Не указан",
         preferredSide: "Удобная сторона",
         phone: "Номер телефона",
-        privacySetting: "Конфиденциальность профиля",
-        privacyPublic: "🔓 Открытый профиль (виден в рейтинге)",
-        privacyPrivate: "🔒 Закрытый профиль (скрыт от других)",
-        saveProfile: "Сохранить профиль",
         saveChanges: "💾 Сохранить изменения",
-        cancelBtn: "Отмена",
         stats: "Статистика игрока",
         matches: "Матчи",
         wins: "Победы",
         losses: "Поражения",
         winrate: "Винрейт",
-        nationalRanking: "Национальный Рейтинг Молдовы",
         leftSide: "Слева",
         rightSide: "Справа",
         bothSides: "Обе стороны",
@@ -565,39 +567,14 @@
         creatorTag: "👑 Организатор",
         quickImportBtn: "⚡ Импортировать из Слота",
         guestOption: "➕ Ввести вручную (Гость)",
-
         getProBtn: "💎 Оформить PRO (150 MDL/мес)",
         proPendingStatus: "⏳ Заявка на PRO отправлена. Ожидается проверка оплаты.",
         proApprovedStatus: "👑 Премиум PRO активен",
         pendingRequestsTitle: "⏳ Заявки на подтверждение PRO оплаты",
         approveProBtn: "✅ Подтвердить PRO",
         rejectProBtn: "❌ Отклонить",
-
-        mSupportTitle: "Поддержка и Помощь",
-        mSupportDesc: "Возникли вопросы, предложения или нашли ошибку? Свяжитесь напрямую с нашей службой поддержки.",
-        mSupportTgBtn: "💬 Написать в Telegram (@kizdoi)",
-        mDonateTitle: "☕ Поддержать Padel Moldova",
-        mDonateDesc: "Если вам нравится платформа, вы можете сделать добровольный взнос на развитие серверов:",
-        mDonatePhoneLabel: "Телефон:",
-        mDonateFooter: "* Добровольные пожертвования на развитие комьюнити",
-        mCloseBtn: "Закрыть",
-
-        mCreatorTitle: "Разработчик Проекта",
-        mCreatorRole: "Founder & Developer • @kizdoi",
-        mCreatorDesc: "Платформа Padel Moldova создана для объединения игроков, проведения турниров и роста рейтинга по всей Молдове.",
-        mCreatorTgBtn: "📩 Связаться с Виктором (@kizdoi)",
-
-        mViewPlayerTitle: "👤 Карточка игрока",
-        mPrivateProfileNotice: "🔒 Этот игрок сделал свой профиль приватным.",
-        mPublicUsername: "Telegram",
-        mNoUsername: "Не указан",
-
         settingsBtn: "Настройки",
-        shareCard: "Поделиться",
         ratingAmericano: "Американо",
-        ratingFriendly: "Дружеский",
-        ratingCompetitive: "Ranked",
-        ratingNational: "Общий",
         ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы",
         myMatchHistoryTitle: "📜 История моих игр (Американо)",
         last7Days: "За 7 дней",
@@ -611,19 +588,10 @@
         gamesCount: "игр(ы)",
         hostPanel: "Панель Организатора Слота",
         hostPanelDesc: "Управление составом, местами и ценой",
-        regStatusClosed: "🔒 ЗАКРЫТА",
-        regStatusOpen: "🟢 ОТКРЫТА",
-        pricePerPlayerLabel: "Цена с игрока (MDL):",
-        totalSlotsLabel: "Всего мест:",
-        openRegBtn: "🔓 Открыть",
-        finishRegBtn: "🔒 Завершить",
-        deleteSlotBtn: "🗑️ Удалить слот",
         profileEditTitle: "✏️ Редактирование Данных Профиля",
         creatorPanelTitle: "👑 Панель Создателя: Управление Платформой",
         allRegisteredPlayers: "Все зарегистрированные игроки платформы:",
         gamesLabel: "игр",
-        pointsLabel: "PTS",
-        eloLabel: "ELO",
         reportTgBtn: "📋 Отчёт в Telegram",
         recordRatingBtn: "🏆 Записать в Рейтинг",
         loadingMatch: "Загрузка матча...",
@@ -678,18 +646,12 @@
         unspecified: "Nespecificat",
         preferredSide: "Partea preferată",
         phone: "Număr de telefon",
-        privacySetting: "Confidențialitatea profilului",
-        privacyPublic: "🔓 Profil Public (vizibil în clasament)",
-        privacyPrivate: "🔒 Profil Privat (ascuns pentru alții)",
-        saveProfile: "Salvează profilul",
         saveChanges: "💾 Salvează modificările",
-        cancelBtn: "Anulează",
         stats: "Statistici jucător",
         matches: "Meciuri",
         wins: "Victorii",
         losses: "Înfrângeri",
         winrate: "Rată de câștig",
-        nationalRanking: "Clasamentul Național Moldova",
         leftSide: "Stânga",
         rightSide: "Dreapta",
         bothSides: "Ambele părți",
@@ -704,39 +666,14 @@
         creatorTag: "👑 Organizator",
         quickImportBtn: "⚡ Importă din Slot",
         guestOption: "➕ Introdu manual (Oaspete)",
-
         getProBtn: "💎 Activează PRO (150 MDL/lună)",
         proPendingStatus: "⏳ Cererea PRO a fost trimisă. În așteptarea verificării plății.",
         proApprovedStatus: "👑 Premium PRO este activ",
         pendingRequestsTitle: "⏳ Solicitări de confirmare plată PRO",
         approveProBtn: "✅ Confirmă PRO",
         rejectProBtn: "❌ Respinge",
-
-        mSupportTitle: "Suport și Ajutor",
-        mSupportDesc: "Ai întrebări, sugestii sau ai găsit o eroare? Contactează direct serviciul nostru de suport.",
-        mSupportTgBtn: "💬 Scrie pe Telegram (@kizdoi)",
-        mDonateTitle: "☕ Susține Padel Moldova",
-        mDonateDesc: "Dacă îți place platforma, poți face o donație voluntară pentru dezvoltarea serverelor:",
-        mDonatePhoneLabel: "Telefon:",
-        mDonateFooter: "* Donații voluntare pentru dezvoltarea comunității",
-        mCloseBtn: "Închide",
-
-        mCreatorTitle: "Dezvoltatorul Proiectului",
-        mCreatorRole: "Fondator & Dezvoltator • @kizdoi",
-        mCreatorDesc: "Platforma Padel Moldova este creată pentru a uni jucătorii, a găsi ușor sloturi și a organiza turnee în toată Moldova.",
-        mCreatorTgBtn: "📩 Contactează-l pe Victor (@kizdoi)",
-
-        mViewPlayerTitle: "👤 Fișa jucătorului",
-        mPrivateProfileNotice: "🔒 Acest jucător și-a setat profilul ca fiind privat.",
-        mPublicUsername: "Telegram",
-        mNoUsername: "Nespecificat",
-
         settingsBtn: "Setări",
-        shareCard: "Distribuie",
         ratingAmericano: "Americano",
-        ratingFriendly: "Amical",
-        ratingCompetitive: "Ranked",
-        ratingNational: "General",
         ratingSystemTitle: "🇲🇩 Sistemul de Clasament și Ligi Moldova",
         myMatchHistoryTitle: "📜 Istoricul meciurilor mele (Americano)",
         last7Days: "Ultimele 7 zile",
@@ -750,19 +687,10 @@
         gamesCount: "jocuri",
         hostPanel: "Panou Organizator Slot",
         hostPanelDesc: "Gestionare echipă, locuri și preț",
-        regStatusClosed: "🔒 ÎNCHISĂ",
-        regStatusOpen: "🟢 DESCHISĂ",
-        pricePerPlayerLabel: "Preț per jucător (MDL):",
-        totalSlotsLabel: "Locuri totale:",
-        openRegBtn: "🔓 Deschide",
-        finishRegBtn: "🔒 Finalizează",
-        deleteSlotBtn: "🗑️ Șterge slotul",
         profileEditTitle: "✏️ Editare Date Profil",
         creatorPanelTitle: "👑 Panou Autor: Administrare Platformă",
         allRegisteredPlayers: "Toți jucătorii înregistrați pe platformă:",
         gamesLabel: "jocuri",
-        pointsLabel: "PTS",
-        eloLabel: "ELO",
         reportTgBtn: "📋 Raport pe Telegram",
         recordRatingBtn: "🏆 Înregistrează în Clasament",
         loadingMatch: "Se încarcă meciul...",
@@ -817,18 +745,12 @@
         unspecified: "Unspecified",
         preferredSide: "Preferred side",
         phone: "Phone Number",
-        privacySetting: "Profile Privacy",
-        privacyPublic: "🔓 Public Profile (visible in leaderboard)",
-        privacyPrivate: "🔒 Private Profile (hidden from others)",
-        saveProfile: "Save Profile",
         saveChanges: "💾 Save Changes",
-        cancelBtn: "Cancel",
         stats: "Player Statistics",
         matches: "Matches",
         wins: "Wins",
         losses: "Losses",
         winrate: "Winrate",
-        nationalRanking: "Moldova National Leaderboard",
         leftSide: "Left",
         rightSide: "Right",
         bothSides: "Both sides",
@@ -843,39 +765,14 @@
         creatorTag: "👑 Host",
         quickImportBtn: "⚡ Import from Slot",
         guestOption: "➕ Enter manually (Guest)",
-
         getProBtn: "💎 Get PRO (150 MDL/month)",
         proPendingStatus: "⏳ PRO application submitted. Awaiting payment verification.",
         proApprovedStatus: "👑 Premium PRO Active",
         pendingRequestsTitle: "⏳ PRO Payment Requests Pending",
         approveProBtn: "✅ Approve PRO",
         rejectProBtn: "❌ Reject",
-
-        mSupportTitle: "Support & Help",
-        mSupportDesc: "Have questions, feedback, or found a bug? Reach out directly to our support team.",
-        mSupportTgBtn: "💬 Message on Telegram (@kizdoi)",
-        mDonateTitle: "☕ Support Padel Moldova",
-        mDonateDesc: "If you enjoy the platform, you can make a voluntary donation for server upgrades:",
-        mDonatePhoneLabel: "Phone:",
-        mDonateFooter: "* Voluntary community development support",
-        mCloseBtn: "Close",
-
-        mCreatorTitle: "Project Developer",
-        mCreatorRole: "Founder & Developer • @kizdoi",
-        mCreatorDesc: "Padel Moldova platform was created to connect players, simplify slot bookings, and host tournaments across Moldova.",
-        mCreatorTgBtn: "📩 Contact Victor (@kizdoi)",
-
-        mViewPlayerTitle: "👤 Player Card",
-        mPrivateProfileNotice: "🔒 This player has set their profile to private.",
-        mPublicUsername: "Telegram",
-        mNoUsername: "Not specified",
-
         settingsBtn: "Settings",
-        shareCard: "Share",
         ratingAmericano: "Americano",
-        ratingFriendly: "Friendly",
-        ratingCompetitive: "Ranked",
-        ratingNational: "Overall",
         ratingSystemTitle: "🇲🇩 Moldova Ranking & Division System",
         myMatchHistoryTitle: "📜 My Match History (Americano)",
         last7Days: "Last 7 days",
@@ -889,19 +786,10 @@
         gamesCount: "game(s)",
         hostPanel: "Slot Host Panel",
         hostPanelDesc: "Manage players, slots and price",
-        regStatusClosed: "🔒 CLOSED",
-        regStatusOpen: "🟢 OPEN",
-        pricePerPlayerLabel: "Price per player (MDL):",
-        totalSlotsLabel: "Total slots:",
-        openRegBtn: "🔓 Open",
-        finishRegBtn: "🔒 Close",
-        deleteSlotBtn: "🗑️ Delete Slot",
         profileEditTitle: "✏️ Edit Profile Data",
         creatorPanelTitle: "👑 Creator Panel: Platform Management",
         allRegisteredPlayers: "All registered platform players:",
         gamesLabel: "games",
-        pointsLabel: "PTS",
-        eloLabel: "ELO",
         reportTgBtn: "📋 Telegram Report",
         recordRatingBtn: "🏆 Record to Leaderboard",
         loadingMatch: "Loading game...",
@@ -1071,6 +959,25 @@
     try {
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) { showError('Ошибка базы: ' + e.message); }
+
+    // --- БЕЗОПАСНОЕ ОБНОВЛЕНИЕ В SUPABASE БЕЗ ВЫПАДЕНИЯ В ОШИБКУ КАНАЛА ---
+    async function safeUpdateProfile(userId, updateObj) {
+      if (!supabaseClient) return;
+      try {
+        let { error } = await supabaseClient.from('profiles').update(updateObj).eq('id', userId);
+        if (error && error.message && error.message.includes('column')) {
+          const safeObj = { ...updateObj };
+          delete safeObj.is_premium;
+          delete safeObj.payment_pending;
+          delete safeObj.premium_until;
+          delete safeObj.league_points;
+          delete safeObj.shield_cards;
+          if (Object.keys(safeObj).length > 0) {
+            await supabaseClient.from('profiles').update(safeObj).eq('id', userId);
+          }
+        }
+      } catch(e) {}
+    }
 
     // --- УПРАВЛЕНИЕ ИСТОРИЕЙ АМЕРИКАНО (7 ДНЕЙ) ---
     function cleanAndGetAmericanoHistory() {
@@ -1255,28 +1162,50 @@
             draws: 0,
             updated_at: new Date().toISOString()
           };
-          await supabaseClient.from('profiles').upsert(newProf);
+          await safeUpdateProfile(tgUser.id, newProf);
           currentUserProfile = newProf;
         }
       } catch (err) { console.log('Profile sync err:', err); }
     }
 
+    // --- ЛОКАЛЬНОЕ И БАЗОВОЕ ХРАНЕНИЕ ЗАЯВОК НА PRO ---
+    function getPendingProRequestsList() {
+      let localReqs = [];
+      try {
+        localReqs = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
+      } catch(e) {}
+
+      const dbPending = platformProfilesList.filter(u => u.payment_pending === true);
+      const reqMap = new Map();
+
+      localReqs.forEach(r => reqMap.set(String(r.id), r));
+      dbPending.forEach(u => reqMap.set(String(u.id), { id: u.id, first_name: u.first_name, last_name: u.last_name, username: u.username }));
+
+      return Array.from(reqMap.values());
+    }
+
     // --- ОТПРАВКА ЗАЯВКИ НА PRO ОПЛАТУ ---
     async function submitProPaymentRequest() {
       try {
-        if (supabaseClient) {
-          await supabaseClient
-            .from('profiles')
-            .update({ 
-              payment_pending: true,
-              updated_at: new Date().toISOString() 
-            })
-            .eq('id', tgUser.id);
-        }
+        const reqItem = {
+          id: tgUser.id,
+          first_name: tgUser.first_name || 'Игрок',
+          last_name: tgUser.last_name || '',
+          username: tgUser.username || '',
+          timestamp: new Date().toISOString()
+        };
+
+        let currentLocal = [];
+        try { currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e){}
+        currentLocal = currentLocal.filter(r => String(r.id) !== String(tgUser.id));
+        currentLocal.push(reqItem);
+        localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
 
         if (currentUserProfile) {
           currentUserProfile.payment_pending = true;
         }
+
+        await safeUpdateProfile(tgUser.id, { payment_pending: true, updated_at: new Date().toISOString() });
 
         closePayProModal();
         alert('Заявка на активицию PRO успешно отправлена создателю! Доступ будет открыт сразу после проверки перевода.');
@@ -1292,17 +1221,23 @@
         const untilDate = new Date();
         untilDate.setDate(untilDate.getDate() + 30);
 
-        if (supabaseClient) {
-          await supabaseClient
-            .from('profiles')
-            .update({
-              is_premium: true,
-              payment_pending: false,
-              premium_until: untilDate.toISOString(),
-              shield_cards: 2,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', userId);
+        await safeUpdateProfile(userId, {
+          is_premium: true,
+          payment_pending: false,
+          premium_until: untilDate.toISOString(),
+          shield_cards: 2,
+          updated_at: new Date().toISOString()
+        });
+
+        let currentLocal = [];
+        try { currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e){}
+        currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
+        localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
+
+        const p = platformProfilesList.find(item => String(item.id) === String(userId));
+        if (p) {
+          p.is_premium = true;
+          p.payment_pending = false;
         }
 
         alert('Премиум PRO активирован на 30 дней!');
@@ -1315,15 +1250,15 @@
 
     async function rejectUserProStatus(userId) {
       try {
-        if (supabaseClient) {
-          await supabaseClient
-            .from('profiles')
-            .update({
-              payment_pending: false,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', userId);
-        }
+        await safeUpdateProfile(userId, { payment_pending: false, updated_at: new Date().toISOString() });
+
+        let currentLocal = [];
+        try { currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e){}
+        currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
+        localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
+
+        const p = platformProfilesList.find(item => String(item.id) === String(userId));
+        if (p) p.payment_pending = false;
 
         alert('Заявка отклонена.');
         await fetchAllPlatformProfiles();
@@ -1545,7 +1480,7 @@
 
               <div class="grid grid-cols-2 gap-2 pt-1">
                 <button onclick="toggleRegistration('${match.id}', ${!isRegClosed})" class="py-2.5 bg-amber-500/20 text-amber-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
-                  ${isRegClosed ? t('openRegBtn') : t('finishRegBtn')}
+                  ${isRegClosed ? '🔓 Открыть' : '🔒 Завершить'}
                 </button>
                 <button onclick="deleteMatchByCreator('${match.id}')" class="py-2.5 bg-rose-500/20 text-rose-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
                   ${t('deleteSlotBtn')}
@@ -2138,7 +2073,7 @@
                 updated_at: new Date().toISOString()
               };
 
-              await supabaseClient.from('profiles').update(updateData).eq('id', stat.userId);
+              await safeUpdateProfile(stat.userId, updateData);
               updatedCount++;
             }
           }
@@ -2200,11 +2135,12 @@
     function shareMyProfileCard() {
       if (!currentUserProfile) return;
       const p = currentUserProfile;
-      const league = getPlayerLeague(p.league_points || 1000);
+      const calculatedLP = 1000 + getHistoricalPointsForUser(p.id, p.first_name);
+      const league = getPlayerLeague(calculatedLP);
       const userTag = p.username ? ` (@${p.username})` : '';
       const isPro = p.is_premium ? '👑 PRO' : 'FREE';
 
-      const shareText = `🎾 Игрок Padel Moldova:\n👤 ${p.first_name} ${p.last_name || ''}${userTag} [${isPro}]\n🏆 Дивизион: ${league.badge} ${league.title} (${p.league_points || 1000} LP)\n⭐ Skill Level: ${p.skill_level || 2.5}`;
+      const shareText = `🎾 Игрок Padel Moldova:\n👤 ${p.first_name} ${p.last_name || ''}${userTag} [${isPro}]\n🏆 Дивизион: ${league.badge} ${league.title} (${calculatedLP} LP)\n⭐ Skill Level: ${p.skill_level || 2.5}`;
 
       if (navigator.clipboard) {
         navigator.clipboard.writeText(shareText);
@@ -2238,7 +2174,8 @@
         if (player.gender === 'male') genderLabel = t('male');
         else if (player.gender === 'female') genderLabel = t('female');
 
-        const league = getPlayerLeague(player.league_points || 1000);
+        const calculatedLP = (player.league_points || 1000) + getHistoricalPointsForUser(player.id, player.first_name);
+        const league = getPlayerLeague(calculatedLP);
         const wins = player.wins || 0;
         const losses = player.losses || 0;
         const draws = player.draws || 0;
@@ -2259,7 +2196,7 @@
 
             <div class="flex items-center gap-2">
               <span class="px-3 py-1 rounded-full text-xs font-black border ${league.color}">
-                ${league.badge} ${league.title} (${player.league_points || 1000} LP)
+                ${league.badge} ${league.title} (${calculatedLP} LP)
               </span>
               ${player.is_premium ? `<span class="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-black text-[9px] rounded-md uppercase">PRO MEMBER</span>` : ''}
             </div>
@@ -2314,11 +2251,16 @@
       const total = p.total_matches_played || (wins + losses + draws);
       const winrate = total > 0 ? Math.round(((wins + draws * 0.5) / total) * 100) : 0;
 
-      const myLeague = getPlayerLeague(p.league_points || 1000);
+      const calculatedLP = (p.league_points || 1000) + getHistoricalPointsForUser(p.id, p.first_name);
+      const myLeague = getPlayerLeague(calculatedLP);
 
       let sortedList = [...platformProfilesList];
+      sortedList.forEach(item => {
+        item.computedLP = (item.league_points || 1000) + getHistoricalPointsForUser(item.id, item.first_name);
+      });
+
       if (currentLeaderboardTab === 'national') {
-        sortedList.sort((a, b) => (b.league_points || 1000) - (a.league_points || 1000));
+        sortedList.sort((a, b) => b.computedLP - a.computedLP);
       } else if (currentLeaderboardTab === 'americano') {
         sortedList.sort((a, b) => (b.rating_americano || 1000) - (a.rating_americano || 1000));
       } else if (currentLeaderboardTab === 'friendly') {
@@ -2328,8 +2270,8 @@
       }
 
       let leaderboardRows = sortedList.map((item, index) => {
-        const league = getPlayerLeague(item.league_points || 1000);
-        let valBadge = `${item.league_points || 1000} LP`;
+        const league = getPlayerLeague(item.computedLP);
+        let valBadge = `${item.computedLP} LP`;
 
         let lockIcon = item.is_public_profile === false ? ' 🔒' : '';
         let proBadge = item.is_premium ? ' 👑' : '';
@@ -2351,7 +2293,7 @@
 
       let creatorAdminPanelHtml = '';
       if (isUserCreator()) {
-        const pendingUsers = platformProfilesList.filter(u => u.payment_pending === true);
+        const pendingUsers = getPendingProRequestsList();
 
         let pendingRequestsHtml = pendingUsers.length > 0 ? pendingUsers.map(u => `
           <div class="p-3 glass-subcard rounded-2xl border border-amber-500/50 flex items-center justify-between gap-2">
@@ -2435,7 +2377,7 @@
                 
                 <div class="flex items-center gap-1.5 mt-1.5">
                   <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black border ${myLeague.color} flex items-center gap-1">
-                    <span>${myLeague.badge}</span> ${myLeague.title} (${p.league_points || 1000} LP)
+                    <span>${myLeague.badge}</span> ${myLeague.title} (${calculatedLP} LP)
                   </span>
                   <span class="px-2 py-0.5 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9px] font-black rounded-full">
                     🛡️ ${p.shield_cards || 1} Shield
@@ -2582,19 +2524,14 @@
       const shields = parseInt(document.getElementById('ap_shields').value) || 1;
 
       try {
-        const { error } = await supabaseClient
-          .from('profiles')
-          .update({
-            league_points: newLp,
-            rating_americano: newLp,
-            skill_level: newSkill,
-            is_premium: isPro,
-            shield_cards: shields,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', userId);
-
-        if (error) throw error;
+        await safeUpdateProfile(userId, {
+          league_points: newLp,
+          rating_americano: newLp,
+          skill_level: newSkill,
+          is_premium: isPro,
+          shield_cards: shields,
+          updated_at: new Date().toISOString()
+        });
 
         alert('Данные игрока обновлены!');
         closeAdminPlayerModal();
@@ -2611,18 +2548,13 @@
       const phone = document.getElementById('edit_phone').value.trim();
 
       try {
-        const { error } = await supabaseClient
-          .from('profiles')
-          .update({
-            birth_date: birthDate,
-            gender: gender,
-            preferred_side: preferredSide,
-            phone: phone,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', tgUser.id);
-
-        if (error) throw error;
+        await safeUpdateProfile(tgUser.id, {
+          birth_date: birthDate,
+          gender: gender,
+          preferred_side: preferredSide,
+          phone: phone,
+          updated_at: new Date().toISOString()
+        });
 
         isProfileEditOpen = false;
         alert('Профиль сохранён!');
