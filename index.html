@@ -42,16 +42,15 @@
       z-index: 1;
     }
 
-    /* ФИРМЕННЫЙ СТИЛЬ КАРБОНОВОЙ ПАДЕЛ-РАКЕТКИ С ПЕРФОРАЦИЕЙ (ДЫРОЧКАМИ) */
+    /* ФИРМЕННЫЙ СТИЛЬ КАРБОНОВОЙ ПАДЕЛ-РАКЕТКИ С ПЕРФОРАЦИЕЙ (ЕДИНЫЙ ДИЗАЙН) */
     .carbon-padel-card {
       background-color: #0b0f19 !important;
       background-image: 
-        /* Перфорация падел-ракетки (точечная матрица с неоновым свечением) */
-        radial-gradient(circle, rgba(16, 185, 129, 0.45) 1.5px, rgba(15, 23, 42, 0.95) 2.5px, transparent 3px),
-        /* Текстура плетения углеволокна (Carbon Fiber Weave) */
-        linear-gradient(45deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.025) 75%),
-        linear-gradient(-45deg, rgba(255, 255, 255, 0.025) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.025) 75%),
-        /* Градиент глубины карбонового основания */
+        /* Перфорация падел-ракетки (точечная матрица) */
+        radial-gradient(circle, rgba(16, 185, 129, 0.35) 1.5px, rgba(15, 23, 42, 0.95) 2.5px, transparent 3px),
+        /* Текстура углеволокна Carbon Fiber */
+        linear-gradient(45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.03) 75%),
+        linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.03) 75%),
         linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(9, 13, 22, 0.98) 100%);
       background-size: 16px 16px, 8px 8px, 8px 8px, 100% 100%;
       background-position: 0 0, 0 0, 4px 4px, 0 0;
@@ -61,17 +60,22 @@
     }
 
     .glass-card {
-      background: rgba(15, 23, 42, 0.60) !important;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
+      background: #0b0f19 !important;
+      background-image: 
+        radial-gradient(circle, rgba(16, 185, 129, 0.25) 1.2px, transparent 2px),
+        linear-gradient(180deg, rgba(15, 23, 42, 0.92) 0%, rgba(9, 13, 22, 0.96) 100%);
+      background-size: 16px 16px, 100% 100%;
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
       position: relative;
     }
 
     .glass-card-pro {
-      background: rgba(15, 23, 42, 0.82) !important;
-      backdrop-filter: blur(20px);
+      background: #0d1222 !important;
+      background-image: 
+        radial-gradient(circle, rgba(245, 158, 11, 0.3) 1.5px, transparent 2.5px),
+        linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(9, 13, 22, 0.98) 100%);
+      background-size: 16px 16px, 100% 100%;
       border: 1.5px solid rgba(245, 158, 11, 0.8) !important;
       box-shadow: 0 0 30px rgba(245, 158, 11, 0.35);
       position: relative;
@@ -93,68 +97,41 @@
     }
 
     .glass-subcard {
-      background: rgba(15, 23, 42, 0.65) !important;
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      background: rgba(15, 23, 42, 0.85) !important;
       border: 1px solid rgba(255, 255, 255, 0.10);
     }
 
-    /* ОПТИМИЗИРОВАННЫЕ ЭЛЕМЕНТЫ РЕЙТИНГА С КАРБОНОВОЙ ТЕКСТУРОЙ ДЛЯ 100% СТАБИЛЬНОСТИ WEBKIT */
+    /* СТАБИЛИЗИРОВАННЫЕ ЭЛЕМЕНТЫ РЕЙТИНГА БЕЗ БАГОВ ИСЧЕЗНОВЕНИЯ WEBKIT */
     .lb-card-solid {
-      background-color: #0d1322 !important;
-      background-image: 
-        radial-gradient(circle, rgba(16, 185, 129, 0.2) 1.2px, transparent 2px),
-        linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(9, 13, 22, 0.98) 100%);
-      background-size: 14px 14px, 100% 100%;
+      background: rgba(15, 23, 42, 0.92) !important;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      transform: translate3d(0, 0, 0);
-      -webkit-transform: translate3d(0, 0, 0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
+      contain: content;
     }
 
     .lb-podium-1 {
-      background-color: #121622 !important;
-      background-image: 
-        radial-gradient(circle, rgba(245, 158, 11, 0.4) 1.5px, transparent 2.5px),
-        linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
-      background-size: 14px 14px, 100% 100%;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
       border: 1.5px solid rgba(245, 158, 11, 0.85) !important;
-      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25);
-      transform: translate3d(0, 0, 0);
-      -webkit-transform: translate3d(0, 0, 0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+      contain: content;
     }
 
     .lb-podium-2 {
-      background-color: #101420 !important;
-      background-image: 
-        radial-gradient(circle, rgba(203, 213, 225, 0.35) 1.5px, transparent 2.5px),
-        linear-gradient(135deg, rgba(203, 213, 225, 0.20) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
-      background-size: 14px 14px, 100% 100%;
+      background: linear-gradient(135deg, rgba(203, 213, 225, 0.22) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
       border: 1.5px solid rgba(203, 213, 225, 0.65) !important;
-      box-shadow: 0 8px 20px rgba(203, 213, 225, 0.15);
-      transform: translate3d(0, 0, 0);
-      -webkit-transform: translate3d(0, 0, 0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
+      box-shadow: 0 4px 15px rgba(203, 213, 225, 0.15);
+      contain: content;
     }
 
     .lb-podium-3 {
-      background-color: #12111d !important;
-      background-image: 
-        radial-gradient(circle, rgba(217, 119, 6, 0.35) 1.5px, transparent 2.5px),
-        linear-gradient(135deg, rgba(180, 83, 9, 0.25) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
-      background-size: 14px 14px, 100% 100%;
+      background: linear-gradient(135deg, rgba(180, 83, 9, 0.28) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
       border: 1.5px solid rgba(217, 119, 6, 0.65) !important;
-      box-shadow: 0 8px 20px rgba(180, 83, 9, 0.2);
-      transform: translate3d(0, 0, 0);
-      -webkit-transform: translate3d(0, 0, 0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
+      box-shadow: 0 4px 15px rgba(180, 83, 9, 0.2);
+      contain: content;
     }
 
+    .custom-scrollbar {
+      -webkit-overflow-scrolling: touch;
+    }
     .custom-scrollbar::-webkit-scrollbar {
       width: 5px;
     }
@@ -301,7 +278,7 @@
       <div id="error-box" class="hidden bg-rose-500/20 border border-rose-500/40 text-rose-200 p-3.5 rounded-2xl text-xs font-mono break-all backdrop-blur-md"></div>
 
       <!-- Главный Контент -->
-      <div id="main-content" class="glass-card shimmer-border-reverse p-5 rounded-3xl min-h-[300px]">
+      <div id="main-content" class="carbon-padel-card shimmer-border-reverse p-5 rounded-3xl min-h-[300px]">
         <div class="flex justify-center items-center py-16 text-slate-400 font-semibold text-sm">
           <div class="animate-pulse flex items-center gap-2">
             <span>Загрузка платформы...</span>
@@ -447,7 +424,7 @@
 
   <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИСТОРИИ ТУРНИРА -->
   <div id="modal-view-tourney" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4 max-h-[85vh] flex flex-col">
+    <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4 max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-center border-b border-white/10 pb-3 flex-shrink-0">
         <h3 class="text-sm font-black text-purple-300 uppercase italic tracking-wide flex items-center gap-2">
           🏆 Просмотр турнира
@@ -455,7 +432,7 @@
         <button onclick="closeTourneyModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
-      <div id="view-tourney-content" class="space-y-3 text-xs overflow-y-auto pr-1 flex-1"></div>
+      <div id="view-tourney-content" class="space-y-3 text-xs overflow-y-auto pr-1 flex-1 custom-scrollbar"></div>
 
       <button onclick="closeTourneyModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10 flex-shrink-0">
         Закрыть
@@ -465,7 +442,7 @@
 
   <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИГРОКА -->
   <div id="modal-view-player" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
+    <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="text-sm font-black text-emerald-400 uppercase italic tracking-wide flex items-center gap-2">
           👤 Карточка игрока
@@ -483,7 +460,7 @@
 
   <!-- МОДАЛЬНОЕ ОКНО УПРАВЛЕНИЯ ИГРОКОМ ДЛЯ СОЗДАТЕЛЯ -->
   <div id="modal-admin-player" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
+    <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
           👑 Редактирование игрока
@@ -497,7 +474,7 @@
 
   <!-- МОДАЛЬНОЕ ОКНО SUPPORT -->
   <div id="modal-support" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
+    <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
           🛠️ <span>Поддержка и Помощь</span>
@@ -535,7 +512,7 @@
 
   <!-- МОДАЛЬНОЕ ОКНО CREATOR -->
   <div id="modal-creator" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
+    <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
         <h3 class="text-sm font-black text-cyan-300 uppercase italic tracking-wide flex items-center gap-2">
           👨‍💻 <span>Разработчик Проекта</span>
@@ -585,11 +562,32 @@
 
     let currentActiveMatchId = localStorage.getItem(getSlotStorageKey()) || null;
 
-    // --- ОПТИМИЗИРОВАННАЯ И ИСПРАВЛЕННАЯ ПРОВЕРКА ПОЛЬЗОВАТЕЛЕЙ (БЕЗ БАГА ИСЧЕЗНОВЕНИЯ) ---
+    // --- ПОЛНОСТЬЮ СТРОГАЯ ФИЛЬТРАЦИЯ РЕАЛЬНЫХ ПОЛЬЗОВАТЕЛЕЙ (БЕЗ ТЕСТОВЫХ АККАУНТОВ) ---
     function isValidRealUser(p) {
       if (!p || !p.id || !p.first_name) return false;
+
+      const idStr = String(p.id).trim();
+      const numericId = parseInt(idStr, 10);
+
+      // Исключаем нечисловые, 6-значные тестовые ID (например 777777) и системные заглушки
+      if (isNaN(numericId) || numericId <= 999999) return false;
+
       const firstName = String(p.first_name).trim().toLowerCase();
-      if (firstName === '' || firstName === 'null' || firstName === 'undefined') return false;
+      const lastName = String(p.last_name || '').trim().toLowerCase();
+      const fullName = `${firstName} ${lastName}`.trim();
+
+      const fakeKeywords = [
+        'test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 
+        'admin', 'админ', 'dummy', 'fake', 'user', 'пользователь', 'sample', 
+        'null', 'undefined', 'noname', 'без имени'
+      ];
+
+      for (const kw of fakeKeywords) {
+        if (firstName === kw || lastName === kw || fullName.includes(kw)) {
+          return false;
+        }
+      }
+
       return true;
     }
 
@@ -1547,20 +1545,19 @@
 
     async function fetchAllPlatformProfiles() {
       if (!supabaseClient) {
-        if (currentUserProfile && !platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
+        if (currentUserProfile && isValidRealUser(currentUserProfile) && !platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
           platformProfilesList.push(currentUserProfile);
         }
         return;
       }
       try {
         const { data, error } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false });
-        if (!error && data && data.length > 0) {
-          const validFetched = data.filter(isValidRealUser);
-          if (validFetched.length > 0) platformProfilesList = validFetched;
+        if (!error && data) {
+          platformProfilesList = data.filter(isValidRealUser);
         }
       } catch(e) {}
 
-      // Гарантируем присутствие текущего пользователя
+      // Гарантируем присутствие текущего залогиненного профиля, если он реальный
       if (currentUserProfile && isValidRealUser(currentUserProfile)) {
         if (!platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
           platformProfilesList.push(currentUserProfile);
@@ -1939,7 +1936,7 @@
 
             <div class="border-t border-white/10 pt-3 space-y-2">
               <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">${t('chatTitle')}</h3>
-              <div id="chat-box" class="h-44 overflow-y-auto space-y-2.5 p-3 glass-subcard rounded-2xl border border-white/10 shadow-inner">
+              <div id="chat-box" class="h-44 overflow-y-auto space-y-2.5 p-3 glass-subcard rounded-2xl border border-white/10 shadow-inner custom-scrollbar">
                 ${chatHtml.length > 0 ? chatHtml : `<p class="text-xs text-slate-400 text-center py-12 italic">${t('chatEmptyMsg')}</p>`}
               </div>
               <div class="flex gap-2">
@@ -2021,7 +2018,7 @@
               <span>${t('tourneyHistoryTitle')}</span>
               <span class="text-[10px] text-slate-400 font-normal">${t('autoCleanup')}</span>
             </h3>
-            <div class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <div class="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
               ${history.map(item => {
                 const dt = new Date(item.timestamp).toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
                 const topWinner = item.leaderboard && item.leaderboard[0] ? item.leaderboard[0].name : '—';
@@ -2691,7 +2688,7 @@
         sortedList.sort((a, b) => (b.rating_competitive || 1000) - (a.rating_competitive || 1000));
       }
 
-      // --- ГЕНЕРАЦИЯ ПОДИУМА ТОП-3 И СПИСКА С ПРИНУДИТЕЛЬНОЙ АППАРАТНОЙ ФИКСАЦИЕЙ ОТРЕСОВКИ ---
+      // --- ГЕНЕРАЦИЯ ПОДИУМА ТОП-3 И СПИСКА С ПРИНУДИТЕЛЬНОЙ СТАБИЛЬНОСТЬЮ ОТРИСОВКИ ---
       let podiumHtml = '';
       let restRowsHtml = '';
 
@@ -2846,7 +2843,7 @@
 
       container.innerHTML = `
         <div class="space-y-4">
-          <div class="${p.is_premium ? 'glass-card-pro' : 'glass-card'} p-4 rounded-3xl text-white shadow-xl space-y-3 relative backdrop-blur-md">
+          <div class="${p.is_premium ? 'glass-card-pro' : 'glass-card'} p-4 rounded-3xl text-white shadow-xl space-y-3 relative">
             
             <div class="flex items-start justify-between gap-2">
               <div>
@@ -2931,8 +2928,8 @@
 
           ${creatorAdminPanelHtml}
 
-          <!-- НОВЫЙ БЛОК РЕЙТИНГА В КАРБОНОВОМ СТИЛЕ С ПЕРФОРАЦИЕЙ ПАДЕЛ-РАКЕТКИ -->
-          <div class="carbon-padel-card p-4 rounded-3xl border border-emerald-500/40 space-y-3.5 shadow-2xl">
+          <!-- ЕДИНЫЙ КАРБОНОВЫЙ БЛОК РЕЙТИНГА С ПЕРФОРАЦИЕЙ ПАДЕЛ-РАКЕТКИ -->
+          <div class="carbon-padel-card p-4 rounded-3xl space-y-3.5 shadow-2xl">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center justify-between">
               <span>${t('ratingSystemTitle')}</span>
               <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30">LIVE</span>
