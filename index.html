@@ -163,7 +163,7 @@
         <div class="flex items-center justify-between gap-2">
           
           <div class="flex items-center gap-3">
-            <!-- 3D ПАДЕЛ-РАКЕТКА В ШАПКЕ -->
+            <!-- ДИНАМИЧЕСКАЯ 3D ПАДЕЛ-РАКЕТКА (КЛИКАБЕЛЬНАЯ ДЛЯ ЗАПУСКА МИНИ-ИГРЫ) -->
             <div onclick="openPadelGameModal()" class="w-14 h-14 rounded-2xl bg-slate-950/80 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
               <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
               <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -178,7 +178,6 @@
           </div>
           
           <div class="flex flex-col items-end gap-1.5">
-            <!-- ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА -->
             <div class="flex items-center gap-1 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold">
               <button onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
               <button onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
@@ -318,8 +317,8 @@
           <ul class="space-y-1 text-slate-200 text-[11px]">
             <li>✨ **Золотая рамка и бейдж PRO** в рейтинге</li>
             <li>⚡ **Early Access**: Приоритетные слоты</li>
-            <li>🛡️ **2 Shield Cards**: Защита от списания LP</li>
-            <li>📈 **PRO-Аналитика**: Графики формы</li>
+            <li>🛡️ **2 Shield Cards**: Защита от списания LP при поражении</li>
+            <li>📈 **PRO-Аналитика**: Графики формы и H2H статистика</li>
             <li>♾️ **Безлимитное создание** турниров и слотов</li>
           </ul>
         </div>
@@ -337,6 +336,7 @@
               <span class="font-bold text-amber-300">Victor Popovici</span>
             </div>
           </div>
+          <p class="text-[9px] text-slate-400 italic text-center">* В комментарии к переводу укажите ваше имя в Telegram</p>
         </div>
 
         <button onclick="submitProPaymentRequest()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
@@ -350,7 +350,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ PRO-ПОДПИСКИ -->
+  <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ АКТИВНОЙ PRO-ПОДПИСКИ -->
   <div id="modal-pro-details" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card-pro p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
@@ -404,6 +404,20 @@
     </div>
   </div>
 
+  <!-- МОДАЛЬНОЕ ОКНО УПРАВЛЕНИЯ ИГРОКОМ ДЛЯ СОЗДАТЕЛЯ -->
+  <div id="modal-admin-player" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
+          👑 Редактирование игрока
+        </h3>
+        <button onclick="closeAdminPlayerModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+
+      <div id="admin-player-form-content" class="space-y-3 text-xs"></div>
+    </div>
+  </div>
+
   <!-- МОДАЛЬНОЕ ОКНО SUPPORT -->
   <div id="modal-support" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
@@ -422,6 +436,18 @@
         <a href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20">
           💬 Написать в Telegram (@kizdoi)
         </a>
+
+        <div class="glass-subcard p-3.5 rounded-2xl border border-amber-500/30 space-y-2 mt-3">
+          <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wide">☕ Поддержать Padel Moldova</h4>
+          <p class="text-[11px] text-slate-300">Если вам нравится платформа, вы можете сделать добровольный взнос:</p>
+
+          <div class="glass-subcard p-2.5 rounded-xl border border-white/10 space-y-1.5 font-mono text-[11px]">
+            <div class="flex justify-between items-center text-slate-300">
+              <span class="text-slate-400">MIA Plăți Instant:</span>
+              <span class="font-bold text-emerald-400">+373 60 217 449</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
@@ -450,6 +476,10 @@
           <p class="text-xs text-cyan-400 font-semibold">Founder & Developer • @kizdoi</p>
         </div>
 
+        <p class="text-slate-300 text-xs leading-relaxed">
+          Платформа Padel Moldova создана для объединения игроков, проведения турниров и роста рейтинга по всей Молдове.
+        </p>
+
         <a href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-cyan-500/20">
           📩 Связаться с Виктором (@kizdoi)
         </a>
@@ -463,10 +493,10 @@
 
   <script>
     // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
-    // Сохранение активного слота в локальное хранилище для полного исключения сбросов
+    // Автоматическое восстановление сохраненного слота из localStorage
     let currentActiveMatchId = localStorage.getItem('padel_last_active_match_id') || null;
 
-    // --- 1. АНИМАЦИЯ ПАДЕЛ-РАКЕТКИ В ШАПКЕ ---
+    // --- 1. АНИМАЦИЯ ПАДЕЛ-РАКЕТКИ С НАБИВАНИЕМ МЯЧА В ШАПКЕ ---
     function initHeaderPadelAnimation() {
       const cvs = document.getElementById('header-padel-canvas');
       if (!cvs) return;
@@ -485,19 +515,23 @@
       function animate() {
         ctx.clearRect(0, 0, size, size);
 
+        // Гравитация и перемещение мяча
         ball.vy += 0.18;
         ball.x += ball.vx;
         ball.y += ball.vy;
 
+        // Отскоки от левой и правой стенок иконки
         if (ball.x < 11) { ball.x = 11; ball.vx = Math.abs(ball.vx); }
         if (ball.x > 53) { ball.x = 53; ball.vx = -Math.abs(ball.vx); }
 
+        // Пружинная физика ракетки
         racket.y += (racket.targetY - racket.y) * 0.2;
         racket.targetY += (46 - racket.targetY) * 0.15;
         racket.angle += (racket.targetAngle - racket.angle) * 0.2;
         racket.targetAngle += (0 - racket.targetAngle) * 0.15;
         if (racket.hitFlash > 0) racket.hitFlash -= 0.08;
 
+        // Проверка касания мяча и ракетки
         const hitZoneY = racket.y - 12;
         if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 8 && Math.abs(ball.x - racket.x) < 18) {
           ball.y = hitZoneY - ball.r;
@@ -510,26 +544,34 @@
           racket.targetAngle = ball.vx * 0.12;
           racket.hitFlash = 1.0;
 
+          // Искры при ударе
           for (let i = 0; i < 5; i++) {
             particles.push({
-              x: ball.x, y: ball.y,
-              vx: (Math.random() - 0.5) * 2, vy: -Math.random() * 1.5,
-              life: 1.0, color: Math.random() > 0.5 ? '#10b981' : '#ccff00'
+              x: ball.x,
+              y: ball.y,
+              vx: (Math.random() - 0.5) * 2,
+              vy: -Math.random() * 1.5,
+              life: 1.0,
+              color: Math.random() > 0.5 ? '#10b981' : '#ccff00'
             });
           }
         }
 
+        // Восстановление формы мяча
         ball.squashX += (1 - ball.squashX) * 0.15;
         ball.squashY += (1 - ball.squashY) * 0.15;
 
+        // Страховка от потери мяча
         if (ball.y > size + 10) {
           ball.x = 32; ball.y = 10; ball.vx = (Math.random() - 0.5) * 0.4; ball.vy = 0;
         }
 
+        // РИСОВАНИЕ РАКЕТКИ
         ctx.save();
         ctx.translate(racket.x, racket.y);
         ctx.rotate(racket.angle);
 
+        // Рукоятка
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(-2.5, 8, 5, 13, 2);
         else ctx.rect(-2.5, 8, 5, 13);
@@ -539,6 +581,14 @@
         ctx.lineWidth = 1;
         ctx.stroke();
 
+        // Обмотка на ручке
+        ctx.beginPath();
+        ctx.moveTo(-2, 11); ctx.lineTo(2, 13);
+        ctx.moveTo(-2, 15); ctx.lineTo(2, 17);
+        ctx.strokeStyle = '#059669';
+        ctx.stroke();
+
+        // Голова ракетки
         ctx.beginPath();
         ctx.ellipse(0, -6, 14, 16, 0, 0, Math.PI * 2);
         
@@ -555,6 +605,7 @@
         ctx.lineWidth = 2;
         ctx.stroke();
 
+        // Отверстия
         ctx.shadowBlur = 0;
         ctx.fillStyle = '#030712';
         const holePositions = [
@@ -564,18 +615,26 @@
           [-6, 4], [0, 4], [6, 4]
         ];
         holePositions.forEach(([hx, hy]) => {
-          ctx.beginPath(); ctx.arc(hx, hy, 1.2, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath();
+          ctx.arc(hx, hy, 1.2, 0, Math.PI * 2);
+          ctx.fill();
         });
 
         ctx.restore();
 
+        // ИСКРЫ
         particles.forEach((p, idx) => {
           p.x += p.vx; p.y += p.vy; p.life -= 0.05;
           if (p.life <= 0) { particles.splice(idx, 1); return; }
-          ctx.beginPath(); ctx.arc(p.x, p.y, p.life * 2, 0, Math.PI * 2);
-          ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fill(); ctx.globalAlpha = 1.0;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.life * 2, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = p.life;
+          ctx.fill();
+          ctx.globalAlpha = 1.0;
         });
 
+        // МЯЧ
         ctx.save();
         ctx.translate(ball.x, ball.y);
         ctx.scale(ball.squashX, ball.squashY);
@@ -587,7 +646,15 @@
         ctx.shadowBlur = 8;
         ctx.fill();
 
+        ctx.beginPath();
+        ctx.arc(-1.2, 0, ball.r * 0.75, -Math.PI * 0.4, Math.PI * 0.4);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.9;
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+
         ctx.restore();
+
         requestAnimationFrame(animate);
       }
 
@@ -607,7 +674,7 @@
     resizeCanvas();
 
     const balls = [];
-    const ballCount = 14;
+    const ballCount = 16;
 
     class FallingBall {
       constructor() { this.reset(true); }
@@ -643,6 +710,16 @@
         ctx.shadowBlur = 10;
         ctx.fill();
 
+        ctx.beginPath();
+        ctx.arc(-this.radius * 0.5, 0, this.radius * 0.7, -Math.PI * 0.45, Math.PI * 0.45);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = Math.max(1, this.radius * 0.16);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(this.radius * 0.5, 0, this.radius * 0.7, Math.PI * 0.55, Math.PI * 1.45);
+        ctx.stroke();
+
         ctx.restore();
       }
     }
@@ -662,7 +739,7 @@
     let gameLoopReq = null;
     let isGameRunning = false;
     let currentGameScore = 0;
-    let gameControlMode = 'touch'; // 'touch' или 'gyro'
+    let gameControlMode = 'touch'; // 'touch' (джойстик/палец) или 'gyro' (наклон)
     let userHighScore = parseInt(localStorage.getItem('padel_motion_high_score') || '0', 10);
 
     let gCanvas, gCtx;
@@ -699,10 +776,10 @@
 
       gCanvas.onmousemove = (e) => handlePointerMove(e.clientX);
       gCanvas.ontouchmove = (e) => {
-        if (e.touches[0]) handlePointerMove(e.touches[0].clientX);
+        if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX);
       };
       gCanvas.ontouchstart = (e) => {
-        if (e.touches[0]) handlePointerMove(e.touches[0].clientX);
+        if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX);
       };
     }
 
@@ -719,7 +796,7 @@
 
       const subLabel = document.getElementById('game-control-sublabel');
       if (subLabel) {
-        subLabel.innerText = mode === 'gyro' ? '📱 Управление: Гироскоп (Наклон)' : '👆 Управление: Сенсор / Касание';
+        subLabel.innerText = mode === 'gyro' ? '📱 Управление: Наклон телефона' : '👆 Управление: Касание пальцем';
       }
 
       if (mode === 'gyro') {
@@ -785,7 +862,7 @@
         gRacket.tiltAngle = (gRacket.vx / 15) * 0.3;
       }
 
-      // 2. Физика Мяча & Реалистичная Гравитация
+      // 2. Физика Мяча & Гравитация
       gBall.vy += 0.22;
       gBall.vx += gBall.spin * 0.04;
       gBall.x += gBall.vx;
@@ -794,7 +871,7 @@
 
       gBall.vx *= 0.992;
 
-      // Отскоки от стен
+      // Отскок от стен
       if (gBall.x - gBall.r <= 0) {
         gBall.x = gBall.r;
         gBall.vx = Math.abs(gBall.vx) * 0.9;
@@ -860,7 +937,7 @@
         return;
       }
 
-      // ОТРИСОВКА
+      // RENDER
       gCtx.clearRect(0, 0, gWidth, gHeight);
 
       // Разметка корта
@@ -923,6 +1000,12 @@
       gCtx.shadowBlur = 12;
       gCtx.fill();
 
+      gCtx.beginPath();
+      gCtx.arc(-2, 0, gBall.r * 0.7, -Math.PI * 0.4, Math.PI * 0.4);
+      gCtx.strokeStyle = '#ffffff';
+      gCtx.lineWidth = 1;
+      gCtx.shadowBlur = 0;
+      gCtx.stroke();
       gCtx.restore();
 
       gameLoopReq = requestAnimationFrame(runMotionGameLoop);
@@ -932,6 +1015,7 @@
       isGameRunning = false;
       document.getElementById('go-score').innerText = currentGameScore;
       document.getElementById('game-over-overlay').classList.remove('hidden');
+
       renderGameLeaderboard();
     }
 
@@ -1026,17 +1110,17 @@
         americanoFormat: "Американо", occupied: "Занят", free: "Свободно", chatTitle: "💬 Чат участников слота",
         chatPlaceholder: "Напишите сообщение...", sendBtn: "Отправить", creatorTag: "👑 Организатор",
         quickImportBtn: "⚡ Импортировать из Слота", guestOption: "➕ Ввести вручную (Гость)",
-        getProBtn: "💎 Оформить PRO (150 MDL/мес)", proPendingStatus: "⏳ Заявка на PRO отправлена.",
-        proApprovedStatus: "👑 Премиум PRO активен", pendingRequestsTitle: "⏳ Заявки на подтверждение PRO",
+        getProBtn: "💎 Оформить PRO (150 MDL/мес)", proPendingStatus: "⏳ Заявка на PRO отправлена. Ожидается проверка оплаты.",
+        proApprovedStatus: "👑 Премиум PRO активен", pendingRequestsTitle: "⏳ Заявки на подтверждение PRO оплаты",
         approveProBtn: "✅ Подтвердить PRO", rejectProBtn: "❌ Отклонить", settingsBtn: "Настройки",
-        ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы", tourneyHistoryTitle: "📜 История турниров",
+        ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы", tourneyHistoryTitle: "📜 История турниров (за 7 дней)",
         autoCleanup: "Автоочистка", winnerLabel: "Победитель", participantsCount: "Участников", gamesCount: "игр(ы)",
         hostPanel: "Панель Организатора Слота", hostPanelDesc: "Управление составом, местами и ценой", profileEditTitle: "✏️ Редактирование Данных Профиля",
-        creatorPanelTitle: "👑 Панель Создателя", allRegisteredPlayers: "Все зарегистрированные игроки:",
+        creatorPanelTitle: "👑 Панель Создателя: Управление Платформой", allRegisteredPlayers: "Все зарегистрированные игроки платформы:",
         gamesLabel: "игр", reportTgBtn: "📋 Отчёт в Telegram", recordRatingBtn: "🏆 Записать в Рейтинг",
-        cancelTournamentBtn: "🛑 Отменить турнир", confirmCancelMsg: "Вы действительно хотите отменить турнир?",
-        loadingMatch: "Загрузка матча...", loadingProfile: "Загрузка профиля...", slotNotFound: "Слот не найден или удалён.",
-        chatEmptyMsg: "Обсудите детали матча. Напишите первое сообщение!", quickAmericanoDesc: "Калькулятор турнира Американо.",
+        cancelTournamentBtn: "🛑 Отменить / Сбросить турнир", confirmCancelMsg: "Вы действительно хотите отменить турнир?",
+        loadingMatch: "Загрузка матча...", loadingProfile: "Загрузка профиля...", slotNotFound: "Слот не найден или был удалён.",
+        chatEmptyMsg: "Обсудите детали матча. Напишите первое сообщение!", quickAmericanoDesc: "Персональный калькулятор турнира Американо.",
         startTournamentBtn: "🚀 Начать турнир", calculatorTitle: "🏆 Калькулятор", roundsCountLabel: "Всего игр",
         cyclesLabel: "круга", cycleSingleLabel: "круг", resetBtn: "Сбросить", leaderboardTitle: "Общий Лидерборд",
         matchesAndScoreTitle: "Матчи и Счёт", placeLabel: "место", place1: "🥇 1-е МЕСТО", place2: "🥈 2-е МЕСТО",
@@ -1060,14 +1144,14 @@
         chatPlaceholder: "Scrie un mesaj...", sendBtn: "Trimite", creatorTag: "👑 Organizator",
         quickImportBtn: "⚡ Importă din Slot", guestOption: "➕ Introdu manual (Oaspete)",
         getProBtn: "💎 Activează PRO (150 MDL/lună)", proPendingStatus: "⏳ Cererea PRO a fost trimisă.",
-        proApprovedStatus: "👑 Premium PRO este activ", pendingRequestsTitle: "⏳ Solicitări confirmare PRO",
+        proApprovedStatus: "👑 Premium PRO este activ", pendingRequestsTitle: "⏳ Solicitări de confirmare plată PRO",
         approveProBtn: "✅ Confirmă PRO", rejectProBtn: "❌ Respinge", settingsBtn: "Setări",
         ratingSystemTitle: "🇲🇩 Sistemul de Clasament și Ligi Moldova", tourneyHistoryTitle: "📜 Istoricul turneelor",
         autoCleanup: "Curățare automată", winnerLabel: "Câștigător", participantsCount: "Participanți", gamesCount: "jocuri",
         hostPanel: "Panou Organizator Slot", hostPanelDesc: "Gestionare echipă, locuri și preț", profileEditTitle: "✏️ Editare Date Profil",
-        creatorPanelTitle: "👑 Panou Autor", allRegisteredPlayers: "Toți jucătorii înregistrați:",
+        creatorPanelTitle: "👑 Panou Autor", allRegisteredPlayers: "Toți jucătorii înregistrați pe platformă:",
         gamesLabel: "jocuri", reportTgBtn: "📋 Raport pe Telegram", recordRatingBtn: "🏆 Înregistrează în Clasament",
-        cancelTournamentBtn: "🛑 Anulează turneul", confirmCancelMsg: "Doriți într-adevăr să anulați turneul?",
+        cancelTournamentBtn: "🛑 Anulează / Resetează turneul", confirmCancelMsg: "Doriți într-adevăr să anulați turneul?",
         loadingMatch: "Se încarcă meciul...", loadingProfile: "Se încarcă profilul...", slotNotFound: "Slotul nu a fost găsit.",
         chatEmptyMsg: "Discutați detaliile meciului.", quickAmericanoDesc: "Calculator personal pentru turneul Americano.",
         startTournamentBtn: "🚀 Începe turneul", calculatorTitle: "🏆 Calculator", roundsCountLabel: "Total jocuri",
@@ -1100,7 +1184,7 @@
         hostPanel: "Slot Host Panel", hostPanelDesc: "Manage players, slots and price", profileEditTitle: "✏️ Edit Profile Data",
         creatorPanelTitle: "👑 Creator Panel", allRegisteredPlayers: "All registered platform players:",
         gamesLabel: "games", reportTgBtn: "📋 Telegram Report", recordRatingBtn: "🏆 Record to Leaderboard",
-        cancelTournamentBtn: "🛑 Cancel Tournament", confirmCancelMsg: "Are you sure you want to cancel?",
+        cancelTournamentBtn: "🛑 Cancel / Reset Tournament", confirmCancelMsg: "Are you sure you want to cancel?",
         loadingMatch: "Loading game...", loadingProfile: "Loading profile...", slotNotFound: "Slot not found.",
         chatEmptyMsg: "Discuss game details.", quickAmericanoDesc: "Personal Americano tournament calculator.",
         startTournamentBtn: "🚀 Start Tournament", calculatorTitle: "🏆 Calculator", roundsCountLabel: "Total games",
@@ -1134,7 +1218,7 @@
       document.getElementById('txt-btn-support').innerText = t('btnSupport');
       document.getElementById('txt-btn-creator').innerText = t('btnCreator');
 
-      // Перерисовка текущей активной вкладки с сохранением созданного слота
+      // Перерисовываем текущую активную вкладку без сброса слота
       switchTab(activeTab);
     }
 
@@ -1164,6 +1248,28 @@
             <p class="text-xl font-black text-white">Осталось ${daysLeft} дней</p>
             <p class="text-[10px] text-slate-300">Действительна до: <strong class="text-amber-300">${dateFormatted}</strong></p>
           </div>
+
+          <div class="glass-subcard p-3 rounded-2xl border border-white/10 space-y-2">
+            <h4 class="font-bold text-amber-300 uppercase text-[11px]">✨ Ваши активированные привилегии:</h4>
+            <ul class="space-y-1.5 text-slate-200 text-[11px]">
+              <li class="flex items-center gap-1.5">
+                <span>🛡️</span> <span>Защитные карты (Shield Cards): <strong class="text-emerald-400">${currentUserProfile.shield_cards || 2} шт.</strong></span>
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span>⚡</span> <span>Приоритетный доступ (Early Access к новым слотам)</span>
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span>👑</span> <span>Золотая неоновая рамка и знак PRO в рейтинге</span>
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span>♾️</span> <span>Безлимитное создание турниров и слотов</span>
+              </li>
+            </ul>
+          </div>
+
+          <button onclick="closeProDetailsModal(); openPayProModal();" class="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
+            ➕ Продлить PRO ещё на 30 дней
+          </button>
         </div>
       `;
 
@@ -1197,7 +1303,7 @@
       setTimeout(() => { toast.classList.add('hidden'); }, 2500);
     }
 
-    // --- SUPABASE И TELEGRAM ---
+    // --- 4. SUPABASE И TELEGRAM ---
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot';
@@ -1310,6 +1416,85 @@
       localStorage.setItem('padel_americano_history_v2', JSON.stringify(history));
     }
 
+    function openHistoryTourneyModal(tourneyId) {
+      const history = cleanAndGetAmericanoHistory();
+      const tourney = history.find(t => t.id === tourneyId);
+      if (!tourney) return;
+
+      const modal = document.getElementById('modal-view-tourney');
+      const content = document.getElementById('view-tourney-content');
+      const dt = new Date(tourney.timestamp).toLocaleString([], { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+      let lbHtml = '';
+      if (tourney.leaderboard && tourney.leaderboard.length > 0) {
+        lbHtml = tourney.leaderboard.map((item, idx) => {
+          let badge = `${idx + 1}.`;
+          let style = "glass-subcard border-white/10";
+          if (idx === 0) { badge = '🥇'; style = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/50"; }
+          else if (idx === 1) { badge = '🥈'; style = "bg-gradient-to-r from-slate-300/20 to-slate-400/10 border-slate-300/40"; }
+          else if (idx === 2) { badge = '🥉'; style = "bg-gradient-to-r from-amber-700/20 to-amber-800/10 border-amber-700/40"; }
+
+          return `
+            <div class="flex items-center justify-between p-2 rounded-xl border ${style} text-xs">
+              <div class="flex items-center gap-2">
+                <span class="font-black text-amber-400">${badge}</span>
+                <span class="font-bold text-white">${item.name}</span>
+              </div>
+              <span class="font-black text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full text-[11px]">${item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0)} PTS</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      let roundsHtml = '';
+      if (tourney.rounds && tourney.rounds.length > 0) {
+        roundsHtml = tourney.rounds.map(r => {
+          const pA1 = tourney.players[r.team_a[0]]?.name || '—';
+          const pA2 = tourney.players[r.team_a[1]]?.name || '—';
+          const pB1 = tourney.players[r.team_b[0]]?.name || '—';
+          const pB2 = tourney.players[r.team_b[1]]?.name || '—';
+
+          return `
+            <div class="p-2.5 glass-subcard border border-white/10 rounded-xl space-y-1 text-xs">
+              <div class="flex justify-between items-center text-[10px] text-slate-400 font-semibold">
+                <span>${t('matchRoundLabel')} ${r.cycle || 1} • ${t('matchGameLabel')} #${r.round} ${r.court ? `(${t('courtLabel')} #${r.court})` : ''}</span>
+                <span class="text-emerald-400 font-bold">${t('completedStatus')}</span>
+              </div>
+              <div class="flex items-center justify-between gap-1 text-[11px]">
+                <span class="flex-1 text-right font-bold text-white truncate">${pA1} / ${pA2}</span>
+                <span class="font-black text-amber-300 bg-slate-900/80 px-2 py-0.5 rounded-lg border border-white/10">${r.score_a} : ${r.score_b}</span>
+                <span class="flex-1 text-left font-bold text-white truncate">${pB1} / ${pB2}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        roundsHtml = `<p class="text-xs text-slate-400 italic text-center py-2">История пуста...</p>`;
+      }
+
+      content.innerHTML = `
+        <div class="space-y-3">
+          <div class="glass-subcard p-3 rounded-2xl border border-purple-500/40 text-center space-y-1">
+            <span class="text-xs text-purple-300 font-black uppercase">📅 ${dt}</span>
+            <p class="text-[11px] text-slate-300">${t('participantsCount')}: <strong>${tourney.players ? tourney.players.length : 0}</strong></p>
+          </div>
+
+          <div class="space-y-1.5">
+            <h4 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('leaderboardTitle')}</h4>
+            <div class="space-y-1">${lbHtml}</div>
+          </div>
+
+          <div class="space-y-1.5 pt-1">
+            <h4 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('tourneyMatchesTitle')}</h4>
+            <div class="space-y-1.5">${roundsHtml}</div>
+          </div>
+        </div>
+      `;
+      modal.classList.remove('hidden');
+    }
+
+    function closeTourneyModal() { document.getElementById('modal-view-tourney').classList.add('hidden'); }
+
     async function initApp() {
       document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
       initHeaderPadelAnimation();
@@ -1343,7 +1528,7 @@
       if (tab === 'booking') {
         btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
         
-        // Гарантированное сохранение созданного слота
+        // Надежный выбор созданного слота из переменной или локального хранилища
         const matchIdToRender = currentActiveMatchId || localStorage.getItem('padel_last_active_match_id') || getStartParam();
         if (matchIdToRender) {
           renderMatchDetails(matchIdToRender);
@@ -1384,12 +1569,70 @@
       } catch (err) { console.log('Profile sync err:', err); }
     }
 
+    function getPendingProRequestsList() {
+      let localReqs = [];
+      try { localReqs = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e) {}
+      const dbPending = platformProfilesList.filter(u => u.payment_pending === true);
+      const reqMap = new Map();
+      localReqs.forEach(r => reqMap.set(String(r.id), r));
+      dbPending.forEach(u => reqMap.set(String(u.id), { id: u.id, first_name: u.first_name, last_name: u.last_name, username: u.username }));
+      return Array.from(reqMap.values());
+    }
+
+    async function submitProPaymentRequest() {
+      try {
+        const reqItem = { id: tgUser.id, first_name: tgUser.first_name || 'Игрок', last_name: tgUser.last_name || '', username: tgUser.username || '', timestamp: new Date().toISOString() };
+        let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
+        currentLocal = currentLocal.filter(r => String(r.id) !== String(tgUser.id));
+        currentLocal.push(reqItem);
+        localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
+
+        if (currentUserProfile) currentUserProfile.payment_pending = true;
+        await safeUpdateProfile(tgUser.id, { payment_pending: true, updated_at: new Date().toISOString() });
+
+        closePayProModal();
+        alert('Заявка на активицию PRO успешно отправлена создателю!');
+        renderProfileTab();
+      } catch(e) { alert('Ошибка: ' + e.message); }
+    }
+
+    async function approveUserProStatus(userId) {
+      try {
+        const untilDate = new Date(); untilDate.setDate(untilDate.getDate() + 30);
+        await safeUpdateProfile(userId, { is_premium: true, payment_pending: false, premium_until: untilDate.toISOString(), shield_cards: 2, updated_at: new Date().toISOString() });
+        
+        let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
+        currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
+        localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
+
+        alert('Премиум PRO активирован на 30 дней!');
+        await fetchAllPlatformProfiles();
+        renderProfileTab();
+      } catch(e) { alert('Ошибка: ' + e.message); }
+    }
+
+    async function rejectUserProStatus(userId) {
+      try {
+        await safeUpdateProfile(userId, { payment_pending: false, updated_at: new Date().toISOString() });
+        
+        let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
+        currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
+        localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
+
+        alert('Заявка отклонена.');
+        await fetchAllPlatformProfiles();
+        renderProfileTab();
+      } catch(e) { alert('Ошибка: ' + e.message); }
+    }
+
     // --- ВКЛАДКА 1: СЛОТЫ ---
-    function renderCreateMatchForm() {
-      // Очищаем только при явном переходе на создание нового слота
+    function createNewSlotClick() {
       currentActiveMatchId = null;
       localStorage.removeItem('padel_last_active_match_id');
+      renderCreateMatchForm();
+    }
 
+    function renderCreateMatchForm() {
       const container = document.getElementById('main-content');
       container.innerHTML = `
         <h2 class="text-base font-extrabold mb-4 text-white uppercase italic tracking-wide">${t('createGame')}</h2>
@@ -1458,7 +1701,7 @@
 
         await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]);
         
-        // Фиксируем ID созданного слота в памяти и localStorage
+        // Фиксируем ID созданного слота
         currentActiveMatchId = match.id;
         localStorage.setItem('padel_last_active_match_id', match.id);
 
@@ -1467,6 +1710,16 @@
         showError('Ошибка создания: ' + err.message);
         if (btn) btn.disabled = false;
       }
+    }
+
+    async function updateMatchPrice(matchId) {
+      const newPrice = parseFloat(document.getElementById(`edit_price_${matchId}`).value) || 0;
+      try {
+        const { error } = await supabaseClient.from('matches').update({ price_per_player: newPrice }).eq('id', matchId);
+        if (error) throw error;
+        alert('Цена успешно обновлена!');
+        renderMatchDetails(matchId);
+      } catch (e) { alert('Ошибка: ' + e.message); }
     }
 
     async function deleteMatchByCreator(matchId) {
@@ -1531,7 +1784,7 @@
               <div class="p-3 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
                 <span>Слот #${i}: <strong class="text-emerald-400 font-bold">${t('free')}</strong></span>
                 ${!isJoined ? `
-                  <button onclick="joinMatch('${match.id}',${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20">
+                  <button onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20">
                     ${t('joinSlot')} #${i}
                   </button>
                 ` : ''}
@@ -1574,6 +1827,14 @@
                 </div>
               </div>
 
+              <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs">
+                <span class="font-bold text-slate-300 pl-1">${t('pricePerPlayerLabel')}</span>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1.5 glass-subcard border border-slate-600 rounded-lg text-center text-white font-black">
+                  <button onclick="updateMatchPrice('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
+                </div>
+              </div>
+
               <div class="grid grid-cols-2 gap-2 pt-1">
                 <button onclick="toggleRegistration('${match.id}', ${!isRegClosed})" class="py-2.5 bg-amber-500/20 text-amber-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
                   ${isRegClosed ? '🔓 Открыть' : '🔒 Завершить'}
@@ -1590,7 +1851,7 @@
           <div class="space-y-4">
             <div>
               <div class="flex justify-between items-center mb-2">
-                <button onclick="renderCreateMatchForm()" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-bold rounded-xl text-xs btn-3d border border-white/10 flex items-center gap-1">
+                <button onclick="createNewSlotClick()" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-bold rounded-xl text-xs btn-3d border border-white/10 flex items-center gap-1">
                   ${t('backToCreate')}
                 </button>
                 <span class="px-2.5 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-black uppercase tracking-wider rounded-lg">
@@ -1703,7 +1964,14 @@
                   <div onclick="openHistoryTourneyModal('${item.id}')" class="p-3 glass-subcard border border-purple-500/30 hover:border-purple-400/60 rounded-2xl space-y-1.5 text-xs cursor-pointer transition-all hover:bg-white/5 btn-3d">
                     <div class="flex justify-between items-center text-slate-400 text-[10px] font-bold">
                       <span>📅 ${dt}</span>
-                      <span class="text-amber-400">🥇 ${t('winnerLabel')}:${topWinner}</span>
+                      <span class="text-amber-400">🥇 ${t('winnerLabel')}: ${topWinner}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-white font-medium">
+                      <span>${t('participantsCount')}: ${item.players ? item.players.length : 0}</span>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-purple-300 font-bold">${item.rounds ? item.rounds.filter(r=>r.completed).length : 0} ${t('gamesCount')}</span>
+                        <span class="text-cyan-400 text-[10px] underline font-bold">🔍 ${t('viewTourneyDetails')}</span>
+                      </div>
                     </div>
                   </div>
                 `;
@@ -1729,7 +1997,25 @@
                 <option value="8" ${currentAmericanoPlayerCount === 8 ? 'selected' : ''}>8 ${t('gamesLabel')}</option>
               </select>
             </div>
+            
+            <div class="flex gap-1">
+              <button onclick="adjustPlayerCount(-1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➖</button>
+              <button onclick="adjustPlayerCount(1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➕</button>
+            </div>
           </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('cyclesLabel')}</label>
+            <select id="quick_cycles" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
+              <option value="1">1 ${t('cycleSingleLabel')}</option>
+              <option value="2">2 ${t('cyclesLabel')}</option>
+              <option value="3">3 ${t('cyclesLabel')}</option>
+            </select>
+          </div>
+
+          <button onclick="importPlayersFromCurrentSlot()" class="w-full py-2.5 bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/30 btn-3d">
+            ${t('quickImportBtn')}
+          </button>
 
           <div id="names-container" class="space-y-2.5 pt-1"></div>
 
@@ -1752,93 +2038,904 @@
       }
     }
 
+    function adjustPlayerCount(delta) {
+      let newCount = currentAmericanoPlayerCount + delta;
+      if (newCount < 4) newCount = 4;
+      if (newCount > 8) newCount = 8;
+      currentAmericanoPlayerCount = newCount;
+
+      const select = document.getElementById('quick_player_count');
+      if (select) select.value = currentAmericanoPlayerCount;
+      renderNameInputs();
+    }
+
     function renderNameInputs() {
       const count = currentAmericanoPlayerCount;
       const container = document.getElementById('names-container');
       if (!container) return;
 
+      const existingData = [];
+      for (let i = 1; i <= 8; i++) {
+        const sel = document.getElementById(`player_select_${i}`);
+        const inp = document.getElementById(`player_name_${i}`);
+        if (sel && inp) existingData.push({ selectVal: sel.value, nameVal: inp.value });
+      }
+      
+      let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
+      platformProfilesList.forEach(p => {
+        const name = `${p.first_name} ${p.last_name || ''}`.trim();
+        const usernameTag = p.username ? ` (@${p.username})` : '';
+        optionsHtml += `<option value="${p.id}" data-name="${name}">${name}${usernameTag} (Lvl ${p.skill_level || 2.5})</option>`;
+      });
+
       let html = `<label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}:</label>`;
 
       for (let i = 1; i <= count; i++) {
-        const defaultName = (i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Player ${i}`;
+        const saved = existingData[i - 1];
+        const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Player ${i}`);
+
         html += `
           <div class="p-2.5 glass-subcard rounded-2xl space-y-1.5 border border-white/10">
-            <input type="text" id="player_name_${i}" value="${defaultName}" placeholder="Name ${i}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+            <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
+              <span>Player #${i}</span>
+              <span id="player_badge_${i}" class="text-purple-300"></span>
+            </div>
+            <div class="space-y-1.5">
+              <select id="player_select_${i}" onchange="onPlayerSelectChange(${i})" class="w-full p-2 glass-subcard rounded-xl text-xs font-bold text-white focus:outline-none focus:border-purple-500">
+                ${optionsHtml}
+              </select>
+              <input type="text" id="player_name_${i}" value="${defaultName}" placeholder="Name ${i}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+            </div>
           </div>
         `;
       }
+
       container.innerHTML = html;
+
+      for (let i = 1; i <= count; i++) {
+        const saved = existingData[i - 1];
+        const sel = document.getElementById(`player_select_${i}`);
+        if (sel) {
+          sel.value = saved ? saved.selectVal : (i === 1 ? tgUser.id : 'custom');
+          onPlayerSelectChange(i);
+        }
+      }
+    }
+
+    function onPlayerSelectChange(slotIdx) {
+      const select = document.getElementById(`player_select_${slotIdx}`);
+      const input = document.getElementById(`player_name_${slotIdx}`);
+      const badge = document.getElementById(`player_badge_${slotIdx}`);
+      if (!select || !input || !badge) return;
+
+      if (select.value === 'custom') {
+        input.classList.remove('hidden');
+        badge.innerText = 'ГОСТЬ';
+      } else {
+        const selectedOpt = select.options[select.selectedIndex];
+        input.value = selectedOpt.getAttribute('data-name');
+        input.classList.add('hidden');
+        badge.innerText = 'ИГРОК ПЛАТФОРМЫ';
+      }
+    }
+
+    async function importPlayersFromCurrentSlot() {
+      const slotIdToImport = currentActiveMatchId || getStartParam();
+      if (!slotIdToImport) { alert('Нет активного созданного слота.'); return; }
+
+      try {
+        const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', slotIdToImport);
+        if (!rawPlayers || rawPlayers.length === 0) { alert('В этом слоте нет зарегистрированных игроков.'); return; }
+
+        let count = rawPlayers.length;
+        if (count < 4) count = 4;
+        if (count > 8) count = 8;
+        
+        currentAmericanoPlayerCount = count;
+        const countSelect = document.getElementById('quick_player_count');
+        if (countSelect) countSelect.value = count;
+
+        renderNameInputs();
+
+        setTimeout(() => {
+          rawPlayers.forEach((p, idx) => {
+            const slotNum = idx + 1;
+            if (slotNum > 8) return;
+            const select = document.getElementById(`player_select_${slotNum}`);
+            const input = document.getElementById(`player_name_${slotNum}`);
+
+            if (select && p.user_id) {
+              const opt = Array.from(select.options).find(o => String(o.value) === String(p.user_id));
+              if (opt) {
+                select.value = p.user_id;
+                onPlayerSelectChange(slotNum);
+              } else if (p.profiles?.first_name && input) {
+                input.value = `${p.profiles.first_name} ${p.profiles.last_name || ''}`.trim();
+              }
+            }
+          });
+          alert(`Успешно импортировано ${rawPlayers.length} игроков!`);
+        }, 100);
+
+      } catch(e) { alert('Ошибка импорта: ' + e.message); }
     }
 
     function startQuickAmericano() {
       const count = currentAmericanoPlayerCount;
+      const cycles = parseInt(document.getElementById('quick_cycles').value) || 1;
       const players = [];
 
       for (let i = 1; i <= count; i++) {
+        const select = document.getElementById(`player_select_${i}`);
         const inputName = document.getElementById(`player_name_${i}`).value.trim();
-        players.push({ id: i - 1, name: inputName || `Player ${i}` });
+        players.push({ 
+          id: i - 1, 
+          name: inputName || `Player ${i}`,
+          userId: select && select.value !== 'custom' ? select.value : null
+        });
       }
 
       const baseRotation = AMERICANO_ROTATIONS[count] || AMERICANO_ROTATIONS[4];
-      const rounds = baseRotation.map((r, idx) => ({
-        id: idx + 1, cycle: 1, round: r.round, court: r.court || 1,
-        team_a: [r.a[0], r.a[1]], team_b: [r.b[0], r.b[1]],
-        score_a: 0, score_b: 0, completed: false
-      }));
+      const rounds = [];
+      let roundIdCounter = 1;
+      const roundsPerCycle = baseRotation[baseRotation.length - 1].round;
 
-      localAmericanoState = { players, rounds, cycles: 1 };
+      for (let c = 1; c <= cycles; c++) {
+        baseRotation.forEach((r) => {
+          rounds.push({
+            id: roundIdCounter++,
+            cycle: c,
+            round: r.round + (c - 1) * roundsPerCycle,
+            court: r.court || 1,
+            team_a: [r.a[0], r.a[1]],
+            team_b: [r.b[0], r.b[1]],
+            score_a: 0,
+            score_b: 0,
+            completed: false
+          });
+        });
+      }
+
+      localAmericanoState = { players, rounds, cycles };
       localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
       renderQuickAmericano();
     }
 
+    function confirmCancelAmericano() {
+      if (confirm(t('confirmCancelMsg'))) {
+        localAmericanoState = null;
+        localStorage.removeItem(getAmericanoStorageKey());
+        renderQuickAmericano();
+      }
+    }
+
     function renderQuickAmericanoBoard(container) {
-      const { players, rounds } = localAmericanoState;
-      const leaderboard = players.map(p => ({ ...p, points: 0 }));
+      const { players, rounds, cycles } = localAmericanoState;
+      const leaderboard = players.map(p => ({ ...p, points: 0, matches: 0, wins: 0, losses: 0, draws: 0 }));
 
       rounds.forEach(r => {
         if (r.completed) {
           const sa = parseInt(r.score_a) || 0;
           const sb = parseInt(r.score_b) || 0;
-          r.team_a.forEach(pIdx => { if(leaderboard[pIdx]) leaderboard[pIdx].points += sa; });
-          r.team_b.forEach(pIdx => { if(leaderboard[pIdx]) leaderboard[pIdx].points += sb; });
+          
+          r.team_a.forEach(pIdx => { 
+            if(leaderboard[pIdx]) { 
+              leaderboard[pIdx].points += sa; 
+              leaderboard[pIdx].matches++;
+              if (sa > sb) leaderboard[pIdx].wins++;
+              else if (sb > sa) leaderboard[pIdx].losses++;
+              else leaderboard[pIdx].draws++;
+            } 
+          });
+          r.team_b.forEach(pIdx => { 
+            if(leaderboard[pIdx]) { 
+              leaderboard[pIdx].points += sb; 
+              leaderboard[pIdx].matches++;
+              if (sb > sa) leaderboard[pIdx].wins++;
+              else if (sa > sb) leaderboard[pIdx].losses++;
+              else leaderboard[pIdx].draws++;
+            } 
+          });
         }
       });
 
-      const sortedLeaderboard = [...leaderboard].sort((a, b) => b.points - a.points);
+      const sortedLeaderboard = [...leaderboard].sort((a, b) => b.points - a.points || b.wins - a.wins);
 
-      let leaderboardHtml = sortedLeaderboard.map((item, index) => `
-        <div class="flex items-center justify-between p-2.5 border rounded-2xl glass-subcard border-white/10 text-xs">
-          <span class="font-bold text-white">${index + 1}. ${item.name}</span>
-          <span class="font-black text-purple-300">${item.points} PTS</span>
-        </div>
-      `).join('');
+      let leaderboardHtml = sortedLeaderboard.map((item, index) => {
+        let cardStyle = "glass-subcard border-white/10";
+        let badge = `<span class="text-slate-400 font-bold">${index + 1} ${t('placeLabel')}</span>`;
+
+        if (index === 0) {
+          cardStyle = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/50 shadow-lg shadow-amber-500/10";
+          badge = `<span class="text-amber-400 font-black">${t('place1')}</span>`;
+        } else if (index === 1) {
+          cardStyle = "bg-gradient-to-r from-slate-300/20 to-slate-400/10 border-slate-300/40";
+          badge = `<span class="text-slate-200 font-black">${t('place2')}</span>`;
+        } else if (index === 2) {
+          cardStyle = "bg-gradient-to-r from-amber-700/20 to-amber-800/10 border-amber-700/40";
+          badge = `<span class="text-amber-500 font-black">${t('place3')}</span>`;
+        }
+
+        const scoreDetail = item.draws > 0 ? `${item.wins}W / ${item.draws}D / ${item.losses}L` : `${item.wins}W / ${item.losses}L`;
+
+        return `
+          <div class="flex items-center justify-between p-2.5 border rounded-2xl ${cardStyle}">
+            <div class="flex items-center gap-2 text-xs">
+              ${badge}
+              <span class="font-bold text-white">${item.name}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-slate-300 font-bold">${scoreDetail}</span>
+              <span class="font-black text-purple-300 bg-purple-500/20 px-2.5 py-1 rounded-full text-xs">${item.points} PTS</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      let roundsHtml = rounds.map(r => {
+        const pA1 = players[r.team_a[0]]?.name || '—';
+        const pA2 = players[r.team_a[1]]?.name || '—';
+        const pB1 = players[r.team_b[0]]?.name || '—';
+        const pB2 = players[r.team_b[1]]?.name || '—';
+
+        return `
+          <div class="p-3 border border-white/10 rounded-2xl glass-subcard space-y-2 text-xs">
+            <div class="flex justify-between items-center text-slate-300 font-semibold">
+              <span>${t('matchRoundLabel')} ${r.cycle} • ${t('matchGameLabel')} #${r.round} ${r.court ? `(${t('courtLabel')} #${r.court})` : ''}</span>
+              ${r.completed ? `<span class="text-emerald-400 font-black">${t('completedStatus')}</span>` : `<span class="text-amber-400 font-semibold">${t('pendingStatus')}</span>`}
+            </div>
+            <div class="flex items-center justify-between gap-1.5">
+              <div class="flex-1 text-center font-bold text-white">${pA1} / ${pA2}</div>
+              
+              <div class="flex items-center gap-1">
+                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
+                <span class="font-black text-slate-500">:</span>
+                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
+                
+                <button onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
+                  ${t('okBtn')}
+                </button>
+              </div>
+
+              <div class="flex-1 text-center font-bold text-white">${pB1} / ${pB2}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
 
       container.innerHTML = `
         <div class="space-y-4">
-          <div class="bg-purple-600/80 p-4 rounded-2xl text-white flex justify-between items-center">
-            <h2 class="text-base font-black uppercase">${t('calculatorTitle')}</h2>
-            <button onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 text-white rounded-xl text-xs font-bold btn-3d">${t('resetBtn')}</button>
+          <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 backdrop-blur-md p-4 rounded-2xl text-white flex justify-between items-center shadow-lg border border-white/10">
+            <div>
+              <h2 class="text-base font-black uppercase tracking-wide">${t('calculatorTitle')}</h2>
+              <p class="text-xs opacity-90">${t('roundsCountLabel')}: ${rounds.length} (${cycles || 1} ${cycles > 1 ? t('cyclesLabel') : t('cycleSingleLabel')})</p>
+            </div>
+            <button onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold btn-3d border border-white/20">${t('resetBtn')}</button>
           </div>
-          <div class="space-y-2">${leaderboardHtml}</div>
+
+          <button onclick="confirmCancelAmericano()" class="w-full py-3 bg-gradient-to-r from-rose-600/80 to-red-600/80 hover:from-rose-500 hover:to-red-500 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-rose-500/20 border border-rose-400/30 flex items-center justify-center gap-2">
+            <span>🛑</span> <span>${t('cancelTournamentBtn')}</span>
+          </button>
+
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">${t('leaderboardTitle')}</h3>
+            ${leaderboardHtml}
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="syncResultsToPlatformProfiles()" class="py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
+              ${t('recordRatingBtn')}
+            </button>
+            <button onclick="shareAmericanoResultsSummary()" class="py-3 bg-slate-800/80 hover:bg-slate-700/80 text-purple-300 border border-purple-500/40 font-bold rounded-xl text-xs btn-3d flex items-center justify-center gap-1">
+              ${t('reportTgBtn')}
+            </button>
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">${t('matchesAndScoreTitle')}</h3>
+            ${roundsHtml}
+          </div>
         </div>
       `;
+    }
+
+    function shareAmericanoResultsSummary() {
+      if (!localAmericanoState || !localAmericanoState.players) return;
+      const { players, rounds } = localAmericanoState;
+
+      const stats = players.map(p => ({ ...p, pts: 0 }));
+      rounds.forEach(r => {
+        if (r.completed) {
+          const sa = parseInt(r.score_a) || 0;
+          const sb = parseInt(r.score_b) || 0;
+          r.team_a.forEach(idx => { if (stats[idx]) stats[idx].pts += sa; });
+          r.team_b.forEach(idx => { if (stats[idx]) stats[idx].pts += sb; });
+        }
+      });
+
+      stats.sort((a, b) => b.pts - a.pts);
+
+      let text = `🎾 *РЕЗУЛЬТАТЫ ТУРНИРА АМЕРИКАНО* 🎾\n\n`;
+      stats.forEach((s, i) => {
+        const medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : '🔹'));
+        text += `${medal} ${i + 1}. *${s.name}* — ${s.pts} PTS\n`;
+      });
+      text += `\n🔥 Сыграно в Padel Moldova!`;
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+        alert('Итоговый отчёт скопирован!');
+      } else prompt('Скопируйте текст отчёта:', text);
+    }
+
+    async function syncResultsToPlatformProfiles() {
+      if (!localAmericanoState || !localAmericanoState.players) return;
+
+      const { players, rounds } = localAmericanoState;
+      const completedRounds = rounds.filter(r => r.completed);
+
+      if (completedRounds.length === 0) {
+        alert('Заполните хотя бы один матч.');
+        return;
+      }
+
+      try {
+        const playerStats = {};
+        players.forEach(p => {
+          playerStats[p.id] = {
+            userId: p.userId, name: p.name, pointsGained: 0,
+            wins: 0, losses: 0, draws: 0, matchesCount: 0
+          };
+        });
+
+        completedRounds.forEach(r => {
+          const sa = parseInt(r.score_a) || 0;
+          const sb = parseInt(r.score_b) || 0;
+
+          r.team_a.forEach(pIdx => {
+            if (playerStats[pIdx]) {
+              playerStats[pIdx].pointsGained += sa;
+              playerStats[pIdx].matchesCount += 1;
+              if (sa > sb) playerStats[pIdx].wins += 1;
+              else if (sb > sa) playerStats[pIdx].losses += 1;
+              else playerStats[pIdx].draws += 1;
+            }
+          });
+
+          r.team_b.forEach(pIdx => {
+            if (playerStats[pIdx]) {
+              playerStats[pIdx].pointsGained += sb;
+              playerStats[pIdx].matchesCount += 1;
+              if (sb > sa) playerStats[pIdx].wins += 1;
+              else if (sa > sb) playerStats[pIdx].losses += 1;
+              else playerStats[pIdx].draws += 1;
+            }
+          });
+        });
+
+        let updatedCount = 0;
+        for (const pKey in playerStats) {
+          const stat = playerStats[pKey];
+          if (stat.userId && supabaseClient) {
+            const { data } = await supabaseClient
+              .from('profiles')
+              .select('league_points, rating_americano, total_matches_played, wins, losses, draws')
+              .eq('id', stat.userId)
+              .maybeSingle();
+            
+            if (data) {
+              const currentLp = data.league_points || 1000;
+              const currentRating = data.rating_americano || 1000;
+              const currentMatches = data.total_matches_played || 0;
+              const currentWins = data.wins || 0;
+              const currentLosses = data.losses || 0;
+              const currentDraws = data.draws || 0;
+
+              const updateData = {
+                league_points: currentLp + stat.pointsGained,
+                rating_americano: currentRating + stat.pointsGained,
+                total_matches_played: currentMatches + stat.matchesCount,
+                wins: currentWins + stat.wins,
+                losses: currentLosses + stat.losses,
+                draws: currentDraws + stat.draws,
+                updated_at: new Date().toISOString()
+              };
+
+              await safeUpdateProfile(stat.userId, updateData);
+              updatedCount++;
+            }
+          }
+        }
+
+        const sortedLeaderboard = Object.values(playerStats).sort((a,b) => b.pointsGained - a.pointsGained);
+        saveAmericanoToHistory({
+          players: players,
+          rounds: completedRounds,
+          leaderboard: sortedLeaderboard
+        });
+
+        alert(`Турнир завершён! Статистика игроков (${updatedCount}) обновлена.`);
+        await fetchAllPlatformProfiles();
+      } catch(e) { alert('Ошибка записи: ' + e.message); }
+    }
+
+    function saveQuickScore(roundId) {
+      const inputA = document.getElementById(`quick_score_a_${roundId}`);
+      const inputB = document.getElementById(`quick_score_b_${roundId}`);
+
+      const scoreA = parseInt(inputA.value) || 0;
+      const scoreB = parseInt(inputB.value) || 0;
+
+      const round = localAmericanoState.rounds.find(r => r.id === roundId);
+      if (round) {
+        round.score_a = scoreA;
+        round.score_b = scoreB;
+        round.completed = (scoreA > 0 || scoreB > 0);
+        
+        localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
+        renderQuickAmericanoBoard(document.getElementById('main-content'));
+      }
     }
 
     function resetQuickAmericano() {
-      localAmericanoState = null;
-      localStorage.removeItem(getAmericanoStorageKey());
-      renderQuickAmericano();
+      if (confirm('Начать новый турнир? Счёт будет сброшен.')) {
+        localAmericanoState = null;
+        localStorage.removeItem(getAmericanoStorageKey());
+        renderQuickAmericano();
+      }
     }
 
-    // --- ВКЛАДКА 3: ПРОФИЛЬ ---
+    // --- ВКЛАДКА 3: ПРОФИЛЬ, ДИВИЗИОНЫ И PRO ПОДПИСКА ---
+    function setLeaderboardTab(tab) {
+      currentLeaderboardTab = tab;
+      renderProfileTab();
+    }
+
+    function toggleProfileEditForm() {
+      isProfileEditOpen = !isProfileEditOpen;
+      const formBox = document.getElementById('profile-edit-box');
+      if (formBox) {
+        if (isProfileEditOpen) formBox.classList.remove('hidden');
+        else formBox.classList.add('hidden');
+      }
+    }
+
+    function shareMyProfileCard() {
+      if (!currentUserProfile) return;
+      const p = currentUserProfile;
+      const calculatedLP = (p.league_points || 1000) + getHistoricalPointsForUser(p.id, p.first_name);
+      const league = getPlayerLeague(calculatedLP);
+      const userTag = p.username ? ` (@${p.username})` : '';
+      const isPro = p.is_premium ? '👑 PRO' : 'FREE';
+
+      const shareText = `🎾 Игрок Padel Moldova:\n👤 ${p.first_name} ${p.last_name || ''}${userTag} [${isPro}]\n🏆 Дивизион: ${league.badge} ${league.title} (${calculatedLP} LP)\n⭐ Skill Level: ${p.skill_level || 2.5}`;
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(shareText);
+        alert('Карточка профиля скопирована!');
+      } else prompt('Скопируйте вашей карточкой:', shareText);
+    }
+
+    function openViewPlayerModalById(userId) {
+      const player = platformProfilesList.find(item => String(item.id) === String(userId));
+      if (!player) return;
+
+      const modal = document.getElementById('modal-view-player');
+      const content = document.getElementById('view-player-card-content');
+
+      const isMe = String(player.id) === String(tgUser.id);
+      const isPublic = player.is_public_profile !== false;
+      const canViewDetails = isMe || isPublic || isUserCreator();
+
+      if (!canViewDetails) {
+        content.innerHTML = `
+          <div class="glass-subcard p-4 rounded-2xl border border-rose-500/30 text-center space-y-2">
+            <span class="text-3xl block">🔒</span>
+            <h4 class="text-sm font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
+            <p class="text-xs text-rose-300 leading-relaxed font-semibold">Этот профиль приватный.</p>
+          </div>
+        `;
+      } else {
+        const calculatedAge = calculateAge(player.birth_date);
+        const ageStr = calculatedAge ? `${calculatedAge} лет` : t('unspecified');
+        let genderLabel = t('unspecified');
+        if (player.gender === 'male') genderLabel = t('male');
+        else if (player.gender === 'female') genderLabel = t('female');
+
+        const calculatedLP = (player.league_points || 1000) + getHistoricalPointsForUser(player.id, player.first_name);
+        const league = getPlayerLeague(calculatedLP);
+        const wins = player.wins || 0;
+        const losses = player.losses || 0;
+        const draws = player.draws || 0;
+        const total = player.total_matches_played || (wins + losses + draws);
+        const winrate = total > 0 ? Math.round(((wins + draws * 0.5) / total) * 100) : 0;
+
+        const tgLink = player.username ? `<a href="https://t.me/${player.username}" target="_blank" class="text-cyan-400 font-bold underline">@${player.username}</a>` : `<span class="text-slate-400 italic">Не указан</span>`;
+
+        content.innerHTML = `
+          <div class="${player.is_premium ? 'glass-card-pro' : 'glass-subcard'} border p-4 rounded-2xl space-y-3">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-base font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
+                <p class="text-xs text-cyan-300 font-bold mt-0.5">Telegram: ${tgLink}</p>
+              </div>
+              <span class="px-2.5 py-1 bg-amber-400 text-slate-950 font-black text-xs rounded-lg uppercase shadow">Lvl ${player.skill_level || 2.5}</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-black border ${league.color}">
+                ${league.badge} ${league.title} (${calculatedLP} LP)
+              </span>
+              ${player.is_premium ? `<span class="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-black text-[9px] rounded-md uppercase">PRO MEMBER</span>` : ''}
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px] glass-subcard p-2.5 rounded-xl border border-white/10">
+              <div><span class="text-slate-400">${t('gender')}:</span> <strong class="text-slate-200">${genderLabel}</strong></div>
+              <div><span class="text-slate-400">${t('ageLabel')}:</span> <strong class="text-slate-200">${ageStr}</strong></div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 text-center font-bold text-[10px] glass-subcard p-2 rounded-xl border border-white/10">
+              <div><p class="text-slate-400 uppercase">${t('matches')}</p><p class="text-xs text-white">${total}</p></div>
+              <div><p class="text-slate-400 uppercase">${t('wins')}</p><p class="text-xs text-emerald-400">${wins}</p></div>
+              <div><p class="text-slate-400 uppercase">${t('losses')}</p><p class="text-xs text-rose-400">${losses}</p></div>
+              <div><p class="text-slate-400 uppercase">${t('winrate')}</p><p class="text-xs text-amber-300">${winrate}%</p></div>
+            </div>
+          </div>
+        `;
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeViewPlayerModal() { document.getElementById('modal-view-player').classList.add('hidden'); }
+
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
+      container.innerHTML = `<div class="text-center py-10 text-slate-400">${t('loadingProfile')}</div>`;
+
+      await fetchAllPlatformProfiles();
+
+      const p = currentUserProfile || {
+        first_name: tgUser.first_name, skill_level: 2.5, league_points: 1000, rating_americano: 1000,
+        rating_friendly: 1000, rating_competitive: 1000, preferred_side: 'both', phone: '+373 60 217 449',
+        is_premium: false, payment_pending: false, shield_cards: 1, total_matches_played: 0, wins: 0, losses: 0, draws: 0
+      };
+
+      const wins = p.wins || 0;
+      const losses = p.losses || 0;
+      const draws = p.draws || 0;
+      const total = p.total_matches_played || (wins + losses + draws);
+      const winrate = total > 0 ? Math.round(((wins + draws * 0.5) / total) * 100) : 0;
+
+      const calculatedLP = (p.league_points || 1000) + getHistoricalPointsForUser(p.id, p.first_name);
+      const myLeague = getPlayerLeague(calculatedLP);
+
+      let sortedList = [...platformProfilesList];
+      sortedList.forEach(item => {
+        item.computedLP = (item.league_points || 1000) + getHistoricalPointsForUser(item.id, item.first_name);
+      });
+
+      if (currentLeaderboardTab === 'national') {
+        sortedList.sort((a, b) => b.computedLP - a.computedLP);
+      } else if (currentLeaderboardTab === 'americano') {
+        sortedList.sort((a, b) => (b.rating_americano || 1000) - (a.rating_americano || 1000));
+      } else if (currentLeaderboardTab === 'friendly') {
+        sortedList.sort((a, b) => (b.rating_friendly || 1000) - (a.rating_friendly || 1000));
+      } else if (currentLeaderboardTab === 'competitive') {
+        sortedList.sort((a, b) => (b.rating_competitive || 1000) - (a.rating_competitive || 1000));
+      }
+
+      let leaderboardRows = sortedList.map((item, index) => {
+        const league = getPlayerLeague(item.computedLP);
+        let valBadge = `${item.computedLP} LP`;
+
+        let lockIcon = item.is_public_profile === false ? ' 🔒' : '';
+        let proBadge = item.is_premium ? ' 👑' : '';
+
+        return `
+          <div class="flex items-center justify-between p-2.5 border-b border-white/5 text-xs hover:bg-white/5 transition-colors">
+            <div class="flex items-center gap-2">
+              <span class="font-black ${index < 3 ? 'text-amber-400 font-mono text-sm' : 'text-slate-500'}">#${index + 1}</span>
+              <span onclick="openViewPlayerModalById('${item.id}')" class="font-bold text-white cursor-pointer underline decoration-dotted hover:text-emerald-300">
+                ${item.first_name} ${item.last_name || ''}${proBadge}${lockIcon}
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] px-2 py-0.5 rounded-full font-black border ${league.color}">${league.badge} ${valBadge}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      let creatorAdminPanelHtml = '';
+      if (isUserCreator()) {
+        const pendingUsers = getPendingProRequestsList();
+
+        let pendingRequestsHtml = pendingUsers.length > 0 ? pendingUsers.map(u => `
+          <div class="p-3 glass-subcard rounded-2xl border border-amber-500/50 flex items-center justify-between gap-2">
+            <div>
+              <span class="font-black text-white text-xs">${u.first_name} ${u.last_name || ''}</span>
+              <p class="text-[10px] text-amber-300 font-mono">@${u.username || u.id} • MIA 150 MDL</p>
+            </div>
+            <div class="flex gap-1">
+              <button onclick="approveUserProStatus('${u.id}')" class="px-2.5 py-1 bg-emerald-500 text-slate-950 font-black rounded-lg text-[10px] btn-3d">${t('approveProBtn')}</button>
+              <button onclick="rejectUserProStatus('${u.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg text-[10px] btn-3d">${t('rejectProBtn')}</button>
+            </div>
+          </div>
+        `).join('') : `<p class="text-[11px] text-slate-400 italic">Нет новых заявок на оплату.</p>`;
+
+        let allUsersManagementRows = sortedList.map(item => `
+          <div class="flex items-center justify-between p-2 glass-subcard rounded-xl text-xs gap-2 border border-white/5">
+            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[130px] cursor-pointer underline decoration-dotted hover:text-amber-300">${item.first_name} (${item.username ? '@' + item.username : 'без юзера'})</span>
+            <div class="flex items-center gap-1">
+              <span class="text-[9px] ${item.is_premium ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-700 text-slate-300'} px-1.5 py-0.5 rounded">${item.is_premium ? 'PRO' : 'FREE'}</span>
+            </div>
+          </div>
+        `).join('');
+
+        creatorAdminPanelHtml = `
+          <div class="bg-amber-500/10 border border-amber-500/40 p-4 rounded-3xl space-y-3 glass-subcard">
+            <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('creatorPanelTitle')}</h3>
+            
+            <div class="space-y-2">
+              <h4 class="text-[11px] font-black text-amber-400 uppercase">${t('pendingRequestsTitle')}</h4>
+              <div class="space-y-1.5">${pendingRequestsHtml}</div>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-white/10">
+              <p class="text-[11px] text-slate-300 font-bold uppercase">${t('allRegisteredPlayers')}</p>
+              <div class="max-h-40 overflow-y-auto space-y-1.5 pr-1">${allUsersManagementRows}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      let proBannerStatus = '';
+      if (p.is_premium) {
+        const expDate = p.premium_until ? new Date(p.premium_until) : new Date(Date.now() + 30*24*3600*1000);
+        const dateFormatted = expDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const daysLeft = Math.max(0, Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)));
+
+        proBannerStatus = `
+          <div onclick="openProDetailsModal()" class="p-4 bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/20 border border-amber-500/50 rounded-2xl cursor-pointer hover:border-amber-400/80 transition-all space-y-2.5 shadow-lg shadow-amber-500/10 btn-3d">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">👑</span>
+                <div>
+                  <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('proApprovedStatus')}</h4>
+                  <p class="text-[10px] text-amber-200/80 font-medium">Нажмите для подробностей и бонусов 🔍</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-black text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-400 px-2.5 py-1 rounded-xl shadow uppercase">
+                ${daysLeft} дн.
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[10px] pt-2 border-t border-amber-500/30">
+              <div class="glass-subcard p-2 rounded-xl text-center">
+                <span class="text-slate-400 block">Действителен до:</span>
+                <strong class="text-amber-300 font-bold">${dateFormatted}</strong>
+              </div>
+              <div class="glass-subcard p-2 rounded-xl text-center">
+                <span class="text-slate-400 block">Защитные карты:</span>
+                <strong class="text-emerald-400 font-bold">🛡️ ${p.shield_cards || 2} шт.</strong>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (p.payment_pending) {
+        proBannerStatus = `
+          <div class="p-3 bg-amber-500/20 border border-amber-500/50 rounded-2xl space-y-1 text-center">
+            <p class="text-xs font-bold text-amber-300">${t('proPendingStatus')}</p>
+            <p class="text-[9px] text-slate-300">Создатель проверяет перевод MIA (060217449)</p>
+          </div>
+        `;
+      } else {
+        proBannerStatus = `
+          <button onclick="openPayProModal()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+            <span>💎</span> <span>${t('getProBtn')}</span>
+          </button>
+        `;
+      }
+
       container.innerHTML = `
-        <div class="glass-card p-4 rounded-3xl text-white space-y-3">
-          <h2 class="text-lg font-black">${tgUser.first_name} ${tgUser.last_name || ''}</h2>
-          <p class="text-xs text-slate-300">Level 2.5 • Padel Moldova Member</p>
+        <div class="space-y-4">
+          <!-- 1. КАРТОЧКА ПРОФИЛЯ -->
+          <div class="${p.is_premium ? 'glass-card-pro' : 'glass-card'} p-4 rounded-3xl text-white shadow-xl space-y-3 relative backdrop-blur-md">
+            
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-lg font-black tracking-tight">${p.first_name} ${p.last_name || ''}</h2>
+                  <span class="px-2 py-0.5 bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg uppercase shadow">Lvl ${p.skill_level || 2.5}</span>
+                </div>
+                
+                <div class="flex items-center gap-1.5 mt-1.5">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black border ${myLeague.color} flex items-center gap-1">
+                    <span>${myLeague.badge}</span> ${myLeague.title} (${calculatedLP} LP)
+                  </span>
+                  <span class="px-2 py-0.5 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9px] font-black rounded-full">
+                    🛡️ ${p.shield_cards || 1} Shield
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1.5">
+                <button onclick="shareMyProfileCard()" class="p-2 glass-subcard border border-white/20 rounded-xl text-white text-xs font-bold btn-3d">📤</button>
+                <button onclick="toggleProfileEditForm()" class="px-2.5 py-1.5 glass-subcard border border-white/30 rounded-xl text-white text-xs font-extrabold btn-3d flex items-center gap-1">
+                  ✏️ <span>${t('settingsBtn')}</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-1 pt-2 border-t border-white/10 text-center font-bold">
+              <div><p class="text-[9px] opacity-75 uppercase">${t('matches')}</p><p class="text-xs font-black">${total}</p></div>
+              <div><p class="text-[9px] opacity-75 uppercase">${t('wins')}</p><p class="text-xs font-black text-emerald-300">${wins}</p></div>
+              <div><p class="text-[9px] opacity-75 uppercase">${t('losses')}</p><p class="text-xs font-black text-rose-300">${losses}</p></div>
+              <div><p class="text-[9px] opacity-75 uppercase">${t('winrate')}</p><p class="text-xs font-black text-amber-300">${winrate}%</p></div>
+            </div>
+          </div>
+
+          ${proBannerStatus}
+
+          <!-- 2. ФОРМА НАСТРОЕК -->
+          <div id="profile-edit-box" class="${isProfileEditOpen ? '' : 'hidden'} glass-subcard p-4 rounded-3xl border border-cyan-500/40 space-y-3 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-white/10 pb-2">
+              <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider">${t('profileEditTitle')}</h3>
+              <button onclick="toggleProfileEditForm()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+            </div>
+            
+            <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">${t('birthDate')}</label>
+                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+                </div>
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">${t('gender')}</label>
+                  <select id="edit_gender" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+                    <option value="" ${!p.gender ? 'selected' : ''}>${t('unspecified')}</option>
+                    <option value="male" ${p.gender === 'male' ? 'selected' : ''}>${t('male')}</option>
+                    <option value="female" ${p.gender === 'female' ? 'selected' : ''}>${t('female')}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">${t('preferredSide')}</label>
+                  <select id="edit_preferred_side" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+                    <option value="both" ${p.preferred_side === 'both' ? 'selected' : ''}>${t('bothSides')}</option>
+                    <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
+                    <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-slate-300 font-semibold mb-1">${t('phone')}</label>
+                  <input type="text" id="edit_phone" value="${p.phone || ''}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+                </div>
+              </div>
+
+              <div class="flex gap-2 pt-1">
+                <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl btn-3d uppercase text-xs">
+                  ${t('saveChanges')}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          ${creatorAdminPanelHtml}
+
+          <!-- 3. НАЦИОНАЛЬНЫЙ РЕЙТИНГ И ЛИГИ МОЛДОВЫ -->
+          <div class="glass-subcard p-3.5 rounded-3xl border border-white/10 space-y-3">
+            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">
+              ${t('ratingSystemTitle')}
+            </h3>
+
+            <div class="divide-y divide-white/5">
+              ${leaderboardRows.length > 0 ? leaderboardRows : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные игроки отсутствуют...</p>'}
+            </div>
+          </div>
         </div>
       `;
+    }
+
+    function openAdminPlayerModalById(userId) {
+      if (!isUserCreator()) return;
+      const player = platformProfilesList.find(item => String(item.id) === String(userId));
+      if (!player) return;
+
+      const modal = document.getElementById('modal-admin-player');
+      const content = document.getElementById('admin-player-form-content');
+
+      content.innerHTML = `
+        <div class="space-y-3">
+          <div class="glass-subcard p-3 rounded-xl border border-white/10">
+            <h4 class="text-sm font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
+            <p class="text-[10px] text-slate-400 font-mono">ID: ${player.id} ${player.username ? '(@' + player.username + ')' : ''}</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">League Points (LP)</label>
+              <input type="number" id="ap_lp" value="${player.league_points || 1000}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">Skill Level (1.0 - 7.0)</label>
+              <input type="number" step="0.1" id="ap_skill" value="${player.skill_level || 2.5}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">PRO Статус</label>
+              <select id="ap_pro" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+                <option value="true" ${player.is_premium ? 'selected' : ''}>👑 PRO Active</option>
+                <option value="false" ${!player.is_premium ? 'selected' : ''}>🆓 Free User</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">Shield Cards</label>
+              <input type="number" id="ap_shields" value="${player.shield_cards || 1}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+            </div>
+          </div>
+
+          <button onclick="saveAdminPlayerChanges('${player.id}')" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl uppercase text-xs btn-3d mt-2">
+            ${t('saveChanges')}
+          </button>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeAdminPlayerModal() { document.getElementById('modal-admin-player').classList.add('hidden'); }
+
+    async function saveAdminPlayerChanges(userId) {
+      const newLp = parseInt(document.getElementById('ap_lp').value) || 1000;
+      const newSkill = parseFloat(document.getElementById('ap_skill').value) || 2.5;
+      const isPro = document.getElementById('ap_pro').value === 'true';
+      const shields = parseInt(document.getElementById('ap_shields').value) || 1;
+
+      try {
+        await safeUpdateProfile(userId, {
+          league_points: newLp,
+          rating_americano: newLp,
+          skill_level: newSkill,
+          is_premium: isPro,
+          shield_cards: shields,
+          updated_at: new Date().toISOString()
+        });
+
+        alert('Данные игрока обновлены!');
+        closeAdminPlayerModal();
+        await fetchAllPlatformProfiles();
+        switchTab(activeTab);
+      } catch(e) { alert('Ошибка: ' + e.message); }
+    }
+
+    async function saveProfileData(e) {
+      e.preventDefault();
+      const birthDate = document.getElementById('edit_birth_date').value || null;
+      const gender = document.getElementById('edit_gender').value || null;
+      const preferredSide = document.getElementById('edit_preferred_side').value || 'both';
+      const phone = document.getElementById('edit_phone').value.trim();
+
+      try {
+        await safeUpdateProfile(tgUser.id, {
+          birth_date: birthDate,
+          gender: gender,
+          preferred_side: preferredSide,
+          phone: phone,
+          updated_at: new Date().toISOString()
+        });
+
+        isProfileEditOpen = false;
+        alert('Профиль сохранён!');
+        await syncUserProfile();
+        renderProfileTab();
+      } catch(err) { alert('Ошибка: ' + err.message); }
     }
 
     async function joinMatch(matchId, nextSlot) {
