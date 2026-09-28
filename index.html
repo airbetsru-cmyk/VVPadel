@@ -1,474 +1,141 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Padel Moldova</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<!-- TODO: добавьте integrity/crossorigin (SRI) и соберите Tailwind CLI вместо CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#090d16;--card:#0f172a;--line:rgba(255,255,255,.12);--em:#10b981;--am:#f59e0b;--tx:#f3f4f6;--mut:#94a3b8}
-*{box-sizing:border-box}
-body{margin:0;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);padding:16px 16px 64px;-webkit-tap-highlight-color:transparent}
-#app{max-width:448px;margin:0 auto;display:grid;gap:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px}
-.pro{border-color:var(--am);box-shadow:0 0 20px rgba(245,158,11,.3)}
-.sub{background:rgba(15,23,42,.85);border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:8px}
-h1{font-size:18px;margin:0}h2{font-size:14px;margin:0 0 8px;text-transform:uppercase}
-.muted{color:var(--mut);font-size:11px}
-button,.btn{cursor:pointer;border:0;border-radius:12px;padding:10px 12px;font:700 12px 'Outfit';color:#020617;background:var(--em);touch-action:manipulation}
-button.alt{background:#1e293b;color:var(--tx)}button.warn{background:rgba(244,63,94,.2);color:#fda4af}button.gold{background:var(--am)}
-button:disabled{opacity:.5}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #fff}
-input,select{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:#0b1220;color:var(--tx);font:600 13px 'Outfit'}
-label{display:block;font-size:11px;color:var(--mut);margin:8px 0 4px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
-.tabs button{background:transparent;color:var(--mut)}.tabs button.on{background:var(--em);color:#020617}
-.scroll{max-height:380px;overflow-y:auto}
-#err{display:none;background:rgba(244,63,94,.2);border:1px solid rgba(244,63,94,.4);padding:10px;border-radius:14px;font-size:12px}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
-</head>
-<body>
-<div id="app">
-  <div class="card row"><div><h1>Padel Moldova</h1><span id="hello" class="muted"></span></div></div>
-  <div class="card tabs" role="tablist">
-    <button data-act="tab" data-v="slots" class="on">🎾 Слоты</button>
-    <button data-act="tab" data-v="americano">🏆 Американо</button>
-    <button data-act="tab" data-v="profile">👤 Профиль</button>
-  </div>
-  <div id="err" role="alert"></div>
-  <div id="main" class="card">Загрузка…</div>
-</div>
+import re, sys, os
+# Использование: python3 fix_padel.py index.html  ->  index.fixed.html
+IN = sys.argv[1] if len(sys.argv) > 1 else 'index.html'
+OUT = os.path.splitext(IN)[0] + '.fixed.html'
+src = open(IN, encoding='utf-8').read()
 
-<script>
-'use strict';
-/* ---------- Конфиг и константы ---------- */
-const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; // публичный ключ: безопасность обеспечивает только RLS
-const BOT = 'VVPadel_bot';
-const CREATOR_IDS = []; // ЧИСЛОВЫЕ Telegram ID админов, напр. [123456789]. UI-подсказка; реальная проверка — на сервере (RLS/RPC)
-const DEFAULT_LP = 1000, DEFAULT_SKILL = 2.5, HISTORY_DAYS = 7, INIT_TIMEOUT_MS = 4000;
-const LP_REWARD = [40, 25, 15, 5];
-const UUID_RE = /^[0-9a-f-]{36}$/i;
+def rep(old, new, all_=False):
+    global src
+    n = src.count(old)
+    if n == 0: print('MISS:', old[:70]); return
+    src = src.replace(old, new) if all_ else src.replace(old, new, 1)
+def rx(pat, new):
+    global src
+    src, n = re.subn(pat, new, src, count=1, flags=re.S)
+    if n == 0: print('MISS rx:', pat[:70])
 
-/* ---------- Утилиты ---------- */
-const $ = id => document.getElementById(id);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const toLocalInput = d => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-const fmtDate = iso => new Date(iso).toLocaleString([], {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
-const tg = window.Telegram?.WebApp;
-try { tg?.ready(); tg?.expand(); } catch (_) {}
-const notify = m => (tg?.showAlert ? tg.showAlert(m) : alert(m));
-const askConfirm = (m, cb) => (tg?.showConfirm ? tg.showConfirm(m, ok => ok && cb()) : confirm(m) && cb());
-function showError(m) { const b = $('err'); b.style.display = 'block'; b.textContent = m; }
-function clearError() { $('err').style.display = 'none'; }
+# --- HEAD / зависимости
+rep('https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.min.js', 'https://cdn.tailwindcss.com/3.4.10')
+rep('@supabase/supabase-js@2"', '@supabase/supabase-js@2.45.4"')
+rep(', user-scalable=no', '')
 
-// Тестовый пользователь — только на localhost, без прав админа
-const IS_DEV = !tg?.initDataUnsafe?.user && ['localhost', '127.0.0.1'].includes(location.hostname);
-const me = tg?.initDataUnsafe?.user || (IS_DEV ? {id: 777777, first_name: 'Dev', username: 'dev'} : null);
-const isCreator = () => !!me && CREATOR_IDS.includes(Number(me.id));
-const db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+# --- синтаксическая ошибка (ломала весь скрипт)
+rep("req.last_name \\vert{}\\vert{} ''", "req.last_name || ''")
 
-const state = { tab: 'slots', sub: 'feed', profile: null, profiles: [], americano: null, renderId: 0, editOpen: false };
-const amKey = () => `americano_${me.id}`;
-const beginRender = () => ++state.renderId;
-const stale = id => id !== state.renderId; // защита от устаревшего рендера после await
+# --- helpers
+rep('function sanitizeHTML(str) {',
+"""function toLocalInputValue(d) { return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
+    function isProActive(p) { return !!p && p.is_premium === true && (!p.premium_until || new Date(p.premium_until) > new Date()); }
+    function notify(m) { if (tg && tg.showAlert) tg.showAlert(m); else alert(m); }
+    function sanitizeHTML(str) {""")
 
-/* ---------- Профили ---------- */
-async function ensureProfile() {
-  if (!db || !me) return;
-  // ignoreDuplicates: существующая строка (LP, победы) НЕ перезаписывается
-  const { error } = await db.from('profiles').upsert([{
-    id: me.id, first_name: me.first_name || 'Игрок', last_name: me.last_name || null, username: me.username || null
-  }], { onConflict: 'id', ignoreDuplicates: true });
-  if (error) showError('Профиль: ' + error.message);
-}
-async function loadProfiles() {
-  if (!db) return;
-  // TODO: заменить на view public_profiles без телефона/даты рождения
-  const { data, error } = await db.from('profiles').select('*').order('league_points', {ascending: false}).limit(100);
-  if (error) return showError('Профили: ' + error.message);
-  state.profiles = data || [];
-  state.profile = state.profiles.find(p => String(p.id) === String(me.id)) || state.profile;
-}
-async function loadMyProfile() {
-  const { data } = await db.from('profiles').select('*').eq('id', me.id).maybeSingle();
-  if (data) state.profile = data;
-}
-const lp = p => p.league_points ?? DEFAULT_LP;   // ?? вместо ||: 0 больше не превращается в 1000
-const skill = p => p.skill_level ?? DEFAULT_SKILL;
-function league(v) {
-  if (v >= 2100) return '👑 Master'; if (v >= 1800) return '💎 Platinum';
-  if (v >= 1500) return '🥇 Gold'; if (v >= 1200) return '🥈 Silver'; return '🥉 Bronze';
-}
-const isProActive = p => p.is_premium === true && (!p.premium_until || new Date(p.premium_until) > new Date());
+# --- безопасность: фиктивный админ вне Telegram
+rep("""const tgUser = tg?.initDataUnsafe?.user || {
+      id: 777777,
+      first_name: 'Victor',
+      last_name: 'Popovici',
+      username: 'kizdoi'
+    };""",
+"""const IS_DEV = ['localhost', '127.0.0.1'].includes(location.hostname) || new URLSearchParams(location.search).has('dev');
+    const tgUser = tg?.initDataUnsafe?.user || (IS_DEV ? { id: 777777, first_name: 'Dev', last_name: 'User', username: 'dev_user' } : null);
+    if (!tgUser) {
+      document.addEventListener('DOMContentLoaded', () => { document.body.innerHTML = '<div style="padding:32px;text-align:center;color:#fff;font-family:sans-serif">Откройте приложение через Telegram</div>'; });
+      throw new Error('Not opened inside Telegram');
+    }""")
+rep("const CREATOR_TELEGRAM_IDS = ['kizdoi', 'Victor Popovici'];", "const CREATOR_TELEGRAM_IDS = ['kizdoi']; // лучше заменить на числовой Telegram ID")
+rep("return String(tgUser.id) === '777777' || tgUser.username === 'kizdoi' || CREATOR_TELEGRAM_IDS.includes(tgUser.username) || CREATOR_TELEGRAM_IDS.includes(tgUser.first_name);",
+    "return CREATOR_TELEGRAM_IDS.includes(tgUser.username) || (IS_DEV && String(tgUser.id) === '777777');")
 
-/* ---------- Навигация и делегирование событий ---------- */
-function setTab(tab) {
-  state.tab = tab;
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === tab));
-  render();
-}
-function render() {
-  clearError();
-  const id = beginRender();
-  if (state.tab === 'slots') return renderSlots(id);
-  if (state.tab === 'americano') return renderAmericano();
-  return renderProfile(id);
-}
-const actions = {
-  tab: d => setTab(d.v),
-  sub: d => { state.sub = d.v; render(); },
-  join: d => joinMatch(d.match, Number(d.slot)),
-  leave: d => leaveMatch(d.match),
-  kick: d => kickPlayer(d.match, d.user),
-  del: d => deleteMatch(d.match),
-  toggle: d => toggleReg(d.match, d.closed === 'true'),
-  open: d => openMatch(d.match),
-  copy: d => copyLink(d.url),
-  send: d => sendChat(d.match),
-  savetime: d => saveMatchField(d.match, 'scheduled_at', new Date($('edit_time').value).toISOString()),
-  saveprice: d => saveMatchField(d.match, 'price_per_player', parseFloat($('edit_price').value) || 0),
-  editprofile: () => { state.editOpen = !state.editOpen; render(); },
-  requestpro: requestPro,
-  approve: d => setPro(d.user, true),
-  reject: d => setPro(d.user, false),
-  amstart: startAmericano, amscore: d => saveScore(Number(d.round)), amrecord: recordTournament,
-  amcancel: () => askConfirm('Отменить турнир?', () => { localStorage.removeItem(amKey()); state.americano = null; render(); }),
-  amcount: d => { state.amCount = Math.min(8, Math.max(4, (state.amCount || 4) + Number(d.v))); renderAmericano(); },
-  amreport: amReport
-};
-document.addEventListener('click', e => {
-  const el = e.target.closest('[data-act]');
-  if (el && actions[el.dataset.act]) actions[el.dataset.act](el.dataset);
-});
-document.addEventListener('submit', e => {
-  e.preventDefault();
-  const f = e.target.dataset.form;
-  if (f === 'create') createMatch();
-  if (f === 'profile') saveProfile();
-});
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && e.target.id === 'chat_input') sendChat(e.target.dataset.match);
-});
+# --- isValidRealUser: подстрока отбрасывала реальных людей
+rx(r"for \(const kw of fakeKeywords\) \{.*?\n      \}\n", "if (fakeKeywords.includes(firstName) || fakeKeywords.includes(fullName)) return false;\n")
 
-/* ---------- Слоты ---------- */
-function subHeader() {
-  const b = (v, l) => `<button data-act="sub" data-v="${v}" class="${state.sub === v ? '' : 'alt'}">${l}</button>`;
-  return `<div class="tabs" style="margin-bottom:12px">${b('feed','🔥 Игры')}${b('my','🎾 Мой слот')}${b('create','➕ Создать')}</div>`;
-}
-async function renderSlots(id) {
-  const main = $('main');
-  if (state.sub === 'create') return renderCreateForm();
-  main.innerHTML = subHeader() + '<p class="muted">Загрузка…</p>';
-  if (!db) return showError('База недоступна (не загрузился Supabase).');
-  if (state.sub === 'my') {
-    const mid = await getActiveMatchId();
-    if (stale(id)) return;
-    return mid ? renderMatch(mid, id) : renderCreateForm();
-  }
-  // Фильтрация на сервере (приватные скрываются политикой RLS; здесь — дополнительно)
-  const { data, error } = await db.from('matches')
-    .select('*, match_players(user_id, slot_number)')
-    .gte('scheduled_at', new Date().toISOString())
-    .eq('is_registration_closed', false)
-    .or('is_public.is.null,is_public.eq.true')
-    .order('scheduled_at').limit(50);
-  if (stale(id)) return;
-  if (error) return showError('Лента: ' + error.message);
-  const items = (data || []).map(m => {
-    const n = m.match_players.length, spots = Math.max(0, m.max_players - n);
-    const joined = m.match_players.some(p => String(p.user_id) === String(me.id));
-    return `<div class="sub"><div class="row"><b>${esc(m.custom_location)}</b><span>${esc(m.price_per_player ?? 0)} MDL</span></div>
-      <div class="muted">📅 ${fmtDate(m.scheduled_at)} • ${esc(m.match_type)}</div>
-      ${m.notes ? `<div class="muted">💬 ${esc(m.notes)}</div>` : ''}
-      <div class="row" style="margin-top:8px"><span>👥 ${n}/${esc(m.max_players)} ${spots ? '' : '(заполнен)'}</span>
-      <button data-act="open" data-match="${esc(m.id)}">${joined ? '🎾 Открыть' : spots ? '⚡ Занять слот' : 'Смотреть'}</button></div></div>`;
-  }).join('');
-  main.innerHTML = subHeader() + `<h2>Открытые игры (${data.length})</h2>` + (items || '<p class="muted">Открытых игр нет. Создайте первую!</p>');
-}
-async function openMatch(matchId) {
-  const { data } = await db.from('match_players').select('user_id').eq('match_id', matchId);
-  const joined = (data || []).some(p => String(p.user_id) === String(me.id));
-  if (!joined) return renderMatch(matchId, beginRender());
-  return renderMatch(matchId, beginRender());
-}
-async function getActiveMatchId() {
-  const { data, error } = await db.from('match_players').select('matches(id, scheduled_at, is_registration_closed)').eq('user_id', me.id);
-  if (error || !data) return null;
-  const limit = Date.now() - 4 * 3600e3;
-  return data.map(r => r.matches).filter(m => m && !m.is_registration_closed && new Date(m.scheduled_at) > limit)
-    .sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at))[0]?.id || null;
-}
-function renderCreateForm() {
-  $('main').innerHTML = subHeader() + `<h2>Новая игра</h2>
-  <form data-form="create">
-    <label for="loc">Локация / корт</label><input id="loc" required value="Padel Club Chisinau">
-    <label for="maxp">Мест</label><select id="maxp"><option value="4">4</option><option value="6">6</option><option value="8">8</option></select>
-    <label for="mtype">Формат</label><select id="mtype"><option value="friendly">Дружеский</option><option value="competitive">Рейтинговый</option><option value="americano">Американо</option></select>
-    <label for="pub">Доступ</label><select id="pub"><option value="true">🌐 Публичный</option><option value="false">🔒 Приватный (по ссылке)</option></select>
-    <label for="when">Дата и время</label><input type="datetime-local" id="when" required value="${toLocalInput(new Date(Date.now() + 2 * 3600e3))}">
-    <label for="price">Цена с игрока (MDL)</label><input type="number" id="price" value="150" min="0" step="10">
-    <label for="notes">Заметки</label><input id="notes" placeholder="Level 2.5+">
-    <button id="submit" style="width:100%;margin-top:12px">Создать слот</button>
-  </form>`;
-}
-async function createMatch() {
-  const btn = $('submit'); btn.disabled = true;
-  try {
-    const isPublic = $('pub').value === 'true';
-    // Атомарно: создание матча + организатор в слоте 1 (RPC, см. SQL). Fail-closed для приватности.
-    const { data, error } = await db.rpc('create_match', {
-      p_location: $('loc').value.trim(), p_max: parseInt($('maxp').value, 10), p_type: $('mtype').value,
-      p_public: isPublic, p_when: new Date($('when').value).toISOString(),
-      p_price: parseFloat($('price').value) || 0, p_notes: $('notes').value.trim()
-    });
-    if (error) throw error;
-    state.sub = 'my'; render();
-  } catch (e) { showError('Ошибка создания: ' + e.message); btn.disabled = false; }
-}
-async function renderMatch(matchId, id = beginRender()) {
-  const main = $('main');
-  const { data: m, error } = await db.from('matches').select('*').eq('id', matchId).maybeSingle();
-  if (stale(id)) return;
-  if (error || !m) return void (main.innerHTML = subHeader() + '<p>Слот не найден или удалён.</p>');
-  const { data: pl } = await db.from('match_players').select('*, profiles(first_name, last_name)').eq('match_id', matchId);
-  const { data: msgs } = await db.from('match_messages').select('*').eq('match_id', matchId).order('created_at').limit(100);
-  if (stale(id)) return;
-  const players = pl || [], joined = players.some(p => String(p.user_id) === String(me.id));
-  const host = String(m.creator_id) === String(me.id), closed = m.is_registration_closed === true;
-  const bySlot = new Map(players.map((p, i) => [p.slot_number ?? i + 1, p]));
-  const maxSlot = Math.max(m.max_players, ...bySlot.keys()); // закрытая регистрация больше не прячет игроков
-  let slots = '';
-  for (let i = 1; i <= maxSlot; i++) {
-    const p = bySlot.get(i);
-    if (p) {
-      slots += `<div class="sub row"><span>#${i}: ${esc(p.profiles?.first_name || 'Игрок')} ${String(p.user_id) === String(m.creator_id) ? '👑' : ''}</span>
-        ${host && String(p.user_id) !== String(me.id) ? `<button class="warn" aria-label="Исключить" data-act="kick" data-match="${esc(m.id)}" data-user="${esc(p.user_id)}">❌</button>` : ''}</div>`;
-    } else if (!closed && i <= m.max_players) {
-      slots += `<div class="sub row"><span>#${i}: свободно</span>${joined ? '' : `<button data-act="join" data-match="${esc(m.id)}" data-slot="${i}">Занять #${i}</button>`}</div>`;
+# --- логика
+rep("sideText = p.preferred_side;", "sideText = t('rightSide');")
+rep("if (p.life <= 0) { particles.splice(idx, 1); return; }", "if (p.life <= 0) return;")
+rep("ball.squashX += (1 - ball.squashX) * 0.15;", "particles = particles.filter(p => p.life > 0);\n        ball.squashX += (1 - ball.squashX) * 0.15;")
+rep("if (p.life <= 0) { gParticles.splice(idx, 1); return; }", "if (p.life <= 0) return;")
+rep("gBall.squashX += (1 - gBall.squashX) * 0.12;", "gParticles = gParticles.filter(p => p.life > 0);\n      gBall.squashX += (1 - gBall.squashX) * 0.12;")
+rx(r"\n\s*saveUserGameScoreToProfile\(userHighScore\);\n", "\n")   # не слать запрос на каждый удар
+rep("document.getElementById('go-score').innerText = currentGameScore;",
+    "document.getElementById('go-score').innerText = currentGameScore;\n      if (currentGameScore > 0 && currentGameScore >= userHighScore) saveUserGameScoreToProfile(userHighScore);")
+
+# часовой пояс
+rep("document.getElementById('scheduled_at').value = new Date(Date.now() + 2 * 3600 * 1000).toISOString().slice(0, 16);",
+    "document.getElementById('scheduled_at').value = toLocalInputValue(new Date(Date.now() + 2 * 3600 * 1000));")
+rep("new Date(match.scheduled_at).toISOString().slice(0, 16) : ''", "toLocalInputValue(new Date(match.scheduled_at)) : ''")
+
+# приватный слот не должен молча стать публичным
+rep("delete matchData.is_public;", "throw new Error('В БД нет колонки is_public — выполните миграцию (иначе приватный слот стал бы публичным).');")
+
+# PRO: срок действия и продление
+rep("const isPro = p.is_premium === true;", "const isPro = isProActive(p);", True)
+rep("const itemIsPro = item.is_premium === true;", "const itemIsPro = isProActive(item);")
+rep("const untilDate = new Date(); untilDate.setDate(untilDate.getDate() + 30);",
+    "const target = platformProfilesList.find(u => String(u.id) === String(userId));\n        const untilDate = isProActive(target) ? new Date(target.premium_until || Date.now()) : new Date();\n        untilDate.setDate(untilDate.getDate() + 30);")
+
+# статистика и XSS в атрибутах
+rep("${(item.total_matches_played || 0) - (item.wins || 0)}L", "${item.losses || 0}L")
+rep('<option value="${p.id}" data-name', '<option value="${sanitizeHTML(p.id)}" data-name')
+rep('value="${p.birth_date || \'\'}"', 'value="${sanitizeHTML(p.birth_date || \'\')}"')
+
+# приватность: не тянуть телефоны всех игроков; кэш списка игроков
+rep("platformProfilesList = data.filter(isValidRealUser);", "platformProfilesList = data.filter(isValidRealUser).map(({ phone_number, ...pub }) => pub);")
+rep("async function fetchAllPlatformProfiles() {",
+    "let _profilesFetchedAt = 0;\n    async function fetchAllPlatformProfiles(force = false) {\n      if (!force && platformProfilesList.length && Date.now() - _profilesFetchedAt < 30000) return;\n      _profilesFetchedAt = Date.now();")
+rep("async function safeUpsertProfile(userId, profileObj) {", "async function safeUpsertProfile(userId, profileObj) {\n      _profilesFetchedAt = 0;")
+
+# лента: фильтрация на сервере (приватные слоты больше не скачиваются)
+rx(r"\.select\('\*, match_players\(\*, profiles\(\*\)\)'\)\s*\.order\('scheduled_at', \{ ascending: true \}\);",
+   ".select('*, match_players(user_id, slot_number, profiles(first_name))')\n            .gte('scheduled_at', new Date().toISOString())\n            .or('is_registration_closed.is.null,is_registration_closed.eq.false')\n            .or('is_public.is.null,is_public.eq.true')\n            .order('scheduled_at', { ascending: true }).limit(50);")
+
+# deep link startapp + открытие именно выбранного слота
+rep("let currentSlotSubTab = 'feed';", "let currentSlotSubTab = 'feed';\n    let focusedMatchId = null;")
+rep("await Promise.race([initPromise, timeoutPromise]);",
+    "await Promise.race([initPromise, timeoutPromise]);\n      const sp = tg?.initDataUnsafe?.start_param;\n      if (sp && /^[0-9a-fA-F-]{8,64}$/.test(sp)) { focusedMatchId = sp; currentSlotSubTab = 'my_slot'; }")
+rep("function setSlotsSubTab(subTab) {", "function setSlotsSubTab(subTab) {\n      focusedMatchId = null;")
+rep("const mySlotId = await getUserActiveMatchId();", "const mySlotId = focusedMatchId || await getUserActiveMatchId();")
+rep("async function quickJoinMatchFromFeed(matchId) {", "async function quickJoinMatchFromFeed(matchId) {\n      focusedMatchId = matchId;")
+rep("async function joinMatch(matchId, slotNumber) {", "async function joinMatch(matchId, slotNumber) {\n      focusedMatchId = matchId;")
+rx(r"(currentSlotSubTab = 'my_slot';\s*renderSlotsSubTabContent\(\);\s*)\} catch \(err\) \{\}(\s*\}\s*async function leaveMatch)",
+   r"\1} catch (err) { notify('Не удалось занять слот: ' + (err.code === '23505' ? 'место уже занято' : err.message)); renderSlotsSubTabContent(); }\2")
+
+# Американо: честная ротация 5/6/7 игроков, дубли игроков, повторная запись
+rep("let activeTab = 'booking';", """function getAmericanoRotation(n) {
+      if (n === 4 || n === 8) return AMERICANO_ROTATIONS[n];
+      const plays = Array(n).fill(0), mk = () => Array.from({ length: n }, () => Array(n).fill(0));
+      const partner = mk(), opp = mk(), result = [], combos = [];
+      for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) for (let c = b + 1; c < n; c++) for (let d = c + 1; d < n; d++) combos.push([a, b, c, d]);
+      for (let r = 1; r <= n; r++) {
+        let best = null, bestCost = Infinity;
+        for (const [a, b, c, d] of combos) {
+          for (const [x, y] of [[[a, b], [c, d]], [[a, c], [b, d]], [[a, d], [b, c]]]) {
+            let cost = (plays[a] + plays[b] + plays[c] + plays[d]) * 100 + (partner[x[0]][x[1]] + partner[y[0]][y[1]]) * 10;
+            for (const i of x) for (const j of y) cost += opp[i][j] * 3;
+            if (cost < bestCost) { bestCost = cost; best = { x, y }; }
+          }
+        }
+        [...best.x, ...best.y].forEach(i => plays[i]++);
+        partner[best.x[0]][best.x[1]]++; partner[best.x[1]][best.x[0]]++;
+        partner[best.y[0]][best.y[1]]++; partner[best.y[1]][best.y[0]]++;
+        for (const i of best.x) for (const j of best.y) { opp[i][j]++; opp[j][i]++; }
+        result.push({ round: r, court: 1, a: best.x, b: best.y });
+      }
+      return result;
     }
-  }
-  const chat = (msgs || []).map(x => `<div class="sub"><span class="muted">${esc(x.sender_name)} • ${new Date(x.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span><div>${esc(x.message_text)}</div></div>`).join('') || '<p class="muted">Напишите первое сообщение</p>';
-  const hostPanel = host ? `<div class="sub"><b>👑 Панель организатора</b>
-    <label for="edit_time">Дата и время</label><div class="row"><input type="datetime-local" id="edit_time" value="${toLocalInput(new Date(m.scheduled_at))}"><button aria-label="Сохранить время" data-act="savetime" data-match="${esc(m.id)}">💾</button></div>
-    <label for="edit_price">Цена (MDL)</label><div class="row"><input type="number" id="edit_price" value="${esc(m.price_per_player ?? 0)}"><button aria-label="Сохранить цену" data-act="saveprice" data-match="${esc(m.id)}">💾</button></div>
-    <div class="row" style="margin-top:8px"><button class="gold" data-act="toggle" data-match="${esc(m.id)}" data-closed="${!closed}">${closed ? '🔓 Открыть' : '🔒 Закрыть набор'}</button>
-    <button class="warn" data-act="del" data-match="${esc(m.id)}">🗑️ Удалить</button></div></div>` : '';
-  const url = `https://t.me/${BOT}/app?startapp=${m.id}`;
-  main.innerHTML = subHeader() + `<h2>${esc(m.custom_location)}</h2>
-    <div class="muted">📅 ${fmtDate(m.scheduled_at)} • ${esc(m.price_per_player ?? 0)} MDL • ${m.is_public === false ? '🔒 Приватный' : '🌐 Публичный'}</div>
-    ${hostPanel}<h2 style="margin-top:12px">Игроки (${players.length}/${esc(m.max_players)})</h2>${slots}
-    <h2>Чат</h2><div id="chat" class="scroll">${chat}</div>
-    <div class="row" style="margin-top:8px"><input id="chat_input" data-match="${esc(m.id)}" maxlength="500" placeholder="Сообщение…"><button data-act="send" data-match="${esc(m.id)}">Отправить</button></div>
-    <div style="display:grid;gap:8px;margin-top:12px">
-      ${joined && !host ? `<button class="warn" data-act="leave" data-match="${esc(m.id)}">Покинуть игру</button>` : ''}
-      <button class="alt" data-act="copy" data-url="${esc(url)}">📋 Скопировать ссылку</button></div>`;
-  const c = $('chat'); if (c) c.scrollTop = c.scrollHeight;
-}
-async function joinMatch(matchId, slot) {
-  // Уникальные ограничения (match_id, slot_number) и (match_id, user_id) защищают от гонки
-  const { error } = await db.from('match_players').insert([{ match_id: matchId, user_id: me.id, slot_number: slot }]);
-  if (error) return notify(error.code === '23505' ? 'Слот уже занят или вы уже в игре.' : 'Ошибка: ' + error.message);
-  state.sub = 'my'; render();
-}
-async function leaveMatch(matchId) {
-  const { error } = await db.from('match_players').delete().eq('match_id', matchId).eq('user_id', me.id);
-  if (error) return notify('Ошибка: ' + error.message);
-  state.sub = 'feed'; render();
-}
-const kickPlayer = (matchId, userId) => askConfirm('Исключить игрока?', async () => {
-  const { error } = await db.from('match_players').delete().eq('match_id', matchId).eq('user_id', userId);
-  error ? notify(error.message) : renderMatch(matchId);
-});
-const deleteMatch = matchId => askConfirm('Удалить слот полностью?', async () => {
-  const { error } = await db.rpc('delete_match', { p_match: matchId }); // каскадное удаление на сервере
-  if (error) return notify('Ошибка: ' + error.message);
-  state.sub = 'feed'; render();
-});
-async function toggleReg(matchId, close) {
-  const { error } = await db.from('matches').update({ is_registration_closed: close }).eq('id', matchId);
-  error ? notify(error.message) : renderMatch(matchId);
-}
-async function saveMatchField(matchId, field, value) {
-  if (field === 'scheduled_at' && isNaN(new Date(value))) return notify('Выберите дату и время.');
-  const { error } = await db.from('matches').update({ [field]: value }).eq('id', matchId);
-  error ? notify('Ошибка: ' + error.message) : (notify('Сохранено'), renderMatch(matchId));
-}
-async function sendChat(matchId) {
-  const input = $('chat_input'); const text = input?.value.trim();
-  if (!text) return;
-  const { error } = await db.from('match_messages').insert([{
-    match_id: matchId, user_id: me.id, sender_name: `${me.first_name || 'Игрок'} ${me.last_name || ''}`.trim(), message_text: text
-  }]);
-  if (error) return notify('Не отправлено: ' + error.message);
-  renderMatch(matchId);
-}
-async function copyLink(url) {
-  try { await navigator.clipboard.writeText(url); notify('Ссылка скопирована'); }
-  catch (_) { notify('Ссылка: ' + url); }
-}
 
-/* ---------- Американо ---------- */
-const ROT = {
-  4: [[0,1,2,3],[0,2,1,3],[0,3,1,2]],
-  5: [[1,4,2,3],[2,0,3,4],[3,1,4,0],[4,2,0,1],[0,3,1,2]], // каждая пара ровно 1 раз
-  6: [[0,1,2,3],[0,4,2,5],[1,4,3,5],[0,2,1,5],[0,3,4,2]],
-  7: [[0,1,2,3],[2,4,5,6],[0,5,1,4]],
-  8: [[0,1,2,3,1],[4,5,6,7,2],[0,2,4,6,1],[1,5,3,7,2],[0,3,5,7,1],[1,4,2,6,2],[0,4,3,6,1],[1,7,2,5,2],
-      [0,5,2,7,1],[1,6,3,4,2],[0,6,1,3,1],[2,4,5,7,2],[0,7,1,2,1],[3,5,4,6,2]]
-}; // формат: [a1,a2,b1,b2,(корт)]. Для 6/7/8 расписание не идеально — см. ревью
-function loadAmericano() {
-  try { state.americano = JSON.parse(localStorage.getItem(amKey()) || 'null'); } catch (_) { state.americano = null; }
-}
-function renderAmericano() {
-  loadAmericano();
-  if (state.americano) return renderAmBoard();
-  const n = state.amCount || 4;
-  const opts = state.profiles.map(p => `<option value="${esc(p.id)}">${esc(p.first_name)} ${esc(p.last_name || '')}</option>`).join('');
-  let rows = '';
-  for (let i = 0; i < n; i++) {
-    const def = i === 0 ? `${me.first_name || ''} ${me.last_name || ''}`.trim() : `Игрок ${i + 1}`;
-    rows += `<div class="sub"><label for="ps${i}">Игрок ${i + 1}</label>
-      <select id="ps${i}"><option value="">✍️ Гость (ввести имя)</option>${opts}</select>
-      <input id="pn${i}" value="${esc(def)}" aria-label="Имя игрока ${i + 1}"></div>`;
-  }
-  $('main').innerHTML = `<h2>🏆 Американо</h2><div class="row"><span>Игроков: ${n}</span>
-    <span><button class="alt" aria-label="Меньше" data-act="amcount" data-v="-1">➖</button> <button class="alt" aria-label="Больше" data-act="amcount" data-v="1">➕</button></span></div>
-    <label for="cycles">Кругов</label><select id="cycles"><option>1</option><option>2</option><option>3</option></select>
-    ${rows}<button data-act="amstart" style="width:100%;margin-top:8px">🚀 Начать турнир</button>`;
-}
-function startAmericano() {
-  const n = state.amCount || 4, cycles = parseInt($('cycles').value, 10) || 1, players = [], used = new Set();
-  for (let i = 0; i < n; i++) {
-    const uid = $(`ps${i}`).value || null;
-    if (uid && used.has(uid)) return notify('Один игрок платформы выбран дважды.'); // защита от двойного LP
-    if (uid) used.add(uid);
-    const chosen = uid && state.profiles.find(p => String(p.id) === uid);
-    players.push({ id: i, userId: uid, name: chosen ? `${chosen.first_name} ${chosen.last_name || ''}`.trim() : ($(`pn${i}`).value.trim() || `Игрок ${i + 1}`) });
-  }
-  const base = ROT[n], per = base.length, rounds = [];
-  for (let c = 0; c < cycles; c++) base.forEach((r, k) => rounds.push({
-    id: rounds.length + 1, cycle: c + 1, round: c * per + k + 1, court: r[4] || 1,
-    a: [r[0], r[1]], b: [r[2], r[3]], sa: 0, sb: 0, done: false
-  }));
-  state.americano = { players, rounds, cycles, recorded: false };
-  localStorage.setItem(amKey(), JSON.stringify(state.americano)); render();
-}
-function standings() {
-  const { players, rounds } = state.americano;
-  const t = players.map(p => ({ ...p, pts: 0, m: 0, w: 0, l: 0, d: 0 }));
-  rounds.filter(r => r.done).forEach(r => {
-    [[r.a, r.sa, r.sb], [r.b, r.sb, r.sa]].forEach(([team, mine, other]) => team.forEach(i => {
-      t[i].pts += mine; t[i].m++; mine > other ? t[i].w++ : mine < other ? t[i].l++ : t[i].d++;
-    }));
-  });
-  return t.sort((x, y) => y.pts - x.pts || y.w - x.w);
-}
-function renderAmBoard() {
-  const { players, rounds } = state.americano, medals = ['🥇', '🥈', '🥉'];
-  const lb = standings().map((p, i) => `<div class="sub row"><span>${medals[i] || i + 1 + '.'} ${esc(p.name)}</span><b>${p.pts} PTS <span class="muted">${p.w}W/${p.d ? p.d + 'D/' : ''}${p.l}L</span></b></div>`).join('');
-  const games = rounds.map(r => `<div class="sub"><div class="muted">Круг ${r.cycle} • Игра #${r.round} (Корт ${r.court}) ${r.done ? '✅' : '⏳'}</div>
-    <div class="row"><span>${esc(players[r.a[0]].name)} / ${esc(players[r.a[1]].name)}</span></div>
-    <div class="row"><input type="number" min="0" id="sa${r.id}" value="${r.done ? r.sa : ''}" style="width:60px" aria-label="Счёт A">:
-    <input type="number" min="0" id="sb${r.id}" value="${r.done ? r.sb : ''}" style="width:60px" aria-label="Счёт B">
-    <button data-act="amscore" data-round="${r.id}">ОК</button></div>
-    <div>${esc(players[r.b[0]].name)} / ${esc(players[r.b[1]].name)}</div></div>`).join('');
-  $('main').innerHTML = `<h2>Лидерборд (${rounds.filter(r => r.done).length}/${rounds.length})</h2>${lb}
-    <button class="gold" data-act="amrecord" ${state.americano.recorded ? 'disabled' : ''} style="width:100%;margin:8px 0">${state.americano.recorded ? '✅ Записано в рейтинг' : '🏆 Записать в рейтинг'}</button>
-    <h2>Матчи</h2><div class="scroll">${games}</div>
-    <div class="row" style="margin-top:8px"><button class="alt" data-act="amreport">📋 Отчёт</button><button class="warn" data-act="amcancel">🛑 Сбросить</button></div>`;
-}
-function saveScore(id) {
-  const sa = parseInt($(`sa${id}`).value, 10), sb = parseInt($(`sb${id}`).value, 10);
-  if (isNaN(sa) || isNaN(sb) || sa < 0 || sb < 0) return notify('Введите корректный счёт.');
-  Object.assign(state.americano.rounds.find(r => r.id === id), { sa, sb, done: true });
-  localStorage.setItem(amKey(), JSON.stringify(state.americano)); renderAmBoard();
-}
-async function recordTournament() {
-  const a = state.americano;
-  if (!a || a.recorded) return;                     // повторная запись заблокирована
-  if (!a.rounds.some(r => r.done)) return notify('Завершите хотя бы один матч.');
-  const table = standings();
-  const { error } = await db.rpc('record_americano', { // атомарно на сервере; клиент LP не считает
-    p_results: table.map((p, i) => ({ user_id: p.userId, lp: LP_REWARD[i] ?? LP_REWARD[3], wins: p.w, losses: p.l, draws: p.d, matches: p.m }))
-  });
-  if (error) return notify('Ошибка записи: ' + error.message);
-  a.recorded = true; localStorage.setItem(amKey(), JSON.stringify(a));
-  const hist = JSON.parse(localStorage.getItem('americano_history') || '[]')
-    .filter(h => Date.now() - new Date(h.ts) < HISTORY_DAYS * 864e5);
-  hist.unshift({ ts: new Date().toISOString(), board: table.map(p => ({ name: p.name, pts: p.pts })) });
-  localStorage.setItem('americano_history', JSON.stringify(hist));
-  notify('Результаты сохранены'); renderAmBoard(); loadProfiles();
-}
-function amReport() {
-  const medals = ['🥇', '🥈', '🥉'];
-  const text = '🏆 РЕЗУЛЬТАТЫ АМЕРИКАНО\n\n' + standings().map((p, i) => `${medals[i] || i + 1 + '.'} ${p.name}: ${p.pts} PTS`).join('\n');
-  const link = `https://t.me/${BOT}/app`;
-  if (tg?.openTelegramLink) tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
-  else copyLink(text);
-}
+    let activeTab = 'booking';""")
+rep("const baseRotation = AMERICANO_ROTATIONS[count] || AMERICANO_ROTATIONS[4];",
+    "const ids = players.map(p => p.userId).filter(Boolean);\n      if (new Set(ids).size !== ids.length) { notify('Один и тот же игрок выбран дважды.'); return; }\n      const baseRotation = getAmericanoRotation(count);")
+rep("const completedRounds = rounds.filter(r => r.completed);",
+    "const completedRounds = rounds.filter(r => r.completed);\n      if (localAmericanoState.recorded) { notify('Результаты уже записаны.'); return; }\n      localAmericanoState.recorded = true;\n      localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));")
+rep("if (isNaN(sa) || isNaN(sb)) {", "if (isNaN(sa) || isNaN(sb) || sa < 0 || sb < 0) {")
 
-/* ---------- Профиль ---------- */
-async function renderProfile(id) {
-  await Promise.all([loadProfiles(), loadMyProfile()]);
-  if (stale(id)) return;
-  const p = state.profile || { first_name: me.first_name };
-  const total = p.total_matches_played ?? 0, wins = p.wins ?? 0, pro = isProActive(p);
-  const winrate = total ? Math.round(wins / total * 100) : 0;
-  const proBlock = pro ? `<div class="sub">👑 PRO активен до ${p.premium_until ? new Date(p.premium_until).toLocaleDateString('ru-RU') : '—'}</div>`
-    : p.payment_pending ? '<div class="sub">⏳ Заявка на PRO отправлена. Ожидается проверка оплаты.</div>'
-    : `<button class="gold" data-act="requestpro" style="width:100%">👑 Оформить PRO (150 MDL/мес)</button>
-       <p class="muted">Перевод MIA: +373 60 217 449, Victor Popovici. В комментарии укажите свой Telegram ID: <b>${esc(me.id)}</b></p>`;
-  const admin = isCreator() ? `<div class="sub"><b>👑 Заявки на PRO</b>${state.profiles.filter(u => u.payment_pending).map(u =>
-    `<div class="row" style="margin-top:6px"><span>${esc(u.first_name)} ${esc(u.last_name || '')}</span><span>
-    <button data-act="approve" data-user="${esc(u.id)}">✅</button> <button class="warn" data-act="reject" data-user="${esc(u.id)}">❌</button></span></div>`).join('') || '<p class="muted">Нет заявок</p>'}</div>` : '';
-  const edit = state.editOpen ? `<form data-form="profile" class="sub">
-    <label for="e_birth">Дата рождения</label><input type="date" id="e_birth" value="${esc(p.birth_date || '')}">
-    <label for="e_gender">Пол</label><select id="e_gender"><option value="">—</option><option value="male" ${p.gender === 'male' ? 'selected' : ''}>Мужской</option><option value="female" ${p.gender === 'female' ? 'selected' : ''}>Женский</option></select>
-    <label for="e_side">Сторона</label><select id="e_side"><option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>Слева</option><option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>Справа</option><option value="both" ${!p.preferred_side || p.preferred_side === 'both' ? 'selected' : ''}>Обе</option></select>
-    <label for="e_phone">Телефон</label><input type="tel" id="e_phone" value="${esc(p.phone_number || '')}" placeholder="+373...">
-    <button style="width:100%;margin-top:8px">💾 Сохранить</button></form>` : '';
-  const medals = ['🥇', '🥈', '🥉'];
-  const board = state.profiles.map((u, i) => `<div class="sub row ${u.is_premium ? 'pro' : ''}"><span>${medals[i] || i + 1 + '.'} ${esc(u.first_name)} ${esc(u.last_name || '')} ${isProActive(u) ? '👑' : ''}
-    <span class="muted">${league(lp(u))} • Lvl ${esc(skill(u))}</span></span><b>${esc(lp(u))} LP <span class="muted">${esc(u.wins ?? 0)}W/${esc(u.losses ?? 0)}L</span></b></div>`).join('');
-  $('main').innerHTML = `<div class="row"><div><h2 style="margin:0">${esc(p.first_name)} ${esc(p.last_name || '')} ${pro ? '👑' : ''}</h2>
-    <span class="muted">${league(lp(p))} • ${esc(lp(p))} LP • ${total} матчей • ${wins} побед • ${winrate}%</span></div>
-    <button class="alt" data-act="editprofile">⚙️</button></div>${edit}<div style="margin:12px 0">${proBlock}</div>${admin}
-    <h2>Лидерборд (${state.profiles.length})</h2><div class="scroll">${board}</div>`;
-}
-async function saveProfile() {
-  const payload = { birth_date: $('e_birth').value || null, gender: $('e_gender').value || null,
-    preferred_side: $('e_side').value, phone_number: $('e_phone').value.trim() || null };
-  const { error } = await db.from('profiles').update(payload).eq('id', me.id); // .update, а не upsert частичного объекта
-  if (error) return notify('Ошибка: ' + error.message);
-  state.editOpen = false; notify('Профиль обновлён'); render();
-}
-async function requestPro() {
-  const { error } = await db.rpc('request_pro'); // сервер ставит payment_pending для auth.uid()
-  if (error) return notify('Ошибка: ' + error.message);
-  notify('Заявка отправлена'); render();
-}
-async function setPro(userId, ok) {
-  const { error } = await db.rpc('set_pro', { p_user: userId, p_approve: ok }); // проверка админа и продление от premium_until — на сервере
-  if (error) return notify('Ошибка: ' + error.message);
-  render();
-}
+# производительность фона
+rep("ctx.shadowColor = '#ccff00'; ctx.shadowBlur = 10; ctx.fill();", "ctx.fill();")
+rep("const ballCount = 16;", "const ballCount = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 10;")
 
-/* ---------- Запуск ---------- */
-async function init() {
-  if (!me) return void ($('main').textContent = 'Откройте приложение через Telegram.');
-  $('hello').textContent = `${me.first_name || ''} ${me.last_name || ''}`.trim(); // textContent: без двойного экранирования
-  const boot = (async () => { await ensureProfile(); await loadProfiles(); })();
-  await Promise.race([boot, new Promise(r => setTimeout(r, INIT_TIMEOUT_MS))]);
-  const sp = tg?.initDataUnsafe?.start_param;   // deep-link из «Поделиться»
-  if (sp && UUID_RE.test(sp) && db) { state.sub = 'my'; return renderMatch(sp, beginRender()); }
-  render();
-}
-document.addEventListener('DOMContentLoaded', init);
-</script>
-</body>
-</html>
+open(OUT, 'w', encoding='utf-8').write(src)
+print('Готово:', OUT)
+js = re.findall(r'<script>(.*?)</script>', src, re.S)[-1]
+open('check.js', 'w', encoding='utf-8').write(js)
+print('Проверка синтаксиса: node --check check.js')
