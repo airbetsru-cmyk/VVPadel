@@ -176,7 +176,7 @@
   <div class="bg-overlay p-2.5 sm:p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-3">
       
-      <!-- ШАПКА В КАРБОНОВОМ СТИЛЕ (ИДЕАЛЬНО АДАПТИРОВАННАЯ ПОД ANDROID МОБИЛЬНЫЕ ЭКРАНЫ) -->
+      <!-- ШАПКА В КАРБОНОВОМ СТИЛЕ -->
       <div class="carbon-padel-card shimmer-border p-3 rounded-2xl space-y-2 shadow-2xl overflow-hidden max-w-full">
         
         <!-- Верхний ряд: Лого/Пользователь + Языки -->
@@ -566,7 +566,7 @@
       return true;
     }
 
-    // --- ANIMATION & CANVAS (Безопасная для всех Android) ---
+    // --- ANIMATION & CANVAS ---
     function initHeaderPadelAnimation() {
       try {
         const cvs = document.getElementById('header-padel-canvas');
@@ -716,6 +716,8 @@
       document.getElementById('game-start-overlay').classList.add('hidden');
       const subLabel = document.getElementById('game-control-sublabel');
       if (subLabel) subLabel.innerText = mode === 'gyro' ? '📱 Управление: Наклон телефона' : '👆 Управление: Касание пальцем';
+
+      window.removeEventListener('deviceorientation', handleGyroscopeMotion);
 
       if (mode === 'gyro') {
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -1167,7 +1169,7 @@
         { round: 2, court: 1, a: [0, 2], b: [4, 6] }, { round: 2, court: 2, a: [1, 5], b: [3, 7] },
         { round: 3, court: 1, a: [0, 3], b: [5, 7] }, { round: 3, court: 2, a: [1, 4], b: [2, 6] },
         { round: 4, court: 1, a: [0, 4], b: [3, 6] }, { round: 4, court: 2, a: [1, 7], b: [2, 5] },
-        { round: 5, court: 1, a: [0, 5], b: [1, 6] }, { round: 5, court: 2, a: [1, 6], b: [2, 5] },
+        { round: 5, court: 1, a: [0, 5], b: [2, 7] }, { round: 5, court: 2, a: [1, 6], b: [3, 4] },
         { round: 6, court: 1, a: [0, 6], b: [2, 5] }, { round: 6, court: 2, a: [1, 3], b: [4, 7] },
         { round: 7, court: 1, a: [0, 7], b: [1, 2] }, { round: 7, court: 2, a: [3, 5], b: [4, 6] }
       ]
@@ -1200,7 +1202,7 @@
       try {
         const res = await Promise.race([
           fn(),
-          new Promise(resolve => setTimeout(() => resolve({ data: null, error: 'timeout' }), 1800))
+          new Promise(resolve => setTimeout(() => resolve({ data: null, error: 'timeout' }), 5000))
         ]);
         return res && res.data ? res.data : null;
       } catch(e) { return null; }
@@ -1209,7 +1211,7 @@
     async function ensureProfileInDatabase(userObj) {
       if (!supabaseClient || !userObj || !userObj.id) return false;
       const fullPayload = {
-        id: userObj.id,
+        id: String(userObj.id),
         first_name: userObj.first_name || 'Игрок',
         last_name: userObj.last_name || null,
         username: userObj.username || null,
@@ -1236,7 +1238,7 @@
     async function safeUpsertProfile(userId, profileObj) {
       if (!supabaseClient) return;
       try {
-        await safeSupabaseQuery(() => supabaseClient.from('profiles').upsert([{ id: userId, ...profileObj }], { onConflict: 'id' }));
+        await safeSupabaseQuery(() => supabaseClient.from('profiles').upsert([{ id: String(userId), ...profileObj }], { onConflict: 'id' }));
       } catch(e) {}
     }
 
@@ -1352,7 +1354,15 @@
         setLanguage(currentLang);
 
         // Асинхронная синхронизация без блокировки UI
-        syncUserProfile().catch(console.warn);
+        syncUserProfile().then(() => {
+          const startMatchId = getStartParam();
+          if (startMatchId) {
+            currentSlotSubTab = 'my_slot';
+            renderSlotsSubTabContent();
+            renderMatchDetails(startMatchId);
+          }
+        }).catch(console.warn);
+
         fetchAllPlatformProfiles().catch(console.warn);
 
       } catch(e) {
@@ -1402,8 +1412,8 @@
     }
 
     async function syncUserProfile() {
-      const newProf = {
-        id: tgUser.id,
+      const defaultProf = {
+        id: String(tgUser.id),
         first_name: tgUser.first_name || 'Игрок',
         last_name: tgUser.last_name || null,
         username: tgUser.username || null,
@@ -1419,23 +1429,30 @@
         updated_at: new Date().toISOString()
       };
 
-      await ensureProfileInDatabase(newProf);
-
       if (supabaseClient) {
         try {
-          const data = await safeSupabaseQuery(() => supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle());
+          const data = await safeSupabaseQuery(() => supabaseClient.from('profiles').select('*').eq('id', String(tgUser.id)).maybeSingle());
           if (data) {
             currentUserProfile = data;
             if (data.game_high_score && data.game_high_score > userHighScore) {
               userHighScore = data.game_high_score;
               safeStorage.setItem('padel_motion_high_score', userHighScore);
             }
+            if (data.first_name !== tgUser.first_name || data.username !== tgUser.username) {
+              await safeUpsertProfile(tgUser.id, {
+                first_name: tgUser.first_name || data.first_name,
+                last_name: tgUser.last_name || data.last_name,
+                username: tgUser.username || data.username,
+                updated_at: new Date().toISOString()
+              });
+            }
           } else {
-            currentUserProfile = newProf;
+            currentUserProfile = defaultProf;
+            await ensureProfileInDatabase(defaultProf);
           }
-        } catch (err) { currentUserProfile = newProf; }
+        } catch (err) { currentUserProfile = defaultProf; }
       } else {
-        currentUserProfile = newProf;
+        currentUserProfile = defaultProf;
       }
     }
 
@@ -1452,7 +1469,7 @@
     async function submitProPaymentRequest() {
       try {
         await ensureProfileInDatabase(currentUserProfile || tgUser);
-        const reqItem = { id: tgUser.id, first_name: tgUser.first_name || 'Игрок', last_name: tgUser.last_name || '', username: tgUser.username || '', timestamp: new Date().toISOString() };
+        const reqItem = { id: String(tgUser.id), first_name: tgUser.first_name || 'Игрок', last_name: tgUser.last_name || '', username: tgUser.username || '', timestamp: new Date().toISOString() };
         let currentLocal = JSON.parse(safeStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(tgUser.id));
         currentLocal.push(reqItem);
@@ -1462,7 +1479,7 @@
         await safeUpsertProfile(tgUser.id, { payment_pending: true, updated_at: new Date().toISOString() });
 
         closePayProModal();
-        alert('Заявка на активицию PRO успешно отправлена создателю!');
+        alert('Заявка на активацию PRO успешно отправлена создателю!');
         renderProfileTab();
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
@@ -1770,7 +1787,7 @@
         const isPublicValue = document.getElementById('is_public').value === 'true';
 
         let matchData = {
-          creator_id: tgUser.id,
+          creator_id: String(tgUser.id),
           custom_location: document.getElementById('custom_location').value,
           max_players: parseInt(document.getElementById('max_players').value),
           match_type: document.getElementById('match_type').value,
@@ -1783,7 +1800,7 @@
 
         let match = await safeSupabaseQuery(() => supabaseClient.from('matches').insert([matchData]).select().single());
         if (match) {
-          await safeSupabaseQuery(() => supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]));
+          await safeSupabaseQuery(() => supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: String(tgUser.id), slot_number: 1 }]));
         }
 
         currentSlotSubTab = 'my_slot';
@@ -1911,11 +1928,10 @@
         if (supabaseClient) {
           try {
             const dbMsgs = await safeSupabaseQuery(() => supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true }));
-            if (dbMsgs) {
-              const msgMap = new Map();
-              dbMsgs.forEach(m => msgMap.set(`${m.user_id}_${m.created_at}_${m.message_text}`, m));
-              messagesList.forEach(m => msgMap.set(`${m.user_id}_${m.created_at}_${m.message_text}`, m));
-              messagesList = Array.from(msgMap.values()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+            if (dbMsgs && dbMsgs.length > 0) {
+              const dbTextSet = new Set(dbMsgs.map(m => `${m.user_id}_${m.message_text}`));
+              const pendingLocal = messagesList.filter(m => !dbTextSet.has(`${m.user_id}_${m.message_text}`));
+              messagesList = [...dbMsgs, ...pendingLocal].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
             }
           } catch(e) {}
         }
@@ -2031,7 +2047,7 @@
     async function kickPlayer(matchId, userId) {
       if (!confirm('Исключить этого игрока из слота?')) return;
       try {
-        await safeSupabaseQuery(() => supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', userId));
+        await safeSupabaseQuery(() => supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', String(userId)));
         triggerSlotLeaveToast();
         renderMatchDetails(matchId);
       } catch(e) { alert('Ошибка: ' + e.message); }
@@ -2054,7 +2070,7 @@
 
       const newMsg = {
         match_id: matchId,
-        user_id: tgUser.id,
+        user_id: String(tgUser.id),
         sender_name: `${tgUser.first_name || 'Игрок'} ${tgUser.last_name || ''}`.trim(),
         message_text: text,
         created_at: new Date().toISOString()
@@ -2531,7 +2547,7 @@
         if (item.userId && supabaseClient) {
           try {
             await ensureProfileInDatabase({ id: item.userId, first_name: item.name });
-            const dbProf = await safeSupabaseQuery(() => supabaseClient.from('profiles').select('*').eq('id', item.userId).maybeSingle());
+            const dbProf = await safeSupabaseQuery(() => supabaseClient.from('profiles').select('*').eq('id', String(item.userId)).maybeSingle());
             if (dbProf) {
               await safeUpsertProfile(item.userId, {
                 league_points: (dbProf.league_points || 1000) + gainedLP,
@@ -2617,7 +2633,7 @@
 
       let sideText = t('bothSides');
       if (p.preferred_side === 'left') sideText = t('leftSide');
-      else if (p.preferred_side === 'right') sideText = p.preferred_side;
+      else if (p.preferred_side === 'right') sideText = t('rightSide');
 
       content.innerHTML = `
         <div class="${cardClass} p-4 rounded-3xl space-y-3">
@@ -3050,7 +3066,7 @@
     async function joinMatch(matchId, slotNumber) {
       try {
         await ensureProfileInDatabase(currentUserProfile || tgUser);
-        const uid = tgUser.id;
+        const uid = String(tgUser.id);
 
         if (supabaseClient) {
           await safeSupabaseQuery(() => supabaseClient.from('match_players').insert([{
@@ -3069,7 +3085,7 @@
     async function leaveMatch(matchId) {
       try {
         if (supabaseClient) {
-          await safeSupabaseQuery(() => supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', tgUser.id));
+          await safeSupabaseQuery(() => supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', String(tgUser.id)));
         }
 
         triggerSlotLeaveToast();
