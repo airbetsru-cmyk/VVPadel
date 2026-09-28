@@ -544,7 +544,6 @@
       username: 'kizdoi'
     };
 
-    function getSlotStorageKey() { return `padel_active_match_id_${tgUser.id || 'guest'}`; }
     function getAmericanoStorageKey() { return `quick_americano_state_${tgUser.id || 'guest'}`; }
 
     let currentSlotSubTab = 'feed'; // 'feed', 'my_slot', 'create'
@@ -890,7 +889,10 @@
 
     async function saveUserGameScoreToProfile(score) {
       if (!tgUser.id) return;
-      await safeUpsertProfile(tgUser.id, { game_high_score: score, updated_at: new Date().toISOString() });
+      await ensureProfileInDatabase(currentUserProfile || tgUser);
+      if (supabaseClient) {
+        await supabaseClient.from('profiles').update({ game_high_score: score, updated_at: new Date().toISOString() }).eq('id', tgUser.id);
+      }
     }
 
     function renderGameLeaderboard() {
@@ -1270,7 +1272,68 @@
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) { showError('Ошибка базы: ' + e.message); }
 
-    // ИСПРАВЛЕНИЕ ДЛЯ iOS: Гарантированный UPSERT профиля
+    // ПОЛНОЕ УСТРАНЕНИЕ ОШИБКИ FOREIGN KEY CONSTRAINTS
+    async function ensureProfileInDatabase(userObj) {
+      if (!supabaseClient || !userObj || !userObj.id) return false;
+      const uid = userObj.id;
+      const uidStr = String(uid);
+      const uidNum = typeof uid === 'number' ? uid : parseInt(uid, 10);
+
+      try {
+        const { data: existing } = await supabaseClient
+          .from('profiles')
+          .select('id')
+          .or(`id.eq.${uidStr}${!isNaN(uidNum) ? `,id.eq.${uidNum}` : ''}`)
+          .maybeSingle();
+
+        if (existing) return true;
+      } catch (e) {}
+
+      const fullPayload = {
+        id: uid,
+        first_name: userObj.first_name || 'Игрок',
+        last_name: userObj.last_name || null,
+        username: userObj.username || null,
+        skill_level: userObj.skill_level || 2.5,
+        league_points: userObj.league_points || 1000,
+        rating_americano: userObj.rating_americano || 1000,
+        rating_friendly: userObj.rating_friendly || 1000,
+        rating_competitive: userObj.rating_competitive || 1000,
+        preferred_side: userObj.preferred_side || 'both',
+        is_premium: userObj.is_premium || false,
+        payment_pending: userObj.payment_pending || false,
+        shield_cards: userObj.shield_cards || 1,
+        is_public_profile: true,
+        total_matches_played: userObj.total_matches_played || 0,
+        wins: userObj.wins || 0,
+        losses: userObj.losses || 0,
+        draws: userObj.draws || 0,
+        game_high_score: userObj.game_high_score || userHighScore || 0,
+        updated_at: new Date().toISOString()
+      };
+
+      try {
+        let { error } = await supabaseClient.from('profiles').upsert([fullPayload], { onConflict: 'id' });
+        if (!error) return true;
+
+        const minimalPayload = {
+          id: uid,
+          first_name: userObj.first_name || 'Игрок',
+          last_name: userObj.last_name || null,
+          username: userObj.username || null
+        };
+        let { error: minErr } = await supabaseClient.from('profiles').upsert([minimalPayload], { onConflict: 'id' });
+        if (!minErr) return true;
+
+        minimalPayload.id = uidStr;
+        let { error: strErr } = await supabaseClient.from('profiles').upsert([minimalPayload], { onConflict: 'id' });
+        if (!strErr) return true;
+      } catch(e) {
+        console.error('ensureProfileInDatabase err:', e);
+      }
+      return false;
+    }
+
     async function safeUpsertProfile(userId, profileObj) {
       if (!supabaseClient) return;
       try {
@@ -1281,7 +1344,7 @@
           delete safeObj.league_points; delete safeObj.shield_cards; delete safeObj.game_high_score;
           await supabaseClient.from('profiles').upsert([safeObj], { onConflict: 'id' });
         }
-      } catch(e) { console.log('safeUpsertProfile err:', e); }
+      } catch(e) {}
     }
 
     function cleanAndGetAmericanoHistory() {
@@ -1424,14 +1487,7 @@
 
       if (tab === 'booking') {
         btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
-        
-        const directStartParam = getStartParam();
-        if (directStartParam) {
-          currentSlotSubTab = 'my_slot';
-          renderMatchDetails(directStartParam);
-        } else {
-          renderSlotsSubTabContent();
-        }
+        renderSlotsSubTabContent();
       } else if (tab === 'americano') {
         btnAmericano.className = 'py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-xs uppercase tracking-wider neon-glow-purple btn-3d';
         renderQuickAmericano();
@@ -1465,24 +1521,24 @@
         updated_at: new Date().toISOString()
       };
 
-      if (!supabaseClient) {
-        if (!currentUserProfile) currentUserProfile = newProf;
-        return;
-      }
+      await ensureProfileInDatabase(newProf);
 
-      try {
-        const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
-        if (data) {
-          currentUserProfile = data;
-          if (data.game_high_score && data.game_high_score > userHighScore) {
-            userHighScore = data.game_high_score;
-            localStorage.setItem('padel_motion_high_score', userHighScore);
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
+          if (data) {
+            currentUserProfile = data;
+            if (data.game_high_score && data.game_high_score > userHighScore) {
+              userHighScore = data.game_high_score;
+              localStorage.setItem('padel_motion_high_score', userHighScore);
+            }
+          } else {
+            currentUserProfile = newProf;
           }
-        } else {
-          await safeUpsertProfile(tgUser.id, newProf);
-          currentUserProfile = newProf;
-        }
-      } catch (err) { console.log('Profile sync err:', err); }
+        } catch (err) {}
+      } else {
+        currentUserProfile = newProf;
+      }
     }
 
     function getPendingProRequestsList() {
@@ -1497,6 +1553,7 @@
 
     async function submitProPaymentRequest() {
       try {
+        await ensureProfileInDatabase(currentUserProfile || tgUser);
         const reqItem = { id: tgUser.id, first_name: tgUser.first_name || 'Игрок', last_name: tgUser.last_name || '', username: tgUser.username || '', timestamp: new Date().toISOString() };
         let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(tgUser.id));
@@ -1562,23 +1619,28 @@
       `;
     }
 
-    // ИСПРАВЛЕНИЕ: Проверка активного слота конкретно для текущего пользователя
+    // СТРОГАЯ ПРОВЕРКА: Активный слот ТОЛЬКО для текущего авторизованного пользователя
     async function getUserActiveMatchId() {
       if (!supabaseClient) return null;
       try {
-        const { data: playerRows } = await supabaseClient
+        const uidStr = String(tgUser.id);
+        const uidNum = typeof tgUser.id === 'number' ? tgUser.id : parseInt(tgUser.id, 10);
+
+        const { data: playerRows, error } = await supabaseClient
           .from('match_players')
           .select('match_id, matches(*)')
-          .eq('user_id', tgUser.id);
+          .or(`user_id.eq.${uidStr}${!isNaN(uidNum) ? `,user_id.eq.${uidNum}` : ''}`);
 
-        if (playerRows && playerRows.length > 0) {
-          const now = new Date();
-          const activeMatch = playerRows
-            .map(p => p.matches)
-            .filter(m => m && new Date(m.scheduled_at) > new Date(now.getTime() - 4 * 3600 * 1000))
-            .sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at))[0];
+        if (error || !playerRows || playerRows.length === 0) return null;
 
-          if (activeMatch) return activeMatch.id;
+        const now = new Date();
+        const activeMatches = playerRows
+          .map(p => p.matches)
+          .filter(m => m && !m.is_registration_closed && new Date(m.scheduled_at) > new Date(now.getTime() - 4 * 3600 * 1000))
+          .sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+
+        if (activeMatches.length > 0) {
+          return activeMatches[0].id;
         }
       } catch(e) { console.log('getUserActiveMatchId err:', e); }
       return null;
@@ -1597,7 +1659,7 @@
         if (mySlotId) {
           renderMatchDetails(mySlotId);
         } else {
-          // Если текущий пользователь не зашел ни в один слот — показываем пустую форму создания нового слота!
+          // Если текущий игрок НЕ занимает места ни в одном слоте — ПОКАЗЫВАЕМ ЧИСТУЮ ФОРМУ СОЗДАНИЯ!
           renderCreateMatchForm();
         }
       } else if (currentSlotSubTab === 'create') {
@@ -1605,7 +1667,6 @@
       }
     }
 
-    // --- ЛЕНТА ПУБЛИЧНЫХ ИГР (С ПОДДЕРЖКОЙ iOS И АВТООЧИСТКОЙ) ---
     async function renderPublicMatchesFeed(container) {
       if (!container) container = document.getElementById('main-content');
       
@@ -1631,7 +1692,6 @@
               const isClosed = m.is_registration_closed === true;
               const isPrivate = m.is_public === false;
 
-              // Удаление прошедших слотов
               if (isPast && supabaseClient) {
                 supabaseClient.from('match_messages').delete().eq('match_id', m.id).then();
                 supabaseClient.from('match_players').delete().eq('match_id', m.id).then();
@@ -1642,7 +1702,7 @@
               return !isPast && !isClosed && !isPrivate;
             });
           }
-        } catch(e) { console.log('Feed fetch err:', e); }
+        } catch(e) {}
       }
 
       let matchesHtml = '';
@@ -1725,7 +1785,7 @@
 
     async function quickJoinMatchFromFeed(matchId) {
       try {
-        await syncUserProfile();
+        await ensureProfileInDatabase(currentUserProfile || tgUser);
         
         let match = null, players = [];
         if (supabaseClient) {
@@ -1837,7 +1897,7 @@
       if (btn) btn.disabled = true;
 
       try {
-        await syncUserProfile();
+        await ensureProfileInDatabase(currentUserProfile || tgUser);
         const isPublicValue = document.getElementById('is_public').value === 'true';
 
         let matchData = {
@@ -2145,7 +2205,7 @@
         try {
           const { error } = await supabaseClient.from('match_messages').insert([newMsg]);
           if (error) console.log('Supabase insert chat error:', error.message);
-        } catch(e) { console.log('Chat send error:', e); }
+        } catch(e) {}
       }
 
       input.value = '';
@@ -2520,672 +2580,685 @@
 
       container.innerHTML = `
         <div class="space-y-4">
-          <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 backdrop-blur-md p-4 rounded-2xl text-white flex justify-between items-center shadow-lg border border-white/10">
-            <div>
-              <h2 class="text-base font-black uppercase tracking-wide">${t('calculatorTitle')}</h2>
-              <p class="text-xs opacity-90">${t('roundsCountLabel')}: ${rounds.length} (${cycles || 1} ${cycles > 1 ? t('cyclesLabel') : t('cycleSingleLabel')})</p>
-            </div>
-            <button type="button" onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold btn-3d border border-white/20">${t('resetBtn')}</button>
+          <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 p-4 rounded-2xl text-white shadow-lg space-y-1">
+            <h2 class="text-sm font-black uppercase tracking-wide flex justify-between items-center">
+              <span>🏆 ${t('calculatorTitle')}</span>
+              <span class="text-[10px] bg-black/30 px-2 py-0.5 rounded-md font-bold">${rounds.filter(r=>r.completed).length} / ${rounds.length} ${t('roundsCountLabel')}</span>
+            </h2>
+            <p class="text-xs opacity-90">${players.length} ${t('gamesLabel')} • ${cycles} ${t('cyclesLabel')}</p>
           </div>
 
-          <button type="button" onclick="confirmCancelAmericano()" class="w-full py-3 bg-gradient-to-r from-rose-600/80 to-red-600/80 hover:from-rose-500 hover:to-red-500 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-rose-500/20 border border-rose-400/30 flex items-center justify-center gap-2">
-            <span>🛑</span> <span>${t('cancelTournamentBtn')}</span>
+          <div class="space-y-2">
+            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('leaderboardTitle')}</h3>
+            <div class="space-y-1.5">${leaderboardHtml}</div>
+          </div>
+
+          <button type="button" onclick="recordTournamentToNationalLeaderboard()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
+            ${t('recordRatingBtn')}
           </button>
 
           <div class="space-y-2">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">${t('leaderboardTitle')}</h3>
-            ${leaderboardHtml}
+            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('matchesAndScoreTitle')}</h3>
+            <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-1">${roundsHtml}</div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" onclick="syncResultsToPlatformProfiles()" class="py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
-              ${t('recordRatingBtn')}
-            </button>
-            <button type="button" onclick="shareAmericanoResultsSummary()" class="py-3 bg-slate-800/80 hover:bg-slate-700/80 text-purple-300 border border-purple-500/40 font-bold rounded-xl text-xs btn-3d flex items-center justify-center gap-1">
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <button type="button" onclick="generateTelegramAmericanoReport()" class="py-3 bg-teal-500/20 border border-teal-500/40 text-teal-300 font-bold rounded-xl text-xs uppercase btn-3d">
               ${t('reportTgBtn')}
             </button>
-          </div>
-
-          <div class="space-y-2 pt-2">
-            <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">${t('matchesAndScoreTitle')}</h3>
-            ${roundsHtml}
+            <button type="button" onclick="confirmCancelAmericano()" class="py-3 bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold rounded-xl text-xs uppercase btn-3d">
+              ${t('cancelTournamentBtn')}
+            </button>
           </div>
         </div>
       `;
     }
 
-    function shareAmericanoResultsSummary() {
-      if (!localAmericanoState || !localAmericanoState.players) return;
-      const { players, rounds } = localAmericanoState;
-
-      const stats = players.map(p => ({ ...p, pts: 0 }));
-      rounds.forEach(r => {
-        if (r.completed) {
-          const sa = parseInt(r.score_a) || 0;
-          const sb = parseInt(r.score_b) || 0;
-          r.team_a.forEach(idx => { if (stats[idx]) stats[idx].pts += sa; });
-          r.team_b.forEach(idx => { if (stats[idx]) stats[idx].pts += sb; });
-        }
-      });
-
-      stats.sort((a, b) => b.pts - a.pts);
-
-      let text = `🎾 *РЕЗУЛЬТАТЫ ТУРНИРА АМЕРИКАНО* 🎾\n\n`;
-      stats.forEach((s, i) => {
-        const medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : '🔹'));
-        text += `${medal} ${i + 1}. *${s.name}* — ${s.pts} PTS\n`;
-      });
-      text += `\n🔥 Сыграно в Padel Moldova!`;
-
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text);
-        alert('Итоговый отчёт скопирован!');
-      } else prompt('Скопируйте текст отчёта:', text);
-    }
-
-    async function syncResultsToPlatformProfiles() {
-      if (!localAmericanoState || !localAmericanoState.players) return;
-      const { players, rounds } = localAmericanoState;
-      const completedRounds = rounds.filter(r => r.completed);
-
-      if (completedRounds.length === 0) { alert('Заполните хотя бы один матч.'); return; }
-
-      try {
-        const playerStats = {};
-        players.forEach(p => {
-          playerStats[p.id] = { userId: p.userId, name: p.name, pointsGained: 0, wins: 0, losses: 0, draws: 0, matchesCount: 0 };
-        });
-
-        completedRounds.forEach(r => {
-          const sa = parseInt(r.score_a) || 0;
-          const sb = parseInt(r.score_b) || 0;
-
-          r.team_a.forEach(pIdx => {
-            if (playerStats[pIdx]) {
-              playerStats[pIdx].pointsGained += sa; playerStats[pIdx].matchesCount += 1;
-              if (sa > sb) playerStats[pIdx].wins += 1;
-              else if (sb > sa) playerStats[pIdx].losses += 1;
-              else playerStats[pIdx].draws += 1;
-            }
-          });
-
-          r.team_b.forEach(pIdx => {
-            if (playerStats[pIdx]) {
-              playerStats[pIdx].pointsGained += sb; playerStats[pIdx].matchesCount += 1;
-              if (sb > sa) playerStats[pIdx].wins += 1;
-              else if (sa > sb) playerStats[pIdx].losses += 1;
-              else playerStats[pIdx].draws += 1;
-            }
-          });
-        });
-
-        let updatedCount = 0;
-        for (const pKey in playerStats) {
-          const stat = playerStats[pKey];
-          if (stat.userId && supabaseClient) {
-            const { data } = await supabaseClient.from('profiles').select('league_points, rating_americano, total_matches_played, wins, losses, draws').eq('id', stat.userId).maybeSingle();
-            
-            if (data) {
-              const currentLp = data.league_points || 1000;
-              const currentRating = data.rating_americano || 1000;
-              const currentMatches = data.total_matches_played || 0;
-              const currentWins = data.wins || 0;
-              const currentLosses = data.losses || 0;
-              const currentDraws = data.draws || 0;
-
-              const updateData = {
-                league_points: currentLp + stat.pointsGained,
-                rating_americano: currentRating + stat.pointsGained,
-                total_matches_played: currentMatches + stat.matchesCount,
-                wins: currentWins + stat.wins,
-                losses: currentLosses + stat.losses,
-                draws: currentDraws + stat.draws,
-                updated_at: new Date().toISOString()
-              };
-
-              await safeUpsertProfile(stat.userId, updateData);
-              updatedCount++;
-            }
-          }
-        }
-
-        const sortedLeaderboard = Object.values(playerStats).sort((a,b) => b.pointsGained - a.pointsGained);
-        saveAmericanoToHistory({ players: players, rounds: completedRounds, leaderboard: sortedLeaderboard });
-
-        alert(`Турнир завершён! Статистика игроков (${updatedCount}) обновлена.`);
-        await fetchAllPlatformProfiles();
-      } catch(e) { alert('Ошибка записи: ' + e.message); }
-    }
-
     function saveQuickScore(roundId) {
-      const inputA = document.getElementById(`quick_score_a_${roundId}`);
-      const inputB = document.getElementById(`quick_score_b_${roundId}`);
-      const scoreA = parseInt(inputA.value) || 0;
-      const scoreB = parseInt(inputB.value) || 0;
+      if (!localAmericanoState) return;
+      const inpA = document.getElementById(`quick_score_a_${roundId}`);
+      const inpB = document.getElementById(`quick_score_b_${roundId}`);
+      if (!inpA || !inpB) return;
 
-      const round = localAmericanoState.rounds.find(r => r.id === roundId);
-      if (round) {
-        round.score_a = scoreA; round.score_b = scoreB;
-        round.completed = (scoreA > 0 || scoreB > 0);
-        
+      const sa = parseInt(inpA.value);
+      const sb = parseInt(inpB.value);
+
+      if (isNaN(sa) || isNaN(sb)) { alert('Введите корректные числа очков.'); return; }
+
+      const r = localAmericanoState.rounds.find(item => item.id === roundId);
+      if (r) {
+        r.score_a = sa; r.score_b = sb; r.completed = true;
         localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
-        renderQuickAmericanoBoard(document.getElementById('main-content'));
-      }
-    }
-
-    function resetQuickAmericano() {
-      if (confirm('Начать новый турнир? Счёт будет сброшен.')) {
-        localAmericanoState = null;
-        localStorage.removeItem(getAmericanoStorageKey());
         renderQuickAmericano();
       }
     }
 
-    // --- ВКЛАДКА 3: ПРОФИЛЬ И СТАБИЛЬНЫЙ КАРБОНОВЫЙ БЛОК РЕЙТИНГА ---
+    async function recordTournamentToNationalLeaderboard() {
+      if (!localAmericanoState || !localAmericanoState.rounds) return;
+      const { players, rounds } = localAmericanoState;
+
+      const completedRounds = rounds.filter(r => r.completed);
+      if (completedRounds.length === 0) {
+        alert('Завершите хотя бы один матч перед записью результата.');
+        return;
+      }
+
+      const leaderboardMap = new Map();
+      players.forEach(p => {
+        leaderboardMap.set(p.id, {
+          userId: p.userId,
+          name: p.name,
+          pts: 0, matches: 0, wins: 0, losses: 0, draws: 0
+        });
+      });
+
+      rounds.forEach(r => {
+        if (r.completed) {
+          const sa = parseInt(r.score_a) || 0;
+          const sb = parseInt(r.score_b) || 0;
+
+          r.team_a.forEach(pIdx => {
+            const p = leaderboardMap.get(pIdx);
+            if (p) {
+              p.pts += sa; p.matches++;
+              if (sa > sb) p.wins++; else if (sb > sa) p.losses++; else p.draws++;
+            }
+          });
+          r.team_b.forEach(pIdx => {
+            const p = leaderboardMap.get(pIdx);
+            if (p) {
+              p.pts += sb; p.matches++;
+              if (sb > sa) p.wins++; else if (sa > sb) p.losses++; else p.draws++;
+            }
+          });
+        }
+      });
+
+      const finalLeaderboard = Array.from(leaderboardMap.values()).sort((a, b) => b.pts - a.pts);
+
+      for (let i = 0; i < finalLeaderboard.length; i++) {
+        const item = finalLeaderboard[i];
+        let gainedLP = 0;
+        if (i === 0) gainedLP = 40;
+        else if (i === 1) gainedLP = 25;
+        else if (i === 2) gainedLP = 15;
+        else gainedLP = 5;
+
+        item.pointsGained = gainedLP;
+
+        if (item.userId && supabaseClient) {
+          try {
+            await ensureProfileInDatabase({ id: item.userId, first_name: item.name });
+
+            const { data: dbProf } = await supabaseClient.from('profiles').select('*').eq('id', item.userId).maybeSingle();
+            if (dbProf) {
+              const currentLP = dbProf.league_points || 1000;
+              const newLP = currentLP + gainedLP;
+              const newWins = (dbProf.wins || 0) + item.wins;
+              const newLosses = (dbProf.losses || 0) + item.losses;
+              const newDraws = (dbProf.draws || 0) + item.draws;
+              const newTotal = (dbProf.total_matches_played || 0) + item.matches;
+
+              await safeUpsertProfile(item.userId, {
+                league_points: newLP,
+                wins: newWins,
+                losses: newLosses,
+                draws: newDraws,
+                total_matches_played: newTotal,
+                updated_at: new Date().toISOString()
+              });
+            }
+          } catch(e) {}
+        }
+      }
+
+      saveAmericanoToHistory({
+        players,
+        rounds: completedRounds,
+        leaderboard: finalLeaderboard
+      });
+
+      alert('Результаты турнира сохранены в историю!');
+      await fetchAllPlatformProfiles();
+    }
+
+    function generateTelegramAmericanoReport() {
+      if (!localAmericanoState) return;
+      const { players, rounds } = localAmericanoState;
+
+      const leaderboard = players.map(p => ({ ...p, points: 0 }));
+      rounds.forEach(r => {
+        if (r.completed) {
+          const sa = parseInt(r.score_a) || 0;
+          const sb = parseInt(r.score_b) || 0;
+          r.team_a.forEach(pIdx => { if(leaderboard[pIdx]) leaderboard[pIdx].points += sa; });
+          r.team_b.forEach(pIdx => { if(leaderboard[pIdx]) leaderboard[pIdx].points += sb; });
+        }
+      });
+      leaderboard.sort((a,b) => b.points - a.points);
+
+      let text = `🏆 *РЕЗУЛЬТАТЫ ТУРНИРА АМЕРИКАНО*\n\n`;
+      leaderboard.forEach((item, idx) => {
+        const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `${idx + 1}.`));
+        text += `${medal} *${item.name}*: ${item.points} PTS\n`;
+      });
+      text += `\n🎾 _Сформировано через Padel Moldova App_`;
+
+      if (tg && tg.openTelegramLink) {
+        tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(text)}`);
+      } else {
+        navigator.clipboard.writeText(text);
+        alert('Отчёт скопирован в буфер обмена!');
+      }
+    }
+
+    // --- ВКЛАДКА 3: ПРОФИЛЬ И ЛИДЕРБОРД ---
     function setLeaderboardTab(tab) {
       currentLeaderboardTab = tab;
       renderProfileTab();
     }
 
-    function toggleProfileEditForm() {
-      isProfileEditOpen = !isProfileEditOpen;
-      const formBox = document.getElementById('profile-edit-box');
-      if (formBox) {
-        if (isProfileEditOpen) formBox.classList.remove('hidden');
-        else formBox.classList.add('hidden');
+    function openViewPlayerModalById(userId) {
+      const p = platformProfilesList.find(item => String(item.id) === String(userId));
+      if (p) openViewPlayerModal(p);
+      else {
+        openViewPlayerModal({
+          id: userId,
+          first_name: 'Игрок',
+          league_points: 1000,
+          total_matches_played: 0,
+          wins: 0, losses: 0, draws: 0
+        });
       }
     }
 
-    function shareMyProfileCard() {
-      if (!currentUserProfile) return;
-      const p = currentUserProfile;
-      const calculatedLP = (p.league_points || 1000) + getHistoricalPointsForUser(p.id, p.first_name);
-      const league = getPlayerLeague(calculatedLP);
-      const userTag = p.username ? ` (@${p.username})` : '';
-      const isPro = p.is_premium ? '👑 PRO' : 'FREE';
-
-      const shareText = `🎾 Игрок Padel Moldova:\n👤 ${p.first_name} ${p.last_name || ''}${userTag} [${isPro}]\n🏆 Дивизион: ${league.badge} ${league.title} (${calculatedLP} LP)\n⭐ Skill Level: ${p.skill_level || 2.5}`;
-
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(shareText);
-        alert('Карточка профиля скопирована!');
-      } else prompt('Скопируйте вашей карточкой:', shareText);
-    }
-
-    function openViewPlayerModalById(userId) {
-      const player = platformProfilesList.find(item => String(item.id) === String(userId));
-      if (!player) return;
-
+    function openViewPlayerModal(p) {
       const modal = document.getElementById('modal-view-player');
       const content = document.getElementById('view-player-card-content');
 
-      const isMe = String(player.id) === String(tgUser.id);
-      const isPublic = player.is_public_profile !== false;
-      const canViewDetails = isMe || isPublic || isUserCreator();
+      const isPro = p.is_premium === true;
+      const cardClass = isPro ? 'glass-card-pro' : 'glass-card';
 
-      if (!canViewDetails) {
-        content.innerHTML = `
-          <div class="glass-subcard p-4 rounded-2xl border border-rose-500/30 text-center space-y-2">
-            <span class="text-3xl block">🔒</span>
-            <h4 class="text-sm font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
-            <p class="text-xs text-rose-300 leading-relaxed font-semibold">Этот профиль приватный.</p>
-          </div>
-        `;
-      } else {
-        const calculatedAge = calculateAge(player.birth_date);
-        const ageStr = calculatedAge ? `${calculatedAge} лет` : t('unspecified');
-        let genderLabel = t('unspecified');
-        if (player.gender === 'male') genderLabel = t('male');
-        else if (player.gender === 'female') genderLabel = t('female');
+      const lp = p.league_points || 1000;
+      const leagueInfo = getPlayerLeague(lp);
 
-        const calculatedLP = (player.league_points || 1000) + getHistoricalPointsForUser(player.id, player.first_name);
-        const league = getPlayerLeague(calculatedLP);
-        const wins = player.wins || 0;
-        const losses = player.losses || 0;
-        const draws = player.draws || 0;
-        const total = player.total_matches_played || (wins + losses + draws);
-        const winrate = total > 0 ? Math.round(((wins + draws * 0.5) / total) * 100) : 0;
+      const total = p.total_matches_played || 0;
+      const wins = p.wins || 0;
+      const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
 
-        const tgLink = player.username ? `<a href="https://t.me/${player.username}" target="_blank" class="text-cyan-400 font-bold underline">@${player.username}</a>` : `<span class="text-slate-400 italic">Не указан</span>`;
+      const age = calculateAge(p.birth_date);
+      const histPts = getHistoricalPointsForUser(p.id, p.first_name);
 
-        content.innerHTML = `
-          <div class="${player.is_premium ? 'glass-card-pro' : 'glass-subcard'} border p-4 rounded-2xl space-y-3">
-            <div class="flex items-start justify-between">
-              <div>
-                <h4 class="text-base font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
-                <p class="text-xs text-cyan-300 font-bold mt-0.5">Telegram: ${tgLink}</p>
+      let genderText = t('unspecified');
+      if (p.gender === 'male') genderText = t('male');
+      else if (p.gender === 'female') genderText = t('female');
+
+      let sideText = t('bothSides');
+      if (p.preferred_side === 'left') sideText = t('leftSide');
+      else if (p.preferred_side === 'right') sideText = p.preferred_side;
+
+      content.innerHTML = `
+        <div class="${cardClass} p-4 rounded-3xl space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-xl text-slate-950 shadow-md">
+              ${(p.first_name || 'U')[0].toUpperCase()}
+            </div>
+            <div>
+              <h3 class="text-base font-black text-white flex items-center gap-1.5">
+                <span>${p.first_name} ${p.last_name || ''}</span>
+                ${isPro ? '<span class="text-amber-300">👑</span>' : ''}
+              </h3>
+              ${p.username ? `<p class="text-xs text-emerald-400 font-semibold">@${p.username}</p>` : ''}
+              <div class="flex items-center gap-1 mt-1">
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
+                  ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
+                </span>
               </div>
-              <span class="px-2.5 py-1 bg-amber-400 text-slate-950 font-black text-xs rounded-lg uppercase shadow">Lvl ${player.skill_level || 2.5}</span>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <span class="px-3 py-1 rounded-full text-xs font-black border ${league.color}">
-                ${league.badge} ${league.title} (${calculatedLP} LP)
-              </span>
-              ${player.is_premium ? `<span class="px-2 py-0.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-black text-[9px] rounded-md uppercase">PRO MEMBER</span>` : ''}
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 text-[11px] glass-subcard p-2.5 rounded-xl border border-white/10">
-              <div><span class="text-slate-400">${t('gender')}:</span> <strong class="text-slate-200">${genderLabel}</strong></div>
-              <div><span class="text-slate-400">${t('ageLabel')}:</span> <strong class="text-slate-200">${ageStr}</strong></div>
-            </div>
-
-            <div class="grid grid-cols-4 gap-1 text-center font-bold text-[10px] glass-subcard p-2 rounded-xl border border-white/10">
-              <div><p class="text-slate-400 uppercase">${t('matches')}</p><p class="text-xs text-white">${total}</p></div>
-              <div><p class="text-slate-400 uppercase">${t('wins')}</p><p class="text-xs text-emerald-400">${wins}</p></div>
-              <div><p class="text-slate-400 uppercase">${t('losses')}</p><p class="text-xs text-rose-400">${losses}</p></div>
-              <div><p class="text-slate-400 uppercase">${t('winrate')}</p><p class="text-xs text-amber-300">${winrate}%</p></div>
             </div>
           </div>
-        `;
-      }
+
+          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+            <div class="p-2 glass-subcard rounded-xl border border-white/10 space-y-0.5">
+              <span class="text-slate-400 font-medium block">${t('ageLabel')} / ${t('gender')}</span>
+              <span class="font-bold text-white">${age ? age + ' лет' : '—'} • ${genderText}</span>
+            </div>
+            <div class="p-2 glass-subcard rounded-xl border border-white/10 space-y-0.5">
+              <span class="text-slate-400 font-medium block">${t('preferredSide')}</span>
+              <span class="font-bold text-emerald-300">${sideText}</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center text-[10px] pt-1">
+            <div class="p-2 glass-subcard rounded-xl border border-white/10">
+              <span class="text-slate-400 block">${t('matches')}</span>
+              <span class="font-black text-white text-xs">${total}</span>
+            </div>
+            <div class="p-2 glass-subcard rounded-xl border border-white/10">
+              <span class="text-slate-400 block">${t('wins')}</span>
+              <span class="font-black text-emerald-400 text-xs">${wins}</span>
+            </div>
+            <div class="p-2 glass-subcard rounded-xl border border-white/10">
+              <span class="text-slate-400 block">${t('winrate')}</span>
+              <span class="font-black text-amber-300 text-xs">${winrate}%</span>
+            </div>
+          </div>
+
+          <div class="p-2.5 glass-subcard rounded-xl border border-purple-500/30 flex justify-between items-center text-xs">
+            <span class="text-purple-300 font-bold">Очки в турнирах Американо:</span>
+            <span class="font-black text-white font-mono text-sm">${histPts} PTS</span>
+          </div>
+        </div>
+      `;
 
       modal.classList.remove('hidden');
     }
 
     function closeViewPlayerModal() { document.getElementById('modal-view-player').classList.add('hidden'); }
 
+    function openAdminEditPlayerModal(userId) {
+      const p = platformProfilesList.find(item => String(item.id) === String(userId));
+      if (!p) return;
+
+      const modal = document.getElementById('modal-admin-player');
+      const content = document.getElementById('admin-player-form-content');
+
+      content.innerHTML = `
+        <form onsubmit="saveAdminPlayerEdit(event, '${p.id}')" class="space-y-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Имя</label>
+            <input type="text" id="admin_edit_fname" value="${p.first_name || ''}" required class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Фамилия</label>
+            <input type="text" id="admin_edit_lname" value="${p.last_name || ''}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-bold text-amber-300 mb-1 uppercase">Очки Лиги (LP)</label>
+              <input type="number" id="admin_edit_lp" value="${p.league_points || 1000}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-emerald-300 mb-1 uppercase">Уровень (Level)</label>
+              <input type="number" step="0.1" id="admin_edit_skill" value="${p.skill_level || 2.5}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Матчи</label>
+              <input type="number" id="admin_edit_total" value="${p.total_matches_played || 0}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-emerald-400 mb-1 uppercase">Победы</label>
+              <input type="number" id="admin_edit_wins" value="${p.wins || 0}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-rose-400 mb-1 uppercase">Поражения</label>
+              <input type="number" id="admin_edit_losses" value="${p.losses || 0}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
+              💾 Сохранить изменения игрока
+            </button>
+          </div>
+        </form>
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    async function saveAdminPlayerEdit(e, userId) {
+      e.preventDefault();
+      try {
+        const payload = {
+          first_name: document.getElementById('admin_edit_fname').value,
+          last_name: document.getElementById('admin_edit_lname').value,
+          league_points: parseInt(document.getElementById('admin_edit_lp').value) || 1000,
+          skill_level: parseFloat(document.getElementById('admin_edit_skill').value) || 2.5,
+          total_matches_played: parseInt(document.getElementById('admin_edit_total').value) || 0,
+          wins: parseInt(document.getElementById('admin_edit_wins').value) || 0,
+          losses: parseInt(document.getElementById('admin_edit_losses').value) || 0,
+          updated_at: new Date().toISOString()
+        };
+
+        await safeUpsertProfile(userId, payload);
+        closeAdminPlayerModal();
+        alert('Данные игрока обновлены!');
+        await fetchAllPlatformProfiles();
+        renderProfileTab();
+      } catch(err) { alert('Ошибка сохранения: ' + err.message); }
+    }
+
+    function closeAdminPlayerModal() { document.getElementById('modal-admin-player').classList.add('hidden'); }
+
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
-      container.innerHTML = `<div class="text-center py-10 text-slate-400">${t('loadingProfile')}</div>`;
-
       await fetchAllPlatformProfiles();
 
       const p = currentUserProfile || {
-        first_name: tgUser.first_name || 'Victor', last_name: tgUser.last_name || 'Popovici', skill_level: 2.5, league_points: 1000, rating_americano: 1000,
-        rating_friendly: 1000, rating_competitive: 1000, preferred_side: 'both', phone: '+373 60 217 449',
-        is_premium: false, payment_pending: false, shield_cards: 1, total_matches_played: 0, wins: 0, losses: 0, draws: 0
+        first_name: tgUser.first_name || 'Игрок',
+        last_name: tgUser.last_name || '',
+        skill_level: 2.5, league_points: 1000, total_matches_played: 0, wins: 0, losses: 0, draws: 0
       };
 
-      const wins = p.wins || 0; const losses = p.losses || 0; const draws = p.draws || 0;
-      const total = p.total_matches_played || (wins + losses + draws);
-      const winrate = total > 0 ? Math.round(((wins + draws * 0.5) / total) * 100) : 0;
+      const isPro = p.is_premium === true;
+      const isPendingPro = p.payment_pending === true;
+      const cardClass = isPro ? 'glass-card-pro' : 'glass-card';
 
-      const calculatedLP = (p.league_points || 1000) + getHistoricalPointsForUser(p.id, p.first_name);
-      const myLeague = getPlayerLeague(calculatedLP);
+      const total = p.total_matches_played || 0;
+      const wins = p.wins || 0;
+      const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
+      const lp = p.league_points || 1000;
+      const leagueInfo = getPlayerLeague(lp);
 
-      let sortedList = [...platformProfilesList];
-      sortedList.forEach(item => {
-        item.computedLP = (item.league_points || 1000) + getHistoricalPointsForUser(item.id, item.first_name);
-      });
-
-      if (currentLeaderboardTab === 'national') {
-        sortedList.sort((a, b) => b.computedLP - a.computedLP);
-      } else if (currentLeaderboardTab === 'americano') {
-        sortedList.sort((a, b) => (b.rating_americano || 1000) - (a.rating_americano || 1000));
-      } else if (currentLeaderboardTab === 'friendly') {
-        sortedList.sort((a, b) => (b.rating_friendly || 1000) - (a.rating_friendly || 1000));
-      } else if (currentLeaderboardTab === 'competitive') {
-        sortedList.sort((a, b) => (b.rating_competitive || 1000) - (a.rating_competitive || 1000));
-      }
-
-      let podiumHtml = '';
-      let restRowsHtml = '';
-
-      if (sortedList.length > 0) {
-        const top3 = sortedList.slice(0, 3);
-        podiumHtml = top3.map((item, index) => {
-          const league = getPlayerLeague(item.computedLP);
-          const fullName = `${item.first_name} ${item.last_name || ''}`.trim();
-          const proMark = item.is_premium ? '👑 ' : '';
-          const positionTitle = index === 0 ? '🥇 1 PLACE' : (index === 1 ? '🥈 2 PLACE' : '🥉 3 PLACE');
-          const styleClass = index === 0 ? 'lb-podium-1' : (index === 1 ? 'lb-podium-2' : 'lb-podium-3');
-
-          return `
-            <div onclick="openViewPlayerModalById('${item.id}')" class="p-3.5 rounded-2xl ${styleClass} cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-black uppercase tracking-wider ${index === 0 ? 'text-amber-300' : (index === 1 ? 'text-slate-200' : 'text-amber-500')}">${positionTitle}</span>
-                <span class="text-[9px] px-2 py-0.5 rounded-full font-black border ${league.color}">${league.badge} ${league.title}</span>
-              </div>
-
-              <div class="flex items-center justify-between gap-2">
-                <div>
-                  <h4 class="text-sm font-black text-white flex items-center gap-1">${proMark}${fullName}</h4>
-                  <p class="text-[10px] text-slate-300 font-medium">Lvl ${item.skill_level || 2.5} ${item.username ? '• @' + item.username : ''}</p>
-                </div>
-                <div class="text-right">
-                  <span class="text-base font-black text-amber-300 font-mono block">${item.computedLP}</span>
-                  <span class="text-[8px] text-slate-400 font-extrabold uppercase">POINTS</span>
-                </div>
+      let proSectionHtml = '';
+      if (isPro) {
+        proSectionHtml = `
+          <div onclick="openProDetailsModal()" class="glass-subcard p-3 rounded-2xl border border-amber-500/50 flex justify-between items-center bg-gradient-to-r from-amber-500/20 to-yellow-600/10 cursor-pointer hover:scale-[1.02] transition-transform btn-3d">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">👑</span>
+              <div>
+                <span class="text-xs font-black text-amber-300 uppercase block">${t('proApprovedStatus')}</span>
+                <span class="text-[10px] text-slate-300 font-semibold">🛡️ Shield Cards: <strong class="text-emerald-400">${p.shield_cards || 2}</strong> • Нажмите для деталей</span>
               </div>
             </div>
-          `;
-        }).join('');
-
-        const rest = sortedList.slice(3);
-        restRowsHtml = rest.map((item, index) => {
-          const rank = index + 4;
-          const league = getPlayerLeague(item.computedLP);
-          const fullName = `${item.first_name} ${item.last_name || ''}`.trim();
-          const proMark = item.is_premium ? '👑 ' : '';
-
-          return `
-            <div onclick="openViewPlayerModalById('${item.id}')" class="p-3 rounded-2xl lb-card-solid cursor-pointer hover:border-emerald-500/50 transition-all flex items-center justify-between gap-2">
-              <div class="flex items-center gap-3 min-w-0">
-                <span class="font-black text-slate-400 font-mono text-xs w-6 text-center">#${rank}</span>
-                <div class="truncate">
-                  <span class="font-black text-white text-xs block truncate">${proMark}${fullName}</span>
-                  <span class="text-[9px] text-slate-400 font-medium">Lvl ${item.skill_level || 2.5}</span>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2 flex-shrink-0">
-                <span class="text-[9px] px-2 py-0.5 rounded-full font-black border ${league.color}">${league.badge}</span>
-                <span class="font-black text-amber-300 font-mono text-xs">${item.computedLP} LP</span>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
-
-      let creatorAdminPanelHtml = '';
-      if (isUserCreator()) {
-        const pendingUsers = getPendingProRequestsList();
-
-        let pendingRequestsHtml = pendingUsers.length > 0 ? pendingUsers.map(u => `
-          <div class="p-3 glass-subcard rounded-2xl border border-amber-500/50 flex items-center justify-between gap-2">
-            <div>
-              <span class="font-black text-white text-xs">${u.first_name} ${u.last_name || ''}</span>
-              <p class="text-[10px] text-amber-300 font-mono">@${u.username || u.id} • MIA 150 MDL</p>
-            </div>
-            <div class="flex gap-1">
-              <button type="button" onclick="approveUserProStatus('${u.id}')" class="px-2.5 py-1 bg-emerald-500 text-slate-950 font-black rounded-lg text-[10px] btn-3d">${t('approveProBtn')}</button>
-              <button type="button" onclick="rejectUserProStatus('${u.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg text-[10px] btn-3d">${t('rejectProBtn')}</button>
-            </div>
-          </div>
-        `).join('') : `<p class="text-[11px] text-slate-400 italic">Нет новых заявок на оплату.</p>`;
-
-        let allUsersManagementRows = sortedList.map(item => `
-          <div class="flex items-center justify-between p-2 glass-subcard rounded-xl text-xs gap-2 border border-white/5">
-            <span onclick="openAdminPlayerModalById('${item.id}')" class="font-bold text-white truncate max-w-[130px] cursor-pointer underline decoration-dotted hover:text-amber-300">${item.first_name} (${item.username ? '@' + item.username : 'без юзера'})</span>
-            <div class="flex items-center gap-1">
-              <span class="text-[9px] ${item.is_premium ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-700 text-slate-300'} px-1.5 py-0.5 rounded">${item.is_premium ? 'PRO' : 'FREE'}</span>
-            </div>
-          </div>
-        `).join('');
-
-        creatorAdminPanelHtml = `
-          <div class="bg-amber-500/10 border border-amber-500/40 p-4 rounded-3xl space-y-3 glass-subcard">
-            <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('creatorPanelTitle')}</h3>
-            
-            <div class="space-y-2">
-              <h4 class="text-[11px] font-black text-amber-400 uppercase">${t('pendingRequestsTitle')}</h4>
-              <div class="space-y-1.5">${pendingRequestsHtml}</div>
-            </div>
-
-            <div class="space-y-2 pt-2 border-t border-white/10">
-              <p class="text-[11px] text-slate-300 font-bold uppercase">${t('allRegisteredPlayers')}</p>
-              <div class="max-h-40 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">${allUsersManagementRows}</div>
-            </div>
+            <span class="text-amber-300 text-xs">➔</span>
           </div>
         `;
-      }
-
-      let proBannerStatus = '';
-      if (p.is_premium) {
-        const expDate = p.premium_until ? new Date(p.premium_until) : new Date(Date.now() + 30*24*3600*1000);
-        const dateFormatted = expDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        const daysLeft = Math.max(0, Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)));
-
-        proBannerStatus = `
-          <div onclick="openProDetailsModal()" class="p-4 bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-amber-500/20 border border-amber-500/50 rounded-2xl cursor-pointer hover:border-amber-400/80 transition-all space-y-2.5 shadow-lg shadow-amber-500/10 btn-3d">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <span class="text-2xl">👑</span>
-                <div>
-                  <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('proApprovedStatus')}</h4>
-                  <p class="text-[10px] text-amber-200/80 font-medium">Нажмите для подробностей и бонусов 🔍</p>
-                </div>
-              </div>
-              <span class="text-[10px] font-black text-slate-950 bg-gradient-to-r from-amber-400 to-yellow-400 px-2.5 py-1 rounded-xl shadow uppercase">
-                ${daysLeft} дн.
-              </span>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 text-[10px] pt-2 border-t border-amber-500/30">
-              <div class="glass-subcard p-2 rounded-xl text-center">
-                <span class="text-slate-400 block">Действителен до:</span>
-                <strong class="text-amber-300 font-bold">${dateFormatted}</strong>
-              </div>
-              <div class="glass-subcard p-2 rounded-xl text-center">
-                <span class="text-slate-400 block">Защитные карты:</span>
-                <strong class="text-emerald-400 font-bold">🛡️ ${p.shield_cards || 2} шт.</strong>
-              </div>
-            </div>
-          </div>
-        `;
-      } else if (p.payment_pending) {
-        proBannerStatus = `
-          <div class="p-3 bg-amber-500/20 border border-amber-500/50 rounded-2xl space-y-1 text-center">
-            <p class="text-xs font-bold text-amber-300">${t('proPendingStatus')}</p>
-            <p class="text-[9px] text-slate-300">Создатель проверяет перевод MIA (060217449)</p>
+      } else if (isPendingPro) {
+        proSectionHtml = `
+          <div class="glass-subcard p-3 rounded-2xl border border-yellow-500/40 text-center text-xs font-semibold text-yellow-300 bg-yellow-500/10">
+            ${t('proPendingStatus')}
           </div>
         `;
       } else {
-        proBannerStatus = `
-          <button type="button" onclick="openPayProModal()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
-            <span>💎</span> <span>${t('getProBtn')}</span>
+        proSectionHtml = `
+          <button type="button" onclick="openPayProModal()" class="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+            <span>👑</span> <span>${t('getProBtn')}</span>
           </button>
         `;
       }
 
-      container.innerHTML = `
-        <div class="space-y-4">
-          <div class="${p.is_premium ? 'glass-card-pro' : 'glass-card'} p-4 rounded-3xl text-white shadow-xl space-y-3 relative">
-            
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <div class="flex items-center gap-2">
-                  <h2 class="text-lg font-black tracking-tight">${p.first_name} ${p.last_name || ''}</h2>
-                  <span class="px-2 py-0.5 bg-amber-400 text-slate-950 font-black text-[10px] rounded-lg uppercase shadow">Lvl ${p.skill_level || 2.5}</span>
-                </div>
-                
-                <div class="flex items-center gap-1.5 mt-1.5">
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black border ${myLeague.color} flex items-center gap-1">
-                    <span>${myLeague.badge}</span> ${myLeague.title} (${calculatedLP} LP)
-                  </span>
-                  <span class="px-2 py-0.5 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-[9px] font-black rounded-full">
-                    🛡️ ${p.shield_cards || 1} Shield
-                  </span>
-                </div>
-              </div>
+      let creatorAdminPanelHtml = '';
+      if (isUserCreator()) {
+        const pendingReqs = getPendingProRequestsList();
+        let pendingHtml = '';
 
-              <div class="flex items-center gap-1.5">
-                <button type="button" onclick="shareMyProfileCard()" class="p-2 glass-subcard border border-white/20 rounded-xl text-white text-xs font-bold btn-3d">📤</button>
-                <button type="button" onclick="toggleProfileEditForm()" class="px-2.5 py-1.5 glass-subcard border border-white/30 rounded-xl text-white text-xs font-extrabold btn-3d flex items-center gap-1">
-                  ✏️ <span>${t('settingsBtn')}</span>
-                </button>
+        if (pendingReqs.length > 0) {
+          pendingHtml = `
+            <div class="space-y-2 pt-2 border-t border-amber-500/30">
+              <h4 class="text-xs font-extrabold text-yellow-300 uppercase tracking-wide">${t('pendingRequestsTitle')} (${pendingReqs.length}):</h4>
+              <div class="space-y-2">
+                ${pendingReqs.map(req => `
+                  <div class="p-2.5 glass-subcard rounded-xl border border-amber-500/40 flex justify-between items-center text-xs">
+                    <div>
+                      <span class="font-black text-white block">${req.first_name} ${req.last_name \vert{}\vert{} ''}</span>${req.username ? `<span class="text-[10px] text-emerald-400">@${req.username}</span>` : ''}
+                    </div>
+                    <div class="flex gap-1.5">
+                      <button type="button" onclick="approveUserProStatus('${req.id}')" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black rounded-lg btn-3d text-[10px]">${t('approveProBtn')}</button>
+                      <button type="button" onclick="rejectUserProStatus('${req.id}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/40 font-black rounded-lg btn-3d text-[10px]">${t('rejectProBtn')}</button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        let playersManagementList = platformProfilesList.map(item => `
+          <div class="p-2 glass-subcard rounded-xl border border-white/10 flex justify-between items-center text-xs">
+            <div class="truncate max-w-[180px]">
+              <span class="font-bold text-white">${item.first_name} ${item.last_name || ''}</span>
+              <span class="text-[10px] text-amber-300 block font-mono">${item.league_points || 1000} LP • Level ${item.skill_level || 2.5}</span>
+            </div>
+            <button type="button" onclick="openAdminEditPlayerModal('${item.id}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px] rounded-lg btn-3d">
+              ✏️ Изменить
+            </button>
+          </div>
+        `).join('');
+
+        creatorAdminPanelHtml = `
+          <div class="p-4 glass-subcard border-2 border-cyan-500/50 rounded-3xl space-y-3 bg-slate-950/80">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">👑</span>
+              <div>
+                <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wide">${t('creatorPanelTitle')}</h3>
+                <p class="text-[10px] text-slate-400">Полный доступ к редактированию всех игроков</p>
               </div>
             </div>
 
-            <div class="grid grid-cols-4 gap-1 pt-2 border-t border-white/10 text-center font-bold">
-              <div><p class="text-[9px] opacity-75 uppercase">${t('matches')}</p><p class="text-xs font-black">${total}</p></div>
-              <div><p class="text-[9px] opacity-75 uppercase">${t('wins')}</p><p class="text-xs font-black text-emerald-300">${wins}</p></div>
-              <div><p class="text-[9px] opacity-75 uppercase">${t('losses')}</p><p class="text-xs font-black text-rose-300">${losses}</p></div>
-              <div><p class="text-[9px] opacity-75 uppercase">${t('winrate')}</p><p class="text-xs font-black text-amber-300">${winrate}%</p></div>
+            ${pendingHtml}
+
+            <div class="space-y-2 pt-2 border-t border-cyan-500/30">
+              <h4 class="text-xs font-extrabold text-slate-300 uppercase tracking-wide">${t('allRegisteredPlayers')}</h4>
+              <div class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">${playersManagementList}</div>
             </div>
           </div>
+        `;
+      }
 
-          ${proBannerStatus}
-
-          <div id="profile-edit-box" class="${isProfileEditOpen ? '' : 'hidden'} glass-subcard p-4 rounded-3xl border border-cyan-500/40 space-y-3 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-white/10 pb-2">
-              <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider">${t('profileEditTitle')}</h3>
-              <button type="button" onclick="toggleProfileEditForm()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
-            </div>
+      let editFormHtml = '';
+      if (isProfileEditOpen) {
+        editFormHtml = `
+          <div class="p-4 glass-subcard border border-emerald-500/40 rounded-3xl space-y-3">
+            <h3 class="text-xs font-black text-emerald-300 uppercase tracking-wide">${t('profileEditTitle')}</h3>
             
-            <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
-              <div class="grid grid-cols-2 gap-2.5">
+            <form onsubmit="handleSaveProfileDetails(event)" class="space-y-2.5 text-xs">
+              <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="block text-slate-300 font-semibold mb-1">${t('birthDate')}</label>
-                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+                  <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('birthDate')}</label>
+                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
                 </div>
                 <div>
-                  <label class="block text-slate-300 font-semibold mb-1">${t('gender')}</label>
-                  <select id="edit_gender" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
-                    <option value="" ${!p.gender ? 'selected' : ''}>${t('unspecified')}</option>
+                  <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('gender')}</label>
+                  <select id="edit_gender" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
+                    <option value="" ${!p.gender ? 'selected' : ''}>— ${t('unspecified')} —</option>
                     <option value="male" ${p.gender === 'male' ? 'selected' : ''}>${t('male')}</option>
                     <option value="female" ${p.gender === 'female' ? 'selected' : ''}>${t('female')}</option>
                   </select>
                 </div>
               </div>
 
-              <div class="grid grid-cols-2 gap-2.5">
+              <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="block text-slate-300 font-semibold mb-1">${t('preferredSide')}</label>
-                  <select id="edit_preferred_side" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
-                    <option value="both" ${p.preferred_side === 'both' ? 'selected' : ''}>${t('bothSides')}</option>
+                  <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('preferredSide')}</label>
+                  <select id="edit_preferred_side" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
                     <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
                     <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
+                    <option value="both" ${p.preferred_side === 'both' || !p.preferred_side ? 'selected' : ''}>${t('bothSides')}</option>
                   </select>
                 </div>
-
                 <div>
-                  <label class="block text-slate-300 font-semibold mb-1">${t('phone')}</label>
-                  <input type="text" id="edit_phone" value="${p.phone || ''}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
+                  <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('phone')}</label>
+                  <input type="tel" id="edit_phone" value="${p.phone_number || ''}" placeholder="+373..." class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
                 </div>
               </div>
 
               <div class="flex gap-2 pt-1">
-                <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl btn-3d uppercase text-xs">
+                <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
                   ${t('saveChanges')}
+                </button>
+                <button type="button" onclick="toggleProfileEditForm()" class="px-4 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs btn-3d">
+                  ✕
                 </button>
               </div>
             </form>
           </div>
+        `;
+      }
 
+      let leaderboardList = [...platformProfilesList];
+      leaderboardList.sort((a, b) => (b.league_points || 1000) - (a.league_points || 1000));
+
+      let leaderboardRowsHtml = leaderboardList.map((item, index) => {
+        const itemIsPro = item.is_premium === true;
+        const itemLp = item.league_points || 1000;
+        const itemLeague = getPlayerLeague(itemLp);
+
+        let rowBg = "lb-card-solid";
+        let rankBadge = `<span class="font-black text-slate-400 text-xs">${index + 1}.</span>`;
+
+        if (index === 0) { rowBg = "lb-podium-1"; rankBadge = `<span class="text-xl">🥇</span>`; }
+        else if (index === 1) { rowBg = "lb-podium-2"; rankBadge = `<span class="text-xl">🥈</span>`; }
+        else if (index === 2) { rowBg = "lb-podium-3"; rankBadge = `<span class="text-xl">🥉</span>`; }
+
+        if (itemIsPro && index > 2) rowBg = "glass-card-pro";
+
+        return `
+          <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} p-3 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all btn-3d">
+            <div class="flex items-center gap-2.5">
+              ${rankBadge}
+              <div>
+                <h4 class="text-xs font-black text-white flex items-center gap-1">
+                  <span>${item.first_name} ${item.last_name || ''}</span>
+                  ${itemIsPro ? '<span class="text-amber-300 text-[10px]">👑</span>' : ''}
+                </h4>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="text-[9px] font-bold text-slate-300">${itemLeague.badge} ${itemLeague.title}</span>
+                  <span class="text-[9px] text-slate-400">• Lvl ${item.skill_level || 2.5}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-right">
+              <span class="font-black text-amber-300 text-xs font-mono block">${itemLp} LP</span>
+              <span class="text-[9px] text-emerald-400 font-bold">${item.wins || 0}W / ${(item.total_matches_played || 0) - (item.wins || 0)}L</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="${cardClass} p-4 rounded-3xl space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-xl text-slate-950 shadow-md">
+                  ${(p.first_name || 'U')[0].toUpperCase()}
+                </div>
+                <div>
+                  <h3 class="text-base font-black text-white flex items-center gap-1.5">
+                    <span>${p.first_name} ${p.last_name || ''}</span>
+                    ${isPro ? '<span class="text-amber-300">👑</span>' : ''}
+                  </h3>
+                  <p class="text-xs text-emerald-400 font-semibold">@${p.username || 'user'}</p>
+                  <div class="flex items-center gap-1 mt-1">
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
+                      ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" onclick="toggleProfileEditForm()" class="px-3 py-1.5 bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-white/10 font-bold text-xs rounded-xl btn-3d">
+                ⚙️ ${t('settingsBtn')}
+              </button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 text-center text-[10px] pt-1">
+              <div class="p-2 glass-subcard rounded-xl border border-white/10">
+                <span class="text-slate-400 block">${t('matches')}</span>
+                <span class="font-black text-white text-xs">${total}</span>
+              </div>
+              <div class="p-2 glass-subcard rounded-xl border border-white/10">
+                <span class="text-slate-400 block">${t('wins')}</span>
+                <span class="font-black text-emerald-400 text-xs">${wins}</span>
+              </div>
+              <div class="p-2 glass-subcard rounded-xl border border-white/10">
+                <span class="text-slate-400 block">${t('winrate')}</span>
+                <span class="font-black text-amber-300 text-xs">${winrate}%</span>
+              </div>
+            </div>
+          </div>
+
+          ${editFormHtml}
+          ${proSectionHtml}
           ${creatorAdminPanelHtml}
 
-          <div class="carbon-padel-card p-4 rounded-3xl space-y-3.5 shadow-2xl">
-            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center justify-between">
-              <span>${t('ratingSystemTitle')}</span>
-              <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30">LIVE</span>
-            </h3>
-
-            ${podiumHtml ? `<div class="space-y-2">${podiumHtml}</div>` : ''}
-
-            <div class="max-h-80 overflow-y-auto space-y-2 custom-scrollbar pr-0.5">
-              ${restRowsHtml || (podiumHtml ? '' : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные реальные игроки пока отсутствуют...</p>')}
+          <div class="p-4 glass-subcard border border-white/10 rounded-3xl space-y-3">
+            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('ratingSystemTitle')}</h3>
+            <div class="grid grid-cols-2 gap-2 text-[10px]">
+              <div class="p-2 glass-subcard rounded-xl border border-amber-500/30">👑 <strong>Master</strong>: 2100+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-cyan-500/30">💎 <strong>Platinum</strong>: 1800+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-yellow-500/30">🥇 <strong>Gold</strong>: 1500+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-slate-400/30">🥈 <strong>Silver</strong>: 1200+ LP</div>
             </div>
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <div class="flex justify-between items-center">
+              <h3 class="text-sm font-black text-slate-200 uppercase tracking-wide">${t('leaderboardTitle')}</h3>
+              <span class="text-[10px] text-emerald-400 font-bold">${platformProfilesList.length} игроков</span>
+            </div>
+            <div class="space-y-2 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">${leaderboardRowsHtml}</div>
           </div>
         </div>
       `;
     }
 
-    function openAdminPlayerModalById(userId) {
-      if (!isUserCreator()) return;
-      const player = platformProfilesList.find(item => String(item.id) === String(userId));
-      if (!player) return;
-
-      const modal = document.getElementById('modal-admin-player');
-      const content = document.getElementById('admin-player-form-content');
-
-      content.innerHTML = `
-        <div class="space-y-3">
-          <div class="glass-subcard p-3 rounded-xl border border-white/10">
-            <h4 class="text-sm font-black text-white">${player.first_name} ${player.last_name || ''}</h4>
-            <p class="text-[10px] text-slate-400 font-mono">ID: ${player.id} ${player.username ? '(@' + player.username + ')' : ''}</p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">League Points (LP)</label>
-              <input type="number" id="ap_lp" value="${player.league_points || 1000}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
-            </div>
-            <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">Skill Level (1.0 - 7.0)</label>
-              <input type="number" step="0.1" id="ap_skill" value="${player.skill_level || 2.5}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">PRO Статус</label>
-              <select id="ap_pro" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
-                <option value="true" ${player.is_premium ? 'selected' : ''}>👑 PRO Active</option>
-                <option value="false" ${!player.is_premium ? 'selected' : ''}>🆓 Free User</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-slate-300 font-semibold mb-1 text-[10px] uppercase">Shield Cards</label>
-              <input type="number" id="ap_shields" value="${player.shield_cards || 1}" class="w-full p-2.5 glass-subcard border border-slate-700 rounded-xl font-bold text-white">
-            </div>
-          </div>
-
-          <button type="button" onclick="saveAdminPlayerChanges('${player.id}')" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl uppercase text-xs btn-3d mt-2">
-            ${t('saveChanges')}
-          </button>
-        </div>
-      `;
-      modal.classList.remove('hidden');
+    function toggleProfileEditForm() {
+      isProfileEditOpen = !isProfileEditOpen;
+      renderProfileTab();
     }
 
-    function closeAdminPlayerModal() { document.getElementById('modal-admin-player').classList.add('hidden'); }
-
-    async function saveAdminPlayerChanges(userId) {
-      const newLp = parseInt(document.getElementById('ap_lp').value) || 1000;
-      const newSkill = parseFloat(document.getElementById('ap_skill').value) || 2.5;
-      const isPro = document.getElementById('ap_pro').value === 'true';
-      const shields = parseInt(document.getElementById('ap_shields').value) || 1;
-
-      try {
-        await safeUpsertProfile(userId, {
-          league_points: newLp,
-          rating_americano: newLp,
-          skill_level: newSkill,
-          is_premium: isPro,
-          shield_cards: shields,
-          updated_at: new Date().toISOString()
-        });
-
-        alert('Данные игрока обновлены!');
-        closeAdminPlayerModal();
-        await fetchAllPlatformProfiles();
-        switchTab(activeTab);
-      } catch(e) { alert('Ошибка: ' + e.message); }
-    }
-
-    async function saveProfileData(e) {
+    async function handleSaveProfileDetails(e) {
       e.preventDefault();
-      const birthDate = document.getElementById('edit_birth_date').value || null;
-      const gender = document.getElementById('edit_gender').value || null;
-      const preferredSide = document.getElementById('edit_preferred_side').value || 'both';
-      const phone = document.getElementById('edit_phone').value.trim();
-
       try {
-        await safeUpsertProfile(tgUser.id, {
-          birth_date: birthDate,
-          gender: gender,
-          preferred_side: preferredSide,
-          phone: phone,
+        const payload = {
+          birth_date: document.getElementById('edit_birth_date').value || null,
+          gender: document.getElementById('edit_gender').value || null,
+          preferred_side: document.getElementById('edit_preferred_side').value || 'both',
+          phone_number: document.getElementById('edit_phone').value || null,
           updated_at: new Date().toISOString()
-        });
+        };
+
+        if (currentUserProfile) Object.assign(currentUserProfile, payload);
+        await safeUpsertProfile(tgUser.id, payload);
 
         isProfileEditOpen = false;
-        alert('Профиль сохранён!');
-        await syncUserProfile();
+        alert('Данные профиля успешно обновлены!');
         renderProfileTab();
-      } catch(err) { alert('Ошибка: ' + err.message); }
+      } catch(err) { alert('Ошибка сохранения: ' + err.message); }
     }
 
-    // ИСПРАВЛЕНИЕ: Прямая надёжная запись слота с автосозданием профиля на iOS
-    async function joinMatch(matchId, nextSlot) {
+    async function joinMatch(matchId, slotNumber) {
       try {
-        await syncUserProfile();
+        const ok = await ensureProfileInDatabase(currentUserProfile || tgUser);
+        if (!ok) console.warn('Профиль пересоздаётся...');
+
         const uid = tgUser.id;
 
         if (supabaseClient) {
-          let { error } = await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: uid, slot_number: nextSlot }]);
+          let { error } = await supabaseClient.from('match_players').insert([{
+            match_id: matchId,
+            user_id: uid,
+            slot_number: slotNumber
+          }]);
+
           if (error) {
-            let { error: retryError } = await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: String(uid), slot_number: nextSlot }]);
-            if (retryError) throw retryError;
+            if (error.message && error.message.includes('foreign key constraint')) {
+              await ensureProfileInDatabase(tgUser);
+              const altUid = typeof uid === 'number' ? String(uid) : parseInt(uid, 10);
+              let { error: retryErr } = await supabaseClient.from('match_players').insert([{
+                match_id: matchId,
+                user_id: altUid,
+                slot_number: slotNumber
+              }]);
+              if (retryErr) throw retryErr;
+            } else {
+              throw error;
+            }
           }
         }
-        
+
         triggerSlotCelebration();
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
-      } catch (err) { alert('Ошибка при входе в слот: ' + (err.message || err)); }
+      } catch (err) { alert('Ошибка при занятии слота: ' + (err.message || err)); }
     }
 
     async function leaveMatch(matchId) {
@@ -3193,20 +3266,23 @@
         if (supabaseClient) {
           await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', tgUser.id);
         }
+
         triggerSlotLeaveToast();
-        currentSlotSubTab = 'my_slot';
+        currentSlotSubTab = 'feed';
         renderSlotsSubTabContent();
-      } catch (err) { alert('Ошибка: ' + err.message); }
+      } catch (err) { alert('Ошибка выхода: ' + err.message); }
     }
 
     function copyShareLink(url) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(url);
-        alert('Ссылка скопирована!');
-      } else prompt('Скопируйте ссылку:', url);
+        alert('Ссылка на слот скопирована в буфер обмена!');
+      } else {
+        alert('Ссылка на слот: ' + url);
+      }
     }
 
-    initApp();
+    window.onload = initApp;
   </script>
 </body>
 </html>
