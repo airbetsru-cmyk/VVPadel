@@ -382,6 +382,17 @@
   </div>
 
   <script>
+    const PIXEL_AVATARS = [
+      { id: 'pix_cyber', name: 'Cyber Hero', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=CyberHero' },
+      { id: 'pix_racket', name: 'Golden Racket', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=GoldenRacket' },
+      { id: 'pix_ninja', name: 'Ninja Padel', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=NinjaPadel' },
+      { id: 'pix_viper', name: 'Viper Strike', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=ViperStrike' },
+      { id: 'pix_champ', name: 'Pixel Champ', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=PixelChamp' },
+      { id: 'pix_legend', name: '8-Bit Legend', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=Legend8Bit' },
+      { id: 'pix_wolf', name: 'Pixel Wolf', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=PixelWolf' },
+      { id: 'pix_ace', name: 'Retro Ace', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=RetroAce' }
+    ];
+
     function sanitizeHTML(str) {
       if (str === null || str === undefined) return '';
       return String(str)
@@ -419,6 +430,19 @@
       const ln = String(p.last_name || '').trim().toLowerCase();
       const fakeKeywords = ['test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 'dummy', 'fake'];
       return !fakeKeywords.some(kw => fn === kw || ln === kw);
+    }
+
+    function renderPlayerAvatarHtml(p, sizeClass = "w-10 h-10") {
+      const avatarUrl = p?.avatar_url || localStorage.getItem(`padel_avatar_${p?.id || tgUser.id}`);
+      if (avatarUrl) {
+        return `<img src="${avatarUrl}" alt="Avatar" class="${sizeClass} rounded-2xl object-cover border border-emerald-500/40 shadow-md">`;
+      }
+      const initial = ((p?.first_name || 'U')[0]).toUpperCase();
+      return `
+        <div class="${sizeClass} rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-slate-950 shadow-md">
+          ${initial}
+        </div>
+      `;
     }
 
     let headerAnimId = null;
@@ -803,19 +827,34 @@
       return age >= 0 ? age : null;
     }
 
-    function getHistoricalPointsForUser(userId, userName) {
+    function getAggregatedPlayerStats(player) {
       const history = cleanAndGetAmericanoHistory();
-      let totalPts = 0;
+      let extraLp = 0;
+      let extraWins = 0;
+      let extraLosses = 0;
+      let extraMatches = 0;
+
       history.forEach(tourney => {
         if (tourney.leaderboard && Array.isArray(tourney.leaderboard)) {
           const item = tourney.leaderboard.find(l => 
-            (l.userId && String(l.userId) === String(userId)) ||
-            (userName && l.name && l.name.toLowerCase().trim() === userName.toLowerCase().trim())
+            (l.userId && String(l.userId) === String(player.id)) ||
+            (player.first_name && l.name && l.name.toLowerCase().trim() === player.first_name.toLowerCase().trim())
           );
-          if (item) totalPts += (item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0));
+          if (item) {
+            extraLp += (item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0));
+            extraWins += (item.wins || 0);
+            extraLosses += (item.losses || 0);
+            extraMatches += (item.matches || 0);
+          }
         }
       });
-      return totalPts;
+
+      return {
+        effectiveLp: (player.league_points || 1000) + extraLp,
+        effectiveWins: (player.wins || 0) + extraWins,
+        effectiveLosses: (player.losses || 0) + extraLosses,
+        effectiveMatches: (player.total_matches_played || 0) + extraMatches
+      };
     }
 
     const TRANSLATIONS = {
@@ -851,7 +890,7 @@
         accessTypeLabel: "Тип доступа", publicAccessOption: "🌐 Публичный (виден всем)", privateAccessOption: "🔒 Приватный (только по ссылке)",
         noPublicSlotsMsg: "В данный момент нет открытых слотов. Будьте первыми и создайте игру!",
         spotsLeft: "Осталось мест", fullSlotBadge: "Заполнен", quickJoinBtn: "⚡ Занять слот",
-        playersCountLabel: "участников"
+        playersCountLabel: "участников", selectAvatar: "👾 Пиксельный аватар"
       },
       ro: {
         tabBooking: "Sloturi", tabAmericano: "Americano", tabProfile: "Profil",
@@ -885,7 +924,7 @@
         accessTypeLabel: "Tip Acces", publicAccessOption: "🌐 Public (vizibil tuturor)", privateAccessOption: "🔒 Privat (doar prin link)",
         noPublicSlotsMsg: "Nu există meciuri publice deschise în acest moment.",
         spotsLeft: "Locuri rămase", fullSlotBadge: "Complet", quickJoinBtn: "⚡ Ocupă un loc",
-        playersCountLabel: "jucători"
+        playersCountLabel: "jucători", selectAvatar: "👾 Avatar Pixel"
       },
       en: {
         tabBooking: "Slots", tabAmericano: "Americano", tabProfile: "Profile",
@@ -919,7 +958,7 @@
         accessTypeLabel: "Access Type", publicAccessOption: "🌐 Public (in general feed)", privateAccessOption: "🔒 Private (link only)",
         noPublicSlotsMsg: "No public slots available right now.",
         spotsLeft: "Spots left", fullSlotBadge: "Full", quickJoinBtn: "⚡ Quick Join",
-        playersCountLabel: "players"
+        playersCountLabel: "players", selectAvatar: "👾 Pixel Avatar"
       }
     };
 
@@ -1092,6 +1131,7 @@
         first_name: userObj.first_name || 'Игрок',
         last_name: userObj.last_name || null,
         username: userObj.username || null,
+        avatar_url: userObj.avatar_url || localStorage.getItem(`padel_avatar_${uid}`) || null,
         skill_level: userObj.skill_level || 2.5,
         league_points: userObj.league_points || 1000,
         preferred_side: userObj.preferred_side || 'both',
@@ -1283,11 +1323,14 @@
 
     async function syncUserProfile() {
       if (!tgUser) return;
+      const savedAvatar = localStorage.getItem(`padel_avatar_${tgUser.id}`) || PIXEL_AVATARS[0].url;
+
       const newProf = {
         id: tgUser.id,
         first_name: tgUser.first_name || 'Игрок',
         last_name: tgUser.last_name || null,
         username: tgUser.username || null,
+        avatar_url: savedAvatar,
         skill_level: 2.5,
         league_points: 1000,
         preferred_side: 'both',
@@ -1307,6 +1350,9 @@
           const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
           if (data) {
             currentUserProfile = data;
+            if (!currentUserProfile.avatar_url && savedAvatar) {
+              currentUserProfile.avatar_url = savedAvatar;
+            }
             if (data.game_high_score && data.game_high_score > userHighScore) {
               userHighScore = data.game_high_score;
               localStorage.setItem('padel_motion_high_score', userHighScore);
@@ -1384,20 +1430,20 @@
       
       container.innerHTML = `
         ${renderSlotsSubTabHeader()}
-        <div class="text-center py-10 text-slate-400 font-semibold text-sm animate-pulse">Поиск игр...</div>
+        <div class="text-center py-10 text-slate-400 font-semibold text-sm animate-pulse">Поиск открытых игр...</div>
       `;
 
       let publicMatches = [];
-      const nowIso = new Date(Date.now() - 4 * 3600 * 1000).toISOString();
+      const nowIso = new Date(Date.now() - 6 * 3600 * 1000).toISOString();
 
       if (supabaseClient) {
         try {
           const { data, error } = await supabaseClient
             .from('matches')
-            .select('id, custom_location, max_players, match_type, is_public, scheduled_at, price_per_player, notes, creator_id, is_registration_closed, match_players(user_id, slot_number, profiles(first_name, last_name))')
+            .select('id, custom_location, max_players, match_type, is_public, scheduled_at, price_per_player, notes, creator_id, is_registration_closed, match_players(user_id, slot_number, profiles(first_name, last_name, avatar_url))')
             .gte('scheduled_at', nowIso)
             .order('scheduled_at', { ascending: true })
-            .limit(40);
+            .limit(50);
 
           if (!error && data) {
             publicMatches = data.filter(m => m.is_registration_closed !== true && m.is_public !== false);
@@ -1421,7 +1467,7 @@
           const hostName = sanitizeHTML(hostPlayer?.profiles?.first_name || 'Игрок');
 
           return `
-            <div class="glass-subcard border ${isUserJoined ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-white/10'} p-4 rounded-2xl space-y-3 hover:border-emerald-400/50 transition-all btn-3d">
+            <div class="glass-subcard border ${isUserJoined ? 'border-emerald-500/70 bg-emerald-500/15' : 'border-white/10'} p-4 rounded-2xl space-y-3 hover:border-emerald-400/50 transition-all btn-3d">
               <div class="flex justify-between items-start gap-2">
                 <div>
                   <div class="flex items-center gap-2">
@@ -1429,6 +1475,7 @@
                     <span class="px-2 py-0.5 bg-teal-500/20 text-teal-300 font-extrabold text-[9px] rounded-md uppercase border border-teal-500/30">
                       ${sanitizeHTML(m.match_type || 'friendly')}
                     </span>
+                    ${isUserJoined ? `<span class="px-2 py-0.5 bg-emerald-500 text-slate-950 font-black text-[9px] rounded-md uppercase">🎾 ВЫ УЧАСТВУЕТЕ</span>` : ''}
                   </div>
                   <p class="text-[11px] text-slate-300 font-medium mt-0.5">📅 ${dateStr}</p>
                 </div>
@@ -1453,7 +1500,7 @@
                 </div>
 
                 <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md cursor-pointer">
-                  ${isUserJoined ? '🎾 ' + t('subTabMySlot') : t('quickJoinBtn')}
+                  ${isUserJoined ? '🎾 Открыть мой слот' : t('quickJoinBtn')}
                 </button>
               </div>
             </div>
@@ -1743,12 +1790,16 @@
           if (p) {
             const name = sanitizeHTML(p.profiles?.first_name || (String(p.user_id) === String(tgUser?.id) ? tgUser?.first_name : 'Player'));
             const isCreatorOfThisSlot = String(p.user_id) === String(match.creator_id);
+            const avatarHtml = renderPlayerAvatarHtml(p.profiles || { first_name: name, id: p.user_id }, "w-7 h-7");
 
             slotsHtml += `
               <div class="p-3 glass-subcard rounded-2xl space-y-1 border border-emerald-500/30">
                 ${isCreatorOfThisSlot ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-emerald-300">Слот #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline hover:text-amber-300">${name}</span></span>
+                  <div class="flex items-center gap-2">
+                    ${avatarHtml}
+                    <span class="text-xs font-bold text-emerald-300">Слот #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline hover:text-amber-300">${name}</span></span>
+                  </div>
                   <div class="flex items-center gap-2">
                     <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
                     ${isMatchCreator ? `<button type="button" onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d">❌</button>` : ''}
@@ -2061,7 +2112,8 @@
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
       platformProfilesList.forEach(p => {
         const name = sanitizeHTML(`${p.first_name} ${p.last_name || ''}`.trim());
-        optionsHtml += `<option value="${p.id}" data-name="${name}">${name} (Lvl ${p.skill_level || 2.5})</option>`;
+        const stats = getAggregatedPlayerStats(p);
+        optionsHtml += `<option value="${p.id}" data-name="${name}">${name} (${stats.effectiveLp} LP • Lvl ${p.skill_level || 2.5})</option>`;
       });
 
       let html = `<label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}:</label>`;
@@ -2487,15 +2539,16 @@
       const modal = document.getElementById('modal-view-player');
       const content = document.getElementById('view-player-card-content');
 
-      const lp = p.league_points || 1000;
-      const leagueInfo = getPlayerLeague(lp);
+      const stats = getAggregatedPlayerStats(p);
+      const leagueInfo = getPlayerLeague(stats.effectiveLp);
 
-      const total = p.total_matches_played || 0;
-      const wins = p.wins || 0;
+      const total = stats.effectiveMatches;
+      const wins = stats.effectiveWins;
       const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
 
       const age = calculateAge(p.birth_date);
       const histPts = getHistoricalPointsForUser(p.id, p.first_name);
+      const avatarHtml = renderPlayerAvatarHtml(p, "w-14 h-14");
 
       let genderText = t('unspecified');
       if (p.gender === 'male') genderText = t('male');
@@ -2508,9 +2561,7 @@
       content.innerHTML = `
         <div class="glass-card p-4 rounded-3xl space-y-3">
           <div class="flex items-center gap-3">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-xl text-slate-950 shadow-md">
-              ${(p.first_name || 'U')[0].toUpperCase()}
-            </div>
+            ${avatarHtml}
             <div>
               <h3 class="text-base font-black text-white">
                 ${sanitizeHTML(p.first_name)} ${sanitizeHTML(p.last_name || '')}
@@ -2518,7 +2569,7 @@
               ${p.username ? `<p class="text-xs text-emerald-400 font-semibold">@${sanitizeHTML(p.username)}</p>` : ''}
               <div class="flex items-center gap-1 mt-1">
                 <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
-                  ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
+                  ${leagueInfo.badge} ${leagueInfo.title} (${stats.effectiveLp} LP)
                 </span>
               </div>
             </div>
@@ -2642,6 +2693,14 @@
 
     function closeAdminPlayerModal() { document.getElementById('modal-admin-player').classList.add('hidden'); }
 
+    function selectPixelAvatar(avatarUrl) {
+      if (!currentUserProfile) return;
+      currentUserProfile.avatar_url = avatarUrl;
+      localStorage.setItem(`padel_avatar_${currentUserProfile.id}`, avatarUrl);
+      safeUpsertProfile(currentUserProfile.id, { avatar_url: avatarUrl, updated_at: new Date().toISOString() });
+      renderProfileTab();
+    }
+
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
       await fetchAllPlatformProfiles();
@@ -2652,11 +2711,13 @@
         skill_level: 2.5, league_points: 1000, total_matches_played: 0, wins: 0, losses: 0, draws: 0
       };
 
-      const total = p.total_matches_played || 0;
-      const wins = p.wins || 0;
+      const stats = getAggregatedPlayerStats(p);
+      const total = stats.effectiveMatches;
+      const wins = stats.effectiveWins;
       const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
-      const lp = p.league_points || 1000;
+      const lp = stats.effectiveLp;
       const leagueInfo = getPlayerLeague(lp);
+      const avatarHtml = renderPlayerAvatarHtml(p, "w-14 h-14");
 
       let creatorAdminPanelHtml = '';
       if (isUserCreator()) {
@@ -2664,7 +2725,7 @@
           <div class="p-2 glass-subcard rounded-xl border border-white/10 flex justify-between items-center text-xs">
             <div class="truncate max-w-[180px]">
               <span class="font-bold text-white">${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}</span>
-              <span class="text-[10px] text-amber-300 block font-mono">${item.league_points || 1000} LP • Lvl ${item.skill_level || 2.5}</span>
+              <span class="text-[10px] text-amber-300 block font-mono">${getAggregatedPlayerStats(item).effectiveLp} LP • Lvl ${item.skill_level || 2.5}</span>
             </div>
             <button type="button" onclick="openAdminEditPlayerModal('${item.id}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px] rounded-lg btn-3d">
               ✏️ Изменить
@@ -2690,13 +2751,32 @@
         `;
       }
 
+      let pixelAvatarPickerHtml = `
+        <div class="space-y-2 pt-1">
+          <label class="block text-[10px] font-bold text-amber-300 uppercase tracking-wider">${t('selectAvatar')}</label>
+          <div class="grid grid-cols-4 gap-2">
+            ${PIXEL_AVATARS.map(av => {
+              const isSelected = p.avatar_url === av.url;
+              return `
+                <div onclick="selectPixelAvatar('${av.url}')" class="p-1 rounded-2xl border ${isSelected ? 'border-amber-400 bg-amber-500/20 scale-105' : 'border-white/10 glass-subcard hover:border-emerald-400/50'} cursor-pointer transition-all text-center group btn-3d">
+                  <img src="${av.url}" alt="${av.name}" class="w-12 h-12 mx-auto rounded-xl object-cover">
+                  <span class="text-[8px] font-bold text-slate-300 group-hover:text-white block mt-1 truncate">${av.name}</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
       let editFormHtml = '';
       if (isProfileEditOpen) {
         editFormHtml = `
           <div class="p-4 glass-subcard border border-emerald-500/40 rounded-3xl space-y-3">
             <h3 class="text-xs font-black text-emerald-300 uppercase tracking-wide">${t('profileEditTitle')}</h3>
             
-            <form onsubmit="handleSaveProfileDetails(event)" class="space-y-2.5 text-xs">
+            ${pixelAvatarPickerHtml}
+
+            <form onsubmit="handleSaveProfileDetails(event)" class="space-y-2.5 text-xs pt-2">
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('birthDate')}</label>
@@ -2740,12 +2820,16 @@
         `;
       }
 
-      let leaderboardList = [...platformProfilesList];
-      leaderboardList.sort((a, b) => (b.league_points || 1000) - (a.league_points || 1000));
+      let leaderboardList = [...platformProfilesList].map(item => {
+        const itemStats = getAggregatedPlayerStats(item);
+        return { ...item, effectiveLp: itemStats.effectiveLp, effectiveWins: itemStats.effectiveWins, effectiveLosses: itemStats.effectiveLosses };
+      });
+      leaderboardList.sort((a, b) => b.effectiveLp - a.effectiveLp);
 
       let leaderboardRowsHtml = leaderboardList.map((item, index) => {
-        const itemLp = item.league_points || 1000;
+        const itemLp = item.effectiveLp;
         const itemLeague = getPlayerLeague(itemLp);
+        const itemAvatarHtml = renderPlayerAvatarHtml(item, "w-8 h-8");
 
         let rowBg = "lb-card-solid";
         let rankBadge = `<span class="font-black text-slate-400 text-xs">${index + 1}.</span>`;
@@ -2758,6 +2842,7 @@
           <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} p-3 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all btn-3d">
             <div class="flex items-center gap-2.5">
               ${rankBadge}
+              ${itemAvatarHtml}
               <div>
                 <h4 class="text-xs font-black text-white">
                   ${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}
@@ -2771,7 +2856,7 @@
 
             <div class="text-right">
               <span class="font-black text-amber-300 text-xs font-mono block">${itemLp} LP</span>
-              <span class="text-[9px] text-emerald-400 font-bold">${item.wins || 0}W / ${item.losses || 0}L</span>
+              <span class="text-[9px] text-emerald-400 font-bold">${item.effectiveWins || 0}W / ${item.effectiveLosses || 0}L</span>
             </div>
           </div>
         `;
@@ -2782,9 +2867,7 @@
           <div class="glass-card p-4 rounded-3xl space-y-3">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-xl text-slate-950 shadow-md">
-                  ${(p.first_name || 'U')[0].toUpperCase()}
-                </div>
+                ${avatarHtml}
                 <div>
                   <h3 class="text-base font-black text-white">
                     ${sanitizeHTML(p.first_name)} ${sanitizeHTML(p.last_name || '')}
