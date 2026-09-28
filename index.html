@@ -58,6 +58,7 @@
       border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
       box-shadow: 0 14px 35px rgba(0, 0, 0, 0.75);
       position: relative;
+      overflow: hidden;
     }
 
     .glass-card {
@@ -69,11 +70,13 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
       position: relative;
+      overflow: hidden;
     }
 
     .glass-subcard {
       background: rgba(15, 23, 42, 0.85) !important;
       border: 1px solid rgba(255, 255, 255, 0.10);
+      max-width: 100%;
     }
 
     .lb-card-solid {
@@ -134,27 +137,27 @@
     </div>
   </div>
 
-  <div class="bg-overlay p-4 pb-16 relative z-10">
+  <div class="bg-overlay p-3 sm:p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
       <div class="carbon-padel-card p-4 rounded-3xl space-y-3 shadow-2xl">
         <div class="flex items-center justify-between gap-2">
           
-          <div class="flex items-center gap-3">
-            <div onclick="openPadelGameModal()" class="w-14 h-14 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/20 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
-              <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div onclick="openPadelGameModal()" class="w-13 h-13 shrink-0 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/20 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
+              <canvas id="header-padel-canvas" style="width: 52px; height: 52px;"></canvas>
               <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <span class="text-[9px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1 py-0.5 rounded shadow">GAME</span>
               </div>
             </div>
 
-            <div>
-              <h1 class="text-lg font-black tracking-tight text-white uppercase italic">Padel <span class="text-emerald-400">Moldova</span></h1>
-              <p id="user-greeting" class="text-xs text-slate-300 font-medium">Загрузка...</p>
+            <div class="truncate">
+              <h1 class="text-base sm:text-lg font-black tracking-tight text-white uppercase italic truncate">Padel <span class="text-emerald-400">Moldova</span></h1>
+              <p id="user-greeting" class="text-[11px] text-slate-300 font-medium truncate">Загрузка...</p>
             </div>
           </div>
           
-          <div class="flex flex-col items-end gap-1.5">
+          <div class="flex flex-col items-end gap-1.5 shrink-0">
             <div class="flex items-center gap-1 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold">
               <button type="button" onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
               <button type="button" onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
@@ -163,7 +166,7 @@
 
             <div class="flex items-center gap-1">
               <button type="button" onclick="openSupportModal()" class="px-2 py-1 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
-                🛠️ <span id="txt-btn-support">Поддержка</span>
+                🛠️ <span id="txt-btn-support">Инфо</span>
               </button>
               <button type="button" onclick="openCreatorModal()" class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
                 👨‍💻 <span id="txt-btn-creator">Автор</span>
@@ -173,13 +176,13 @@
         </div>
 
         <div class="grid grid-cols-3 gap-1 glass-subcard p-1.5 rounded-2xl border border-white/10">
-          <button type="button" id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
+          <button type="button" id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d truncate">
             🎾 <span id="txt-tab-booking">Слоты</span>
           </button>
-          <button type="button" id="tab-americano" onclick="switchTab('americano')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
+          <button type="button" id="tab-americano" onclick="switchTab('americano')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d truncate">
             🏆 <span id="txt-tab-americano">Американо</span>
           </button>
-          <button type="button" id="tab-profile" onclick="switchTab('profile')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
+          <button type="button" id="tab-profile" onclick="switchTab('profile')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d truncate">
             👤 <span id="txt-tab-profile">Профиль</span>
           </button>
         </div>
@@ -187,7 +190,7 @@
 
       <div id="error-box" class="hidden bg-rose-500/20 border border-rose-500/40 text-rose-200 p-3.5 rounded-2xl text-xs font-mono break-all backdrop-blur-md"></div>
 
-      <div id="main-content" class="carbon-padel-card p-5 rounded-3xl min-h-[300px]">
+      <div id="main-content" class="carbon-padel-card p-4 sm:p-5 rounded-3xl min-h-[300px]">
         <div class="flex justify-center items-center py-16 text-slate-400 font-semibold text-sm">
           <div class="animate-pulse flex items-center gap-2">
             <span>Загрузка...</span>
@@ -198,12 +201,51 @@
     </div>
   </div>
 
-  <div id="modal-padel-game" role="dialog" aria-modal="true" aria-labelledby="game-modal-title" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-50 hidden flex flex-col items-center justify-between p-4 overflow-hidden select-none">
+  <div id="modal-onboarding" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-950/90 backdrop-blur-2xl z-50 hidden flex items-center justify-center p-4">
+    <div class="carbon-padel-card p-5 rounded-3xl w-full max-w-sm space-y-4 text-center border-2 border-emerald-500/50 shadow-2xl">
+      <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-emerald-500 to-teal-500 mx-auto flex items-center justify-center text-3xl shadow-lg shadow-emerald-500/30">
+        🎾
+      </div>
+
+      <div>
+        <h3 class="text-base font-black text-white uppercase italic">Добро пожаловать в Padel Moldova!</h3>
+        <p class="text-xs text-slate-300 mt-1">Подтвердите свои данные, чтобы войти в Единый Рейтинг Игроков Молдовы.</p>
+      </div>
+
+      <div class="space-y-3 text-left">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Ваше Имя</label>
+          <input type="text" id="onboard_name" value="" placeholder="Имя и Фамилия" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white border border-slate-700 focus:border-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-amber-300 mb-1 uppercase">Ваш уровень (Skill Level)</label>
+          <select id="onboard_skill" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
+            <option value="2.0">Level 2.0 (Новичок / Beginner)</option>
+            <option value="2.5" selected>Level 2.5 (Любитель / Intermediate)</option>
+            <option value="3.0">Level 3.0 (Уверенный / Advanced)</option>
+            <option value="3.5">Level 3.5+ (Профи / Pro)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-bold text-emerald-400 mb-1 uppercase">Выберите ваш пиксельный аватар</label>
+          <div id="onboard_avatar_grid" class="grid grid-cols-4 gap-2 pt-1"></div>
+        </div>
+      </div>
+
+      <button type="button" onclick="submitOnboardingRegistration()" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-emerald-500/30">
+        🚀 Присоединиться к Рейтингу
+      </button>
+    </div>
+  </div>
+
+  <div id="modal-padel-game" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-50 hidden flex flex-col items-center justify-between p-4 overflow-hidden select-none">
     <div class="w-full max-w-md flex justify-between items-center glass-subcard p-3 rounded-2xl border border-emerald-500/40 z-20">
       <div class="flex items-center gap-2">
         <span class="text-xl">🎾</span>
         <div>
-          <h3 id="game-modal-title" class="text-xs font-black text-emerald-400 uppercase tracking-wide">Padel Motion 3D</h3>
+          <h3 class="text-xs font-black text-emerald-400 uppercase tracking-wide">Padel Motion 3D</h3>
           <p id="game-control-sublabel" class="text-[9px] text-slate-400 font-mono">Выберите управление</p>
         </div>
       </div>
@@ -213,7 +255,7 @@
           <span class="text-[9px] text-slate-400 uppercase font-bold block">Счёт / Рекорд</span>
           <span class="text-sm font-black text-white"><span id="game-current-score" class="text-emerald-400">0</span> / <span id="game-high-score" class="text-amber-300">0</span></span>
         </div>
-        <button type="button" onclick="closePadelGameModal()" aria-label="Закрыть" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center border border-white/10 btn-3d">✕</button>
+        <button type="button" onclick="closePadelGameModal()" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center border border-white/10 btn-3d">✕</button>
       </div>
     </div>
 
@@ -231,7 +273,7 @@
         </div>
 
         <div class="w-full space-y-2.5 pt-2">
-          <button type="button" onclick="startGameWithMode('touch')" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 border border-emerald-300">
+          <button type="button" onclick="startGameWithMode('touch')" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-2 border border-emerald-300">
             <span>👆</span> <span>Пальцем (Касание / Драг)</span>
           </button>
 
@@ -263,13 +305,13 @@
     </div>
   </div>
 
-  <div id="modal-view-tourney" role="dialog" aria-modal="true" aria-labelledby="view-tourney-modal-title" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <div id="modal-view-tourney" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card p-5 rounded-3xl w-full max-w-sm space-y-4 max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-center border-b border-white/10 pb-3 flex-shrink-0">
-        <h3 id="view-tourney-modal-title" class="text-sm font-black text-purple-300 uppercase italic tracking-wide flex items-center gap-2">
+        <h3 class="text-sm font-black text-purple-300 uppercase italic tracking-wide flex items-center gap-2">
           🏆 Просмотр турнира
         </h3>
-        <button type="button" onclick="closeTourneyModal()" aria-label="Закрыть" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeTourneyModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div id="view-tourney-content" class="space-y-3 text-xs overflow-y-auto pr-1 flex-1 custom-scrollbar"></div>
@@ -280,13 +322,13 @@
     </div>
   </div>
 
-  <div id="modal-view-player" role="dialog" aria-modal="true" aria-labelledby="view-player-modal-title" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <div id="modal-view-player" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
-        <h3 id="view-player-modal-title" class="text-sm font-black text-emerald-400 uppercase italic tracking-wide flex items-center gap-2">
+        <h3 class="text-sm font-black text-emerald-400 uppercase italic tracking-wide flex items-center gap-2">
           👤 Карточка игрока
         </h3>
-        <button type="button" onclick="closeViewPlayerModal()" aria-label="Закрыть" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeViewPlayerModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div id="view-player-card-content" class="space-y-3 text-xs"></div>
@@ -297,26 +339,26 @@
     </div>
   </div>
 
-  <div id="modal-admin-player" role="dialog" aria-modal="true" aria-labelledby="admin-player-modal-title" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <div id="modal-admin-player" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
-        <h3 id="admin-player-modal-title" class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
+        <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
           👑 Редактирование игрока
         </h3>
-        <button type="button" onclick="closeAdminPlayerModal()" aria-label="Закрыть" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeAdminPlayerModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div id="admin-player-form-content" class="space-y-3 text-xs"></div>
     </div>
   </div>
 
-  <div id="modal-support" role="dialog" aria-modal="true" aria-labelledby="support-modal-title" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <div id="modal-support" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
-        <h3 id="support-modal-title" class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
+        <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
           🛠️ <span>Поддержка и Помощь</span>
         </h3>
-        <button type="button" onclick="closeModals()" aria-label="Закрыть" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div class="space-y-3 text-xs">
@@ -347,13 +389,13 @@
     </div>
   </div>
 
-  <div id="modal-creator" role="dialog" aria-modal="true" aria-labelledby="creator-modal-title" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+  <div id="modal-creator" role="dialog" aria-modal="true" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
-        <h3 id="creator-modal-title" class="text-sm font-black text-cyan-300 uppercase italic tracking-wide flex items-center gap-2">
+        <h3 class="text-sm font-black text-cyan-300 uppercase italic tracking-wide flex items-center gap-2">
           👨‍💻 <span>Разработчик Проекта</span>
         </h3>
-        <button type="button" onclick="closeModals()" aria-label="Закрыть" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div class="space-y-3 text-xs text-center">
@@ -409,7 +451,6 @@
       return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
     }
 
-    const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.search.includes('dev=1');
     const tg = window.Telegram?.WebApp;
     if (tg) { try { tg.ready(); tg.expand(); } catch(e) {} }
 
@@ -423,6 +464,7 @@
     function getAmericanoStorageKey() { return `quick_americano_state_${tgUser?.id || 'guest'}`; }
 
     let currentSlotSubTab = 'feed';
+    let onboardSelectedAvatar = PIXEL_AVATARS[0].url;
 
     function isValidRealUser(p) {
       if (!p || !p.id || !p.first_name) return false;
@@ -433,13 +475,13 @@
     }
 
     function renderPlayerAvatarHtml(p, sizeClass = "w-10 h-10") {
-      const avatarUrl = p?.avatar_url || localStorage.getItem(`padel_avatar_${p?.id || tgUser.id}`);
+      const avatarUrl = p?.avatar_url || localStorage.getItem(`padel_avatar_${p?.id || tgUser.id}`) || PIXEL_AVATARS[0].url;
       if (avatarUrl) {
-        return `<img src="${avatarUrl}" alt="Avatar" class="${sizeClass} rounded-2xl object-cover border border-emerald-500/40 shadow-md">`;
+        return `<img src="${avatarUrl}" alt="Avatar" class="${sizeClass} rounded-2xl object-cover border border-emerald-500/40 shadow-md shrink-0">`;
       }
       const initial = ((p?.first_name || 'U')[0]).toUpperCase();
       return `
-        <div class="${sizeClass} rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-slate-950 shadow-md">
+        <div class="${sizeClass} rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-slate-950 shadow-md shrink-0">
           ${initial}
         </div>
       `;
@@ -452,12 +494,12 @@
       const ctx = cvs.getContext('2d');
 
       const dpr = window.devicePixelRatio || 1;
-      const size = 64;
+      const size = 52;
       cvs.width = size * dpr; cvs.height = size * dpr;
       ctx.scale(dpr, dpr);
 
-      let ball = { x: 32, y: 12, vx: 0.2, vy: 0, r: 4.5, squashX: 1, squashY: 1 };
-      let racket = { x: 32, y: 46, targetY: 46, angle: 0, targetAngle: 0, hitFlash: 0 };
+      let ball = { x: 26, y: 10, vx: 0.2, vy: 0, r: 4, squashX: 1, squashY: 1 };
+      let racket = { x: 26, y: 38, targetY: 38, angle: 0, targetAngle: 0, hitFlash: 0 };
       let particles = [];
 
       function animate() {
@@ -469,77 +511,41 @@
         ctx.clearRect(0, 0, size, size);
         ball.vy += 0.18; ball.x += ball.vx; ball.y += ball.vy;
 
-        if (ball.x < 11) { ball.x = 11; ball.vx = Math.abs(ball.vx); }
-        if (ball.x > 53) { ball.x = 53; ball.vx = -Math.abs(ball.vx); }
+        if (ball.x < 10) { ball.x = 10; ball.vx = Math.abs(ball.vx); }
+        if (ball.x > 42) { ball.x = 42; ball.vx = -Math.abs(ball.vx); }
 
         racket.y += (racket.targetY - racket.y) * 0.2;
-        racket.targetY += (46 - racket.targetY) * 0.15;
+        racket.targetY += (38 - racket.targetY) * 0.15;
         racket.angle += (racket.targetAngle - racket.angle) * 0.2;
         racket.targetAngle += (0 - racket.targetAngle) * 0.15;
-        if (racket.hitFlash > 0) racket.hitFlash -= 0.08;
 
-        const hitZoneY = racket.y - 12;
-        if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 8 && Math.abs(ball.x - racket.x) < 18) {
+        const hitZoneY = racket.y - 10;
+        if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 6 && Math.abs(ball.x - racket.x) < 14) {
           ball.y = hitZoneY - ball.r;
-          ball.vy = -(3.6 + Math.random() * 0.6);
-          ball.vx = (ball.x - racket.x) * 0.08 + (Math.random() - 0.5) * 0.5;
-          ball.squashX = 1.35; ball.squashY = 0.65;
-          racket.targetY = 51; racket.targetAngle = ball.vx * 0.12; racket.hitFlash = 1.0;
-
-          for (let i = 0; i < 4; i++) {
-            particles.push({
-              x: ball.x, y: ball.y,
-              vx: (Math.random() - 0.5) * 2, vy: -Math.random() * 1.5,
-              life: 1.0, color: Math.random() > 0.5 ? '#10b981' : '#ccff00'
-            });
-          }
+          ball.vy = -(3.2 + Math.random() * 0.5);
+          ball.vx = (ball.x - racket.x) * 0.08;
+          ball.squashX = 1.3; ball.squashY = 0.7;
+          racket.targetY = 42;
         }
 
         ball.squashX += (1 - ball.squashX) * 0.15;
         ball.squashY += (1 - ball.squashY) * 0.15;
 
-        if (ball.y > size + 10) {
-          ball.x = 32; ball.y = 10; ball.vx = (Math.random() - 0.5) * 0.4; ball.vy = 0;
-        }
+        if (ball.y > size + 10) { ball.x = 26; ball.y = 8; ball.vx = 0; ball.vy = 0; }
 
         ctx.save();
         ctx.translate(racket.x, racket.y);
         ctx.rotate(racket.angle);
-
-        ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(-2.5, 8, 5, 13, 2);
-        else ctx.rect(-2.5, 8, 5, 13);
-        ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1; ctx.stroke();
-
-        ctx.beginPath();
-        ctx.ellipse(0, -6, 14, 16, 0, 0, Math.PI * 2);
-        const rGrad = ctx.createLinearGradient(-14, -22, 14, 10);
-        rGrad.addColorStop(0, '#1e293b'); rGrad.addColorStop(0.5, '#0f172a'); rGrad.addColorStop(1, '#042f2e');
-        ctx.fillStyle = rGrad;
-        ctx.fill();
-        ctx.strokeStyle = racket.hitFlash > 0 ? '#6ee7b7' : '#10b981'; ctx.lineWidth = 2; ctx.stroke();
-
-        ctx.fillStyle = '#030712';
-        [[-6, -14], [0, -14], [6, -14], [-8, -8], [-2, -8], [4, -8], [8, -8], [-8, -2], [-2, -2], [4, -2], [8, -2], [-6, 4], [0, 4], [6, 4]].forEach(([hx, hy]) => {
-          ctx.beginPath(); ctx.arc(hx, hy, 1.2, 0, Math.PI * 2); ctx.fill();
-        });
+        ctx.fillStyle = '#1e293b'; ctx.fillRect(-2, 6, 4, 10);
+        ctx.beginPath(); ctx.ellipse(0, -4, 11, 13, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#0f172a'; ctx.fill(); ctx.strokeStyle = '#10b981'; ctx.lineWidth = 1.5; ctx.stroke();
         ctx.restore();
-
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.x += p.vx; p.y += p.vy; p.life -= 0.05;
-          if (p.life <= 0) { particles.splice(i, 1); continue; }
-          ctx.beginPath(); ctx.arc(p.x, p.y, p.life * 2, 0, Math.PI * 2);
-          ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fill(); ctx.globalAlpha = 1.0;
-        }
 
         ctx.save();
         ctx.translate(ball.x, ball.y);
         ctx.scale(ball.squashX, ball.squashY);
         ctx.beginPath(); ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
         ctx.fillStyle = '#ccff00'; ctx.fill();
-        ctx.beginPath(); ctx.arc(-1.2, 0, ball.r * 0.75, -Math.PI * 0.4, Math.PI * 0.4);
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.9; ctx.stroke();
         ctx.restore();
 
         headerAnimId = requestAnimationFrame(animate);
@@ -560,30 +566,26 @@
     resizeCanvas();
 
     const balls = [];
-    const ballCount = 8;
+    const ballCount = 6;
 
     class FallingBall {
       constructor() { this.reset(true); }
       reset(initial = false) {
         this.x = Math.random() * width;
         this.y = initial ? Math.random() * height : -30;
-        this.radius = Math.random() * 6 + 6;
-        this.speedY = Math.random() * 0.8 + 0.3;
+        this.radius = Math.random() * 5 + 5;
+        this.speedY = Math.random() * 0.7 + 0.3;
         this.speedX = (Math.random() - 0.5) * 0.3;
-        this.opacity = Math.random() * 0.25 + 0.1;
-        this.rotation = Math.random() * Math.PI * 2;
-        this.spin = (Math.random() - 0.5) * 0.02;
+        this.opacity = Math.random() * 0.2 + 0.1;
       }
       update() {
-        this.y += this.speedY; this.x += this.speedX; this.rotation += this.spin;
+        this.y += this.speedY; this.x += this.speedX;
         if (this.y - this.radius > height) this.reset(false);
       }
       draw() {
-        ctx.save(); ctx.globalAlpha = this.opacity; ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
+        ctx.save(); ctx.globalAlpha = this.opacity; ctx.translate(this.x, this.y);
         ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = '#ccff00'; ctx.fill();
-        ctx.beginPath(); ctx.arc(-this.radius * 0.5, 0, this.radius * 0.7, -Math.PI * 0.45, Math.PI * 0.45);
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, this.radius * 0.16); ctx.stroke();
         ctx.restore();
       }
     }
@@ -747,10 +749,6 @@
       gCtx.fillStyle = rGrad; gCtx.fill();
       gCtx.strokeStyle = '#34d399'; gCtx.lineWidth = 2; gCtx.stroke();
 
-      gCtx.fillStyle = '#030712';
-      for (let hx = -halfW + 10; hx <= halfW - 10; hx += 12) {
-        gCtx.beginPath(); gCtx.arc(hx, -8, 1.8, 0, Math.PI * 2); gCtx.fill();
-      }
       gCtx.restore();
 
       gCtx.save();
@@ -759,8 +757,6 @@
       gCtx.rotate(gBall.rotation);
       gCtx.beginPath(); gCtx.arc(0, 0, gBall.r, 0, Math.PI * 2);
       gCtx.fillStyle = '#ccff00'; gCtx.fill();
-      gCtx.beginPath(); gCtx.arc(-2, 0, gBall.r * 0.7, -Math.PI * 0.4, Math.PI * 0.4);
-      gCtx.strokeStyle = '#ffffff'; gCtx.lineWidth = 1; gCtx.stroke();
       gCtx.restore();
 
       gameLoopReq = requestAnimationFrame(runMotionGameLoop);
@@ -825,36 +821,6 @@
       const m = today.getMonth() - birthDate.getMonth();
       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
       return age >= 0 ? age : null;
-    }
-
-    function getAggregatedPlayerStats(player) {
-      const history = cleanAndGetAmericanoHistory();
-      let extraLp = 0;
-      let extraWins = 0;
-      let extraLosses = 0;
-      let extraMatches = 0;
-
-      history.forEach(tourney => {
-        if (tourney.leaderboard && Array.isArray(tourney.leaderboard)) {
-          const item = tourney.leaderboard.find(l => 
-            (l.userId && String(l.userId) === String(player.id)) ||
-            (player.first_name && l.name && l.name.toLowerCase().trim() === player.first_name.toLowerCase().trim())
-          );
-          if (item) {
-            extraLp += (item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0));
-            extraWins += (item.wins || 0);
-            extraLosses += (item.losses || 0);
-            extraMatches += (item.matches || 0);
-          }
-        }
-      });
-
-      return {
-        effectiveLp: (player.league_points || 1000) + extraLp,
-        effectiveWins: (player.wins || 0) + extraWins,
-        effectiveLosses: (player.losses || 0) + extraLosses,
-        effectiveMatches: (player.total_matches_played || 0) + extraMatches
-      };
     }
 
     const TRANSLATIONS = {
@@ -1122,16 +1088,21 @@
       const uid = userObj.id;
 
       try {
-        const { data: existing } = await supabaseClient.from('profiles').select('id').eq('id', uid).maybeSingle();
-        if (existing) return true;
+        const { data: existing } = await supabaseClient.from('profiles').select('*').eq('id', uid).maybeSingle();
+        if (existing) {
+          currentUserProfile = existing;
+          return true;
+        }
       } catch (e) {}
+
+      const savedAvatar = localStorage.getItem(`padel_avatar_${uid}`) || PIXEL_AVATARS[0].url;
 
       const fullPayload = {
         id: uid,
         first_name: userObj.first_name || 'Игрок',
         last_name: userObj.last_name || null,
         username: userObj.username || null,
-        avatar_url: userObj.avatar_url || localStorage.getItem(`padel_avatar_${uid}`) || null,
+        avatar_url: userObj.avatar_url || savedAvatar,
         skill_level: userObj.skill_level || 2.5,
         league_points: userObj.league_points || 1000,
         preferred_side: userObj.preferred_side || 'both',
@@ -1145,6 +1116,7 @@
 
       try {
         await supabaseClient.from('profiles').upsert([fullPayload], { onConflict: 'id' });
+        currentUserProfile = fullPayload;
         return true;
       } catch(e) { return false; }
     }
@@ -1198,36 +1170,10 @@
                 <span class="font-black text-amber-400">${badge}</span>
                 <span class="font-bold text-white">${sanitizeHTML(item.name)}</span>
               </div>
-              <span class="font-black text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full text-[11px]">${item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0)} PTS</span>
+              <span class="font-black text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full text-[11px]">+${item.pointsGained || 5} LP</span>
             </div>
           `;
         }).join('');
-      }
-
-      let roundsHtml = '';
-      if (tourney.rounds && tourney.rounds.length > 0) {
-        roundsHtml = tourney.rounds.map(r => {
-          const pA1 = sanitizeHTML(tourney.players[r.team_a[0]]?.name || '—');
-          const pA2 = sanitizeHTML(tourney.players[r.team_a[1]]?.name || '—');
-          const pB1 = sanitizeHTML(tourney.players[r.team_b[0]]?.name || '—');
-          const pB2 = sanitizeHTML(tourney.players[r.team_b[1]]?.name || '—');
-
-          return `
-            <div class="p-2.5 glass-subcard border border-white/10 rounded-xl space-y-1 text-xs">
-              <div class="flex justify-between items-center text-[10px] text-slate-400 font-semibold">
-                <span>${t('matchRoundLabel')} ${r.cycle || 1} • ${t('matchGameLabel')} #${r.round}</span>
-                <span class="text-emerald-400 font-bold">${t('completedStatus')}</span>
-              </div>
-              <div class="flex items-center justify-between gap-1 text-[11px]">
-                <span class="flex-1 text-right font-bold text-white truncate">${pA1} / ${pA2}</span>
-                <span class="font-black text-amber-300 bg-slate-900/80 px-2 py-0.5 rounded-lg border border-white/10">${r.score_a} : ${r.score_b}</span>
-                <span class="flex-1 text-left font-bold text-white truncate">${pB1} / ${pB2}</span>
-              </div>
-            </div>
-          `;
-        }).join('');
-      } else {
-        roundsHtml = `<p class="text-xs text-slate-400 italic text-center py-2">История пуста...</p>`;
       }
 
       content.innerHTML = `
@@ -1241,17 +1187,64 @@
             <h4 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('leaderboardTitle')}</h4>
             <div class="space-y-1">${lbHtml}</div>
           </div>
-
-          <div class="space-y-1.5 pt-1">
-            <h4 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('tourneyMatchesTitle')}</h4>
-            <div class="space-y-1.5">${roundsHtml}</div>
-          </div>
         </div>
       `;
       modal.classList.remove('hidden');
     }
 
     function closeTourneyModal() { document.getElementById('modal-view-tourney').classList.add('hidden'); }
+
+    function openOnboardingModal() {
+      const modal = document.getElementById('modal-onboarding');
+      const nameInput = document.getElementById('onboard_name');
+      const grid = document.getElementById('onboard_avatar_grid');
+      
+      if (nameInput) nameInput.value = `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 'Игрок Padel';
+
+      if (grid) {
+        grid.innerHTML = PIXEL_AVATARS.map(av => `
+          <div onclick="selectOnboardAvatar('${av.url}')" class="avatar-opt-card p-1 rounded-2xl border ${av.url === onboardSelectedAvatar ? 'border-emerald-400 bg-emerald-500/20' : 'border-white/10 glass-subcard'} cursor-pointer transition-all text-center btn-3d">
+            <img src="${av.url}" alt="${av.name}" class="w-10 h-10 mx-auto rounded-xl object-cover">
+          </div>
+        `).join('');
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function selectOnboardAvatar(url) {
+      onboardSelectedAvatar = url;
+      const cards = document.querySelectorAll('.avatar-opt-card');
+      cards.forEach(c => c.className = 'avatar-opt-card p-1 rounded-2xl border border-white/10 glass-subcard cursor-pointer transition-all text-center btn-3d');
+      event.currentTarget.className = 'avatar-opt-card p-1 rounded-2xl border border-emerald-400 bg-emerald-500/20 cursor-pointer transition-all text-center btn-3d';
+    }
+
+    async function submitOnboardingRegistration() {
+      const nameVal = document.getElementById('onboard_name').value.trim() || tgUser.first_name || 'Игрок';
+      const skillVal = parseFloat(document.getElementById('onboard_skill').value) || 2.5;
+
+      const profilePayload = {
+        id: tgUser.id,
+        first_name: nameVal,
+        username: tgUser.username || null,
+        skill_level: skillVal,
+        avatar_url: onboardSelectedAvatar,
+        league_points: 1000,
+        total_matches_played: 0,
+        wins: 0, losses: 0, draws: 0,
+        updated_at: new Date().toISOString()
+      };
+
+      localStorage.setItem(`padel_avatar_${tgUser.id}`, onboardSelectedAvatar);
+      localStorage.setItem(`padel_onboarded_${tgUser.id}`, 'true');
+
+      await safeUpsertProfile(tgUser.id, profilePayload);
+      currentUserProfile = profilePayload;
+
+      document.getElementById('modal-onboarding').classList.add('hidden');
+      alert('Вы успешно зарегистрированы в Лидерборде!');
+      await fetchAllPlatformProfiles(true);
+      switchTab(activeTab);
+    }
 
     async function initApp() {
       if (!tgUser) return;
@@ -1267,6 +1260,11 @@
       } catch(e) {}
 
       setLanguage(currentLang);
+
+      const isOnboarded = localStorage.getItem(`padel_onboarded_${tgUser.id}`);
+      if (!isOnboarded && (!currentUserProfile || !currentUserProfile.avatar_url)) {
+        openOnboardingModal();
+      }
 
       const startParam = tg?.initDataUnsafe?.start_param;
       if (startParam) {
@@ -1305,18 +1303,18 @@
       const btnAmericano = document.getElementById('tab-americano');
       const btnProfile = document.getElementById('tab-profile');
 
-      btnBooking.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
-      btnAmericano.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
-      btnProfile.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
+      btnBooking.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d truncate';
+      btnAmericano.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d truncate';
+      btnProfile.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d truncate';
 
       if (tab === 'booking') {
-        btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
+        btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d truncate';
         renderSlotsSubTabContent();
       } else if (tab === 'americano') {
-        btnAmericano.className = 'py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-xs uppercase tracking-wider neon-glow-purple btn-3d';
+        btnAmericano.className = 'py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-xs uppercase tracking-wider neon-glow-purple btn-3d truncate';
         renderQuickAmericano();
       } else if (tab === 'profile') {
-        btnProfile.className = 'py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-black text-xs uppercase tracking-wider neon-glow-blue btn-3d';
+        btnProfile.className = 'py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-black text-xs uppercase tracking-wider neon-glow-blue btn-3d truncate';
         renderProfileTab();
       }
     }
@@ -1335,9 +1333,7 @@
         league_points: 1000,
         preferred_side: 'both',
         total_matches_played: 0,
-        wins: 0,
-        losses: 0,
-        draws: 0,
+        wins: 0, losses: 0, draws: 0,
         game_high_score: userHighScore,
         updated_at: new Date().toISOString()
       };
@@ -1353,10 +1349,6 @@
             if (!currentUserProfile.avatar_url && savedAvatar) {
               currentUserProfile.avatar_url = savedAvatar;
             }
-            if (data.game_high_score && data.game_high_score > userHighScore) {
-              userHighScore = data.game_high_score;
-              localStorage.setItem('padel_motion_high_score', userHighScore);
-            }
           }
         } catch (err) {}
       }
@@ -1370,13 +1362,13 @@
     function renderSlotsSubTabHeader() {
       return `
         <div class="grid grid-cols-3 gap-1 glass-subcard p-1 rounded-2xl border border-white/10 mb-4 text-[10px]">
-          <button type="button" onclick="setSlotsSubTab('feed')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'feed' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+          <button type="button" onclick="setSlotsSubTab('feed')" class="py-2 rounded-xl font-bold transition-all truncate ${currentSlotSubTab === 'feed' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
             ${t('subTabFeed')}
           </button>
-          <button type="button" onclick="setSlotsSubTab('my_slot')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'my_slot' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+          <button type="button" onclick="setSlotsSubTab('my_slot')" class="py-2 rounded-xl font-bold transition-all truncate ${currentSlotSubTab === 'my_slot' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
             ${t('subTabMySlot')}
           </button>
-          <button type="button" onclick="setSlotsSubTab('create')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'create' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+          <button type="button" onclick="setSlotsSubTab('create')" class="py-2 rounded-xl font-bold transition-all truncate ${currentSlotSubTab === 'create' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
             ${t('subTabCreate')}
           </button>
         </div>
@@ -1440,13 +1432,13 @@
         try {
           const { data, error } = await supabaseClient
             .from('matches')
-            .select('id, custom_location, max_players, match_type, is_public, scheduled_at, price_per_player, notes, creator_id, is_registration_closed, match_players(user_id, slot_number, profiles(first_name, last_name, avatar_url))')
+            .select('id, custom_location, max_players, match_type, scheduled_at, price_per_player, notes, creator_id, is_registration_closed, match_players(user_id, slot_number, profiles(first_name, last_name, avatar_url))')
             .gte('scheduled_at', nowIso)
             .order('scheduled_at', { ascending: true })
             .limit(50);
 
           if (!error && data) {
-            publicMatches = data.filter(m => m.is_registration_closed !== true && m.is_public !== false);
+            publicMatches = data.filter(m => m.is_registration_closed !== true);
           }
         } catch(e) {}
       }
@@ -1467,11 +1459,11 @@
           const hostName = sanitizeHTML(hostPlayer?.profiles?.first_name || 'Игрок');
 
           return `
-            <div class="glass-subcard border ${isUserJoined ? 'border-emerald-500/70 bg-emerald-500/15' : 'border-white/10'} p-4 rounded-2xl space-y-3 hover:border-emerald-400/50 transition-all btn-3d">
+            <div class="glass-subcard border ${isUserJoined ? 'border-emerald-500/80 bg-emerald-500/10' : 'border-white/10'} p-3.5 rounded-2xl space-y-3 hover:border-emerald-400/50 transition-all btn-3d">
               <div class="flex justify-between items-start gap-2">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <h3 class="text-sm font-black text-white">${sanitizeHTML(m.custom_location)}</h3>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h3 class="text-sm font-black text-white truncate">${sanitizeHTML(m.custom_location)}</h3>
                     <span class="px-2 py-0.5 bg-teal-500/20 text-teal-300 font-extrabold text-[9px] rounded-md uppercase border border-teal-500/30">
                       ${sanitizeHTML(m.match_type || 'friendly')}
                     </span>
@@ -1480,27 +1472,27 @@
                   <p class="text-[11px] text-slate-300 font-medium mt-0.5">📅 ${dateStr}</p>
                 </div>
 
-                <div class="text-right">
+                <div class="text-right shrink-0">
                   <span class="text-xs font-black text-emerald-400 block">${m.price_per_player || 0} MDL</span>
-                  <span class="text-[9px] text-slate-400 uppercase font-bold">${t('creatorTag')}: ${hostName}</span>
+                  <span class="text-[9px] text-slate-400 uppercase font-bold truncate">${t('creatorTag')}: ${hostName}</span>
                 </div>
               </div>
 
               ${m.notes ? `<p class="text-[10px] text-slate-300 italic bg-white/5 p-2 rounded-xl border border-white/5">💬 "${sanitizeHTML(m.notes)}"</p>` : ''}
 
-              <div class="flex items-center justify-between pt-1">
-                <div class="flex items-center gap-1.5">
+              <div class="flex items-center justify-between gap-2 pt-1">
+                <div class="flex items-center gap-1.5 shrink-0">
                   <span class="text-xs">👥</span>
                   <span class="text-xs font-black text-white">${occupiedCount} / ${maxCount}</span>
                   ${isFull ? `
-                    <span class="text-[9px] bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold px-2 py-0.5 rounded-md uppercase">${t('fullSlotBadge')}</span>
+                    <span class="text-[9px] bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold px-1.5 py-0.5 rounded-md uppercase">${t('fullSlotBadge')}</span>
                   ` : `
-                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-2 py-0.5 rounded-md uppercase">⚡ ${t('spotsLeft')}: ${spotsLeft}</span>
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-1.5 py-0.5 rounded-md uppercase">⚡ ${t('spotsLeft')}: ${spotsLeft}</span>
                   `}
                 </div>
 
-                <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md cursor-pointer">
-                  ${isUserJoined ? '🎾 Открыть мой слот' : t('quickJoinBtn')}
+                <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md shrink-0">
+                  ${isUserJoined ? '🎾 Мой активный слот' : t('quickJoinBtn')}
                 </button>
               </div>
             </div>
@@ -1644,27 +1636,34 @@
         await ensureProfileInDatabase(currentUserProfile || tgUser);
         const isPublicValue = document.getElementById('is_public').value === 'true';
 
-        let matchData = {
+        let baseMatchData = {
           creator_id: tgUser.id,
           custom_location: document.getElementById('custom_location').value,
           max_players: parseInt(document.getElementById('max_players').value),
           match_type: document.getElementById('match_type').value,
-          is_public: isPublicValue,
           scheduled_at: new Date(document.getElementById('scheduled_at').value).toISOString(),
           price_per_player: parseFloat(document.getElementById('price_per_player').value) || 0,
           notes: document.getElementById('notes').value,
           is_registration_closed: false
         };
 
-        let { data: match, error } = await supabaseClient.from('matches').insert([matchData]).select().single();
-        if (error) throw error;
+        let match = null;
+        let { data, error } = await supabaseClient.from('matches').insert([{ ...baseMatchData, is_public: isPublicValue }]).select().single();
+        
+        if (error) {
+          const fallbackRes = await supabaseClient.from('matches').insert([baseMatchData]).select().single();
+          if (fallbackRes.error) throw fallbackRes.error;
+          match = fallbackRes.data;
+        } else {
+          match = data;
+        }
 
         await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]);
         
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
       } catch (err) {
-        showError('Ошибка создания: ' + err.message);
+        showError('Ошибка создания слота: ' + err.message);
         if (btn) btn.disabled = false;
       }
     }
@@ -1795,13 +1794,13 @@
             slotsHtml += `
               <div class="p-3 glass-subcard rounded-2xl space-y-1 border border-emerald-500/30">
                 ${isCreatorOfThisSlot ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 min-w-0">
                     ${avatarHtml}
-                    <span class="text-xs font-bold text-emerald-300">Слот #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline hover:text-amber-300">${name}</span></span>
+                    <span class="text-xs font-bold text-emerald-300 truncate">Слот #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline hover:text-amber-300">${name}</span></span>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2 py-0.5 rounded-full uppercase">${t('occupied')}</span>
                     ${isMatchCreator ? `<button type="button" onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d">❌</button>` : ''}
                   </div>
                 </div>
@@ -1811,7 +1810,7 @@
               <div class="p-3 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
                 <span>Слот #${i}: <strong class="text-emerald-400 font-bold">${t('free')}</strong></span>
                 ${!isJoined ? `
-                  <button type="button" onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d cursor-pointer">
+                  <button type="button" onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d cursor-pointer shrink-0">
                     ${t('joinSlot')} #${i}
                   </button>
                 ` : ''}
@@ -1889,23 +1888,19 @@
           `;
         }
 
-        const isPublicBadge = match.is_public !== false 
-          ? `<span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-black uppercase rounded-lg">🌐 Публичный</span>`
-          : `<span class="px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[9px] font-black uppercase rounded-lg">🔒 Приватный</span>`;
-
         container.innerHTML = `
           ${renderSlotsSubTabHeader()}
           <div class="space-y-4">
             <div>
               <div class="flex justify-between items-center mb-2">
-                ${isPublicBadge}
+                <span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-black uppercase rounded-lg">🌐 Публичный Слот</span>
                 <span class="px-2.5 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[9px] font-black uppercase rounded-lg">
                   ${sanitizeHTML(match.match_type)}
                 </span>
               </div>
-              <div class="flex justify-between items-start">
-                <h2 class="text-xl font-black mt-1 text-white">${sanitizeHTML(match.custom_location)}</h2>
-                <span class="text-xs font-black text-emerald-400">${match.price_per_player} MDL / pers</span>
+              <div class="flex justify-between items-start gap-2">
+                <h2 class="text-lg sm:text-xl font-black mt-1 text-white truncate">${sanitizeHTML(match.custom_location)}</h2>
+                <span class="text-xs font-black text-emerald-400 shrink-0">${match.price_per_player} MDL / pers</span>
               </div>
               <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
             </div>
@@ -1924,7 +1919,7 @@
               </div>
               <div class="flex gap-2">
                 <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-3 glass-subcard border border-slate-700/80 rounded-xl text-xs text-white">
-                <button type="button" onclick="sendChatMessage('${match.id}')" class="px-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
+                <button type="button" onclick="sendChatMessage('${match.id}')" class="px-4 sm:px-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase shrink-0">
                   ${t('sendBtn')}
                 </button>
               </div>
@@ -2112,8 +2107,7 @@
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
       platformProfilesList.forEach(p => {
         const name = sanitizeHTML(`${p.first_name} ${p.last_name || ''}`.trim());
-        const stats = getAggregatedPlayerStats(p);
-        optionsHtml += `<option value="${p.id}" data-name="${name}">${name} (${stats.effectiveLp} LP • Lvl ${p.skill_level || 2.5})</option>`;
+        optionsHtml += `<option value="${p.id}" data-name="${name}">${name} (${p.league_points || 1000} LP • Lvl ${p.skill_level || 2.5})</option>`;
       });
 
       let html = `<label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}:</label>`;
@@ -2308,11 +2302,11 @@
 
         return `
           <div class="flex items-center justify-between p-2.5 border rounded-2xl ${cardStyle}">
-            <div class="flex items-center gap-2 text-xs">
+            <div class="flex items-center gap-2 text-xs min-w-0">
               ${badge}
-              <span class="font-bold text-white">${sanitizeHTML(item.name)}</span>
+              <span class="font-bold text-white truncate">${sanitizeHTML(item.name)}</span>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
               <span class="text-[10px] text-slate-300 font-bold">${scoreDetail}</span>
               <span class="font-black text-purple-300 bg-purple-500/20 px-2.5 py-1 rounded-full text-xs">${item.points} PTS</span>
             </div>
@@ -2332,20 +2326,20 @@
               <span>${t('matchRoundLabel')} ${r.cycle} • ${t('matchGameLabel')} #${r.round}</span>
               ${r.completed ? `<span class="text-emerald-400 font-black">${t('completedStatus')}</span>` : `<span class="text-amber-400 font-semibold">${t('pendingStatus')}</span>`}
             </div>
-            <div class="flex items-center justify-between gap-1.5">
-              <div class="flex-1 text-center font-bold text-white">${pA1} / ${pA2}</div>
+            <div class="flex items-center justify-between gap-1">
+              <div class="flex-1 text-center font-bold text-white text-[11px] truncate">${pA1} / ${pA2}</div>
               
-              <div class="flex items-center gap-1">
-                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
+              <div class="flex items-center gap-1 shrink-0">
+                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-9 text-center p-1 border border-slate-700 rounded-xl font-black glass-subcard text-white text-xs focus:border-purple-500">
                 <span class="font-black text-slate-500">:</span>
-                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
+                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-9 text-center p-1 border border-slate-700 rounded-xl font-black glass-subcard text-white text-xs focus:border-purple-500">
                 
-                <button type="button" onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
+                <button type="button" onclick="saveQuickScore(${r.id})" class="ml-0.5 px-2 py-1 bg-purple-600 text-white rounded-lg font-black text-xs hover:bg-purple-500 btn-3d">
                   ${t('okBtn')}
                 </button>
               </div>
 
-              <div class="flex-1 text-center font-bold text-white">${pB1} / ${pB2}</div>
+              <div class="flex-1 text-center font-bold text-white text-[11px] truncate">${pB1} / ${pB2}</div>
             </div>
           </div>
         `;
@@ -2367,7 +2361,7 @@
           </div>
 
           <button type="button" onclick="recordTournamentToNationalLeaderboard()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30 ${localAmericanoState.isRecorded ? 'opacity-50 cursor-not-allowed' : ''}">
-            ${localAmericanoState.isRecorded ? '✅ Записано в Рейтинг' : t('recordRatingBtn')}
+            ${localAmericanoState.isRecorded ? '✅ Записано в Единый Рейтинг' : t('recordRatingBtn')}
           </button>
 
           <div class="space-y-2">
@@ -2409,7 +2403,7 @@
     async function recordTournamentToNationalLeaderboard() {
       if (!localAmericanoState || !localAmericanoState.rounds) return;
       if (localAmericanoState.isRecorded) {
-        alert('Уже записано.');
+        alert('Уже записано в рейтинг.');
         return;
       }
       const { players, rounds } = localAmericanoState;
@@ -2486,7 +2480,7 @@
       localAmericanoState.isRecorded = true;
       localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
 
-      alert('Результаты сохранены в рейтинг!');
+      alert('Результаты турнира успешно сохранены в Общий Серверный Рейтинг!');
       await fetchAllPlatformProfiles(true);
       renderQuickAmericano();
     }
@@ -2539,15 +2533,14 @@
       const modal = document.getElementById('modal-view-player');
       const content = document.getElementById('view-player-card-content');
 
-      const stats = getAggregatedPlayerStats(p);
-      const leagueInfo = getPlayerLeague(stats.effectiveLp);
+      const lp = p.league_points || 1000;
+      const leagueInfo = getPlayerLeague(lp);
 
-      const total = stats.effectiveMatches;
-      const wins = stats.effectiveWins;
+      const total = p.total_matches_played || 0;
+      const wins = p.wins || 0;
       const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
 
       const age = calculateAge(p.birth_date);
-      const histPts = getHistoricalPointsForUser(p.id, p.first_name);
       const avatarHtml = renderPlayerAvatarHtml(p, "w-14 h-14");
 
       let genderText = t('unspecified');
@@ -2569,7 +2562,7 @@
               ${p.username ? `<p class="text-xs text-emerald-400 font-semibold">@${sanitizeHTML(p.username)}</p>` : ''}
               <div class="flex items-center gap-1 mt-1">
                 <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
-                  ${leagueInfo.badge} ${leagueInfo.title} (${stats.effectiveLp} LP)
+                  ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
                 </span>
               </div>
             </div>
@@ -2599,11 +2592,6 @@
               <span class="text-slate-400 block">${t('winrate')}</span>
               <span class="font-black text-amber-300 text-xs">${winrate}%</span>
             </div>
-          </div>
-
-          <div class="p-2.5 glass-subcard rounded-xl border border-purple-500/30 flex justify-between items-center text-xs">
-            <span class="text-purple-300 font-bold">Очки Американо:</span>
-            <span class="font-black text-white font-mono text-sm">${histPts} PTS</span>
           </div>
         </div>
       `;
@@ -2711,11 +2699,10 @@
         skill_level: 2.5, league_points: 1000, total_matches_played: 0, wins: 0, losses: 0, draws: 0
       };
 
-      const stats = getAggregatedPlayerStats(p);
-      const total = stats.effectiveMatches;
-      const wins = stats.effectiveWins;
+      const total = p.total_matches_played || 0;
+      const wins = p.wins || 0;
       const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
-      const lp = stats.effectiveLp;
+      const lp = p.league_points || 1000;
       const leagueInfo = getPlayerLeague(lp);
       const avatarHtml = renderPlayerAvatarHtml(p, "w-14 h-14");
 
@@ -2725,9 +2712,9 @@
           <div class="p-2 glass-subcard rounded-xl border border-white/10 flex justify-between items-center text-xs">
             <div class="truncate max-w-[180px]">
               <span class="font-bold text-white">${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}</span>
-              <span class="text-[10px] text-amber-300 block font-mono">${getAggregatedPlayerStats(item).effectiveLp} LP • Lvl ${item.skill_level || 2.5}</span>
+              <span class="text-[10px] text-amber-300 block font-mono">${item.league_points || 1000} LP • Lvl ${item.skill_level || 2.5}</span>
             </div>
-            <button type="button" onclick="openAdminEditPlayerModal('${item.id}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px] rounded-lg btn-3d">
+            <button type="button" onclick="openAdminEditPlayerModal('${item.id}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px] rounded-lg btn-3d shrink-0">
               ✏️ Изменить
             </button>
           </div>
@@ -2759,7 +2746,7 @@
               const isSelected = p.avatar_url === av.url;
               return `
                 <div onclick="selectPixelAvatar('${av.url}')" class="p-1 rounded-2xl border ${isSelected ? 'border-amber-400 bg-amber-500/20 scale-105' : 'border-white/10 glass-subcard hover:border-emerald-400/50'} cursor-pointer transition-all text-center group btn-3d">
-                  <img src="${av.url}" alt="${av.name}" class="w-12 h-12 mx-auto rounded-xl object-cover">
+                  <img src="${av.url}" alt="${av.name}" class="w-10 h-10 mx-auto rounded-xl object-cover">
                   <span class="text-[8px] font-bold text-slate-300 group-hover:text-white block mt-1 truncate">${av.name}</span>
                 </div>
               `;
@@ -2820,14 +2807,11 @@
         `;
       }
 
-      let leaderboardList = [...platformProfilesList].map(item => {
-        const itemStats = getAggregatedPlayerStats(item);
-        return { ...item, effectiveLp: itemStats.effectiveLp, effectiveWins: itemStats.effectiveWins, effectiveLosses: itemStats.effectiveLosses };
-      });
-      leaderboardList.sort((a, b) => b.effectiveLp - a.effectiveLp);
+      let leaderboardList = [...platformProfilesList];
+      leaderboardList.sort((a, b) => (b.league_points || 1000) - (a.league_points || 1000));
 
       let leaderboardRowsHtml = leaderboardList.map((item, index) => {
-        const itemLp = item.effectiveLp;
+        const itemLp = item.league_points || 1000;
         const itemLeague = getPlayerLeague(itemLp);
         const itemAvatarHtml = renderPlayerAvatarHtml(item, "w-8 h-8");
 
@@ -2840,11 +2824,11 @@
 
         return `
           <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} p-3 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all btn-3d">
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2.5 min-w-0">
               ${rankBadge}
               ${itemAvatarHtml}
-              <div>
-                <h4 class="text-xs font-black text-white">
+              <div class="min-w-0">
+                <h4 class="text-xs font-black text-white truncate">
                   ${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}
                 </h4>
                 <div class="flex items-center gap-1.5 mt-0.5">
@@ -2854,9 +2838,9 @@
               </div>
             </div>
 
-            <div class="text-right">
+            <div class="text-right shrink-0">
               <span class="font-black text-amber-300 text-xs font-mono block">${itemLp} LP</span>
-              <span class="text-[9px] text-emerald-400 font-bold">${item.effectiveWins || 0}W / ${item.effectiveLosses || 0}L</span>
+              <span class="text-[9px] text-emerald-400 font-bold">${item.wins || 0}W / ${item.losses || 0}L</span>
             </div>
           </div>
         `;
