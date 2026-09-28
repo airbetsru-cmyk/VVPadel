@@ -26,6 +26,12 @@
       -webkit-font-smoothing: antialiased;
     }
     
+    button, [role="button"], .btn-3d {
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
     .bg-overlay {
       background: linear-gradient(180deg, rgba(9, 13, 22, 0.88) 0%, rgba(9, 13, 22, 0.96) 100%);
       min-height: 100vh;
@@ -198,9 +204,9 @@
   <!-- Холст анимированных мячей заднего фона -->
   <canvas id="ball-canvas"></canvas>
 
-  <!-- Всплывающий тост празднования -->
+  <!-- Всплывающий тост празднования и уведомлений -->
   <div id="celebration-toast" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none hidden">
-    <div class="glass-card shimmer-border px-6 py-4 rounded-3xl text-center shadow-2xl bg-slate-950/80 border-2 border-emerald-400">
+    <div class="glass-card shimmer-border px-6 py-4 rounded-3xl text-center shadow-2xl bg-slate-950/90 border-2 border-emerald-400">
       <span class="text-3xl block mb-1">🎾🔥</span>
       <h2 id="celebration-text" class="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 uppercase tracking-wide drop-shadow-md">
         Tu vopshe esti chempion
@@ -238,10 +244,10 @@
 
             <div class="flex items-center gap-1">
               <button onclick="openSupportModal()" class="px-2 py-1 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
-                🛠️ <span id="txt-btn-support">Support</span>
+                🛠️ <span id="txt-btn-support">Поддержка</span>
               </button>
               <button onclick="openCreatorModal()" class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
-                👨‍💻 <span id="txt-btn-creator">Creator</span>
+                👨‍💻 <span id="txt-btn-creator">Создатель</span>
               </button>
             </div>
           </div>
@@ -949,7 +955,7 @@
     const TRANSLATIONS = {
       ru: {
         tabBooking: "Слоты", tabAmericano: "Американо", tabProfile: "Профиль",
-        btnSupport: "Support", btnCreator: "Creator", createGame: "Создать новую игру",
+        btnSupport: "Поддержка", btnCreator: "Создатель", createGame: "Создать новую игру",
         location: "Локация / Корт", maxPlayers: "Мест", format: "Формат", dateTime: "Дата и время",
         price: "Цена с игрока (MDL)", notes: "Заметки / Пожелания", generateLink: "Сформировать ссылку на игру",
         joinSlot: "Занять слот", leaveGame: "Покинуть игру", copyLink: "📋 Скопировать ссылку на игру",
@@ -968,7 +974,7 @@
         autoCleanup: "Автоочистка", winnerLabel: "Победитель", participantsCount: "Участников", gamesCount: "игр(ы)",
         hostPanel: "Панель Организатора Слота", hostPanelDesc: "Управление составом, местами, временем и ценой", profileEditTitle: "✏️ Редактирование Данных Профиля",
         creatorPanelTitle: "👑 Панель Создателя: Управление Платформой", allRegisteredPlayers: "Все зарегистрированные игроки платформы:",
-        gamesLabel: "игроков", reportTgBtn: "📋 Отчёт в Telegram", recordRatingBtn: "🏆 Записать в Рейтинг",
+        gamesLabel: "участников", reportTgBtn: "📋 Отчёт в Telegram", recordRatingBtn: "🏆 Записать в Рейтинг",
         cancelTournamentBtn: "🛑 Отменить / Сбросить турнир", confirmCancelMsg: "Вы действительно хотите отменить турнир?",
         loadingMatch: "Загрузка матча...", loadingProfile: "Загрузка профиля...", slotNotFound: "Слот не найден или был удалён.",
         chatEmptyMsg: "Обсудите детали матча. Напишите первое сообщение!", quickAmericanoDesc: "Персональный калькулятор турнира Американо.",
@@ -1151,6 +1157,16 @@
       "Vamoooooos! 🚀"
     ];
 
+    const RANDOM_LEAVE_TEXTS = [
+      "Eiii PL BL",
+      "Plaki Plaki",
+      "Ei hai la pl Petrea",
+      "Nah dar ai mai intrat",
+      "Timpu deo Ftut la pensie",
+      "Loooohhh Pidrrrrrr",
+      "Slab di tat"
+    ];
+
     function triggerSlotCelebration() {
       if (window.confetti) {
         window.confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#10b981', '#ccff00', '#3b82f6', '#f59e0b'] });
@@ -1160,12 +1176,29 @@
       const toast = document.getElementById('celebration-toast');
       const toastText = document.getElementById('celebration-text');
       
-      toastText.innerText = randomMsg;
-      toast.classList.remove('hidden', 'toast-pop');
-      void toast.offsetWidth;
-      toast.classList.add('toast-pop');
+      if (toast && toastText) {
+        toastText.innerText = randomMsg;
+        toast.classList.remove('hidden', 'toast-pop');
+        void toast.offsetWidth;
+        toast.classList.add('toast-pop');
 
-      setTimeout(() => { toast.classList.add('hidden'); }, 2500);
+        setTimeout(() => { toast.classList.add('hidden'); }, 2500);
+      }
+    }
+
+    function triggerSlotLeaveToast() {
+      const randomMsg = RANDOM_LEAVE_TEXTS[Math.floor(Math.random() * RANDOM_LEAVE_TEXTS.length)];
+      const toast = document.getElementById('celebration-toast');
+      const toastText = document.getElementById('celebration-text');
+      
+      if (toast && toastText) {
+        toastText.innerText = randomMsg;
+        toast.classList.remove('hidden', 'toast-pop');
+        void toast.offsetWidth;
+        toast.classList.add('toast-pop');
+
+        setTimeout(() => { toast.classList.add('hidden'); }, 2500);
+      }
     }
 
     // --- SUPABASE И ТЕЛЕГРАМ ---
@@ -1540,7 +1573,7 @@
       }
     }
 
-    // --- ЛЕНТА ПУБЛИЧНЫХ ИГР (MARKETPLACEС С АВТОУДАЛЕНИЕМ ПРОШЕДШИХ ИГР) ---
+    // --- ЛЕНТА ПУБЛИЧНЫХ ИГР (С АВТОУДАЛЕНИЕМ И ПОДДЕРЖКОЙ iOS) ---
     async function renderPublicMatchesFeed(container) {
       if (!container) container = document.getElementById('main-content');
       
@@ -1627,7 +1660,7 @@
                   `}
                 </div>
 
-                <button onclick="openPublicMatchSlot('${m.id}')" class="px-3.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md">
+                <button onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md cursor-pointer">
                   ${isUserJoined ? '🎾 ' + t('subTabMySlot') : t('quickJoinBtn')}
                 </button>
               </div>
@@ -1656,6 +1689,51 @@
           <div class="space-y-2.5">${matchesHtml}</div>
         </div>
       `;
+    }
+
+    async function quickJoinMatchFromFeed(matchId) {
+      try {
+        await syncUserProfile();
+        
+        let match = null, players = [];
+        if (supabaseClient) {
+          const { data: mData } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
+          match = mData;
+          const { data: pData } = await supabaseClient.from('match_players').select('*').eq('match_id', matchId);
+          players = pData || [];
+        }
+
+        if (!match) {
+          openPublicMatchSlot(matchId);
+          return;
+        }
+
+        const isUserJoined = players.some(p => String(p.user_id) === String(tgUser.id));
+        if (isUserJoined) {
+          openPublicMatchSlot(matchId);
+          return;
+        }
+
+        const occupiedSlots = new Set(players.map(p => p.slot_number));
+        let nextFreeSlot = 1;
+        for (let i = 1; i <= match.max_players; i++) {
+          if (!occupiedSlots.has(i)) {
+            nextFreeSlot = i;
+            break;
+          }
+        }
+
+        if (players.length >= match.max_players) {
+          alert('Этот слот уже полностью заполнен.');
+          openPublicMatchSlot(matchId);
+          return;
+        }
+
+        await joinMatch(matchId, nextFreeSlot);
+      } catch (e) {
+        showError('Ошибка входа: ' + e.message);
+        openPublicMatchSlot(matchId);
+      }
     }
 
     function openPublicMatchSlot(matchId) {
@@ -1879,7 +1957,7 @@
               <div class="p-3 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
                 <span>${t('slotLabel')} #${i}: <strong class="text-emerald-400 font-bold">${t('free')}</strong></span>
                 ${!isJoined ? `
-                  <button onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20">
+                  <button onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20 cursor-pointer">
                     ${t('joinSlot')} #${i}
                   </button>
                 ` : ''}
@@ -2014,6 +2092,7 @@
       if (!confirm('Исключить этого игрока из слота?')) return;
       try {
         await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', userId);
+        triggerSlotLeaveToast();
         renderMatchDetails(matchId);
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
@@ -3074,7 +3153,16 @@
     async function joinMatch(matchId, nextSlot) {
       try {
         await syncUserProfile();
-        await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: tgUser.id, slot_number: nextSlot }]);
+        const uid = tgUser.id;
+
+        if (supabaseClient) {
+          let { error } = await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: uid, slot_number: nextSlot }]);
+          if (error && error.message && error.message.includes('user_id')) {
+            await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: parseInt(uid, 10), slot_number: nextSlot }]);
+          } else if (error) {
+            throw error;
+          }
+        }
         
         currentActiveMatchId = matchId;
         localStorage.setItem(getSlotStorageKey(), matchId);
@@ -3082,12 +3170,15 @@
         triggerSlotCelebration();
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
-      } catch (err) { alert('Ошибка: ' + err.message); }
+      } catch (err) { alert('Ошибка при входе в слот: ' + (err.message || err)); }
     }
 
     async function leaveMatch(matchId) {
       try {
-        await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', tgUser.id);
+        if (supabaseClient) {
+          await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', tgUser.id);
+        }
+        triggerSlotLeaveToast();
         renderMatchDetails(matchId);
       } catch (err) { alert('Ошибка: ' + err.message); }
     }
