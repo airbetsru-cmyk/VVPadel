@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Padel Moldova - Ranking, Slots & Motion Game</title>
+  
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <!-- Supabase JS Client -->
@@ -16,7 +17,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
   <style>
-    * { box-sizing: border-box; }
     body { 
       font-family: 'Outfit', sans-serif;
       background: #090d16 url('https://images.unsplash.com/photo-1554068865-24cecd4e34b8?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat fixed;
@@ -85,6 +85,21 @@
       position: relative;
     }
 
+    .glass-card-pro::after {
+      content: '👑 PRO MEMBER';
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+      color: #020617;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 8px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
+    }
+
     .glass-subcard {
       background: rgba(15, 23, 42, 0.85) !important;
       border: 1px solid rgba(255, 255, 255, 0.10);
@@ -93,22 +108,28 @@
     .lb-card-solid {
       background: rgba(15, 23, 42, 0.92) !important;
       border: 1px solid rgba(255, 255, 255, 0.12);
+      contain: content;
     }
 
     .lb-podium-1 {
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
       border: 1.5px solid rgba(245, 158, 11, 0.85) !important;
       box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
+      contain: content;
     }
 
     .lb-podium-2 {
       background: linear-gradient(135deg, rgba(203, 213, 225, 0.22) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
       border: 1.5px solid rgba(203, 213, 225, 0.65) !important;
+      box-shadow: 0 4px 15px rgba(203, 213, 225, 0.15);
+      contain: content;
     }
 
     .lb-podium-3 {
       background: linear-gradient(135deg, rgba(180, 83, 9, 0.28) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
       border: 1.5px solid rgba(217, 119, 6, 0.65) !important;
+      box-shadow: 0 4px 15px rgba(180, 83, 9, 0.2);
+      contain: content;
     }
 
     .custom-scrollbar { -webkit-overflow-scrolling: touch; }
@@ -137,6 +158,27 @@
       100% { background-position: 300% 0%; }
     }
 
+    .shimmer-border-reverse { position: relative; }
+    .shimmer-border-reverse::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.6), rgba(139, 92, 246, 0.6), rgba(59, 130, 246, 0.6), rgba(16, 185, 129, 0.6));
+      background-size: 300% 100%;
+      animation: borderShimmerReverse 4s linear infinite;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    @keyframes borderShimmerReverse {
+      0% { background-position: 300% 0%; }
+      100% { background-position: 0% 0%; }
+    }
+
     @keyframes popInOut {
       0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
       20% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
@@ -145,6 +187,7 @@
     }
 
     .toast-pop { animation: popInOut 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
     .neon-glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.45); }
     .neon-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.45); }
     .neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.45); }
@@ -158,10 +201,8 @@
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white">
 
-  <!-- Анимированный задний фон -->
   <canvas id="ball-canvas"></canvas>
 
-  <!-- Всплывающий тост -->
   <div id="celebration-toast" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none hidden">
     <div class="glass-card shimmer-border px-6 py-4 rounded-3xl text-center shadow-2xl bg-slate-950/90 border-2 border-emerald-400">
       <span class="text-3xl block mb-1">🎾🔥</span>
@@ -171,64 +212,70 @@
     </div>
   </div>
 
-  <div class="bg-overlay p-2.5 sm:p-4 pb-16 relative z-10">
-    <div id="app" class="max-w-md mx-auto space-y-3">
+  <div class="bg-overlay p-4 pb-16 relative z-10">
+    <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <!-- ШАПКА ПРИЛОЖЕНИЯ -->
-      <div class="carbon-padel-card shimmer-border p-3 rounded-2xl space-y-2 shadow-2xl overflow-hidden max-w-full">
-        <div class="flex items-center justify-between gap-1.5 w-full">
-          <div class="flex items-center gap-2 min-w-0 flex-1">
-            <div onclick="openPadelGameModal()" class="w-10 h-10 shrink-0 rounded-xl bg-slate-950/90 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
-              <canvas id="header-padel-canvas" style="width: 40px; height: 40px;"></canvas>
+      <div class="carbon-padel-card shimmer-border p-4 rounded-3xl space-y-3 shadow-2xl">
+        <div class="flex items-center justify-between gap-2">
+          
+          <div class="flex items-center gap-3">
+            <div onclick="openPadelGameModal()" class="w-14 h-14 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
+              <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
+              <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span class="text-[9px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1 py-0.5 rounded shadow">PLAY</span>
+              </div>
             </div>
 
-            <div class="min-w-0 flex-1">
-              <h1 class="text-sm font-black tracking-tight text-white uppercase italic truncate">Padel <span class="text-emerald-400">Moldova</span></h1>
-              <p id="user-greeting" class="text-[10px] text-slate-300 font-medium truncate">Загрузка...</p>
+            <div>
+              <h1 class="text-lg font-black tracking-tight text-white uppercase italic">Padel <span class="text-emerald-400">Moldova</span></h1>
+              <p id="user-greeting" class="text-xs text-slate-300 font-medium">Загрузка...</p>
             </div>
           </div>
           
-          <!-- Выбор Языка -->
-          <div class="flex items-center gap-0.5 glass-subcard p-0.5 rounded-xl border border-white/10 text-[10px] font-bold shrink-0">
-            <button type="button" onclick="setLanguage('ru')" id="lang-ru" class="px-1.5 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
-            <button type="button" onclick="setLanguage('ro')" id="lang-ro" class="px-1.5 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
-            <button type="button" onclick="setLanguage('en')" id="lang-en" class="px-1.5 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
+          <div class="flex flex-col items-end gap-1.5">
+            <div class="flex items-center gap-1 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold">
+              <button type="button" onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
+              <button type="button" onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
+              <button type="button" onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="openSupportModal()" class="px-2 py-1 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
+                🛠️ <span id="txt-btn-support">Поддержка</span>
+              </button>
+              <button type="button" onclick="openCreatorModal()" class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
+                👨‍💻 <span id="txt-btn-creator">Создатель</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Кнопки поддержки -->
-        <div class="grid grid-cols-2 gap-1.5 pt-1 border-t border-white/10 w-full">
-          <button type="button" onclick="openSupportModal()" class="w-full py-1.5 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-xl btn-3d flex items-center justify-center gap-1 min-w-0">
-            <span>🛠️</span> <span id="txt-btn-support" class="truncate">Поддержка</span>
-          </button>
-          <button type="button" onclick="openCreatorModal()" class="w-full py-1.5 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-xl btn-3d flex items-center justify-center gap-1 min-w-0">
-            <span>👨‍💻</span> <span id="txt-btn-creator" class="truncate">Создатель</span>
-          </button>
-        </div>
-
-        <!-- Навигация -->
-        <div class="grid grid-cols-3 gap-1 glass-subcard p-1 rounded-xl border border-white/10 w-full">
-          <button type="button" id="tab-booking" onclick="switchTab('booking')" class="py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-[10px] uppercase tracking-wider neon-glow-emerald btn-3d truncate">
+        <div class="grid grid-cols-3 gap-1 glass-subcard p-1.5 rounded-2xl border border-white/10">
+          <button type="button" id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
             🎾 <span id="txt-tab-booking">Слоты</span>
           </button>
-          <button type="button" id="tab-americano" onclick="switchTab('americano')" class="py-1.5 rounded-lg text-slate-300 font-bold text-[10px] uppercase tracking-wider hover:text-white btn-3d truncate">
+          <button type="button" id="tab-americano" onclick="switchTab('americano')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
             🏆 <span id="txt-tab-americano">Американо</span>
           </button>
-          <button type="button" id="tab-profile" onclick="switchTab('profile')" class="py-1.5 rounded-lg text-slate-300 font-bold text-[10px] uppercase tracking-wider hover:text-white btn-3d truncate">
+          <button type="button" id="tab-profile" onclick="switchTab('profile')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
             👤 <span id="txt-tab-profile">Профиль</span>
           </button>
         </div>
       </div>
 
-      <!-- Главный Контент -->
-      <div id="main-content" class="carbon-padel-card shimmer-border-reverse p-3.5 sm:p-5 rounded-3xl min-h-[300px]">
-        <div class="text-center py-12 text-slate-400 font-semibold text-xs animate-pulse">Загрузка платформы Padel Moldova...</div>
+      <div id="error-box" class="hidden bg-rose-500/20 border border-rose-500/40 text-rose-200 p-3.5 rounded-2xl text-xs font-mono break-all backdrop-blur-md"></div>
+
+      <div id="main-content" class="carbon-padel-card shimmer-border-reverse p-5 rounded-3xl min-h-[300px]">
+        <div class="flex justify-center items-center py-16 text-slate-400 font-semibold text-sm">
+          <div class="animate-pulse flex items-center gap-2">
+            <span>Загрузка платформы...</span>
+          </div>
+        </div>
       </div>
 
     </div>
   </div>
 
-  <!-- МИНИ-ИГРА "MOTION PADEL SIMULATOR" -->
   <div id="modal-padel-game" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-50 hidden flex flex-col items-center justify-between p-4 overflow-hidden select-none">
     <div class="w-full max-w-md flex justify-between items-center glass-subcard p-3 rounded-2xl border border-emerald-500/40 z-20">
       <div class="flex items-center gap-2">
@@ -294,7 +341,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНЫЕ ОКНА -->
   <div id="modal-pay-pro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card-pro p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
@@ -479,9 +525,9 @@
   </div>
 
   <script>
-    // --- XSS SAFETY UTILITY ---
-    function escapeHTML(str) {
-      if (str === null || str === undefined) return '';
+    // --- Вспомогательная очистка HTML (XSS Protection) ---
+    function sanitizeHTML(str) {
+      if (!str) return '';
       return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -490,65 +536,16 @@
         .replace(/'/g, '&#039;');
     }
 
-    // Safe LocalStorage
-    const memoryStorage = {};
-    const safeStorage = {
-      getItem(key) {
-        try { return localStorage.getItem(key); }
-        catch(e) { return memoryStorage[key] || null; }
-      },
-      setItem(key, val) {
-        try { localStorage.setItem(key, val); }
-        catch(e) { memoryStorage[key] = String(val); }
-      },
-      removeItem(key) {
-        try { localStorage.removeItem(key); }
-        catch(e) { delete memoryStorage[key]; }
-      }
-    };
-
-    // --- TELEGRAM ПОЛЬЗОВАТЕЛЬ ---
+    // --- Telegram Пользователь ---
     const tg = window.Telegram?.WebApp;
     if (tg) { try { tg.ready(); tg.expand(); } catch(e) {} }
 
-    // ДИНАМИЧЕСКИЙ Telegram-пользователь (Убрано жесткое имя Виктора)
-    const tgUser = (tg?.initDataUnsafe?.user && tg.initDataUnsafe.user.first_name) ? tg.initDataUnsafe.user : {
-      id: Math.floor(100000 + Math.random() * 900000),
-      first_name: 'Игрок',
-      last_name: '',
-      username: ''
+    const tgUser = tg?.initDataUnsafe?.user || {
+      id: 777777,
+      first_name: 'Victor',
+      last_name: 'Popovici',
+      username: 'kizdoi'
     };
-
-    function updateGreetingName() {
-      const greetingEl = document.getElementById('user-greeting');
-      if (!greetingEl) return;
-      const firstName = currentUserProfile?.first_name || tgUser.first_name || 'Игрок';
-      const lastName = currentUserProfile?.last_name || tgUser.last_name || '';
-      greetingEl.textContent = `${firstName} ${lastName}`.trim();
-    }
-
-    // --- WEB AUDIO SOUND SYNTHESIS ---
-    let audioCtx = null;
-    function playAudioTone(freq, type, duration, vol = 0.1) {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type || 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-      } catch(e) {}
-    }
-
-    function soundHit() { playAudioTone(320, 'square', 0.08, 0.15); }
-    function soundBounce() { playAudioTone(180, 'sine', 0.05, 0.08); }
-    function soundGameOver() { playAudioTone(110, 'sawtooth', 0.4, 0.2); }
 
     function getAmericanoStorageKey() { return `quick_americano_state_${tgUser.id || 'guest'}`; }
 
@@ -558,80 +555,122 @@
       if (!p || !p.id || !p.first_name) return false;
       const idStr = String(p.id).trim();
       const numericId = parseInt(idStr, 10);
-      if (isNaN(numericId) || numericId <= 99999) return false;
+      if (isNaN(numericId) || numericId <= 999999) return false;
 
       const firstName = String(p.first_name).trim().toLowerCase();
       const lastName = String(p.last_name || '').trim().toLowerCase();
       const fullName = `${firstName} ${lastName}`.trim();
 
-      const fakeKeywords = ['test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 'dummy', 'fake', 'user', 'noname'];
+      const fakeKeywords = ['test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 'admin', 'админ', 'dummy', 'fake', 'user', 'пользователь', 'sample', 'null', 'undefined', 'noname', 'без имени'];
       for (const kw of fakeKeywords) {
         if (firstName === kw || lastName === kw || fullName.includes(kw)) return false;
       }
       return true;
     }
 
-    // --- CANVAS АНИМАЦИИ ---
-    let headerAnimReq = null;
+    // --- ANIMATION & CANVAS ---
+    let headerAnimId = null;
     function initHeaderPadelAnimation() {
-      try {
-        const cvs = document.getElementById('header-padel-canvas');
-        if (!cvs) return;
-        const ctx = cvs.getContext('2d');
-        if (!ctx) return;
+      const cvs = document.getElementById('header-padel-canvas');
+      if (!cvs) return;
+      const ctx = cvs.getContext('2d');
 
-        const dpr = window.devicePixelRatio || 1;
-        const size = 40;
-        cvs.width = size * dpr; cvs.height = size * dpr;
-        ctx.scale(dpr, dpr);
+      const dpr = window.devicePixelRatio || 1;
+      const size = 64;
+      cvs.width = size * dpr; cvs.height = size * dpr;
+      ctx.scale(dpr, dpr);
 
-        let ball = { x: 20, y: 8, vx: 0.2, vy: 0, r: 3 };
-        let racket = { x: 20, y: 30 };
+      let ball = { x: 32, y: 12, vx: 0.2, vy: 0, r: 4.5, squashX: 1, squashY: 1 };
+      let racket = { x: 32, y: 46, targetY: 46, angle: 0, targetAngle: 0, hitFlash: 0 };
+      let particles = [];
 
-        function animate() {
-          ctx.clearRect(0, 0, size, size);
-          ball.vy += 0.18; ball.x += ball.vx; ball.y += ball.vy;
+      function animate() {
+        ctx.clearRect(0, 0, size, size);
+        ball.vy += 0.18; ball.x += ball.vx; ball.y += ball.vy;
 
-          if (ball.x < 6) { ball.x = 6; ball.vx = Math.abs(ball.vx); }
-          if (ball.x > 34) { ball.x = 34; ball.vx = -Math.abs(ball.vx); }
+        if (ball.x < 11) { ball.x = 11; ball.vx = Math.abs(ball.vx); }
+        if (ball.x > 53) { ball.x = 53; ball.vx = -Math.abs(ball.vx); }
 
-          const hitZoneY = racket.y - 8;
-          if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 6 && Math.abs(ball.x - racket.x) < 12) {
-            ball.y = hitZoneY - ball.r;
-            ball.vy = -(3.2 + Math.random() * 0.4);
-            ball.vx = (ball.x - racket.x) * 0.08 + (Math.random() - 0.5) * 0.4;
+        racket.y += (racket.targetY - racket.y) * 0.2;
+        racket.targetY += (46 - racket.targetY) * 0.15;
+        racket.angle += (racket.targetAngle - racket.angle) * 0.2;
+        racket.targetAngle += (0 - racket.targetAngle) * 0.15;
+        if (racket.hitFlash > 0) racket.hitFlash -= 0.08;
+
+        const hitZoneY = racket.y - 12;
+        if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 8 && Math.abs(ball.x - racket.x) < 18) {
+          ball.y = hitZoneY - ball.r;
+          ball.vy = -(3.6 + Math.random() * 0.6);
+          ball.vx = (ball.x - racket.x) * 0.08 + (Math.random() - 0.5) * 0.5;
+          ball.squashX = 1.35; ball.squashY = 0.65;
+          racket.targetY = 51; racket.targetAngle = ball.vx * 0.12; racket.hitFlash = 1.0;
+
+          for (let i = 0; i < 5; i++) {
+            particles.push({
+              x: ball.x, y: ball.y,
+              vx: (Math.random() - 0.5) * 2, vy: -Math.random() * 1.5,
+              life: 1.0, color: Math.random() > 0.5 ? '#10b981' : '#ccff00'
+            });
           }
-
-          if (ball.y > size + 10) {
-            ball.x = 20; ball.y = 8; ball.vx = (Math.random() - 0.5) * 0.4; ball.vy = 0;
-          }
-
-          ctx.save();
-          ctx.translate(racket.x, racket.y);
-          ctx.beginPath(); ctx.rect(-2, 5, 4, 8);
-          ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1; ctx.stroke();
-          ctx.beginPath(); ctx.arc(0, -4, 9, 0, Math.PI * 2);
-          ctx.fillStyle = '#0f172a'; ctx.fill(); ctx.strokeStyle = '#10b981'; ctx.lineWidth = 1.2; ctx.stroke();
-          ctx.restore();
-
-          ctx.save();
-          ctx.translate(ball.x, ball.y);
-          ctx.beginPath(); ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
-          ctx.fillStyle = '#ccff00'; ctx.fill();
-          ctx.restore();
-
-          headerAnimReq = requestAnimationFrame(animate);
         }
-        headerAnimReq = requestAnimationFrame(animate);
-      } catch(e) {}
+
+        ball.squashX += (1 - ball.squashX) * 0.15;
+        ball.squashY += (1 - ball.squashY) * 0.15;
+
+        if (ball.y > size + 10) {
+          ball.x = 32; ball.y = 10; ball.vx = (Math.random() - 0.5) * 0.4; ball.vy = 0;
+        }
+
+        ctx.save();
+        ctx.translate(racket.x, racket.y);
+        ctx.rotate(racket.angle);
+
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(-2.5, 8, 5, 13, 2);
+        else ctx.rect(-2.5, 8, 5, 13);
+        ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1; ctx.stroke();
+
+        ctx.beginPath();
+        ctx.ellipse(0, -6, 14, 16, 0, 0, Math.PI * 2);
+        const rGrad = ctx.createLinearGradient(-14, -22, 14, 10);
+        rGrad.addColorStop(0, '#1e293b'); rGrad.addColorStop(0.5, '#0f172a'); rGrad.addColorStop(1, '#042f2e');
+        ctx.fillStyle = rGrad; ctx.shadowColor = racket.hitFlash > 0 ? '#10b981' : 'rgba(16, 185, 129, 0.4)';
+        ctx.shadowBlur = 8 + racket.hitFlash * 10; ctx.fill();
+        ctx.strokeStyle = racket.hitFlash > 0 ? '#6ee7b7' : '#10b981'; ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.shadowBlur = 0; ctx.fillStyle = '#030712';
+        [[-6, -14], [0, -14], [6, -14], [-8, -8], [-2, -8], [4, -8], [8, -8], [-8, -2], [-2, -2], [4, -2], [8, -2], [-6, 4], [0, 4], [6, 4]].forEach(([hx, hy]) => {
+          ctx.beginPath(); ctx.arc(hx, hy, 1.2, 0, Math.PI * 2); ctx.fill();
+        });
+        ctx.restore();
+
+        particles.forEach((p, idx) => {
+          p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+          if (p.life <= 0) { particles.splice(idx, 1); return; }
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.life * 2, 0, Math.PI * 2);
+          ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fill(); ctx.globalAlpha = 1.0;
+        });
+
+        ctx.save();
+        ctx.translate(ball.x, ball.y);
+        ctx.scale(ball.squashX, ball.squashY);
+        ctx.beginPath(); ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#ccff00'; ctx.shadowColor = '#ccff00'; ctx.shadowBlur = 8; ctx.fill();
+        ctx.beginPath(); ctx.arc(-1.2, 0, ball.r * 0.75, -Math.PI * 0.4, Math.PI * 0.4);
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.9; ctx.shadowBlur = 0; ctx.stroke();
+        ctx.restore();
+
+        headerAnimId = requestAnimationFrame(animate);
+      }
+      if(headerAnimId) cancelAnimationFrame(headerAnimId);
+      headerAnimId = requestAnimationFrame(animate);
     }
 
     const canvas = document.getElementById('ball-canvas');
-    const bgCtx = canvas ? canvas.getContext('2d') : null;
+    const ctx = canvas.getContext('2d');
     let width, height;
 
     function resizeCanvas() {
-      if (!canvas) return;
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     }
@@ -639,57 +678,49 @@
     resizeCanvas();
 
     const balls = [];
+    const ballCount = 16;
+
     class FallingBall {
       constructor() { this.reset(true); }
       reset(initial = false) {
-        this.x = Math.random() * (width || 360);
-        this.y = initial ? Math.random() * (height || 600) : -30;
-        this.radius = Math.random() * 4 + 4;
-        this.speedY = Math.random() * 0.8 + 0.4;
-        this.opacity = Math.random() * 0.2 + 0.1;
+        this.x = Math.random() * width;
+        this.y = initial ? Math.random() * height : -30;
+        this.radius = Math.random() * 7 + 7;
+        this.speedY = Math.random() * 0.9 + 0.4;
+        this.speedX = (Math.random() - 0.5) * 0.4;
+        this.opacity = Math.random() * 0.35 + 0.15;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.spin = (Math.random() - 0.5) * 0.02;
       }
       update() {
-        this.y += this.speedY;
-        if (this.y - this.radius > (height || 600)) this.reset(false);
+        this.y += this.speedY; this.x += this.speedX; this.rotation += this.spin;
+        if (this.y - this.radius > height) this.reset(false);
       }
       draw() {
-        if (!bgCtx) return;
-        bgCtx.save(); bgCtx.globalAlpha = this.opacity; bgCtx.translate(this.x, this.y);
-        bgCtx.beginPath(); bgCtx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        bgCtx.fillStyle = '#ccff00'; bgCtx.fill();
-        bgCtx.restore();
+        ctx.save(); ctx.globalAlpha = this.opacity; ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
+        ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#ccff00'; ctx.shadowColor = '#ccff00'; ctx.shadowBlur = 10; ctx.fill();
+        ctx.beginPath(); ctx.arc(-this.radius * 0.5, 0, this.radius * 0.7, -Math.PI * 0.45, Math.PI * 0.45);
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, this.radius * 0.16); ctx.stroke();
+        ctx.beginPath(); ctx.arc(this.radius * 0.5, 0, this.radius * 0.7, Math.PI * 0.55, Math.PI * 1.45); ctx.stroke();
+        ctx.restore();
       }
     }
-    let bgAnimReq = null;
-    if (bgCtx) {
-      for (let i = 0; i < 10; i++) balls.push(new FallingBall());
-      function animateBalls() {
-        bgCtx.clearRect(0, 0, width, height);
-        balls.forEach(ball => { ball.update(); ball.draw(); });
-        bgAnimReq = requestAnimationFrame(animateBalls);
-      }
-      animateBalls();
+    for (let i = 0; i < ballCount; i++) balls.push(new FallingBall());
+    function animateBalls() {
+      ctx.clearRect(0, 0, width, height);
+      balls.forEach(ball => { ball.update(); ball.draw(); });
+      requestAnimationFrame(animateBalls);
     }
+    animateBalls();
 
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        if (headerAnimReq) cancelAnimationFrame(headerAnimReq);
-        if (bgAnimReq) cancelAnimationFrame(bgAnimReq);
-        if (gameLoopReq) cancelAnimationFrame(gameLoopReq);
-      } else {
-        initHeaderPadelAnimation();
-        if (bgCtx) animateBalls();
-        if (isGameRunning) runMotionGameLoop(performance.now());
-      }
-    });
-
-    // --- МИНИ-ИГРА MOTION PADEL ---
+    // --- МИНИ-ИГРА Motion Padel Simulator ---
     let gameLoopReq = null, isGameRunning = false, currentGameScore = 0, gameControlMode = 'touch';
-    let userHighScore = parseInt(safeStorage.getItem('padel_motion_high_score') || '0', 10);
+    let userHighScore = parseInt(localStorage.getItem('padel_motion_high_score') || '0', 10);
     let gCanvas, gCtx, gWidth = 360, gHeight = 520;
     let gRacket = { x: 180, y: 440, w: 76, h: 22, vx: 0, targetX: 180, tiltAngle: 0 };
-    let gBall = { x: 180, y: 100, vx: 2, vy: 3, r: 8 };
-    let lastGameLoopTime = 0;
+    let gBall = { x: 180, y: 100, vx: 2, vy: 3, r: 8, spin: 0, rotation: 0, squashX: 1, squashY: 1 };
+    let gParticles = [];
 
     function openPadelGameModal() {
       document.getElementById('modal-padel-game').classList.remove('hidden');
@@ -698,7 +729,6 @@
       document.getElementById('game-over-overlay').classList.add('hidden');
 
       gCanvas = document.getElementById('padel-motion-canvas');
-      if (!gCanvas) return;
       gCtx = gCanvas.getContext('2d');
       const rect = gCanvas.parentElement.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
@@ -709,8 +739,7 @@
       const handlePointerMove = (clientX) => {
         if (!isGameRunning || gameControlMode !== 'touch') return;
         const cRect = gCanvas.getBoundingClientRect();
-        const scaleX = gWidth / (cRect.width || 1);
-        gRacket.targetX = (clientX - cRect.left) * scaleX;
+        gRacket.targetX = clientX - cRect.left;
       };
       gCanvas.onmousemove = (e) => handlePointerMove(e.clientX);
       gCanvas.ontouchmove = (e) => { if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX); };
@@ -719,7 +748,7 @@
 
     function closePadelGameModal() {
       isGameRunning = false;
-      if (gameLoopReq) cancelAnimationFrame(gameLoopReq);
+      if (gameLoopReq) { cancelAnimationFrame(gameLoopReq); gameLoopReq = null; }
       window.removeEventListener('deviceorientation', handleGyroscopeMotion);
       document.getElementById('modal-padel-game').classList.add('hidden');
     }
@@ -730,19 +759,11 @@
       const subLabel = document.getElementById('game-control-sublabel');
       if (subLabel) subLabel.innerText = mode === 'gyro' ? '📱 Управление: Наклон телефона' : '👆 Управление: Касание пальцем';
 
-      window.removeEventListener('deviceorientation', handleGyroscopeMotion);
-
       if (mode === 'gyro') {
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
           DeviceOrientationEvent.requestPermission().then(permissionState => {
-            if (permissionState === 'granted') {
-              window.addEventListener('deviceorientation', handleGyroscopeMotion);
-            }
-            restartPadelGame();
-          }).catch(err => {
-            restartPadelGame();
-          });
-          return;
+            if (permissionState === 'granted') window.addEventListener('deviceorientation', handleGyroscopeMotion);
+          }).catch(console.error);
         } else {
           window.addEventListener('deviceorientation', handleGyroscopeMotion);
         }
@@ -756,6 +777,7 @@
       if (gamma > 35) gamma = 35; if (gamma < -35) gamma = -35;
       const norm = (gamma + 35) / 70;
       gRacket.targetX = norm * gWidth;
+      gRacket.tiltAngle = (gamma / 35) * 0.35;
     }
 
     function restartPadelGame() {
@@ -763,35 +785,28 @@
       document.getElementById('game-current-score').innerText = 0;
       document.getElementById('game-over-overlay').classList.add('hidden');
       gRacket.x = gWidth / 2; gRacket.targetX = gWidth / 2; gRacket.y = gHeight - 70;
-      gBall.x = gWidth / 2; gBall.y = 80; gBall.vx = (Math.random() - 0.5) * 4; gBall.vy = 3.5;
+      gBall.x = gWidth / 2; gBall.y = 80; gBall.vx = (Math.random() - 0.5) * 4; gBall.vy = 3.5; gBall.spin = 0;
       isGameRunning = true;
-      lastGameLoopTime = performance.now();
       if (gameLoopReq) cancelAnimationFrame(gameLoopReq);
-      runMotionGameLoop(performance.now());
+      runMotionGameLoop();
     }
 
-    function runMotionGameLoop(timestamp) {
-      if (!isGameRunning || !gCtx) return;
-      if (!timestamp) timestamp = performance.now();
-
-      const dt = Math.min((timestamp - lastGameLoopTime) / 1000, 0.1) || 0.016;
-      lastGameLoopTime = timestamp;
-      const speedScale = dt * 60;
-
+    function runMotionGameLoop() {
+      if (!isGameRunning) return;
       const prevX = gRacket.x;
-      gRacket.x += (gRacket.targetX - gRacket.x) * (1 - Math.pow(1 - 0.3, speedScale));
+      gRacket.x += (gRacket.targetX - gRacket.x) * 0.3;
       gRacket.vx = gRacket.x - prevX;
       const halfW = gRacket.w / 2;
       if (gRacket.x < halfW) gRacket.x = halfW;
       if (gRacket.x > gWidth - halfW) gRacket.x = gWidth - halfW;
+      if (gameControlMode === 'touch') gRacket.tiltAngle = (gRacket.vx / 15) * 0.3;
 
-      gBall.vy += 0.22 * speedScale; 
-      gBall.x += gBall.vx * speedScale; 
-      gBall.y += gBall.vy * speedScale;
+      gBall.vy += 0.22; gBall.vx += gBall.spin * 0.04; gBall.x += gBall.vx; gBall.y += gBall.vy;
+      gBall.rotation += gBall.spin * 0.1; gBall.vx *= 0.992;
 
-      if (gBall.x - gBall.r <= 0) { gBall.x = gBall.r; gBall.vx = Math.abs(gBall.vx); soundBounce(); }
-      if (gBall.x + gBall.r >= gWidth) { gBall.x = gWidth - gBall.r; gBall.vx = -Math.abs(gBall.vx); soundBounce(); }
-      if (gBall.y - gBall.r <= 0) { gBall.y = gBall.r; gBall.vy = Math.abs(gBall.vy); soundBounce(); }
+      if (gBall.x - gBall.r <= 0) { gBall.x = gBall.r; gBall.vx = Math.abs(gBall.vx) * 0.9; gBall.spin = -gBall.spin; }
+      if (gBall.x + gBall.r >= gWidth) { gBall.x = gWidth - gBall.r; gBall.vx = -Math.abs(gBall.vx) * 0.9; gBall.spin = -gBall.spin; }
+      if (gBall.y - gBall.r <= 0) { gBall.y = gBall.r; gBall.vy = Math.abs(gBall.vy); }
 
       const racketTop = gRacket.y - 10;
       if (gBall.vy > 0 && gBall.y + gBall.r >= racketTop && gBall.y - gBall.r <= racketTop + 14 && Math.abs(gBall.x - gRacket.x) <= halfW + 6) {
@@ -800,36 +815,71 @@
         if (gBall.vy < -11.5) gBall.vy = -11.5;
         const offset = (gBall.x - gRacket.x) / halfW;
         gBall.vx = offset * 4.5 + gRacket.vx * 0.4;
-        soundHit();
+        gBall.spin = gRacket.vx * 0.5;
+        gBall.squashX = 1.3; gBall.squashY = 0.7;
+        if (navigator.vibrate) navigator.vibrate(20);
 
+        for (let i = 0; i < 8; i++) {
+          gParticles.push({
+            x: gBall.x, y: gBall.y,
+            vx: (Math.random() - 0.5) * 4, vy: -Math.random() * 3,
+            life: 1.0, color: Math.random() > 0.4 ? '#ccff00' : '#10b981'
+          });
+        }
         currentGameScore++;
         document.getElementById('game-current-score').innerText = currentGameScore;
         if (currentGameScore > userHighScore) {
           userHighScore = currentGameScore;
-          safeStorage.setItem('padel_motion_high_score', userHighScore);
+          localStorage.setItem('padel_motion_high_score', userHighScore);
           document.getElementById('game-high-score').innerText = userHighScore;
           saveUserGameScoreToProfile(userHighScore);
         }
       }
+
+      gBall.squashX += (1 - gBall.squashX) * 0.12;
+      gBall.squashY += (1 - gBall.squashY) * 0.12;
 
       if (gBall.y - gBall.r > gHeight) { triggerPadelGameOver(); return; }
 
       gCtx.clearRect(0, 0, gWidth, gHeight);
       gCtx.strokeStyle = 'rgba(255,255,255,0.06)'; gCtx.lineWidth = 2;
       gCtx.strokeRect(10, 10, gWidth - 20, gHeight - 20);
+      gCtx.beginPath(); gCtx.moveTo(10, gHeight / 2); gCtx.lineTo(gWidth - 10, gHeight / 2); gCtx.stroke();
+
+      gParticles.forEach((p, idx) => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.04;
+        if (p.life <= 0) { gParticles.splice(idx, 1); return; }
+        gCtx.beginPath(); gCtx.arc(p.x, p.y, p.life * 3, 0, Math.PI * 2);
+        gCtx.fillStyle = p.color; gCtx.globalAlpha = p.life; gCtx.fill(); gCtx.globalAlpha = 1.0;
+      });
 
       gCtx.save();
       gCtx.translate(gRacket.x, gRacket.y);
+      gCtx.rotate(gRacket.tiltAngle || 0);
       gCtx.fillStyle = '#1e293b'; gCtx.fillRect(-4, 6, 8, 16);
-      gCtx.beginPath(); gCtx.arc(0, -8, halfW, 0, Math.PI * 2);
-      gCtx.fillStyle = '#0f172a'; gCtx.fill();
+      gCtx.strokeStyle = '#10b981'; gCtx.strokeRect(-4, 6, 8, 16);
+
+      gCtx.beginPath();
+      gCtx.ellipse(0, -8, halfW, 14, 0, 0, Math.PI * 2);
+      const rGrad = gCtx.createLinearGradient(-halfW, -20, halfW, 10);
+      rGrad.addColorStop(0, '#1e293b'); rGrad.addColorStop(0.5, '#0f172a'); rGrad.addColorStop(1, '#042f2e');
+      gCtx.fillStyle = rGrad; gCtx.shadowColor = '#10b981'; gCtx.shadowBlur = 12; gCtx.fill();
       gCtx.strokeStyle = '#34d399'; gCtx.lineWidth = 2; gCtx.stroke();
+
+      gCtx.shadowBlur = 0; gCtx.fillStyle = '#030712';
+      for (let hx = -halfW + 10; hx <= halfW - 10; hx += 12) {
+        gCtx.beginPath(); gCtx.arc(hx, -8, 1.8, 0, Math.PI * 2); gCtx.fill();
+      }
       gCtx.restore();
 
       gCtx.save();
       gCtx.translate(gBall.x, gBall.y);
+      gCtx.scale(gBall.squashX, gBall.squashY);
+      gCtx.rotate(gBall.rotation);
       gCtx.beginPath(); gCtx.arc(0, 0, gBall.r, 0, Math.PI * 2);
-      gCtx.fillStyle = '#ccff00'; gCtx.fill();
+      gCtx.fillStyle = '#ccff00'; gCtx.shadowColor = '#ccff00'; gCtx.shadowBlur = 12; gCtx.fill();
+      gCtx.beginPath(); gCtx.arc(-2, 0, gBall.r * 0.7, -Math.PI * 0.4, Math.PI * 0.4);
+      gCtx.strokeStyle = '#ffffff'; gCtx.lineWidth = 1; gCtx.shadowBlur = 0; gCtx.stroke();
       gCtx.restore();
 
       gameLoopReq = requestAnimationFrame(runMotionGameLoop);
@@ -837,7 +887,6 @@
 
     async function triggerPadelGameOver() {
       isGameRunning = false;
-      soundGameOver();
       document.getElementById('go-score').innerText = currentGameScore;
       document.getElementById('game-over-overlay').classList.remove('hidden');
       renderGameLeaderboard();
@@ -847,7 +896,7 @@
       if (!tgUser.id) return;
       await ensureProfileInDatabase(currentUserProfile || tgUser);
       if (supabaseClient) {
-        try { await supabaseClient.from('profiles').update({ game_high_score: score, updated_at: new Date().toISOString() }).eq('id', tgUser.id); } catch(e){}
+        await supabaseClient.from('profiles').update({ game_high_score: score, updated_at: new Date().toISOString() }).eq('id', tgUser.id);
       }
     }
 
@@ -855,11 +904,11 @@
       const listContainer = document.getElementById('game-leaderboard-list');
       if (!listContainer) return;
 
-      let sorted = platformProfilesList.map(p => {
+      let sorted = [...platformProfilesList];
+      sorted.forEach(p => {
         if (String(p.id) === String(tgUser.id) && userHighScore > (p.game_high_score || 0)) {
-          return { ...p, game_high_score: userHighScore };
+          p.game_high_score = userHighScore;
         }
-        return p;
       });
       sorted.sort((a, b) => (b.game_high_score || 0) - (a.game_high_score || 0));
 
@@ -867,7 +916,7 @@
         const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `${idx + 1}.`));
         return `
           <div class="flex justify-between items-center py-1">
-            <span class="font-bold text-white truncate max-w-[180px]">${medal} ${escapeHTML(item.first_name)} ${escapeHTML(item.last_name || '')}</span>
+            <span class="font-bold text-white truncate max-w-[180px]">${medal} ${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}</span>
             <span class="font-black text-amber-300 font-mono">${item.game_high_score || 0} PTS</span>
           </div>
         `;
@@ -875,7 +924,7 @@
       listContainer.innerHTML = html || `<p class="text-[10px] text-slate-400 italic">Таблица пуста</p>`;
     }
 
-    // --- ЛИГИ И РЕЙТИНГИ ---
+    // --- ЛИГИ И ДИВИЗИОНЫ ---
     function getPlayerLeague(lp = 1000) {
       if (lp >= 2100) return { title: 'Master', badge: '👑', color: 'text-amber-300 border-amber-400/50 bg-amber-500/20' };
       if (lp >= 1800) return { title: 'Platinum', badge: '💎', color: 'text-cyan-300 border-cyan-400/50 bg-cyan-500/20' };
@@ -886,7 +935,9 @@
 
     function calculateAge(birthDateStr) {
       if (!birthDateStr) return null;
-      const today = new Date(); const birthDate = new Date(birthDateStr);
+      const birthDate = new Date(birthDateStr);
+      if (isNaN(birthDate.getTime())) return null;
+      const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
       const m = today.getMonth() - birthDate.getMonth();
       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
@@ -924,7 +975,7 @@
         americanoFormat: "Американо", occupied: "Занят", free: "Свободно", chatTitle: "💬 Чат участников слота",
         chatPlaceholder: "Напишите сообщение...", sendBtn: "Отправить", creatorTag: "👑 Организатор",
         quickImportBtn: "⚡ Импортировать из Слота", guestOption: "➕ Ввести вручную (Гость)",
-        getProBtn: "💎 Оформить PRO (150 MDL/мес)", proPendingStatus: "⏳ Заявка на PRO отправлена.",
+        getProBtn: "💎 Оформить PRO (150 MDL/мес)", proPendingStatus: "⏳ Заявка на PRO отправлена. Ожидается проверка оплаты.",
         proApprovedStatus: "👑 Премиум PRO активен", pendingRequestsTitle: "⏳ Заявки на подтверждение PRO оплаты",
         approveProBtn: "✅ Подтвердить PRO", rejectProBtn: "❌ Отклонить", settingsBtn: "Настройки",
         ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы", tourneyHistoryTitle: "📜 История турниров (за 7 дней)",
@@ -1026,25 +1077,26 @@
       }
     };
 
-    let currentLang = safeStorage.getItem('padel_lang') || 'ru';
+    let currentLang = localStorage.getItem('padel_lang') || 'ru';
+    let currentLeaderboardTab = 'national'; 
     let isProfileEditOpen = false; 
 
     function t(key) { return TRANSLATIONS[currentLang][key] || key; }
 
     function setLanguage(lang) {
       currentLang = lang; 
-      safeStorage.setItem('padel_lang', lang);
+      localStorage.setItem('padel_lang', lang);
 
       ['ru', 'ro', 'en'].forEach(l => {
         const btn = document.getElementById(`lang-${l}`);
-        if (btn) btn.className = l === lang ? "px-1.5 py-0.5 rounded-lg text-emerald-400 bg-white/10 font-bold" : "px-1.5 py-0.5 rounded-lg text-slate-400 hover:text-white";
+        if (btn) btn.className = l === lang ? "px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10 font-bold" : "px-2 py-0.5 rounded-lg text-slate-400 hover:text-white";
       });
 
-      const bEl = document.getElementById('txt-tab-booking'); if (bEl) bEl.innerText = t('tabBooking');
-      const aEl = document.getElementById('txt-tab-americano'); if (aEl) aEl.innerText = t('tabAmericano');
-      const pEl = document.getElementById('txt-tab-profile'); if (pEl) pEl.innerText = t('tabProfile');
-      const sEl = document.getElementById('txt-btn-support'); if (sEl) sEl.innerText = t('btnSupport');
-      const cEl = document.getElementById('txt-btn-creator'); if (cEl) cEl.innerText = t('btnCreator');
+      document.getElementById('txt-tab-booking').innerText = t('tabBooking');
+      document.getElementById('txt-tab-americano').innerText = t('tabAmericano');
+      document.getElementById('txt-tab-profile').innerText = t('tabProfile');
+      document.getElementById('txt-btn-support').innerText = t('btnSupport');
+      document.getElementById('txt-btn-creator').innerText = t('btnCreator');
 
       switchTab(activeTab);
     }
@@ -1079,35 +1131,65 @@
           <div class="glass-subcard p-3 rounded-2xl border border-white/10 space-y-2">
             <h4 class="font-bold text-amber-300 uppercase text-[11px]">✨ Ваши активированные привилегии:</h4>
             <ul class="space-y-1.5 text-slate-200 text-[11px]">
-              <li class="flex items-center gap-1.5"><span>🛡️</span> <span>Защитные карты: <strong class="text-emerald-400">${currentUserProfile.shield_cards || 2} шт.</strong></span></li>
-              <li class="flex items-center gap-1.5"><span>⚡</span> <span>Приоритетный доступ (Early Access)</span></li>
-              <li class="flex items-center gap-1.5"><span>👑</span> <span>Золотая неоновая рамка и знак PRO</span></li>
+              <li class="flex items-center gap-1.5">
+                <span>🛡️</span> <span>Защитные карты (Shield Cards): <strong class="text-emerald-400">${currentUserProfile.shield_cards || 2} шт.</strong></span>
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span>⚡</span> <span>Приоритетный доступ (Early Access к новым слотам)</span>
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span>👑</span> <span>Золотая неоновая рамка и знак PRO в рейтинге</span>
+              </li>
+              <li class="flex items-center gap-1.5">
+                <span>♾️</span> <span>Безлимитное создание турниров и слотов</span>
+              </li>
             </ul>
           </div>
 
-          <button type="button" onclick="closeProDetailsModal(); openPayProModal();" class="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d shadow-lg shadow-amber-500/30">
+          <button type="button" onclick="closeProDetailsModal(); openPayProModal();" class="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
             ➕ Продлить PRO ещё на 30 дней
           </button>
         </div>
       `;
+
       modal.classList.remove('hidden');
     }
 
     function closeProDetailsModal() { document.getElementById('modal-pro-details').classList.add('hidden'); }
 
-    const RANDOM_CELEBRATION_TEXTS = ["Tu vopshe esti chempion 🏆", "Aiii Malaceaga! 🔥", "Azi tati kizdele dupa padel is atali 😎", "Tei Cacat, tei Parfumat 🎾✨", "Vamoooooos! 🚀"];
-    const RANDOM_LEAVE_TEXTS = ["Eiii PL BL", "Plaki Plaki", "Ei hai la pl Petrea", "Nah dar ai mai intrat", "Timpu deo Ftut la pensie", "Loooohhh Pidrrrrrr", "Slab di tat"];
+    const RANDOM_CELEBRATION_TEXTS = [
+      "Tu vopshe esti chempion 🏆",
+      "Aiii Malaceaga! 🔥",
+      "Azi tati kizdele dupa padel is atali 😎",
+      "Tei Cacat, tei Parfumat 🎾✨",
+      "Vamoooooos! 🚀"
+    ];
+
+    const RANDOM_LEAVE_TEXTS = [
+      "Eiii PL BL",
+      "Plaki Plaki",
+      "Ei hai la pl Petrea",
+      "Nah dar ai mai intrat",
+      "Timpu deo Ftut la pensie",
+      "Loooohhh Pidrrrrrr",
+      "Slab di tat"
+    ];
 
     function triggerSlotCelebration() {
-      if (window.confetti) window.confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 }, colors: ['#10b981', '#ccff00', '#3b82f6', '#f59e0b'] });
+      if (window.confetti) {
+        window.confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#10b981', '#ccff00', '#3b82f6', '#f59e0b'] });
+      }
+
       const randomMsg = RANDOM_CELEBRATION_TEXTS[Math.floor(Math.random() * RANDOM_CELEBRATION_TEXTS.length)];
       const toast = document.getElementById('celebration-toast');
       const toastText = document.getElementById('celebration-text');
+      
       if (toast && toastText) {
         toastText.innerText = randomMsg;
         toast.classList.remove('hidden', 'toast-pop');
         void toast.offsetWidth;
         toast.classList.add('toast-pop');
+
         setTimeout(() => { toast.classList.add('hidden'); }, 2500);
       }
     }
@@ -1116,22 +1198,25 @@
       const randomMsg = RANDOM_LEAVE_TEXTS[Math.floor(Math.random() * RANDOM_LEAVE_TEXTS.length)];
       const toast = document.getElementById('celebration-toast');
       const toastText = document.getElementById('celebration-text');
+      
       if (toast && toastText) {
         toastText.innerText = randomMsg;
         toast.classList.remove('hidden', 'toast-pop');
         void toast.offsetWidth;
         toast.classList.add('toast-pop');
+
         setTimeout(() => { toast.classList.add('hidden'); }, 2500);
       }
     }
 
-    // --- SUPABASE И TELEGRAM НАСТРОЙКИ ---
+    // --- SUPABASE И ТЕЛЕГРАМ ---
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot';
 
     const CREATOR_TELEGRAM_IDS = ['kizdoi', 'Victor Popovici'];
 
+    // Исправлены математические ротации Американо
     const AMERICANO_ROTATIONS = {
       4: [
         { round: 1, court: 1, a: [0, 1], b: [2, 3] },
@@ -1150,7 +1235,7 @@
         { round: 2, court: 1, a: [0, 4], b: [2, 5] },
         { round: 3, court: 1, a: [1, 4], b: [3, 5] },
         { round: 4, court: 1, a: [0, 2], b: [1, 5] },
-        { round: 5, court: 1, a: [0, 3], b: [4, 5] }
+        { round: 5, court: 1, a: [0, 3], b: [4, 2] }
       ],
       7: [
         { round: 1, court: 1, a: [0, 1], b: [2, 3] },
@@ -1163,7 +1248,7 @@
         { round: 3, court: 1, a: [0, 3], b: [5, 7] }, { round: 3, court: 2, a: [1, 4], b: [2, 6] },
         { round: 4, court: 1, a: [0, 4], b: [3, 6] }, { round: 4, court: 2, a: [1, 7], b: [2, 5] },
         { round: 5, court: 1, a: [0, 5], b: [2, 7] }, { round: 5, court: 2, a: [1, 6], b: [3, 4] },
-        { round: 6, court: 1, a: [0, 6], b: [2, 5] }, { round: 6, court: 2, a: [1, 3], b: [4, 7] },
+        { round: 6, court: 1, a: [0, 6], b: [1, 3] }, { round: 6, court: 2, a: [2, 4], b: [5, 7] },
         { round: 7, court: 1, a: [0, 7], b: [1, 2] }, { round: 7, court: 2, a: [3, 5], b: [4, 6] }
       ]
     };
@@ -1174,8 +1259,14 @@
     let platformProfilesList = [];
     let currentAmericanoPlayerCount = 4;
 
+    function showError(msg) {
+      if (!msg || msg === 'Script error.') return;
+      const box = document.getElementById('error-box');
+      box.classList.remove('hidden'); box.innerHTML = `<strong>Инфо:</strong> ${sanitizeHTML(msg)}`;
+    }
+
     function isUserCreator() {
-      return tgUser.username === 'kizdoi' || CREATOR_TELEGRAM_IDS.includes(tgUser.username) || CREATOR_TELEGRAM_IDS.includes(tgUser.first_name);
+      return String(tgUser.id) === '777777' || tgUser.username === 'kizdoi' || CREATOR_TELEGRAM_IDS.includes(tgUser.username) || CREATOR_TELEGRAM_IDS.includes(tgUser.first_name);
     }
     
     function getStartParam() {
@@ -1187,32 +1278,39 @@
     let supabaseClient = null;
     try {
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } catch (e) {}
-
-    async function safeSupabaseQuery(fn) {
-      if (!supabaseClient) return null;
-      try {
-        const res = await Promise.race([
-          fn(),
-          new Promise(resolve => setTimeout(() => resolve({ data: null, error: 'timeout' }), 4000))
-        ]);
-        return res && res.data ? res.data : null;
-      } catch(e) { return null; }
-    }
+    } catch (e) { showError('Ошибка базы: ' + e.message); }
 
     async function ensureProfileInDatabase(userObj) {
       if (!supabaseClient || !userObj || !userObj.id) return false;
+      const uid = userObj.id;
+      const uidStr = String(uid);
+      const uidNum = typeof uid === 'number' ? uid : parseInt(uid, 10);
+
+      try {
+        const { data: existing } = await supabaseClient
+          .from('profiles')
+          .select('id')
+          .or(`id.eq.${uidStr}${!isNaN(uidNum) ? `,id.eq.${uidNum}` : ''}`)
+          .maybeSingle();
+
+        if (existing) return true;
+      } catch (e) {}
+
       const fullPayload = {
-        id: String(userObj.id),
+        id: uid,
         first_name: userObj.first_name || 'Игрок',
         last_name: userObj.last_name || null,
         username: userObj.username || null,
         skill_level: userObj.skill_level || 2.5,
         league_points: userObj.league_points || 1000,
+        rating_americano: userObj.rating_americano || 1000,
+        rating_friendly: userObj.rating_friendly || 1000,
+        rating_competitive: userObj.rating_competitive || 1000,
         preferred_side: userObj.preferred_side || 'both',
         is_premium: userObj.is_premium || false,
         payment_pending: userObj.payment_pending || false,
         shield_cards: userObj.shield_cards || 1,
+        is_public_profile: true,
         total_matches_played: userObj.total_matches_played || 0,
         wins: userObj.wins || 0,
         losses: userObj.losses || 0,
@@ -1222,26 +1320,48 @@
       };
 
       try {
-        await safeSupabaseQuery(() => supabaseClient.from('profiles').upsert([fullPayload], { onConflict: 'id' }));
-        return true;
-      } catch(e) { return false; }
+        let { error } = await supabaseClient.from('profiles').upsert([fullPayload], { onConflict: 'id' });
+        if (!error) return true;
+
+        const minimalPayload = {
+          id: uid,
+          first_name: userObj.first_name || 'Игрок',
+          last_name: userObj.last_name || null,
+          username: userObj.username || null
+        };
+        let { error: minErr } = await supabaseClient.from('profiles').upsert([minimalPayload], { onConflict: 'id' });
+        if (!minErr) return true;
+
+        minimalPayload.id = uidStr;
+        let { error: strErr } = await supabaseClient.from('profiles').upsert([minimalPayload], { onConflict: 'id' });
+        if (!strErr) return true;
+      } catch(e) {
+        console.error('ensureProfileInDatabase err:', e);
+      }
+      return false;
     }
 
     async function safeUpsertProfile(userId, profileObj) {
       if (!supabaseClient) return;
       try {
-        await safeSupabaseQuery(() => supabaseClient.from('profiles').upsert([{ id: String(userId), ...profileObj }], { onConflict: 'id' }));
+        let { error } = await supabaseClient.from('profiles').upsert([profileObj], { onConflict: 'id' });
+        if (error && error.message && error.message.includes('column')) {
+          const safeObj = { ...profileObj };
+          delete safeObj.is_premium; delete safeObj.payment_pending; delete safeObj.premium_until;
+          delete safeObj.league_points; delete safeObj.shield_cards; delete safeObj.game_high_score;
+          await supabaseClient.from('profiles').upsert([safeObj], { onConflict: 'id' });
+        }
       } catch(e) {}
     }
 
     function cleanAndGetAmericanoHistory() {
-      const historyRaw = safeStorage.getItem('padel_americano_history_v2');
+      const historyRaw = localStorage.getItem('padel_americano_history_v2');
       if (!historyRaw) return [];
       try {
         const history = JSON.parse(historyRaw);
         const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
         const freshHistory = history.filter(item => new Date(item.timestamp).getTime() > oneWeekAgo);
-        safeStorage.setItem('padel_americano_history_v2', JSON.stringify(freshHistory));
+        localStorage.setItem('padel_americano_history_v2', JSON.stringify(freshHistory));
         return freshHistory;
       } catch(e) { return []; }
     }
@@ -1249,7 +1369,7 @@
     function saveAmericanoToHistory(tournamentData) {
       const history = cleanAndGetAmericanoHistory();
       history.unshift({ id: 'am_' + Date.now(), creatorId: tgUser.id, timestamp: new Date().toISOString(), ...tournamentData });
-      safeStorage.setItem('padel_americano_history_v2', JSON.stringify(history));
+      localStorage.setItem('padel_americano_history_v2', JSON.stringify(history));
     }
 
     function openHistoryTourneyModal(tourneyId) {
@@ -1274,7 +1394,7 @@
             <div class="flex items-center justify-between p-2 rounded-xl border ${style} text-xs">
               <div class="flex items-center gap-2">
                 <span class="font-black text-amber-400">${badge}</span>
-                <span class="font-bold text-white">${escapeHTML(item.name)}</span>
+                <span class="font-bold text-white">${sanitizeHTML(item.name)}</span>
               </div>
               <span class="font-black text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full text-[11px]">${item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0)} PTS</span>
             </div>
@@ -1285,15 +1405,15 @@
       let roundsHtml = '';
       if (tourney.rounds && tourney.rounds.length > 0) {
         roundsHtml = tourney.rounds.map(r => {
-          const pA1 = escapeHTML(tourney.players[r.team_a[0]]?.name || '—');
-          const pA2 = escapeHTML(tourney.players[r.team_a[1]]?.name || '—');
-          const pB1 = escapeHTML(tourney.players[r.team_b[0]]?.name || '—');
-          const pB2 = escapeHTML(tourney.players[r.team_b[1]]?.name || '—');
+          const pA1 = sanitizeHTML(tourney.players[r.team_a[0]]?.name || '—');
+          const pA2 = sanitizeHTML(tourney.players[r.team_a[1]]?.name || '—');
+          const pB1 = sanitizeHTML(tourney.players[r.team_b[0]]?.name || '—');
+          const pB2 = sanitizeHTML(tourney.players[r.team_b[1]]?.name || '—');
 
           return `
             <div class="p-2.5 glass-subcard border border-white/10 rounded-xl space-y-1 text-xs">
               <div class="flex justify-between items-center text-[10px] text-slate-400 font-semibold">
-                <span>R${r.cycle || 1} • Game #${r.round}</span>
+                <span>${t('matchRoundLabel')} ${r.cycle || 1} • ${t('matchGameLabel')} #${r.round} ${r.court ? `(${t('courtLabel')} #${r.court})` : ''}</span>
                 <span class="text-emerald-400 font-bold">${t('completedStatus')}</span>
               </div>
               <div class="flex items-center justify-between gap-1 text-[11px]">
@@ -1304,15 +1424,26 @@
             </div>
           `;
         }).join('');
+      } else {
+        roundsHtml = `<p class="text-xs text-slate-400 italic text-center py-2">История пуста...</p>`;
       }
 
       content.innerHTML = `
         <div class="space-y-3">
           <div class="glass-subcard p-3 rounded-2xl border border-purple-500/40 text-center space-y-1">
             <span class="text-xs text-purple-300 font-black uppercase">📅 ${dt}</span>
+            <p class="text-[11px] text-slate-300">${t('participantsCount')}: <strong>${tourney.players ? tourney.players.length : 0}</strong></p>
           </div>
-          <div class="space-y-1.5"><div class="space-y-1">${lbHtml}</div></div>
-          <div class="space-y-1.5 pt-1"><div class="space-y-1.5">${roundsHtml}</div></div>
+
+          <div class="space-y-1.5">
+            <h4 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('leaderboardTitle')}</h4>
+            <div class="space-y-1">${lbHtml}</div>
+          </div>
+
+          <div class="space-y-1.5 pt-1">
+            <h4 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('tourneyMatchesTitle')}</h4>
+            <div class="space-y-1.5">${roundsHtml}</div>
+          </div>
         </div>
       `;
       modal.classList.remove('hidden');
@@ -1320,34 +1451,16 @@
 
     function closeTourneyModal() { document.getElementById('modal-view-tourney').classList.add('hidden'); }
 
-    // МГНОВЕННЫЙ ЗАПУСК ПРИЛОЖЕНИЯ
-    function initApp() {
-      try {
-        updateGreetingName();
-        initHeaderPadelAnimation();
+    async function initApp() {
+      document.getElementById('user-greeting').innerText = sanitizeHTML(`${tgUser.first_name} ${tgUser.last_name || ''}`.trim());
+      initHeaderPadelAnimation();
 
-        const savedState = safeStorage.getItem(getAmericanoStorageKey());
-        if (savedState) { try { localAmericanoState = JSON.parse(savedState); } catch(e){} }
+      const savedState = localStorage.getItem(getAmericanoStorageKey());
+      if (savedState) { try { localAmericanoState = JSON.parse(savedState); } catch(e){} }
 
-        // Первичная синхронная отрисовка вкладки
-        setLanguage(currentLang);
-
-        // Фоновая синхронизация данных с сервером
-        syncUserProfile().then(() => {
-          updateGreetingName();
-          const startMatchId = getStartParam();
-          if (startMatchId) {
-            currentSlotSubTab = 'my_slot';
-            renderSlotsSubTabContent();
-            renderMatchDetails(startMatchId);
-          }
-        }).catch(() => {});
-
-        fetchAllPlatformProfiles().catch(() => {});
-
-      } catch(e) {
-        setLanguage(currentLang);
-      }
+      await syncUserProfile();
+      await fetchAllPlatformProfiles();
+      setLanguage(currentLang);
     }
 
     async function fetchAllPlatformProfiles() {
@@ -1358,8 +1471,8 @@
         return;
       }
       try {
-        const data = await safeSupabaseQuery(() => supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false }));
-        if (data) platformProfilesList = data.filter(isValidRealUser);
+        const { data, error } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false });
+        if (!error && data) platformProfilesList = data.filter(isValidRealUser);
       } catch(e) {}
 
       if (currentUserProfile && isValidRealUser(currentUserProfile)) {
@@ -1375,62 +1488,69 @@
       const btnAmericano = document.getElementById('tab-americano');
       const btnProfile = document.getElementById('tab-profile');
 
-      if (btnBooking) btnBooking.className = 'py-1.5 rounded-lg text-slate-400 font-bold text-[10px] uppercase tracking-wider hover:text-white btn-3d truncate';
-      if (btnAmericano) btnAmericano.className = 'py-1.5 rounded-lg text-slate-400 font-bold text-[10px] uppercase tracking-wider hover:text-white btn-3d truncate';
-      if (btnProfile) btnProfile.className = 'py-1.5 rounded-lg text-slate-400 font-bold text-[10px] uppercase tracking-wider hover:text-white btn-3d truncate';
+      btnBooking.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
+      btnAmericano.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
+      btnProfile.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
 
       if (tab === 'booking') {
-        if (btnBooking) btnBooking.className = 'py-1.5 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-[10px] uppercase tracking-wider neon-glow-emerald btn-3d truncate';
+        btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
         renderSlotsSubTabContent();
       } else if (tab === 'americano') {
-        if (btnAmericano) btnAmericano.className = 'py-1.5 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-[10px] uppercase tracking-wider neon-glow-purple btn-3d truncate';
+        btnAmericano.className = 'py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-xs uppercase tracking-wider neon-glow-purple btn-3d';
         renderQuickAmericano();
       } else if (tab === 'profile') {
-        if (btnProfile) btnProfile.className = 'py-1.5 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-black text-[10px] uppercase tracking-wider neon-glow-blue btn-3d truncate';
+        btnProfile.className = 'py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-black text-xs uppercase tracking-wider neon-glow-blue btn-3d';
         renderProfileTab();
       }
     }
 
     async function syncUserProfile() {
-      const defaultProf = {
-        id: String(tgUser.id),
+      const newProf = {
+        id: tgUser.id,
         first_name: tgUser.first_name || 'Игрок',
-        last_name: tgUser.last_name || '',
-        username: tgUser.username || '',
+        last_name: tgUser.last_name || null,
+        username: tgUser.username || null,
         skill_level: 2.5,
         league_points: 1000,
+        rating_americano: 1000,
+        rating_friendly: 1000,
+        rating_competitive: 1000,
         preferred_side: 'both',
         is_premium: false,
         payment_pending: false,
         shield_cards: 1,
+        is_public_profile: true,
         total_matches_played: 0,
-        wins: 0, losses: 0, draws: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
         game_high_score: userHighScore,
         updated_at: new Date().toISOString()
       };
 
+      await ensureProfileInDatabase(newProf);
+
       if (supabaseClient) {
         try {
-          const data = await safeSupabaseQuery(() => supabaseClient.from('profiles').select('*').eq('id', String(tgUser.id)).maybeSingle());
+          const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
           if (data) {
             currentUserProfile = data;
             if (data.game_high_score && data.game_high_score > userHighScore) {
               userHighScore = data.game_high_score;
-              safeStorage.setItem('padel_motion_high_score', userHighScore);
+              localStorage.setItem('padel_motion_high_score', userHighScore);
             }
           } else {
-            currentUserProfile = defaultProf;
-            await ensureProfileInDatabase(defaultProf);
+            currentUserProfile = newProf;
           }
-        } catch (err) { currentUserProfile = defaultProf; }
+        } catch (err) {}
       } else {
-        currentUserProfile = defaultProf;
+        currentUserProfile = newProf;
       }
     }
 
     function getPendingProRequestsList() {
       let localReqs = [];
-      try { localReqs = JSON.parse(safeStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e) {}
+      try { localReqs = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]'); } catch(e) {}
       const dbPending = platformProfilesList.filter(u => u.payment_pending === true);
       const reqMap = new Map();
       localReqs.forEach(r => reqMap.set(String(r.id), r));
@@ -1441,17 +1561,17 @@
     async function submitProPaymentRequest() {
       try {
         await ensureProfileInDatabase(currentUserProfile || tgUser);
-        const reqItem = { id: String(tgUser.id), first_name: tgUser.first_name || 'Игрок', last_name: tgUser.last_name || '', username: tgUser.username || '', timestamp: new Date().toISOString() };
-        let currentLocal = JSON.parse(safeStorage.getItem('padel_pending_pro_requests') || '[]');
+        const reqItem = { id: tgUser.id, first_name: tgUser.first_name || 'Игрок', last_name: tgUser.last_name || '', username: tgUser.username || '', timestamp: new Date().toISOString() };
+        let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(tgUser.id));
         currentLocal.push(reqItem);
-        safeStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
+        localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
 
         if (currentUserProfile) currentUserProfile.payment_pending = true;
         await safeUpsertProfile(tgUser.id, { payment_pending: true, updated_at: new Date().toISOString() });
 
         closePayProModal();
-        alert('Заявка на активацию PRO отправлена создателю!');
+        alert('Заявка на активицию PRO успешно отправлена создателю!');
         renderProfileTab();
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
@@ -1461,11 +1581,11 @@
         const untilDate = new Date(); untilDate.setDate(untilDate.getDate() + 30);
         await safeUpsertProfile(userId, { is_premium: true, payment_pending: false, premium_until: untilDate.toISOString(), shield_cards: 2, updated_at: new Date().toISOString() });
         
-        let currentLocal = JSON.parse(safeStorage.getItem('padel_pending_pro_requests') || '[]');
+        let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
-        safeStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
+        localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
 
-        alert('Премиум PRO активирован!');
+        alert('Премиум PRO активирован на 30 дней!');
         await fetchAllPlatformProfiles();
         renderProfileTab();
       } catch(e) { alert('Ошибка: ' + e.message); }
@@ -1474,9 +1594,9 @@
     async function rejectUserProStatus(userId) {
       try {
         await safeUpsertProfile(userId, { payment_pending: false, updated_at: new Date().toISOString() });
-        let currentLocal = JSON.parse(safeStorage.getItem('padel_pending_pro_requests') || '[]');
+        let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
-        safeStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
+        localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
 
         alert('Заявка отклонена.');
         await fetchAllPlatformProfiles();
@@ -1484,7 +1604,7 @@
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    // --- ВКЛАДКА 1: СЛОТЫ И ЛЕНТА ---
+    // --- ВКЛАДКА 1: СЛОТЫ И ЛЕНТА ОТКРЫТЫХ ИГР ---
     function setSlotsSubTab(subTab) {
       currentSlotSubTab = subTab;
       renderSlotsSubTabContent();
@@ -1492,14 +1612,14 @@
 
     function renderSlotsSubTabHeader() {
       return `
-        <div class="grid grid-cols-3 gap-1 glass-subcard p-1 rounded-xl border border-white/10 mb-3 text-[10px]">
-          <button type="button" onclick="setSlotsSubTab('feed')" class="py-1.5 rounded-lg font-bold transition-all ${currentSlotSubTab === 'feed' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+        <div class="grid grid-cols-3 gap-1 glass-subcard p-1 rounded-2xl border border-white/10 mb-4 text-[10px]">
+          <button type="button" onclick="setSlotsSubTab('feed')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'feed' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
             ${t('subTabFeed')}
           </button>
-          <button type="button" onclick="setSlotsSubTab('my_slot')" class="py-1.5 rounded-lg font-bold transition-all ${currentSlotSubTab === 'my_slot' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+          <button type="button" onclick="setSlotsSubTab('my_slot')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'my_slot' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
             ${t('subTabMySlot')}
           </button>
-          <button type="button" onclick="setSlotsSubTab('create')" class="py-1.5 rounded-lg font-bold transition-all ${currentSlotSubTab === 'create' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+          <button type="button" onclick="setSlotsSubTab('create')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'create' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
             ${t('subTabCreate')}
           </button>
         </div>
@@ -1510,75 +1630,83 @@
       if (!supabaseClient) return null;
       try {
         const uidStr = String(tgUser.id);
-        const playerRows = await safeSupabaseQuery(() => supabaseClient.from('match_players').select('match_id').eq('user_id', uidStr));
-        if (!playerRows || playerRows.length === 0) return null;
+        const uidNum = typeof tgUser.id === 'number' ? tgUser.id : parseInt(tgUser.id, 10);
 
-        const matchIds = playerRows.map(p => p.match_id);
-        const matches = await safeSupabaseQuery(() => supabaseClient.from('matches').select('*').in('id', matchIds));
-        if (!matches || matches.length === 0) return null;
+        const { data: playerRows, error } = await supabaseClient
+          .from('match_players')
+          .select('match_id, matches(*)')
+          .or(`user_id.eq.${uidStr}${!isNaN(uidNum) ? `,user_id.eq.${uidNum}` : ''}`);
+
+        if (error || !playerRows || playerRows.length === 0) return null;
 
         const now = new Date();
-        const activeMatches = matches
-          .filter(m => !m.is_registration_closed && new Date(m.scheduled_at) > new Date(now.getTime() - 4 * 3600 * 1000))
+        const activeMatches = playerRows
+          .map(p => p.matches)
+          .filter(m => m && !m.is_registration_closed && new Date(m.scheduled_at) > new Date(now.getTime() - 4 * 3600 * 1000))
           .sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
 
-        return activeMatches.length > 0 ? activeMatches[0].id : null;
-      } catch(e) { return null; }
+        if (activeMatches.length > 0) {
+          return activeMatches[0].id;
+        }
+      } catch(e) { console.log('getUserActiveMatchId err:', e); }
+      return null;
     }
 
-    function renderSlotsSubTabContent() {
+    async function renderSlotsSubTabContent() {
       const container = document.getElementById('main-content');
-      if (!container) return;
-
       if (currentSlotSubTab === 'feed') {
         renderPublicMatchesFeed(container);
       } else if (currentSlotSubTab === 'my_slot') {
         container.innerHTML = `
           ${renderSlotsSubTabHeader()}
-          <div class="text-center py-10 text-slate-400 font-semibold text-xs animate-pulse">Проверка активного слота...</div>
+          <div class="text-center py-12 text-slate-400 font-semibold text-xs animate-pulse">Проверка Вашего активного слота...</div>
         `;
-        getUserActiveMatchId().then(mySlotId => {
-          if (mySlotId) renderMatchDetails(mySlotId);
-          else renderCreateMatchForm();
-        });
+        const mySlotId = await getUserActiveMatchId();
+        if (mySlotId) {
+          renderMatchDetails(mySlotId);
+        } else {
+          renderCreateMatchForm();
+        }
       } else if (currentSlotSubTab === 'create') {
         renderCreateMatchForm();
       }
     }
 
-    function renderPublicMatchesFeed(container) {
+    async function renderPublicMatchesFeed(container) {
       if (!container) container = document.getElementById('main-content');
       
       container.innerHTML = `
         ${renderSlotsSubTabHeader()}
-        <div id="feed-list-container" class="space-y-2">
-          <div class="text-center py-8 text-slate-400 font-semibold text-xs animate-pulse">Загрузка открытых игр...</div>
-        </div>
+        <div class="text-center py-10 text-slate-400 font-semibold text-sm animate-pulse">Поиск открытых игр...</div>
       `;
 
-      fetchAndDisplayFeedMatches();
-    }
-
-    async function fetchAndDisplayFeedMatches() {
-      const feedContainer = document.getElementById('feed-list-container');
-      if (!feedContainer) return;
-
       let publicMatches = [];
-      const nowISO = new Date().toISOString();
+      const now = new Date();
 
       if (supabaseClient) {
         try {
-          const matches = await safeSupabaseQuery(() => 
-            supabaseClient
-              .from('matches')
-              .select('*, match_players(*)')
-              .eq('is_public', true)
-              .eq('is_registration_closed', false)
-              .gte('scheduled_at', nowISO)
-              .order('scheduled_at', { ascending: true })
-              .limit(30)
-          );
-          if (matches) publicMatches = matches;
+          const { data, error } = await supabaseClient
+            .from('matches')
+            .select('*, match_players(*, profiles(*))')
+            .order('scheduled_at', { ascending: true });
+
+          if (!error && data) {
+            publicMatches = data.filter(m => {
+              const matchTime = new Date(m.scheduled_at);
+              const isPast = matchTime < now;
+              const isClosed = m.is_registration_closed === true;
+              const isPrivate = m.is_public === false;
+
+              if (isPast && supabaseClient) {
+                supabaseClient.from('match_messages').delete().eq('match_id', m.id).then();
+                supabaseClient.from('match_players').delete().eq('match_id', m.id).then();
+                supabaseClient.from('matches').delete().eq('id', m.id).then();
+                return false;
+              }
+
+              return !isPast && !isClosed && !isPrivate;
+            });
+          }
         } catch(e) {}
       }
 
@@ -1594,38 +1722,42 @@
           const dateStr = new Date(m.scheduled_at).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
           const isUserJoined = players.some(p => String(p.user_id) === String(tgUser.id));
 
+          const hostPlayer = players.find(p => String(p.user_id) === String(m.creator_id)) || players[0];
+          const hostName = sanitizeHTML(hostPlayer?.profiles?.first_name || 'Игрок');
+
           return `
-            <div class="glass-subcard border ${isUserJoined ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-white/10'} p-3 rounded-2xl space-y-2 hover:border-emerald-400/50 transition-all btn-3d">
+            <div class="glass-subcard border ${isUserJoined ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-white/10'} p-4 rounded-2xl space-y-3 hover:border-emerald-400/50 transition-all btn-3d">
               <div class="flex justify-between items-start gap-2">
                 <div>
-                  <div class="flex items-center gap-1.5">
-                    <h3 class="text-xs font-black text-white">${escapeHTML(m.custom_location)}</h3>
-                    <span class="px-1.5 py-0.5 bg-teal-500/20 text-teal-300 font-extrabold text-[9px] rounded uppercase border border-teal-500/30">
-                      ${escapeHTML(m.match_type || 'friendly')}
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-black text-white">${sanitizeHTML(m.custom_location)}</h3>
+                    <span class="px-2 py-0.5 bg-teal-500/20 text-teal-300 font-extrabold text-[9px] rounded-md uppercase border border-teal-500/30">
+                      ${sanitizeHTML(m.match_type || 'friendly')}
                     </span>
                   </div>
-                  <p class="text-[10px] text-slate-300 font-medium mt-0.5">📅 ${dateStr}</p>
+                  <p class="text-[11px] text-slate-300 font-medium mt-0.5">📅 ${dateStr}</p>
                 </div>
 
                 <div class="text-right">
                   <span class="text-xs font-black text-emerald-400 block">${m.price_per_player || 0} MDL</span>
+                  <span class="text-[9px] text-slate-400 uppercase font-bold">${t('hostLabel')}: ${hostName}</span>
                 </div>
               </div>
 
-              ${m.notes ? `<p class="text-[10px] text-slate-300 italic bg-white/5 p-1.5 rounded-xl border border-white/5">💬 "${escapeHTML(m.notes)}"</p>` : ''}
+              ${m.notes ? `<p class="text-[10px] text-slate-300 italic bg-white/5 p-2 rounded-xl border border-white/5">💬 "${sanitizeHTML(m.notes)}"</p>` : ''}
 
               <div class="flex items-center justify-between pt-1">
                 <div class="flex items-center gap-1.5">
                   <span class="text-xs">👥</span>
                   <span class="text-xs font-black text-white">${occupiedCount} / ${maxCount}</span>
                   ${isFull ? `
-                    <span class="text-[9px] bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold px-1.5 py-0.5 rounded uppercase">${t('fullSlotBadge')}</span>
+                    <span class="text-[9px] bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold px-2 py-0.5 rounded-md uppercase">${t('fullSlotBadge')}</span>
                   ` : `
-                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-1.5 py-0.5 rounded uppercase">⚡ ${t('spotsLeft')}: ${spotsLeft}</span>
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-2 py-0.5 rounded-md uppercase">⚡ ${t('spotsLeft')}: ${spotsLeft}</span>
                   `}
                 </div>
 
-                <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-[10px] uppercase tracking-wider btn-3d shadow-md">
+                <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md cursor-pointer">
                   ${isUserJoined ? '🎾 ' + t('subTabMySlot') : t('quickJoinBtn')}
                 </button>
               </div>
@@ -1644,20 +1776,34 @@
         `;
       }
 
-      feedContainer.innerHTML = matchesHtml;
+      container.innerHTML = `
+        ${renderSlotsSubTabHeader()}
+        <div class="space-y-3">
+          <h2 class="text-sm font-black text-slate-300 uppercase tracking-wider flex items-center justify-between">
+            <span>${t('subTabFeed')}</span>
+            <span class="text-[10px] text-emerald-400 font-bold">Найдено: ${publicMatches.length}</span>
+          </h2>
+          <div class="space-y-2.5">${matchesHtml}</div>
+        </div>
+      `;
     }
 
     async function quickJoinMatchFromFeed(matchId) {
       try {
         await ensureProfileInDatabase(currentUserProfile || tgUser);
+        
         let match = null, players = [];
         if (supabaseClient) {
-          match = await safeSupabaseQuery(() => supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle());
-          const pData = await safeSupabaseQuery(() => supabaseClient.from('match_players').select('*').eq('match_id', matchId));
+          const { data: mData } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
+          match = mData;
+          const { data: pData } = await supabaseClient.from('match_players').select('*').eq('match_id', matchId);
           players = pData || [];
         }
 
-        if (!match) { renderMatchDetails(matchId); return; }
+        if (!match) {
+          renderMatchDetails(matchId);
+          return;
+        }
 
         const isUserJoined = players.some(p => String(p.user_id) === String(tgUser.id));
         if (isUserJoined) {
@@ -1669,7 +1815,10 @@
         const occupiedSlots = new Set(players.map(p => p.slot_number));
         let nextFreeSlot = 1;
         for (let i = 1; i <= match.max_players; i++) {
-          if (!occupiedSlots.has(i)) { nextFreeSlot = i; break; }
+          if (!occupiedSlots.has(i)) {
+            nextFreeSlot = i;
+            break;
+          }
         }
 
         if (players.length >= match.max_players) {
@@ -1680,6 +1829,7 @@
 
         await joinMatch(matchId, nextFreeSlot);
       } catch (e) {
+        showError('Ошибка входа: ' + e.message);
         renderMatchDetails(matchId);
       }
     }
@@ -1688,23 +1838,23 @@
       const container = document.getElementById('main-content');
       container.innerHTML = `
         ${renderSlotsSubTabHeader()}
-        <h2 class="text-xs font-extrabold mb-2.5 text-white uppercase italic tracking-wide">${t('createGame')}</h2>
-        <form id="create-form" class="space-y-2.5 text-xs" onsubmit="handleCreateMatch(event)">
+        <h2 class="text-base font-extrabold mb-3 text-white uppercase italic tracking-wide">${t('createGame')}</h2>
+        <form id="create-form" class="space-y-3" onsubmit="handleCreateMatch(event)">
           <div>
-            <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('location')}</label>
-            <input type="text" id="custom_location" required value="Padel Club Chisinau" class="w-full p-2 glass-subcard rounded-xl text-xs text-white focus:outline-none">
+            <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('location')}</label>
+            <input type="text" id="custom_location" required value="Padel Club Chisinau" class="w-full p-3 glass-subcard rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition-all">
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('maxPlayers')}</label>
-              <select id="max_players" class="w-full p-2 glass-subcard rounded-xl text-xs font-semibold text-white">
+              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('maxPlayers')}</label>
+              <select id="max_players" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
                 <option value="4">4 (2х2)</option> <option value="6">6 (Americano)</option> <option value="8">8 (2 корта)</option>
               </select>
             </div>
             <div>
-              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('format')}</label>
-              <select id="match_type" class="w-full p-2 glass-subcard rounded-xl text-xs font-semibold text-white">
+              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('format')}</label>
+              <select id="match_type" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
                 <option value="friendly">${t('friendly')}</option>
                 <option value="competitive">${t('competitive')}</option>
                 <option value="americano">${t('americanoFormat')}</option>
@@ -1713,32 +1863,32 @@
           </div>
 
           <div>
-            <label class="block text-[10px] font-semibold text-amber-300 mb-1 uppercase flex items-center gap-1">
+            <label class="block text-xs font-semibold text-amber-300 mb-1 uppercase flex items-center gap-1">
               <span>🌐</span> <span>${t('accessTypeLabel')}</span>
             </label>
-            <select id="is_public" class="w-full p-2 glass-subcard border border-amber-500/40 rounded-xl text-xs font-bold text-white focus:outline-none">
+            <select id="is_public" class="w-full p-3 glass-subcard border border-amber-500/40 rounded-xl text-xs font-bold text-white focus:outline-none">
               <option value="true" selected>${t('publicAccessOption')}</option>
               <option value="false">${t('privateAccessOption')}</option>
             </select>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('dateTime')}</label>
-              <input type="datetime-local" id="scheduled_at" required class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('dateTime')}</label>
+              <input type="datetime-local" id="scheduled_at" required class="w-full p-3 glass-subcard rounded-xl text-xs text-white">
             </div>
             <div>
-              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('price')}</label>
-              <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('price')}</label>
+              <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-3 glass-subcard rounded-xl text-xs text-white">
             </div>
           </div>
 
           <div>
-            <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('notes')}</label>
-            <input type="text" id="notes" placeholder="Level 2.5+" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+            <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('notes')}</label>
+            <input type="text" id="notes" placeholder="Level 2.5+" class="w-full p-3 glass-subcard rounded-xl text-xs text-white">
           </div>
 
-          <button type="submit" id="submit-btn" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d mt-1">
+          <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d mt-2">
             ${t('generateLink')}
           </button>
         </form>
@@ -1756,7 +1906,7 @@
         const isPublicValue = document.getElementById('is_public').value === 'true';
 
         let matchData = {
-          creator_id: String(tgUser.id),
+          creator_id: tgUser.id,
           custom_location: document.getElementById('custom_location').value,
           max_players: parseInt(document.getElementById('max_players').value),
           match_type: document.getElementById('match_type').value,
@@ -1767,14 +1917,26 @@
           is_registration_closed: false
         };
 
-        let match = await safeSupabaseQuery(() => supabaseClient.from('matches').insert([matchData]).select().single());
-        if (match) {
-          await safeSupabaseQuery(() => supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: String(tgUser.id), slot_number: 1 }]));
+        let match = null;
+        let { data, error } = await supabaseClient.from('matches').insert([matchData]).select().single();
+        
+        if (error && error.message && (error.message.includes('is_public') || error.message.includes('column'))) {
+          delete matchData.is_public;
+          const retryRes = await supabaseClient.from('matches').insert([matchData]).select().single();
+          match = retryRes.data;
+          error = retryRes.error;
+        } else {
+          match = data;
         }
 
+        if (error) throw error;
+
+        await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]);
+        
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
       } catch (err) {
+        showError('Ошибка создания: ' + err.message);
         if (btn) btn.disabled = false;
       }
     }
@@ -1782,8 +1944,9 @@
     async function updateMatchPrice(matchId) {
       const newPrice = parseFloat(document.getElementById(`edit_price_${matchId}`).value) || 0;
       try {
-        await safeSupabaseQuery(() => supabaseClient.from('matches').update({ price_per_player: newPrice }).eq('id', matchId));
-        alert('Цена обновлена!');
+        const { error } = await supabaseClient.from('matches').update({ price_per_player: newPrice }).eq('id', matchId);
+        if (error) throw error;
+        alert('Цена успешно обновлена!');
         renderMatchDetails(matchId);
       } catch (e) { alert('Ошибка: ' + e.message); }
     }
@@ -1793,18 +1956,20 @@
       if (!timeInput || !timeInput.value) { alert('Выберите дату и время.'); return; }
       try {
         const newIsoTime = new Date(timeInput.value).toISOString();
-        await safeSupabaseQuery(() => supabaseClient.from('matches').update({ scheduled_at: newIsoTime }).eq('id', matchId));
-        alert('Время обновлено!');
+        const { error } = await supabaseClient.from('matches').update({ scheduled_at: newIsoTime }).eq('id', matchId);
+        if (error) throw error;
+        alert('Время игры успешно обновлено!');
         renderMatchDetails(matchId);
-      } catch (e) { alert('Ошибка: ' + e.message); }
+      } catch (e) { alert('Ошибка обновления времени: ' + e.message); }
     }
 
     async function deleteMatchByCreator(matchId) {
       if (!confirm('Вы уверены, что хотите полностью удалить этот слот?')) return;
       try {
-        await safeSupabaseQuery(() => supabaseClient.from('match_messages').delete().eq('match_id', matchId));
-        await safeSupabaseQuery(() => supabaseClient.from('match_players').delete().eq('match_id', matchId));
-        await safeSupabaseQuery(() => supabaseClient.from('matches').delete().eq('id', matchId));
+        await supabaseClient.from('match_messages').delete().eq('match_id', matchId);
+        await supabaseClient.from('match_players').delete().eq('match_id', matchId);
+        const { error } = await supabaseClient.from('matches').delete().eq('id', matchId);
+        if (error) throw error;
         
         triggerSlotLeaveToast();
         currentSlotSubTab = 'feed';
@@ -1813,49 +1978,41 @@
     }
 
     function getLocalChatMessages(matchId) {
-      try { return JSON.parse(safeStorage.getItem(`padel_chat_msgs_${matchId}`) || '[]'); } catch(e) { return []; }
+      try { return JSON.parse(localStorage.getItem(`padel_chat_msgs_${matchId}`) || '[]'); } catch(e) { return []; }
     }
 
     function saveLocalChatMessage(matchId, msg) {
       const list = getLocalChatMessages(matchId);
       list.push(msg);
-      safeStorage.setItem(`padel_chat_msgs_${matchId}`, JSON.stringify(list));
+      localStorage.setItem(`padel_chat_msgs_${matchId}`, JSON.stringify(list));
     }
 
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
+      
       container.innerHTML = `
         ${renderSlotsSubTabHeader()}
-        <div class="text-center py-10 text-slate-400 font-semibold text-xs animate-pulse">${t('loadingMatch')}</div>
+        <div class="text-center py-10 text-slate-400">${t('loadingMatch')}</div>
       `;
 
       try {
-        let match = null, players = [];
-        if (supabaseClient) {
-          match = await safeSupabaseQuery(() => supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle());
-          if (match) {
-            const pData = await safeSupabaseQuery(() => supabaseClient.from('match_players').select('*').eq('match_id', matchId));
-            players = pData || [];
-            players.forEach(p => {
-              const prof = platformProfilesList.find(pr => String(pr.id) === String(p.user_id));
-              if (prof) p.profiles = prof;
-            });
-          }
-        }
-
+        const { data: match } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
         if (!match) {
           container.innerHTML = `
             ${renderSlotsSubTabHeader()}
-            <div class="text-center py-8 text-rose-300 font-bold text-xs">${t('slotNotFound')}</div>
+            <div class="text-center py-8 text-rose-300 font-bold">${t('slotNotFound')}</div>
           `;
           return;
         }
+
+        const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', matchId);
+        const players = rawPlayers || [];
 
         const isJoined = players.some(p => String(p.user_id) === String(tgUser.id));
         const isMatchCreator = String(match.creator_id) === String(tgUser.id) || isUserCreator();
         const isRegClosed = match.is_registration_closed === true;
 
-        const dateStr = new Date(match.scheduled_at).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const dateStr = new Date(match.scheduled_at).toLocaleString(currentLang === 'ro' ? 'ro-RO' : (currentLang === 'en' ? 'en-US' : 'ru-RU'), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
         const scheduledDateForInput = match.scheduled_at ? new Date(match.scheduled_at).toISOString().slice(0, 16) : '';
         const shareUrl = `https://t.me/${shareBotUsername}/app?startapp=${match.id}`;
 
@@ -1865,26 +2022,26 @@
         for (let i = 1; i <= displayLimit; i++) {
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
           if (p) {
-            const name = escapeHTML(p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Player'));
+            const name = sanitizeHTML(p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Player'));
             const isCreatorOfThisSlot = String(p.user_id) === String(match.creator_id);
 
             slotsHtml += `
-              <div class="p-2 glass-subcard rounded-xl space-y-1 border border-emerald-500/30">
-                ${isCreatorOfThisSlot ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
+              <div class="p-3 glass-subcard rounded-2xl space-y-1 border border-emerald-500/30">
+                ${isCreatorOfThisSlot ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-emerald-300">${t('slotLabel')} #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline hover:text-amber-300">${name}</span></span>
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 font-black px-2 py-0.5 rounded-full uppercase">${t('occupied')}</span>
+                  <span class="text-xs font-bold text-emerald-300">${t('slotLabel')} #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline decoration-dotted hover:text-amber-300">${name}</span></span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
                     ${isMatchCreator ? `<button type="button" onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d">❌</button>` : ''}
                   </div>
                 </div>
               </div>`;
           } else if (!isRegClosed) {
             slotsHtml += `
-              <div class="p-2 glass-subcard border border-dashed border-slate-700/60 rounded-xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
+              <div class="p-3 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
                 <span>${t('slotLabel')} #${i}: <strong class="text-emerald-400 font-bold">${t('free')}</strong></span>
                 ${!isJoined ? `
-                  <button type="button" onclick="joinMatch('${match.id}', ${i})" class="px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-lg text-[10px] uppercase btn-3d cursor-pointer">
+                  <button type="button" onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20 cursor-pointer">
                     ${t('joinSlot')} #${i}
                   </button>
                 ` : ''}
@@ -1895,11 +2052,12 @@
         let messagesList = getLocalChatMessages(matchId);
         if (supabaseClient) {
           try {
-            const dbMsgs = await safeSupabaseQuery(() => supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true }));
-            if (dbMsgs && dbMsgs.length > 0) {
-              const dbTextSet = new Set(dbMsgs.map(m => `${m.user_id}_${m.message_text}`));
-              const pendingLocal = messagesList.filter(m => !dbTextSet.has(`${m.user_id}_${m.message_text}`));
-              messagesList = [...dbMsgs, ...pendingLocal].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+            const { data: dbMsgs, error } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
+            if (!error && dbMsgs) {
+              const msgMap = new Map();
+              dbMsgs.forEach(m => msgMap.set(`${m.user_id}_${m.created_at}_${m.message_text}`, m));
+              messagesList.forEach(m => msgMap.set(`${m.user_id}_${m.created_at}_${m.message_text}`, m));
+              messagesList = Array.from(msgMap.values()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
             }
           } catch(e) {}
         }
@@ -1908,12 +2066,12 @@
           const isMe = String(m.user_id) === String(tgUser.id);
           return `
             <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-0.5">
-              <div class="max-w-[85%] p-2 rounded-2xl text-xs space-y-0.5 ${isMe ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md' : 'glass-subcard text-slate-200 border border-white/10 rounded-bl-none'}">
-                <div class="flex justify-between items-center gap-2 text-[9px] opacity-75 font-bold uppercase">
-                  <span>${escapeHTML(m.sender_name || 'Игрок')}</span>
+              <div class="max-w-[85%] p-2.5 rounded-2xl text-xs space-y-1 ${isMe ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md' : 'glass-subcard text-slate-200 border border-white/10 rounded-bl-none'}">
+                <div class="flex justify-between items-center gap-3 text-[9px] opacity-75 font-bold uppercase">
+                  <span>${sanitizeHTML(m.sender_name || 'Игрок')}</span>
                   <span>${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                 </div>
-                <p class="leading-relaxed break-words font-medium">${escapeHTML(m.message_text)}</p>
+                <p class="leading-relaxed break-words font-medium">${sanitizeHTML(m.message_text)}</p>
               </div>
             </div>
           `;
@@ -1922,36 +2080,38 @@
         let creatorControlsHtml = '';
         if (isMatchCreator) {
           creatorControlsHtml = `
-            <div class="p-3 glass-subcard border border-amber-500/30 rounded-2xl space-y-2">
-              <div class="flex items-center gap-2">
-                <span class="text-base">👑</span>
-                <div>
-                  <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('hostPanel')}</h4>
-                  <p class="text-[9px] text-slate-400">${t('hostPanelDesc')}</p>
+            <div class="p-3.5 glass-subcard border border-amber-500/30 rounded-2xl space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">👑</span>
+                  <div>
+                    <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('hostPanel')}</h4>
+                    <p class="text-[10px] text-slate-400">${t('hostPanelDesc')}</p>
+                  </div>
                 </div>
               </div>
 
               <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs gap-2">
                 <span class="font-bold text-slate-300 pl-1 whitespace-nowrap">${t('dateTime')}</span>
                 <div class="flex items-center gap-1.5 flex-1 justify-end">
-                  <input type="datetime-local" id="edit_time_${match.id}" value="${scheduledDateForInput}" class="p-1 glass-subcard border border-slate-600 rounded-lg text-white font-semibold text-xs text-center max-w-[150px]">
-                  <button type="button" onclick="updateMatchTime('${match.id}')" class="px-2.5 py-1 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
+                  <input type="datetime-local" id="edit_time_${match.id}" value="${scheduledDateForInput}" class="p-1.5 glass-subcard border border-slate-600 rounded-lg text-white font-semibold text-xs text-center max-w-[170px]">
+                  <button type="button" onclick="updateMatchTime('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
                 </div>
               </div>
 
               <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs">
                 <span class="font-bold text-slate-300 pl-1">${t('pricePerPlayerLabel')}</span>
                 <div class="flex items-center gap-1.5">
-                  <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1 glass-subcard border border-slate-600 rounded-lg text-center text-white font-black">
-                  <button type="button" onclick="updateMatchPrice('${match.id}')" class="px-2.5 py-1 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
+                  <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1.5 glass-subcard border border-slate-600 rounded-lg text-center text-white font-black">
+                  <button type="button" onclick="updateMatchPrice('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-2 pt-1">
-                <button type="button" onclick="toggleRegistration('${match.id}', ${!isRegClosed})" class="py-2 bg-amber-500/20 text-amber-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
+                <button type="button" onclick="toggleRegistration('${match.id}', ${!isRegClosed})" class="py-2.5 bg-amber-500/20 text-amber-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
                   ${isRegClosed ? '🔓 Открыть' : '🔒 Завершить'}
                 </button>
-                <button type="button" onclick="deleteMatchByCreator('${match.id}')" class="py-2 bg-rose-500/20 text-rose-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
+                <button type="button" onclick="deleteMatchByCreator('${match.id}')" class="py-2.5 bg-rose-500/20 text-rose-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
                   ${t('deleteSlotBtn')}
                 </button>
               </div>
@@ -1960,62 +2120,62 @@
         }
 
         const isPublicBadge = match.is_public !== false 
-          ? `<span class="px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-black uppercase rounded-lg">🌐 Публичный</span>`
-          : `<span class="px-2 py-0.5 bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[9px] font-black uppercase rounded-lg">🔒 Приватный</span>`;
+          ? `<span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-black uppercase rounded-lg">🌐 Публичный</span>`
+          : `<span class="px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[9px] font-black uppercase rounded-lg">🔒 Приватный</span>`;
 
         container.innerHTML = `
           ${renderSlotsSubTabHeader()}
-          <div class="space-y-3">
+          <div class="space-y-4">
             <div>
-              <div class="flex justify-between items-center mb-1">
+              <div class="flex justify-between items-center mb-2">
                 ${isPublicBadge}
-                <span class="px-2 py-0.5 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[9px] font-black uppercase rounded-lg">
-                  ${escapeHTML(match.match_type)}
+                <span class="px-2.5 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[9px] font-black uppercase rounded-lg">
+                  ${sanitizeHTML(match.match_type)}
                 </span>
               </div>
               <div class="flex justify-between items-start">
-                <h2 class="text-base font-black text-white">${escapeHTML(match.custom_location)}</h2>
-                <span class="text-xs font-black text-emerald-400">${match.price_per_player} MDL</span>
+                <h2 class="text-xl font-black mt-1 text-white">${sanitizeHTML(match.custom_location)}</h2>
+                <span class="text-xs font-black text-emerald-400">${match.price_per_player} MDL / pers</span>
               </div>
               <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
             </div>
 
             ${creatorControlsHtml}
 
-            <div class="border-t border-white/10 pt-2">
-              <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
-              <div class="space-y-1.5">${slotsHtml}</div>
+            <div class="border-t border-white/10 pt-3">
+              <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
+              <div class="space-y-2">${slotsHtml}</div>
             </div>
 
-            <div class="border-t border-white/10 pt-2 space-y-2">
+            <div class="border-t border-white/10 pt-3 space-y-2">
               <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">${t('chatTitle')}</h3>
-              <div id="chat-box" class="h-32 overflow-y-auto space-y-2 p-2.5 glass-subcard rounded-2xl border border-white/10 shadow-inner custom-scrollbar">
-                ${chatHtml.length > 0 ? chatHtml : `<p class="chat-empty-msg text-xs text-slate-400 text-center py-6 italic">${t('chatEmptyMsg')}</p>`}
+              <div id="chat-box" class="h-44 overflow-y-auto space-y-2.5 p-3 glass-subcard rounded-2xl border border-white/10 shadow-inner custom-scrollbar">
+                ${chatHtml.length > 0 ? chatHtml : `<p class="text-xs text-slate-400 text-center py-12 italic">${t('chatEmptyMsg')}</p>`}
               </div>
-              <div class="flex gap-1.5">
-                <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-2 glass-subcard border border-slate-700 rounded-xl text-xs text-white">
-                <button type="button" onclick="sendChatMessage('${match.id}')" class="px-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
+              <div class="flex gap-2">
+                <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-3 glass-subcard border border-slate-700/80 rounded-xl text-xs text-white">
+                <button type="button" onclick="sendChatMessage('${match.id}')" class="px-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
                   ${t('sendBtn')}
                 </button>
               </div>
             </div>
 
-            <div class="space-y-2 pt-1">
-              ${isJoined ? `<button type="button" onclick="leaveMatch('${match.id}')" class="w-full py-2 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">${t('leaveGame')}</button>` : ''}
-              <button type="button" onclick="copyShareLink('${shareUrl}')" class="w-full py-2 bg-slate-800 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">${t('copyLink')}</button>
+            <div class="space-y-2 pt-2">
+              ${isJoined ? `<button type="button" onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">${t('leaveGame')}</button>` : ''}
+              <button type="button" onclick="copyShareLink('${shareUrl}')" class="w-full py-3 bg-slate-800/80 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">${t('copyLink')}</button>
             </div>
           </div>
         `;
 
         const chatBox = document.getElementById('chat-box');
         if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-      } catch (err) {}
+      } catch (err) { showError('Ошибка загрузки: ' + err.message); }
     }
 
     async function kickPlayer(matchId, userId) {
       if (!confirm('Исключить этого игрока из слота?')) return;
       try {
-        await safeSupabaseQuery(() => supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', String(userId)));
+        await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', userId);
         triggerSlotLeaveToast();
         renderMatchDetails(matchId);
       } catch(e) { alert('Ошибка: ' + e.message); }
@@ -2023,7 +2183,7 @@
 
     async function toggleRegistration(matchId, closeStatus) {
       try {
-        await safeSupabaseQuery(() => supabaseClient.from('matches').update({ is_registration_closed: closeStatus }).eq('id', matchId));
+        await supabaseClient.from('matches').update({ is_registration_closed: closeStatus }).eq('id', matchId);
         renderMatchDetails(matchId);
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
@@ -2038,7 +2198,7 @@
 
       const newMsg = {
         match_id: matchId,
-        user_id: String(tgUser.id),
+        user_id: tgUser.id,
         sender_name: `${tgUser.first_name || 'Игрок'} ${tgUser.last_name || ''}`.trim(),
         message_text: text,
         created_at: new Date().toISOString()
@@ -2047,37 +2207,20 @@
       saveLocalChatMessage(matchId, newMsg);
 
       if (supabaseClient) {
-        try { await safeSupabaseQuery(() => supabaseClient.from('match_messages').insert([newMsg])); } catch(e){}
+        try {
+          const { error } = await supabaseClient.from('match_messages').insert([newMsg]);
+          if (error) console.log('Supabase insert chat error:', error.message);
+        } catch(e) {}
       }
 
       input.value = '';
-      
-      const chatBox = document.getElementById('chat-box');
-      if (chatBox) {
-        const emptyMsg = chatBox.querySelector('.chat-empty-msg');
-        if (emptyMsg) emptyMsg.remove();
-
-        const timeStr = new Date(newMsg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        const msgHtml = `
-          <div class="flex flex-col items-end space-y-0.5">
-            <div class="max-w-[85%] p-2 rounded-2xl text-xs space-y-0.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md">
-              <div class="flex justify-between items-center gap-2 text-[9px] opacity-75 font-bold uppercase">
-                <span>${escapeHTML(newMsg.sender_name)}</span>
-                <span>${timeStr}</span>
-              </div>
-              <p class="leading-relaxed break-words font-medium">${escapeHTML(newMsg.message_text)}</p>
-            </div>
-          </div>
-        `;
-        chatBox.insertAdjacentHTML('beforeend', msgHtml);
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }
+      renderMatchDetails(matchId);
     }
 
     // --- ВКЛАДКА 2: АМЕРИКАНО ---
     async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
-      const savedState = safeStorage.getItem(getAmericanoStorageKey());
+      const savedState = localStorage.getItem(getAmericanoStorageKey());
       if (savedState) {
         try { localAmericanoState = JSON.parse(savedState); } catch(e){ localAmericanoState = null; }
       } else { localAmericanoState = null; }
@@ -2093,17 +2236,17 @@
       let historyHtml = '';
       if (history.length > 0) {
         historyHtml = `
-          <div class="mt-4 pt-2.5 border-t border-white/10 space-y-2">
+          <div class="mt-6 pt-4 border-t border-white/10 space-y-2.5">
             <h3 class="text-xs font-black text-purple-300 uppercase tracking-wider flex items-center justify-between">
               <span>${t('tourneyHistoryTitle')}</span>
-              <span class="text-[9px] text-slate-400 font-normal">${t('autoCleanup')}</span>
+              <span class="text-[10px] text-slate-400 font-normal">${t('autoCleanup')}</span>
             </h3>
-            <div class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+            <div class="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
               ${history.map(item => {
                 const dt = new Date(item.timestamp).toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-                const topWinner = item.leaderboard && item.leaderboard[0] ? escapeHTML(item.leaderboard[0].name) : '—';
+                const topWinner = sanitizeHTML(item.leaderboard && item.leaderboard[0] ? item.leaderboard[0].name : '—');
                 return `
-                  <div onclick="openHistoryTourneyModal('${item.id}')" class="p-2 glass-subcard border border-purple-500/30 hover:border-purple-400/60 rounded-xl space-y-1 text-xs cursor-pointer transition-all btn-3d">
+                  <div onclick="openHistoryTourneyModal('${item.id}')" class="p-3 glass-subcard border border-purple-500/30 hover:border-purple-400/60 rounded-2xl space-y-1.5 text-xs cursor-pointer transition-all hover:bg-white/5 btn-3d">
                     <div class="flex justify-between items-center text-slate-400 text-[10px] font-bold">
                       <span>📅 ${dt}</span>
                       <span class="text-amber-400">🥇 ${t('winnerLabel')}: ${topWinner}</span>
@@ -2124,14 +2267,14 @@
       }
 
       container.innerHTML = `
-        <h2 class="text-xs font-extrabold mb-1 text-purple-300 uppercase italic tracking-wide">🏆 ${t('tabAmericano')}</h2>
-        <p class="text-[11px] text-slate-400 mb-2.5">${t('quickAmericanoDesc')}</p>
+        <h2 class="text-base font-extrabold mb-1 text-purple-300 uppercase italic tracking-wide">🏆 ${t('tabAmericano')}</h2>
+        <p class="text-xs text-slate-400 mb-3">${t('quickAmericanoDesc')}</p>
 
-        <div class="space-y-2.5 text-xs">
-          <div class="grid grid-cols-2 gap-2 items-end">
+        <div class="space-y-3.5">
+          <div class="grid grid-cols-2 gap-2.5 items-end">
             <div>
-              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}</label>
-              <select id="quick_player_count" onchange="onPlayerCountChange()" class="w-full p-2 glass-subcard rounded-xl text-xs font-semibold text-white">
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('participantsCount')}</label>
+              <select id="quick_player_count" onchange="onPlayerCountChange()" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
                 <option value="4" ${currentAmericanoPlayerCount === 4 ? 'selected' : ''}>4 ${t('playersCountLabel')}</option>
                 <option value="5" ${currentAmericanoPlayerCount === 5 ? 'selected' : ''}>5 ${t('playersCountLabel')}</option>
                 <option value="6" ${currentAmericanoPlayerCount === 6 ? 'selected' : ''}>6 ${t('playersCountLabel')}</option>
@@ -2141,27 +2284,27 @@
             </div>
             
             <div class="flex gap-1">
-              <button type="button" onclick="adjustPlayerCount(-1)" class="flex-1 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs btn-3d">➖</button>
-              <button type="button" onclick="adjustPlayerCount(1)" class="flex-1 py-2 bg-slate-800 text-white font-bold rounded-xl text-xs btn-3d">➕</button>
+              <button type="button" onclick="adjustPlayerCount(-1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➖</button>
+              <button type="button" onclick="adjustPlayerCount(1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➕</button>
             </div>
           </div>
 
           <div>
-            <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('cyclesLabel')}</label>
-            <select id="quick_cycles" class="w-full p-2 glass-subcard rounded-xl text-xs font-semibold text-white">
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('cyclesLabel')}</label>
+            <select id="quick_cycles" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
               <option value="1">1 ${t('cycleSingleLabel')}</option>
               <option value="2">2 ${t('cyclesLabel')}</option>
               <option value="3">3 ${t('cyclesLabel')}</option>
             </select>
           </div>
 
-          <button type="button" onclick="importPlayersFromCurrentSlot()" class="w-full py-2 bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-xs btn-3d">
+          <button type="button" onclick="importPlayersFromCurrentSlot()" class="w-full py-2.5 bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/30 btn-3d">
             ${t('quickImportBtn')}
           </button>
 
-          <div id="names-container" class="space-y-2 pt-1"></div>
+          <div id="names-container" class="space-y-2.5 pt-1"></div>
 
-          <button type="button" onclick="startQuickAmericano()" class="w-full py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider neon-glow-purple btn-3d mt-2">
+          <button type="button" onclick="startQuickAmericano()" class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider neon-glow-purple btn-3d mt-4 shadow-lg shadow-purple-500/30">
             ${t('startTournamentBtn')}
           </button>
 
@@ -2203,28 +2346,28 @@
       
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
       platformProfilesList.forEach(p => {
-        const name = escapeHTML(`${p.first_name} ${p.last_name || ''}`.trim());
-        const usernameTag = p.username ? ` (@${escapeHTML(p.username)})` : '';
+        const name = sanitizeHTML(`${p.first_name} ${p.last_name || ''}`.trim());
+        const usernameTag = p.username ? ` (@${sanitizeHTML(p.username)})` : '';
         optionsHtml += `<option value="${p.id}" data-name="${name}">${name}${usernameTag} (Lvl ${p.skill_level || 2.5})</option>`;
       });
 
-      let html = `<label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}:</label>`;
+      let html = `<label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}:</label>`;
 
       for (let i = 1; i <= count; i++) {
         const saved = existingData[i - 1];
-        const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() : `Player ${i}`);
+        const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Player ${i}`);
 
         html += `
-          <div class="p-2 glass-subcard rounded-xl space-y-1 border border-white/10">
-            <div class="flex justify-between items-center text-[9px] font-bold text-slate-400 uppercase">
+          <div class="p-2.5 glass-subcard rounded-2xl space-y-1.5 border border-white/10">
+            <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
               <span>Player #${i}</span>
               <span id="player_badge_${i}" class="text-purple-300"></span>
             </div>
-            <div class="space-y-1">
-              <select id="player_select_${i}" onchange="onPlayerSelectChange(${i})" class="w-full p-1.5 glass-subcard rounded-lg text-xs font-bold text-white focus:outline-none">
+            <div class="space-y-1.5">
+              <select id="player_select_${i}" onchange="onPlayerSelectChange(${i})" class="w-full p-2 glass-subcard rounded-xl text-xs font-bold text-white focus:outline-none focus:border-purple-500">
                 ${optionsHtml}
               </select>
-              <input type="text" id="player_name_${i}" value="${escapeHTML(defaultName)}" placeholder="Name ${i}" class="w-full p-1.5 glass-subcard rounded-lg text-xs text-white focus:outline-none">
+              <input type="text" id="player_name_${i}" value="${sanitizeHTML(defaultName)}" placeholder="Name ${i}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
             </div>
           </div>
         `;
@@ -2261,11 +2404,11 @@
 
     async function importPlayersFromCurrentSlot() {
       const activeSlotId = await getUserActiveMatchId();
-      if (!activeSlotId) { alert('У вас нет активного слота.'); return; }
+      if (!activeSlotId) { alert('У вас нет активного занятого или созданного слота.'); return; }
 
       try {
-        const rawPlayers = await safeSupabaseQuery(() => supabaseClient.from('match_players').select('*').eq('match_id', activeSlotId));
-        if (!rawPlayers || rawPlayers.length === 0) { alert('В слоте нет игроков.'); return; }
+        const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', activeSlotId);
+        if (!rawPlayers || rawPlayers.length === 0) { alert('В этом слоте нет зарегистрированных игроков.'); return; }
 
         let count = rawPlayers.length;
         if (count < 4) count = 4; if (count > 8) count = 8;
@@ -2281,15 +2424,22 @@
             const slotNum = idx + 1;
             if (slotNum > 8) return;
             const select = document.getElementById(`player_select_${slotNum}`);
+            const input = document.getElementById(`player_name_${slotNum}`);
+
             if (select && p.user_id) {
               const opt = Array.from(select.options).find(o => String(o.value) === String(p.user_id));
-              if (opt) { select.value = p.user_id; onPlayerSelectChange(slotNum); }
+              if (opt) {
+                select.value = p.user_id;
+                onPlayerSelectChange(slotNum);
+              } else if (p.profiles?.first_name && input) {
+                input.value = `${p.profiles.first_name} ${p.profiles.last_name || ''}`.trim();
+              }
             }
           });
-          alert(`Импортировано ${rawPlayers.length} игроков!`);
+          alert(`Успешно импортировано ${rawPlayers.length} игроков!`);
         }, 100);
 
-      } catch(e) { alert('Ошибка: ' + e.message); }
+      } catch(e) { alert('Ошибка импорта: ' + e.message); }
     }
 
     function startQuickAmericano() {
@@ -2329,14 +2479,14 @@
       }
 
       localAmericanoState = { players, rounds, cycles };
-      safeStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
+      localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
       renderQuickAmericano();
     }
 
     function confirmCancelAmericano() {
       if (confirm(t('confirmCancelMsg'))) {
         localAmericanoState = null;
-        safeStorage.removeItem(getAmericanoStorageKey());
+        localStorage.removeItem(getAmericanoStorageKey());
         renderQuickAmericano();
       }
     }
@@ -2376,7 +2526,7 @@
         let badge = `<span class="text-slate-400 font-bold">${index + 1} ${t('placeLabel')}</span>`;
 
         if (index === 0) {
-          cardStyle = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/50";
+          cardStyle = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/50 shadow-lg shadow-amber-500/10";
           badge = `<span class="text-amber-400 font-black">${t('place1')}</span>`;
         } else if (index === 1) {
           cardStyle = "bg-gradient-to-r from-slate-300/20 to-slate-400/10 border-slate-300/40";
@@ -2386,82 +2536,82 @@
           badge = `<span class="text-amber-500 font-black">${t('place3')}</span>`;
         }
 
-        const scoreDetail = `${item.wins}W / ${item.losses}L`;
+        const scoreDetail = item.draws > 0 ? `${item.wins}W / ${item.draws}D / ${item.losses}L` : `${item.wins}W / ${item.losses}L`;
 
         return `
-          <div class="flex items-center justify-between p-2 border rounded-xl ${cardStyle}">
+          <div class="flex items-center justify-between p-2.5 border rounded-2xl ${cardStyle}">
             <div class="flex items-center gap-2 text-xs">
               ${badge}
-              <span class="font-bold text-white">${escapeHTML(item.name)}</span>
+              <span class="font-bold text-white">${sanitizeHTML(item.name)}</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-[10px] text-slate-300 font-bold">${scoreDetail}</span>
-              <span class="font-black text-purple-300 bg-purple-500/20 px-2.5 py-0.5 rounded-full text-xs">${item.points} PTS</span>
+              <span class="font-black text-purple-300 bg-purple-500/20 px-2.5 py-1 rounded-full text-xs">${item.points} PTS</span>
             </div>
           </div>
         `;
       }).join('');
 
       let roundsHtml = rounds.map(r => {
-        const pA1 = escapeHTML(players[r.team_a[0]]?.name || '—');
-        const pA2 = escapeHTML(players[r.team_a[1]]?.name || '—');
-        const pB1 = escapeHTML(players[r.team_b[0]]?.name || '—');
-        const pB2 = escapeHTML(players[r.team_b[1]]?.name || '—');
+        const pA1 = sanitizeHTML(players[r.team_a[0]]?.name || '—');
+        const pA2 = sanitizeHTML(players[r.team_a[1]]?.name || '—');
+        const pB1 = sanitizeHTML(players[r.team_b[0]]?.name || '—');
+        const pB2 = sanitizeHTML(players[r.team_b[1]]?.name || '—');
 
         return `
-          <div class="p-2 border border-white/10 rounded-xl glass-subcard space-y-1 text-xs">
-            <div class="flex justify-between items-center text-slate-300 font-semibold text-[10px]">
-              <span>${t('matchRoundLabel')} ${r.cycle} • ${t('matchGameLabel')} #${r.round}</span>
+          <div class="p-3 border border-white/10 rounded-2xl glass-subcard space-y-2 text-xs">
+            <div class="flex justify-between items-center text-slate-300 font-semibold">
+              <span>${t('matchRoundLabel')} ${r.cycle} • ${t('matchGameLabel')} #${r.round} ${r.court ? `(${t('courtLabel')} #${r.court})` : ''}</span>
               ${r.completed ? `<span class="text-emerald-400 font-black">${t('completedStatus')}</span>` : `<span class="text-amber-400 font-semibold">${t('pendingStatus')}</span>`}
             </div>
-            <div class="flex items-center justify-between gap-1">
-              <div class="flex-1 text-center font-bold text-white truncate text-[11px]">${pA1} / ${pA2}</div>
+            <div class="flex items-center justify-between gap-1.5">
+              <div class="flex-1 text-center font-bold text-white">${pA1} / ${pA2}</div>
               
               <div class="flex items-center gap-1">
-                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-8 text-center p-1 border border-slate-700 rounded-lg font-black glass-subcard text-white text-xs">
+                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
                 <span class="font-black text-slate-500">:</span>
-                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-8 text-center p-1 border border-slate-700 rounded-lg font-black glass-subcard text-white text-xs">
+                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
                 
-                <button type="button" onclick="saveQuickScore(${r.id})" class="ml-1 px-2 py-1 bg-purple-600 text-white rounded-lg font-black text-xs btn-3d">
+                <button type="button" onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
                   ${t('okBtn')}
                 </button>
               </div>
 
-              <div class="flex-1 text-center font-bold text-white truncate text-[11px]">${pB1} / ${pB2}</div>
+              <div class="flex-1 text-center font-bold text-white">${pB1} / ${pB2}</div>
             </div>
           </div>
         `;
       }).join('');
 
       container.innerHTML = `
-        <div class="space-y-3">
-          <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 p-3 rounded-2xl text-white shadow-lg space-y-1">
-            <h2 class="text-xs font-black uppercase tracking-wide flex justify-between items-center">
+        <div class="space-y-4">
+          <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 p-4 rounded-2xl text-white shadow-lg space-y-1">
+            <h2 class="text-sm font-black uppercase tracking-wide flex justify-between items-center">
               <span>🏆 ${t('calculatorTitle')}</span>
-              <span class="text-[9px] bg-black/30 px-2 py-0.5 rounded-md font-bold">${rounds.filter(r=>r.completed).length} / ${rounds.length} ${t('roundsCountLabel')}</span>
+              <span class="text-[10px] bg-black/30 px-2 py-0.5 rounded-md font-bold">${rounds.filter(r=>r.completed).length} / ${rounds.length} ${t('roundsCountLabel')}</span>
             </h2>
-            <p class="text-[10px] opacity-90">${players.length} ${t('gamesLabel')} • ${cycles} ${t('cyclesLabel')}</p>
+            <p class="text-xs opacity-90">${players.length} ${t('gamesLabel')} • ${cycles} ${t('cyclesLabel')}</p>
           </div>
 
-          <div class="space-y-1.5">
+          <div class="space-y-2">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('leaderboardTitle')}</h3>
             <div class="space-y-1.5">${leaderboardHtml}</div>
           </div>
 
-          <button type="button" onclick="recordTournamentToNationalLeaderboard()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
+          <button type="button" onclick="recordTournamentToNationalLeaderboard()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
             ${t('recordRatingBtn')}
           </button>
 
-          <div class="space-y-1.5">
+          <div class="space-y-2">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('matchesAndScoreTitle')}</h3>
-            <div class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar pr-1">${roundsHtml}</div>
+            <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-1">${roundsHtml}</div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <button type="button" onclick="generateTelegramAmericanoReport()" class="py-2 bg-teal-500/20 border border-teal-500/40 text-teal-300 font-bold rounded-xl text-xs uppercase btn-3d">
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <button type="button" onclick="generateTelegramAmericanoReport()" class="py-3 bg-teal-500/20 border border-teal-500/40 text-teal-300 font-bold rounded-xl text-xs uppercase btn-3d">
               ${t('reportTgBtn')}
             </button>
-            <button type="button" onclick="confirmCancelAmericano()" class="py-2 bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold rounded-xl text-xs uppercase btn-3d">
+            <button type="button" onclick="confirmCancelAmericano()" class="py-3 bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold rounded-xl text-xs uppercase btn-3d">
               ${t('cancelTournamentBtn')}
             </button>
           </div>
@@ -2478,29 +2628,34 @@
       const sa = parseInt(inpA.value);
       const sb = parseInt(inpB.value);
 
-      if (isNaN(sa) || isNaN(sb)) { alert('Введите числа.'); return; }
+      if (isNaN(sa) || isNaN(sb)) { alert('Введите корректные числа очков.'); return; }
 
       const r = localAmericanoState.rounds.find(item => item.id === roundId);
       if (r) {
         r.score_a = sa; r.score_b = sb; r.completed = true;
-        safeStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
+        localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
         renderQuickAmericano();
       }
     }
 
+    // Оптимизированный пакетный запрос к Supabase
     async function recordTournamentToNationalLeaderboard() {
       if (!localAmericanoState || !localAmericanoState.rounds) return;
       const { players, rounds } = localAmericanoState;
 
       const completedRounds = rounds.filter(r => r.completed);
       if (completedRounds.length === 0) {
-        alert('Завершите хотя бы один матч.');
+        alert('Завершите хотя бы один матч перед записью результата.');
         return;
       }
 
       const leaderboardMap = new Map();
       players.forEach(p => {
-        leaderboardMap.set(p.id, { userId: p.userId, name: p.name, pts: 0, matches: 0, wins: 0, losses: 0, draws: 0 });
+        leaderboardMap.set(p.id, {
+          userId: p.userId,
+          name: p.name,
+          pts: 0, matches: 0, wins: 0, losses: 0, draws: 0
+        });
       });
 
       rounds.forEach(r => {
@@ -2527,30 +2682,37 @@
 
       const finalLeaderboard = Array.from(leaderboardMap.values()).sort((a, b) => b.pts - a.pts);
 
-      for (let i = 0; i < finalLeaderboard.length; i++) {
-        const item = finalLeaderboard[i];
-        let gainedLP = i === 0 ? 40 : (i === 1 ? 25 : (i === 2 ? 15 : 5));
+      const updatesPromises = finalLeaderboard.map(async (item, i) => {
+        let gainedLP = (i === 0) ? 40 : (i === 1) ? 25 : (i === 2) ? 15 : 5;
         item.pointsGained = gainedLP;
 
         if (item.userId && supabaseClient) {
           try {
             await ensureProfileInDatabase({ id: item.userId, first_name: item.name });
-            const dbProf = await safeSupabaseQuery(() => supabaseClient.from('profiles').select('*').eq('id', String(item.userId)).maybeSingle());
+            const { data: dbProf } = await supabaseClient.from('profiles').select('*').eq('id', item.userId).maybeSingle();
             if (dbProf) {
               await safeUpsertProfile(item.userId, {
                 league_points: (dbProf.league_points || 1000) + gainedLP,
                 wins: (dbProf.wins || 0) + item.wins,
                 losses: (dbProf.losses || 0) + item.losses,
+                draws: (dbProf.draws || 0) + item.draws,
                 total_matches_played: (dbProf.total_matches_played || 0) + item.matches,
                 updated_at: new Date().toISOString()
               });
             }
           } catch(e) {}
         }
-      }
+      });
 
-      saveAmericanoToHistory({ players, rounds: completedRounds, leaderboard: finalLeaderboard });
-      alert('Результаты сохранены в историю!');
+      await Promise.all(updatesPromises);
+
+      saveAmericanoToHistory({
+        players,
+        rounds: completedRounds,
+        leaderboard: finalLeaderboard
+      });
+
+      alert('Результаты турнира сохранены в историю!');
       await fetchAllPlatformProfiles();
     }
 
@@ -2580,11 +2742,16 @@
         tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(text)}`);
       } else {
         navigator.clipboard.writeText(text);
-        alert('Отчёт скопирован!');
+        alert('Отчёт скопирован в буфер обмена!');
       }
     }
 
     // --- ВКЛАДКА 3: ПРОФИЛЬ И ЛИДЕРБОРД ---
+    function setLeaderboardTab(tab) {
+      currentLeaderboardTab = tab;
+      renderProfileTab();
+    }
+
     function openViewPlayerModalById(userId) {
       const p = platformProfilesList.find(item => String(item.id) === String(userId));
       if (p) openViewPlayerModal(p);
@@ -2593,7 +2760,8 @@
           id: userId,
           first_name: 'Игрок',
           league_points: 1000,
-          total_matches_played: 0, wins: 0, losses: 0, draws: 0
+          total_matches_played: 0,
+          wins: 0, losses: 0, draws: 0
         });
       }
     }
@@ -2621,20 +2789,20 @@
 
       let sideText = t('bothSides');
       if (p.preferred_side === 'left') sideText = t('leftSide');
-      else if (p.preferred_side === 'right') sideText = t('rightSide');
+      else if (p.preferred_side === 'right') sideText = p.preferred_side;
 
       content.innerHTML = `
         <div class="${cardClass} p-4 rounded-3xl space-y-3">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-base text-slate-950 shadow-md">
-              ${(escapeHTML(p.first_name) || 'U')[0].toUpperCase()}
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-xl text-slate-950 shadow-md">
+              ${(p.first_name || 'U')[0].toUpperCase()}
             </div>
             <div>
-              <h3 class="text-sm font-black text-white flex items-center gap-1.5">
-                <span>${escapeHTML(p.first_name)} ${escapeHTML(p.last_name || '')}</span>
+              <h3 class="text-base font-black text-white flex items-center gap-1.5">
+                <span>${sanitizeHTML(p.first_name)} ${sanitizeHTML(p.last_name || '')}</span>
                 ${isPro ? '<span class="text-amber-300">👑</span>' : ''}
               </h3>
-              ${p.username ? `<p class="text-xs text-emerald-400 font-semibold">@${escapeHTML(p.username)}</p>` : ''}
+              ${p.username ? `<p class="text-xs text-emerald-400 font-semibold">@${sanitizeHTML(p.username)}</p>` : ''}
               <div class="flex items-center gap-1 mt-1">
                 <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
                   ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
@@ -2643,7 +2811,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 text-[10px] pt-1">
+          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
             <div class="p-2 glass-subcard rounded-xl border border-white/10 space-y-0.5">
               <span class="text-slate-400 font-medium block">${t('ageLabel')} / ${t('gender')}</span>
               <span class="font-bold text-white">${age ? age + ' лет' : '—'} • ${genderText}</span>
@@ -2670,8 +2838,8 @@
           </div>
 
           <div class="p-2.5 glass-subcard rounded-xl border border-purple-500/30 flex justify-between items-center text-xs">
-            <span class="text-purple-300 font-bold">Очки Американо:</span>
-            <span class="font-black text-white font-mono text-xs">${histPts} PTS</span>
+            <span class="text-purple-300 font-bold">Очки в турнирах Американо:</span>
+            <span class="font-black text-white font-mono text-sm">${histPts} PTS</span>
           </div>
         </div>
       `;
@@ -2689,46 +2857,46 @@
       const content = document.getElementById('admin-player-form-content');
 
       content.innerHTML = `
-        <form onsubmit="saveAdminPlayerEdit(event, '${p.id}')" class="space-y-2.5 text-xs">
+        <form onsubmit="saveAdminPlayerEdit(event, '${p.id}')" class="space-y-3">
           <div>
             <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Имя</label>
-            <input type="text" id="admin_edit_fname" value="${escapeHTML(p.first_name || '')}" required class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+            <input type="text" id="admin_edit_fname" value="${sanitizeHTML(p.first_name || '')}" required class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
           </div>
 
           <div>
             <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Фамилия</label>
-            <input type="text" id="admin_edit_lname" value="${escapeHTML(p.last_name || '')}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+            <input type="text" id="admin_edit_lname" value="${sanitizeHTML(p.last_name || '')}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
           </div>
 
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-[10px] font-bold text-amber-300 mb-1 uppercase">Очки Лиги (LP)</label>
-              <input type="number" id="admin_edit_lp" value="${p.league_points || 1000}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white font-bold">
+              <input type="number" id="admin_edit_lp" value="${p.league_points || 1000}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-emerald-300 mb-1 uppercase">Уровень (Level)</label>
-              <input type="number" step="0.1" id="admin_edit_skill" value="${p.skill_level || 2.5}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white font-bold">
+              <input type="number" step="0.1" id="admin_edit_skill" value="${p.skill_level || 2.5}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
             </div>
           </div>
 
-          <div class="grid grid-cols-3 gap-1.5">
+          <div class="grid grid-cols-3 gap-2">
             <div>
               <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Матчи</label>
-              <input type="number" id="admin_edit_total" value="${p.total_matches_played || 0}" class="w-full p-1.5 glass-subcard rounded-xl text-xs text-white">
+              <input type="number" id="admin_edit_total" value="${p.total_matches_played || 0}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-emerald-400 mb-1 uppercase">Победы</label>
-              <input type="number" id="admin_edit_wins" value="${p.wins || 0}" class="w-full p-1.5 glass-subcard rounded-xl text-xs text-white">
+              <input type="number" id="admin_edit_wins" value="${p.wins || 0}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-rose-400 mb-1 uppercase">Поражения</label>
-              <input type="number" id="admin_edit_losses" value="${p.losses || 0}" class="w-full p-1.5 glass-subcard rounded-xl text-xs text-white">
+              <input type="number" id="admin_edit_losses" value="${p.losses || 0}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
             </div>
           </div>
 
-          <div class="pt-1">
-            <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
-              💾 Сохранить изменения
+          <div class="pt-2">
+            <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
+              💾 Сохранить изменения игрока
             </button>
           </div>
         </form>
@@ -2753,10 +2921,10 @@
 
         await safeUpsertProfile(userId, payload);
         closeAdminPlayerModal();
-        alert('Данные обновлены!');
+        alert('Данные игрока обновлены!');
         await fetchAllPlatformProfiles();
         renderProfileTab();
-      } catch(err) { alert('Ошибка: ' + err.message); }
+      } catch(err) { alert('Ошибка сохранения: ' + err.message); }
     }
 
     function closeAdminPlayerModal() { document.getElementById('modal-admin-player').classList.add('hidden'); }
@@ -2765,12 +2933,9 @@
       const container = document.getElementById('main-content');
       await fetchAllPlatformProfiles();
 
-      const fname = currentUserProfile?.first_name || tgUser.first_name || 'Игрок';
-      const lname = currentUserProfile?.last_name || tgUser.last_name || '';
-
       const p = currentUserProfile || {
-        first_name: fname,
-        last_name: lname,
+        first_name: tgUser.first_name || 'Игрок',
+        last_name: tgUser.last_name || '',
         skill_level: 2.5, league_points: 1000, total_matches_played: 0, wins: 0, losses: 0, draws: 0
       };
 
@@ -2787,12 +2952,12 @@
       let proSectionHtml = '';
       if (isPro) {
         proSectionHtml = `
-          <div onclick="openProDetailsModal()" class="glass-subcard p-2.5 rounded-2xl border border-amber-500/50 flex justify-between items-center bg-gradient-to-r from-amber-500/20 to-yellow-600/10 cursor-pointer btn-3d">
+          <div onclick="openProDetailsModal()" class="glass-subcard p-3 rounded-2xl border border-amber-500/50 flex justify-between items-center bg-gradient-to-r from-amber-500/20 to-yellow-600/10 cursor-pointer hover:scale-[1.02] transition-transform btn-3d">
             <div class="flex items-center gap-2">
               <span class="text-xl">👑</span>
               <div>
                 <span class="text-xs font-black text-amber-300 uppercase block">${t('proApprovedStatus')}</span>
-                <span class="text-[10px] text-slate-300 font-semibold">🛡️ Shield Cards: <strong class="text-emerald-400">${p.shield_cards || 2}</strong></span>
+                <span class="text-[10px] text-slate-300 font-semibold">🛡️ Shield Cards: <strong class="text-emerald-400">${p.shield_cards || 2}</strong> • Нажмите для деталей</span>
               </div>
             </div>
             <span class="text-amber-300 text-xs">➔</span>
@@ -2800,7 +2965,7 @@
         `;
       } else if (isPendingPro) {
         proSectionHtml = `
-          <div class="glass-subcard p-2.5 rounded-2xl border border-yellow-500/40 text-center text-xs font-semibold text-yellow-300 bg-yellow-500/10">
+          <div class="glass-subcard p-3 rounded-2xl border border-yellow-500/40 text-center text-xs font-semibold text-yellow-300 bg-yellow-500/10">
             ${t('proPendingStatus')}
           </div>
         `;
@@ -2821,15 +2986,15 @@
           pendingHtml = `
             <div class="space-y-2 pt-2 border-t border-amber-500/30">
               <h4 class="text-xs font-extrabold text-yellow-300 uppercase tracking-wide">${t('pendingRequestsTitle')} (${pendingReqs.length}):</h4>
-              <div class="space-y-1.5">
+              <div class="space-y-2">
                 ${pendingReqs.map(req => `
-                  <div class="p-2 glass-subcard rounded-xl border border-amber-500/40 flex justify-between items-center text-xs">
+                  <div class="p-2.5 glass-subcard rounded-xl border border-amber-500/40 flex justify-between items-center text-xs">
                     <div>
-                      <span class="font-black text-white block">${escapeHTML(req.first_name)} ${escapeHTML(req.last_name \vert{}\vert{} '')}</span>${req.username ? `<span class="text-[10px] text-emerald-400">@${escapeHTML(req.username)}</span>` : ''}
+                      <span class="font-black text-white block">${sanitizeHTML(req.first_name)} ${sanitizeHTML(req.last_name \vert{}\vert{} '')}</span>${req.username ? `<span class="text-[10px] text-emerald-400">@${sanitizeHTML(req.username)}</span>` : ''}
                     </div>
-                    <div class="flex gap-1">
-                      <button type="button" onclick="approveUserProStatus('${req.id}')" class="px-2 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black rounded-lg btn-3d text-[10px]">${t('approveProBtn')}</button>
-                      <button type="button" onclick="rejectUserProStatus('${req.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/40 font-black rounded-lg btn-3d text-[10px]">${t('rejectProBtn')}</button>
+                    <div class="flex gap-1.5">
+                      <button type="button" onclick="approveUserProStatus('${req.id}')" class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black rounded-lg btn-3d text-[10px]">${t('approveProBtn')}</button>
+                      <button type="button" onclick="rejectUserProStatus('${req.id}')" class="px-2.5 py-1 bg-rose-500/20 text-rose-300 border border-rose-500/40 font-black rounded-lg btn-3d text-[10px]">${t('rejectProBtn')}</button>
                     </div>
                   </div>
                 `).join('')}
@@ -2841,28 +3006,30 @@
         let playersManagementList = platformProfilesList.map(item => `
           <div class="p-2 glass-subcard rounded-xl border border-white/10 flex justify-between items-center text-xs">
             <div class="truncate max-w-[180px]">
-              <span class="font-bold text-white">${escapeHTML(item.first_name)} ${escapeHTML(item.last_name || '')}</span>
+              <span class="font-bold text-white">${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}</span>
               <span class="text-[10px] text-amber-300 block font-mono">${item.league_points || 1000} LP • Level ${item.skill_level || 2.5}</span>
             </div>
-            <button type="button" onclick="openAdminEditPlayerModal('${item.id}')" class="px-2 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px] rounded-lg btn-3d">
+            <button type="button" onclick="openAdminEditPlayerModal('${item.id}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px] rounded-lg btn-3d">
               ✏️ Изменить
             </button>
           </div>
         `).join('');
 
         creatorAdminPanelHtml = `
-          <div class="p-3 glass-subcard border-2 border-cyan-500/50 rounded-3xl space-y-2 bg-slate-950/80">
+          <div class="p-4 glass-subcard border-2 border-cyan-500/50 rounded-3xl space-y-3 bg-slate-950/80">
             <div class="flex items-center gap-2">
               <span class="text-xl">👑</span>
               <div>
                 <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wide">${t('creatorPanelTitle')}</h3>
-                <p class="text-[10px] text-slate-400">Панель управления создателя</p>
+                <p class="text-[10px] text-slate-400">Полный доступ к редактированию всех игроков</p>
               </div>
             </div>
+
             ${pendingHtml}
-            <div class="space-y-1.5 pt-2 border-t border-cyan-500/30">
+
+            <div class="space-y-2 pt-2 border-t border-cyan-500/30">
               <h4 class="text-xs font-extrabold text-slate-300 uppercase tracking-wide">${t('allRegisteredPlayers')}</h4>
-              <div class="space-y-1 max-h-48 overflow-y-auto custom-scrollbar pr-1">${playersManagementList}</div>
+              <div class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">${playersManagementList}</div>
             </div>
           </div>
         `;
@@ -2871,18 +3038,18 @@
       let editFormHtml = '';
       if (isProfileEditOpen) {
         editFormHtml = `
-          <div class="p-3 glass-subcard border border-emerald-500/40 rounded-3xl space-y-2">
+          <div class="p-4 glass-subcard border border-emerald-500/40 rounded-3xl space-y-3">
             <h3 class="text-xs font-black text-emerald-300 uppercase tracking-wide">${t('profileEditTitle')}</h3>
             
-            <form onsubmit="handleSaveProfileDetails(event)" class="space-y-2 text-xs">
+            <form onsubmit="handleSaveProfileDetails(event)" class="space-y-2.5 text-xs">
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('birthDate')}</label>
-                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
                 </div>
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('gender')}</label>
-                  <select id="edit_gender" class="w-full p-2 glass-subcard rounded-xl text-xs text-white font-bold">
+                  <select id="edit_gender" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
                     <option value="" ${!p.gender ? 'selected' : ''}>— ${t('unspecified')} —</option>
                     <option value="male" ${p.gender === 'male' ? 'selected' : ''}>${t('male')}</option>
                     <option value="female" ${p.gender === 'female' ? 'selected' : ''}>${t('female')}</option>
@@ -2893,7 +3060,7 @@
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('preferredSide')}</label>
-                  <select id="edit_preferred_side" class="w-full p-2 glass-subcard rounded-xl text-xs text-white font-bold">
+                  <select id="edit_preferred_side" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
                     <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
                     <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
                     <option value="both" ${p.preferred_side === 'both' || !p.preferred_side ? 'selected' : ''}>${t('bothSides')}</option>
@@ -2901,15 +3068,15 @@
                 </div>
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('phone')}</label>
-                  <input type="tel" id="edit_phone" value="${escapeHTML(p.phone_number || '')}" placeholder="+373..." class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+                  <input type="tel" id="edit_phone" value="${sanitizeHTML(p.phone_number || '')}" placeholder="+373..." class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
                 </div>
               </div>
 
               <div class="flex gap-2 pt-1">
-                <button type="submit" class="flex-1 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
+                <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
                   ${t('saveChanges')}
                 </button>
-                <button type="button" onclick="toggleProfileEditForm()" class="px-3 py-2 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs btn-3d">
+                <button type="button" onclick="toggleProfileEditForm()" class="px-4 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs btn-3d">
                   ✕
                 </button>
               </div>
@@ -2929,22 +3096,22 @@
         let rowBg = "lb-card-solid";
         let rankBadge = `<span class="font-black text-slate-400 text-xs">${index + 1}.</span>`;
 
-        if (index === 0) { rowBg = "lb-podium-1"; rankBadge = `<span class="text-base">🥇</span>`; }
-        else if (index === 1) { rowBg = "lb-podium-2"; rankBadge = `<span class="text-base">🥈</span>`; }
-        else if (index === 2) { rowBg = "lb-podium-3"; rankBadge = `<span class="text-base">🥉</span>`; }
+        if (index === 0) { rowBg = "lb-podium-1"; rankBadge = `<span class="text-xl">🥇</span>`; }
+        else if (index === 1) { rowBg = "lb-podium-2"; rankBadge = `<span class="text-xl">🥈</span>`; }
+        else if (index === 2) { rowBg = "lb-podium-3"; rankBadge = `<span class="text-xl">🥉</span>`; }
 
         if (itemIsPro && index > 2) rowBg = "glass-card-pro";
 
         return `
-          <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} p-2 rounded-xl flex justify-between items-center cursor-pointer btn-3d">
-            <div class="flex items-center gap-2">
+          <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} p-3 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all btn-3d">
+            <div class="flex items-center gap-2.5">
               ${rankBadge}
               <div>
                 <h4 class="text-xs font-black text-white flex items-center gap-1">
-                  <span>${escapeHTML(item.first_name)} ${escapeHTML(item.last_name || '')}</span>
+                  <span>${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}</span>
                   ${itemIsPro ? '<span class="text-amber-300 text-[10px]">👑</span>' : ''}
                 </h4>
-                <div class="flex items-center gap-1 mt-0.5">
+                <div class="flex items-center gap-1.5 mt-0.5">
                   <span class="text-[9px] font-bold text-slate-300">${itemLeague.badge} ${itemLeague.title}</span>
                   <span class="text-[9px] text-slate-400">• Lvl ${item.skill_level || 2.5}</span>
                 </div>
@@ -2960,20 +3127,20 @@
       }).join('');
 
       container.innerHTML = `
-        <div class="space-y-3">
-          <div class="${cardClass} p-3 rounded-3xl space-y-2">
+        <div class="space-y-4">
+          <div class="${cardClass} p-4 rounded-3xl space-y-3">
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-base text-slate-950 shadow-md">
-                  ${(escapeHTML(p.first_name) || 'U')[0].toUpperCase()}
+              <div class="flex items-center gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-xl text-slate-950 shadow-md">
+                  ${(p.first_name || 'U')[0].toUpperCase()}
                 </div>
                 <div>
-                  <h3 class="text-xs font-black text-white flex items-center gap-1">
-                    <span>${escapeHTML(p.first_name)} ${escapeHTML(p.last_name || '')}</span>
+                  <h3 class="text-base font-black text-white flex items-center gap-1.5">
+                    <span>${sanitizeHTML(p.first_name)} ${sanitizeHTML(p.last_name || '')}</span>
                     ${isPro ? '<span class="text-amber-300">👑</span>' : ''}
                   </h3>
-                  <p class="text-[10px] text-emerald-400 font-semibold">@${escapeHTML(p.username || 'user')}</p>
-                  <div class="flex items-center gap-1 mt-0.5">
+                  <p class="text-xs text-emerald-400 font-semibold">@${sanitizeHTML(p.username || 'user')}</p>
+                  <div class="flex items-center gap-1 mt-1">
                     <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
                       ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
                     </span>
@@ -2981,21 +3148,21 @@
                 </div>
               </div>
 
-              <button type="button" onclick="toggleProfileEditForm()" class="px-2 py-1 bg-slate-800 text-slate-200 border border-white/10 font-bold text-[10px] rounded-xl btn-3d">
+              <button type="button" onclick="toggleProfileEditForm()" class="px-3 py-1.5 bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-white/10 font-bold text-xs rounded-xl btn-3d">
                 ⚙️ ${t('settingsBtn')}
               </button>
             </div>
 
-            <div class="grid grid-cols-3 gap-1 text-center text-[10px] pt-1">
-              <div class="p-1.5 glass-subcard rounded-xl border border-white/10">
+            <div class="grid grid-cols-3 gap-2 text-center text-[10px] pt-1">
+              <div class="p-2 glass-subcard rounded-xl border border-white/10">
                 <span class="text-slate-400 block">${t('matches')}</span>
                 <span class="font-black text-white text-xs">${total}</span>
               </div>
-              <div class="p-1.5 glass-subcard rounded-xl border border-white/10">
+              <div class="p-2 glass-subcard rounded-xl border border-white/10">
                 <span class="text-slate-400 block">${t('wins')}</span>
                 <span class="font-black text-emerald-400 text-xs">${wins}</span>
               </div>
-              <div class="p-1.5 glass-subcard rounded-xl border border-white/10">
+              <div class="p-2 glass-subcard rounded-xl border border-white/10">
                 <span class="text-slate-400 block">${t('winrate')}</span>
                 <span class="font-black text-amber-300 text-xs">${winrate}%</span>
               </div>
@@ -3006,22 +3173,22 @@
           ${proSectionHtml}
           ${creatorAdminPanelHtml}
 
-          <div class="p-3 glass-subcard border border-white/10 rounded-2xl space-y-2">
+          <div class="p-4 glass-subcard border border-white/10 rounded-3xl space-y-3">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('ratingSystemTitle')}</h3>
-            <div class="grid grid-cols-2 gap-1 text-[10px]">
-              <div class="p-1.5 glass-subcard rounded-xl border border-amber-500/30">👑 <strong>Master</strong>: 2100+ LP</div>
-              <div class="p-1.5 glass-subcard rounded-xl border border-cyan-500/30">💎 <strong>Platinum</strong>: 1800+ LP</div>
-              <div class="p-1.5 glass-subcard rounded-xl border border-yellow-500/30">🥇 <strong>Gold</strong>: 1500+ LP</div>
-              <div class="p-1.5 glass-subcard rounded-xl border border-slate-400/30">🥈 <strong>Silver</strong>: 1200+ LP</div>
+            <div class="grid grid-cols-2 gap-2 text-[10px]">
+              <div class="p-2 glass-subcard rounded-xl border border-amber-500/30">👑 <strong>Master</strong>: 2100+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-cyan-500/30">💎 <strong>Platinum</strong>: 1800+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-yellow-500/30">🥇 <strong>Gold</strong>: 1500+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-slate-400/30">🥈 <strong>Silver</strong>: 1200+ LP</div>
             </div>
           </div>
 
-          <div class="space-y-2 pt-1">
+          <div class="space-y-2 pt-2">
             <div class="flex justify-between items-center">
-              <h3 class="text-xs font-black text-slate-200 uppercase tracking-wide">${t('leaderboardTitle')}</h3>
+              <h3 class="text-sm font-black text-slate-200 uppercase tracking-wide">${t('leaderboardTitle')}</h3>
               <span class="text-[10px] text-emerald-400 font-bold">${platformProfilesList.length} игроков</span>
             </div>
-            <div class="space-y-1 max-h-[360px] overflow-y-auto custom-scrollbar pr-1">${leaderboardRowsHtml}</div>
+            <div class="space-y-2 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">${leaderboardRowsHtml}</div>
           </div>
         </div>
       `;
@@ -3047,57 +3214,69 @@
         await safeUpsertProfile(tgUser.id, payload);
 
         isProfileEditOpen = false;
-        alert('Данные профиля обновлены!');
+        alert('Данные профиля успешно обновлены!');
         renderProfileTab();
-      } catch(err) { alert('Ошибка: ' + err.message); }
+      } catch(err) { alert('Ошибка сохранения: ' + err.message); }
     }
 
     async function joinMatch(matchId, slotNumber) {
       try {
-        await ensureProfileInDatabase(currentUserProfile || tgUser);
-        const uid = String(tgUser.id);
+        const ok = await ensureProfileInDatabase(currentUserProfile || tgUser);
+        if (!ok) console.warn('Профиль пересоздаётся...');
+
+        const uid = tgUser.id;
 
         if (supabaseClient) {
-          await safeSupabaseQuery(() => supabaseClient.from('match_players').insert([{
+          let { error } = await supabaseClient.from('match_players').insert([{
             match_id: matchId,
             user_id: uid,
             slot_number: slotNumber
-          }]));
+          }]);
+
+          if (error) {
+            if (error.message && error.message.includes('foreign key constraint')) {
+              await ensureProfileInDatabase(tgUser);
+              const altUid = typeof uid === 'number' ? String(uid) : parseInt(uid, 10);
+              let { error: retryErr } = await supabaseClient.from('match_players').insert([{
+                match_id: matchId,
+                user_id: altUid,
+                slot_number: slotNumber
+              }]);
+              if (retryErr) throw retryErr;
+            } else {
+              throw error;
+            }
+          }
         }
 
         triggerSlotCelebration();
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
-      } catch (err) { alert('Ошибка входа: ' + err.message); }
+      } catch (err) { alert('Ошибка при занятии слота: ' + (err.message || err)); }
     }
 
     async function leaveMatch(matchId) {
       try {
         if (supabaseClient) {
-          await safeSupabaseQuery(() => supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', String(tgUser.id)));
+          await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', tgUser.id);
         }
 
         triggerSlotLeaveToast();
         currentSlotSubTab = 'feed';
         renderSlotsSubTabContent();
-      } catch (err) { alert('Ошибка: ' + err.message); }
+      } catch (err) { alert('Ошибка выхода: ' + err.message); }
     }
 
     function copyShareLink(url) {
       if (navigator.clipboard) {
         navigator.clipboard.writeText(url);
-        alert('Ссылка скопирована!');
+        alert('Ссылка на слот скопирована в буфер обмена!');
       } else {
-        alert('Ссылка: ' + url);
+        alert('Ссылка на слот: ' + url);
       }
     }
 
-    // Мгновенный и надежный запуск при открытии в Telegram
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      setTimeout(initApp, 0);
-    } else {
-      document.addEventListener('DOMContentLoaded', initApp);
-    }
+    window.onload = initApp;
   </script>
 </body>
 </html>
