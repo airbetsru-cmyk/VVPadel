@@ -231,7 +231,7 @@
 
       <!-- Главный Контент -->
       <div id="main-content" class="carbon-padel-card shimmer-border-reverse p-3.5 sm:p-5 rounded-3xl min-h-[300px]">
-        <!-- Заполняется динамически мгновенно -->
+        <!-- Заполняется динамически -->
       </div>
 
     </div>
@@ -488,7 +488,18 @@
   </div>
 
   <script>
-    // Safe LocalStorage Wrapper (Защита от сбоев в Android Telegram WebView)
+    // --- XSS SAFETY UTILITY ---
+    function escapeHTML(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Safe LocalStorage Wrapper
     const memoryStorage = {};
     const safeStorage = {
       getItem(key) {
@@ -567,6 +578,7 @@
     }
 
     // --- ANIMATION & CANVAS ---
+    let headerAnimReq = null;
     function initHeaderPadelAnimation() {
       try {
         const cvs = document.getElementById('header-padel-canvas');
@@ -619,14 +631,14 @@
           ctx.fillStyle = '#ccff00'; ctx.fill();
           ctx.restore();
 
-          requestAnimationFrame(animate);
+          headerAnimReq = requestAnimationFrame(animate);
         }
-        requestAnimationFrame(animate);
+        headerAnimReq = requestAnimationFrame(animate);
       } catch(e) {}
     }
 
     const canvas = document.getElementById('ball-canvas');
-    const ctx = canvas ? canvas.getContext('2d') : null;
+    const bgCtx = canvas ? canvas.getContext('2d') : null;
     let width, height;
 
     function resizeCanvas() {
@@ -654,22 +666,36 @@
         if (this.y - this.radius > (height || 600)) this.reset(false);
       }
       draw() {
-        if (!ctx) return;
-        ctx.save(); ctx.globalAlpha = this.opacity; ctx.translate(this.x, this.y);
-        ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#ccff00'; ctx.fill();
-        ctx.restore();
+        if (!bgCtx) return;
+        bgCtx.save(); bgCtx.globalAlpha = this.opacity; bgCtx.translate(this.x, this.y);
+        bgCtx.beginPath(); bgCtx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        bgCtx.fillStyle = '#ccff00'; bgCtx.fill();
+        bgCtx.restore();
       }
     }
-    if (ctx) {
+    let bgAnimReq = null;
+    if (bgCtx) {
       for (let i = 0; i < ballCount; i++) balls.push(new FallingBall());
       function animateBalls() {
-        ctx.clearRect(0, 0, width, height);
+        bgCtx.clearRect(0, 0, width, height);
         balls.forEach(ball => { ball.update(); ball.draw(); });
-        requestAnimationFrame(animateBalls);
+        bgAnimReq = requestAnimationFrame(animateBalls);
       }
       animateBalls();
     }
+
+    // Пауза анимаций при сворачивании вкладки
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (headerAnimReq) cancelAnimationFrame(headerAnimReq);
+        if (bgAnimReq) cancelAnimationFrame(bgAnimReq);
+        if (gameLoopReq) cancelAnimationFrame(gameLoopReq);
+      } else {
+        initHeaderPadelAnimation();
+        if (bgCtx) animateBalls();
+        if (isGameRunning) runMotionGameLoop();
+      }
+    });
 
     // --- МИНИ-ИГРА Motion Padel Simulator ---
     let gameLoopReq = null, isGameRunning = false, currentGameScore = 0, gameControlMode = 'touch';
@@ -677,6 +703,7 @@
     let gCanvas, gCtx, gWidth = 360, gHeight = 520;
     let gRacket = { x: 180, y: 440, w: 76, h: 22, vx: 0, targetX: 180, tiltAngle: 0 };
     let gBall = { x: 180, y: 100, vx: 2, vy: 3, r: 8, spin: 0, rotation: 0, squashX: 1, squashY: 1 };
+    let lastGameLoopTime = 0;
 
     function openPadelGameModal() {
       document.getElementById('modal-padel-game').classList.remove('hidden');
@@ -722,8 +749,15 @@
       if (mode === 'gyro') {
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
           DeviceOrientationEvent.requestPermission().then(permissionState => {
-            if (permissionState === 'granted') window.addEventListener('deviceorientation', handleGyroscopeMotion);
-          }).catch(console.error);
+            if (permissionState === 'granted') {
+              window.addEventListener('deviceorientation', handleGyroscopeMotion);
+            }
+            restartPadelGame();
+          }).catch(err => {
+            console.error("Gyro permission error:", err);
+            restartPadelGame();
+          });
+          return;
         } else {
           window.addEventListener('deviceorientation', handleGyroscopeMotion);
         }
@@ -747,20 +781,28 @@
       gRacket.x = gWidth / 2; gRacket.targetX = gWidth / 2; gRacket.y = gHeight - 70;
       gBall.x = gWidth / 2; gBall.y = 80; gBall.vx = (Math.random() - 0.5) * 4; gBall.vy = 3.5; gBall.spin = 0;
       isGameRunning = true;
+      lastGameLoopTime = performance.now();
       if (gameLoopReq) cancelAnimationFrame(gameLoopReq);
-      runMotionGameLoop();
+      runMotionGameLoop(performance.now());
     }
 
-    function runMotionGameLoop() {
+    function runMotionGameLoop(timestamp) {
       if (!isGameRunning || !gCtx) return;
+
+      const dt = Math.min((timestamp - lastGameLoopTime) / 1000, 0.1) || 0.016;
+      lastGameLoopTime = timestamp;
+      const speedScale = dt * 60; // Шкалирование для 60 FPS
+
       const prevX = gRacket.x;
-      gRacket.x += (gRacket.targetX - gRacket.x) * 0.3;
+      gRacket.x += (gRacket.targetX - gRacket.x) * (1 - Math.pow(1 - 0.3, speedScale));
       gRacket.vx = gRacket.x - prevX;
       const halfW = gRacket.w / 2;
       if (gRacket.x < halfW) gRacket.x = halfW;
       if (gRacket.x > gWidth - halfW) gRacket.x = gWidth - halfW;
 
-      gBall.vy += 0.22; gBall.x += gBall.vx; gBall.y += gBall.vy;
+      gBall.vy += 0.22 * speedScale; 
+      gBall.x += gBall.vx * speedScale; 
+      gBall.y += gBall.vy * speedScale;
 
       if (gBall.x - gBall.r <= 0) { gBall.x = gBall.r; gBall.vx = Math.abs(gBall.vx); soundBounce(); }
       if (gBall.x + gBall.r >= gWidth) { gBall.x = gWidth - gBall.r; gBall.vx = -Math.abs(gBall.vx); soundBounce(); }
@@ -822,7 +864,7 @@
       if (!tgUser.id) return;
       await ensureProfileInDatabase(currentUserProfile || tgUser);
       if (supabaseClient) {
-        try { await supabaseClient.from('profiles').update({ game_high_score: score, updated_at: new Date().toISOString() }).eq('id', tgUser.id); } catch(e){}
+        try { await supabaseClient.from('profiles').update({ game_high_score: score, updated_at: new Date().toISOString() }).eq('id', tgUser.id); } catch(e){ console.error(e); }
       }
     }
 
@@ -830,11 +872,12 @@
       const listContainer = document.getElementById('game-leaderboard-list');
       if (!listContainer) return;
 
-      let sorted = [...platformProfilesList];
-      sorted.forEach(p => {
+      // Глубокая копия массива во избежание мутаций
+      let sorted = platformProfilesList.map(p => {
         if (String(p.id) === String(tgUser.id) && userHighScore > (p.game_high_score || 0)) {
-          p.game_high_score = userHighScore;
+          return { ...p, game_high_score: userHighScore };
         }
+        return p;
       });
       sorted.sort((a, b) => (b.game_high_score || 0) - (a.game_high_score || 0));
 
@@ -842,7 +885,7 @@
         const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `${idx + 1}.`));
         return `
           <div class="flex justify-between items-center py-1">
-            <span class="font-bold text-white truncate max-w-[180px]">${medal} ${item.first_name} ${item.last_name || ''}</span>
+            <span class="font-bold text-white truncate max-w-[180px]">${medal} ${escapeHTML(item.first_name)} ${escapeHTML(item.last_name || '')}</span>
             <span class="font-black text-amber-300 font-mono">${item.game_high_score || 0} PTS</span>
           </div>
         `;
@@ -1194,7 +1237,7 @@
     let supabaseClient = null;
     try {
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } catch (e) {}
+    } catch (e) { console.error(e); }
 
     // Safe Supabase Query Wrapper
     async function safeSupabaseQuery(fn) {
@@ -1205,7 +1248,7 @@
           new Promise(resolve => setTimeout(() => resolve({ data: null, error: 'timeout' }), 5000))
         ]);
         return res && res.data ? res.data : null;
-      } catch(e) { return null; }
+      } catch(e) { console.error(e); return null; }
     }
 
     async function ensureProfileInDatabase(userObj) {
@@ -1232,14 +1275,14 @@
       try {
         await safeSupabaseQuery(() => supabaseClient.from('profiles').upsert([fullPayload], { onConflict: 'id' }));
         return true;
-      } catch(e) { return false; }
+      } catch(e) { console.error(e); return false; }
     }
 
     async function safeUpsertProfile(userId, profileObj) {
       if (!supabaseClient) return;
       try {
         await safeSupabaseQuery(() => supabaseClient.from('profiles').upsert([{ id: String(userId), ...profileObj }], { onConflict: 'id' }));
-      } catch(e) {}
+      } catch(e) { console.error(e); }
     }
 
     function cleanAndGetAmericanoHistory() {
@@ -1282,7 +1325,7 @@
             <div class="flex items-center justify-between p-2 rounded-xl border ${style} text-xs">
               <div class="flex items-center gap-2">
                 <span class="font-black text-amber-400">${badge}</span>
-                <span class="font-bold text-white">${item.name}</span>
+                <span class="font-bold text-white">${escapeHTML(item.name)}</span>
               </div>
               <span class="font-black text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-full text-[11px]">${item.pointsGained !== undefined ? item.pointsGained : (item.pts || 0)} PTS</span>
             </div>
@@ -1293,10 +1336,10 @@
       let roundsHtml = '';
       if (tourney.rounds && tourney.rounds.length > 0) {
         roundsHtml = tourney.rounds.map(r => {
-          const pA1 = tourney.players[r.team_a[0]]?.name || '—';
-          const pA2 = tourney.players[r.team_a[1]]?.name || '—';
-          const pB1 = tourney.players[r.team_b[0]]?.name || '—';
-          const pB2 = tourney.players[r.team_b[1]]?.name || '—';
+          const pA1 = escapeHTML(tourney.players[r.team_a[0]]?.name || '—');
+          const pA2 = escapeHTML(tourney.players[r.team_a[1]]?.name || '—');
+          const pB1 = escapeHTML(tourney.players[r.team_b[0]]?.name || '—');
+          const pB2 = escapeHTML(tourney.players[r.team_b[1]]?.name || '—');
 
           return `
             <div class="p-2.5 glass-subcard border border-white/10 rounded-xl space-y-1 text-xs">
@@ -1343,17 +1386,15 @@
     function initApp() {
       try {
         const greetingEl = document.getElementById('user-greeting');
-        if (greetingEl) greetingEl.innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() || 'Victor Popovici';
+        if (greetingEl) greetingEl.textContent = `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 'Victor Popovici';
         
         initHeaderPadelAnimation();
 
         const savedState = safeStorage.getItem(getAmericanoStorageKey());
         if (savedState) { try { localAmericanoState = JSON.parse(savedState); } catch(e){} }
 
-        // Мгновенная отрисовка базового интерфейса
         setLanguage(currentLang);
 
-        // Асинхронная синхронизация без блокировки UI
         syncUserProfile().then(() => {
           const startMatchId = getStartParam();
           if (startMatchId) {
@@ -1380,7 +1421,7 @@
       try {
         const data = await safeSupabaseQuery(() => supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false }));
         if (data) platformProfilesList = data.filter(isValidRealUser);
-      } catch(e) {}
+      } catch(e) { console.error(e); }
 
       if (currentUserProfile && isValidRealUser(currentUserProfile)) {
         if (!platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
@@ -1587,29 +1628,28 @@
       fetchAndDisplayFeedMatches();
     }
 
+    // Оптимизированный запрос к Supabase с JOIN
     async function fetchAndDisplayFeedMatches() {
       const feedContainer = document.getElementById('feed-list-container');
       if (!feedContainer) return;
 
       let publicMatches = [];
-      const now = new Date();
+      const nowISO = new Date().toISOString();
 
       if (supabaseClient) {
         try {
-          const matches = await safeSupabaseQuery(() => supabaseClient.from('matches').select('*').order('scheduled_at', { ascending: true }));
-          if (matches) {
-            const allPlayers = await safeSupabaseQuery(() => supabaseClient.from('match_players').select('*'));
-            const playersList = allPlayers || [];
-
-            publicMatches = matches.filter(m => {
-              const matchTime = new Date(m.scheduled_at);
-              return matchTime >= now && !m.is_registration_closed && m.is_public !== false;
-            }).map(m => {
-              const mPlayers = playersList.filter(p => String(p.match_id) === String(m.id));
-              return { ...m, match_players: mPlayers };
-            });
-          }
-        } catch(e) {}
+          const matches = await safeSupabaseQuery(() => 
+            supabaseClient
+              .from('matches')
+              .select('*, match_players(*)')
+              .eq('is_public', true)
+              .eq('is_registration_closed', false)
+              .gte('scheduled_at', nowISO)
+              .order('scheduled_at', { ascending: true })
+              .limit(30)
+          );
+          if (matches) publicMatches = matches;
+        } catch(e) { console.error("Error fetching feed:", e); }
       }
 
       let matchesHtml = '';
@@ -1629,9 +1669,9 @@
               <div class="flex justify-between items-start gap-2">
                 <div>
                   <div class="flex items-center gap-1.5">
-                    <h3 class="text-xs font-black text-white">${m.custom_location}</h3>
+                    <h3 class="text-xs font-black text-white">${escapeHTML(m.custom_location)}</h3>
                     <span class="px-1.5 py-0.5 bg-teal-500/20 text-teal-300 font-extrabold text-[9px] rounded uppercase border border-teal-500/30">
-                      ${m.match_type || 'friendly'}
+                      ${escapeHTML(m.match_type || 'friendly')}
                     </span>
                   </div>
                   <p class="text-[10px] text-slate-300 font-medium mt-0.5">📅 ${dateStr}</p>
@@ -1642,7 +1682,7 @@
                 </div>
               </div>
 
-              ${m.notes ? `<p class="text-[10px] text-slate-300 italic bg-white/5 p-1.5 rounded-xl border border-white/5">💬 "${m.notes}"</p>` : ''}
+              ${m.notes ? `<p class="text-[10px] text-slate-300 italic bg-white/5 p-1.5 rounded-xl border border-white/5">💬 "${escapeHTML(m.notes)}"</p>` : ''}
 
               <div class="flex items-center justify-between pt-1">
                 <div class="flex items-center gap-1.5">
@@ -1897,7 +1937,7 @@
         for (let i = 1; i <= displayLimit; i++) {
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
           if (p) {
-            const name = p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Player');
+            const name = escapeHTML(p.profiles?.first_name || (String(p.user_id) === String(tgUser.id) ? tgUser.first_name : 'Player'));
             const isCreatorOfThisSlot = String(p.user_id) === String(match.creator_id);
 
             slotsHtml += `
@@ -1942,10 +1982,10 @@
             <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-0.5">
               <div class="max-w-[85%] p-2 rounded-2xl text-xs space-y-0.5 ${isMe ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md' : 'glass-subcard text-slate-200 border border-white/10 rounded-bl-none'}">
                 <div class="flex justify-between items-center gap-2 text-[9px] opacity-75 font-bold uppercase">
-                  <span>${m.sender_name || 'Игрок'}</span>
+                  <span>${escapeHTML(m.sender_name || 'Игрок')}</span>
                   <span>${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                 </div>
-                <p class="leading-relaxed break-words font-medium">${m.message_text}</p>
+                <p class="leading-relaxed break-words font-medium">${escapeHTML(m.message_text)}</p>
               </div>
             </div>
           `;
@@ -2002,11 +2042,11 @@
               <div class="flex justify-between items-center mb-1">
                 ${isPublicBadge}
                 <span class="px-2 py-0.5 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[9px] font-black uppercase rounded-lg">
-                  ${match.match_type}
+                  ${escapeHTML(match.match_type)}
                 </span>
               </div>
               <div class="flex justify-between items-start">
-                <h2 class="text-base font-black text-white">${match.custom_location}</h2>
+                <h2 class="text-base font-black text-white">${escapeHTML(match.custom_location)}</h2>
                 <span class="text-xs font-black text-emerald-400">${match.price_per_player} MDL</span>
               </div>
               <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
@@ -2022,7 +2062,7 @@
             <div class="border-t border-white/10 pt-2 space-y-2">
               <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">${t('chatTitle')}</h3>
               <div id="chat-box" class="h-32 overflow-y-auto space-y-2 p-2.5 glass-subcard rounded-2xl border border-white/10 shadow-inner custom-scrollbar">
-                ${chatHtml.length > 0 ? chatHtml : `<p class="text-xs text-slate-400 text-center py-6 italic">${t('chatEmptyMsg')}</p>`}
+                ${chatHtml.length > 0 ? chatHtml : `<p class="chat-empty-msg text-xs text-slate-400 text-center py-6 italic">${t('chatEmptyMsg')}</p>`}
               </div>
               <div class="flex gap-1.5">
                 <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-2 glass-subcard border border-slate-700 rounded-xl text-xs text-white">
@@ -2041,7 +2081,7 @@
 
         const chatBox = document.getElementById('chat-box');
         if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-      } catch (err) {}
+      } catch (err) { console.error(err); }
     }
 
     async function kickPlayer(matchId, userId) {
@@ -2062,6 +2102,7 @@
 
     function handleChatKeyPress(e, matchId) { if (e.key === 'Enter') sendChatMessage(matchId); }
 
+    // Оптимизированная динамическая отправка без полного перерендера
     async function sendChatMessage(matchId) {
       const input = document.getElementById('chat_input');
       if (!input) return;
@@ -2079,11 +2120,31 @@
       saveLocalChatMessage(matchId, newMsg);
 
       if (supabaseClient) {
-        try { await safeSupabaseQuery(() => supabaseClient.from('match_messages').insert([newMsg])); } catch(e) {}
+        try { await safeSupabaseQuery(() => supabaseClient.from('match_messages').insert([newMsg])); } catch(e){}
       }
 
       input.value = '';
-      renderMatchDetails(matchId);
+      
+      const chatBox = document.getElementById('chat-box');
+      if (chatBox) {
+        const emptyMsg = chatBox.querySelector('.chat-empty-msg');
+        if (emptyMsg) emptyMsg.remove();
+
+        const timeStr = new Date(newMsg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const msgHtml = `
+          <div class="flex flex-col items-end space-y-0.5">
+            <div class="max-w-[85%] p-2 rounded-2xl text-xs space-y-0.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md">
+              <div class="flex justify-between items-center gap-2 text-[9px] opacity-75 font-bold uppercase">
+                <span>${escapeHTML(newMsg.sender_name)}</span>
+                <span>${timeStr}</span>
+              </div>
+              <p class="leading-relaxed break-words font-medium">${escapeHTML(newMsg.message_text)}</p>
+            </div>
+          </div>
+        `;
+        chatBox.insertAdjacentHTML('beforeend', msgHtml);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
     }
 
     // --- ВКЛАДКА 2: АМЕРИКАНО ---
@@ -2113,7 +2174,7 @@
             <div class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">
               ${history.map(item => {
                 const dt = new Date(item.timestamp).toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-                const topWinner = item.leaderboard && item.leaderboard[0] ? item.leaderboard[0].name : '—';
+                const topWinner = item.leaderboard && item.leaderboard[0] ? escapeHTML(item.leaderboard[0].name) : '—';
                 return `
                   <div onclick="openHistoryTourneyModal('${item.id}')" class="p-2 glass-subcard border border-purple-500/30 hover:border-purple-400/60 rounded-xl space-y-1 text-xs cursor-pointer transition-all btn-3d">
                     <div class="flex justify-between items-center text-slate-400 text-[10px] font-bold">
@@ -2215,8 +2276,8 @@
       
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
       platformProfilesList.forEach(p => {
-        const name = `${p.first_name} ${p.last_name || ''}`.trim();
-        const usernameTag = p.username ? ` (@${p.username})` : '';
+        const name = escapeHTML(`${p.first_name} ${p.last_name || ''}`.trim());
+        const usernameTag = p.username ? ` (@${escapeHTML(p.username)})` : '';
         optionsHtml += `<option value="${p.id}" data-name="${name}">${name}${usernameTag} (Lvl ${p.skill_level || 2.5})</option>`;
       });
 
@@ -2224,7 +2285,7 @@
 
       for (let i = 1; i <= count; i++) {
         const saved = existingData[i - 1];
-        const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Player ${i}`);
+        const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() : `Player ${i}`);
 
         html += `
           <div class="p-2 glass-subcard rounded-xl space-y-1 border border-white/10">
@@ -2236,7 +2297,7 @@
               <select id="player_select_${i}" onchange="onPlayerSelectChange(${i})" class="w-full p-1.5 glass-subcard rounded-lg text-xs font-bold text-white focus:outline-none">
                 ${optionsHtml}
               </select>
-              <input type="text" id="player_name_${i}" value="${defaultName}" placeholder="Name ${i}" class="w-full p-1.5 glass-subcard rounded-lg text-xs text-white focus:outline-none">
+              <input type="text" id="player_name_${i}" value="${escapeHTML(defaultName)}" placeholder="Name ${i}" class="w-full p-1.5 glass-subcard rounded-lg text-xs text-white focus:outline-none">
             </div>
           </div>
         `;
@@ -2404,7 +2465,7 @@
           <div class="flex items-center justify-between p-2 border rounded-xl ${cardStyle}">
             <div class="flex items-center gap-2 text-xs">
               ${badge}
-              <span class="font-bold text-white">${item.name}</span>
+              <span class="font-bold text-white">${escapeHTML(item.name)}</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="text-[10px] text-slate-300 font-bold">${scoreDetail}</span>
@@ -2415,10 +2476,10 @@
       }).join('');
 
       let roundsHtml = rounds.map(r => {
-        const pA1 = players[r.team_a[0]]?.name || '—';
-        const pA2 = players[r.team_a[1]]?.name || '—';
-        const pB1 = players[r.team_b[0]]?.name || '—';
-        const pB2 = players[r.team_b[1]]?.name || '—';
+        const pA1 = escapeHTML(players[r.team_a[0]]?.name || '—');
+        const pA2 = escapeHTML(players[r.team_a[1]]?.name || '—');
+        const pB1 = escapeHTML(players[r.team_b[0]]?.name || '—');
+        const pB2 = escapeHTML(players[r.team_b[1]]?.name || '—');
 
         return `
           <div class="p-2 border border-white/10 rounded-xl glass-subcard space-y-1 text-xs">
@@ -2557,7 +2618,7 @@
                 updated_at: new Date().toISOString()
               });
             }
-          } catch(e) {}
+          } catch(e) { console.error(e); }
         }
       }
 
@@ -2639,14 +2700,14 @@
         <div class="${cardClass} p-4 rounded-3xl space-y-3">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-base text-slate-950 shadow-md">
-              ${(p.first_name || 'U')[0].toUpperCase()}
+              ${(escapeHTML(p.first_name) || 'U')[0].toUpperCase()}
             </div>
             <div>
               <h3 class="text-sm font-black text-white flex items-center gap-1.5">
-                <span>${p.first_name} ${p.last_name || ''}</span>
+                <span>${escapeHTML(p.first_name)} ${escapeHTML(p.last_name || '')}</span>
                 ${isPro ? '<span class="text-amber-300">👑</span>' : ''}
               </h3>
-              ${p.username ? `<p class="text-xs text-emerald-400 font-semibold">@${p.username}</p>` : ''}
+              ${p.username ? `<p class="text-xs text-emerald-400 font-semibold">@${escapeHTML(p.username)}</p>` : ''}
               <div class="flex items-center gap-1 mt-1">
                 <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
                   ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
@@ -2704,12 +2765,12 @@
         <form onsubmit="saveAdminPlayerEdit(event, '${p.id}')" class="space-y-2.5 text-xs">
           <div>
             <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Имя</label>
-            <input type="text" id="admin_edit_fname" value="${p.first_name || ''}" required class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+            <input type="text" id="admin_edit_fname" value="${escapeHTML(p.first_name || '')}" required class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
           </div>
 
           <div>
             <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Фамилия</label>
-            <input type="text" id="admin_edit_lname" value="${p.last_name || ''}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+            <input type="text" id="admin_edit_lname" value="${escapeHTML(p.last_name || '')}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
           </div>
 
           <div class="grid grid-cols-2 gap-2">
@@ -2834,7 +2895,7 @@
                 ${pendingReqs.map(req => `
                   <div class="p-2 glass-subcard rounded-xl border border-amber-500/40 flex justify-between items-center text-xs">
                     <div>
-                      <span class="font-black text-white block">${req.first_name} ${req.last_name \vert{}\vert{} ''}</span>${req.username ? `<span class="text-[10px] text-emerald-400">@${req.username}</span>` : ''}
+                      <span class="font-black text-white block">${escapeHTML(req.first_name)} ${escapeHTML(req.last_name \vert{}\vert{} '')}</span>${req.username ? `<span class="text-[10px] text-emerald-400">@${escapeHTML(req.username)}</span>` : ''}
                     </div>
                     <div class="flex gap-1">
                       <button type="button" onclick="approveUserProStatus('${req.id}')" class="px-2 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black rounded-lg btn-3d text-[10px]">${t('approveProBtn')}</button>
@@ -2850,7 +2911,7 @@
         let playersManagementList = platformProfilesList.map(item => `
           <div class="p-2 glass-subcard rounded-xl border border-white/10 flex justify-between items-center text-xs">
             <div class="truncate max-w-[180px]">
-              <span class="font-bold text-white">${item.first_name} ${item.last_name || ''}</span>
+              <span class="font-bold text-white">${escapeHTML(item.first_name)} ${escapeHTML(item.last_name || '')}</span>
               <span class="text-[10px] text-amber-300 block font-mono">${item.league_points || 1000} LP • Level ${item.skill_level || 2.5}</span>
             </div>
             <button type="button" onclick="openAdminEditPlayerModal('${item.id}')" class="px-2 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px] rounded-lg btn-3d">
@@ -2912,7 +2973,7 @@
                 </div>
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('phone')}</label>
-                  <input type="tel" id="edit_phone" value="${p.phone_number || ''}" placeholder="+373..." class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+                  <input type="tel" id="edit_phone" value="${escapeHTML(p.phone_number || '')}" placeholder="+373..." class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
                 </div>
               </div>
 
@@ -2952,7 +3013,7 @@
               ${rankBadge}
               <div>
                 <h4 class="text-xs font-black text-white flex items-center gap-1">
-                  <span>${item.first_name} ${item.last_name || ''}</span>
+                  <span>${escapeHTML(item.first_name)} ${escapeHTML(item.last_name || '')}</span>
                   ${itemIsPro ? '<span class="text-amber-300 text-[10px]">👑</span>' : ''}
                 </h4>
                 <div class="flex items-center gap-1 mt-0.5">
@@ -2976,14 +3037,14 @@
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-base text-slate-950 shadow-md">
-                  ${(p.first_name || 'U')[0].toUpperCase()}
+                  ${(escapeHTML(p.first_name) || 'U')[0].toUpperCase()}
                 </div>
                 <div>
                   <h3 class="text-xs font-black text-white flex items-center gap-1">
-                    <span>${p.first_name} ${p.last_name || ''}</span>
+                    <span>${escapeHTML(p.first_name)} ${escapeHTML(p.last_name || '')}</span>
                     ${isPro ? '<span class="text-amber-300">👑</span>' : ''}
                   </h3>
-                  <p class="text-[10px] text-emerald-400 font-semibold">@${p.username || 'user'}</p>
+                  <p class="text-[10px] text-emerald-400 font-semibold">@${escapeHTML(p.username || 'user')}</p>
                   <div class="flex items-center gap-1 mt-0.5">
                     <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
                       ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
