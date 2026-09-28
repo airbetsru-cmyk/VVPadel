@@ -12,7 +12,7 @@
   <!-- Canvas Confetti Library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tailwindcss-cdn@3.4.10/tailwindcss.min.js"></script>
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
@@ -115,21 +115,18 @@
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
       border: 1.5px solid rgba(245, 158, 11, 0.85) !important;
       box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
-      contain: content;
     }
 
     .lb-podium-2 {
       background: linear-gradient(135deg, rgba(203, 213, 225, 0.22) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
       border: 1.5px solid rgba(203, 213, 225, 0.65) !important;
       box-shadow: 0 4px 15px rgba(203, 213, 225, 0.15);
-      contain: content;
     }
 
     .lb-podium-3 {
       background: linear-gradient(135deg, rgba(180, 83, 9, 0.28) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
       border: 1.5px solid rgba(217, 119, 6, 0.65) !important;
       box-shadow: 0 4px 15px rgba(180, 83, 9, 0.2);
-      contain: content;
     }
 
     .custom-scrollbar { -webkit-overflow-scrolling: touch; }
@@ -187,11 +184,9 @@
     }
 
     .toast-pop { animation: popInOut 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-
     .neon-glow-emerald { box-shadow: 0 0 20px rgba(16, 185, 129, 0.45); }
     .neon-glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.45); }
     .neon-glow-blue { box-shadow: 0 0 20px rgba(59, 130, 246, 0.45); }
-
     .btn-3d { transition: all 0.15s ease; }
     .btn-3d:active { transform: translateY(2px) scale(0.98); }
 
@@ -525,7 +520,6 @@
   </div>
 
   <script>
-    // --- Вспомогательная очистка HTML (XSS Protection) ---
     function sanitizeHTML(str) {
       if (!str) return '';
       return String(str)
@@ -536,7 +530,6 @@
         .replace(/'/g, '&#039;');
     }
 
-    // --- Telegram Пользователь ---
     const tg = window.Telegram?.WebApp;
     if (tg) { try { tg.ready(); tg.expand(); } catch(e) {} }
 
@@ -568,7 +561,6 @@
       return true;
     }
 
-    // --- ANIMATION & CANVAS ---
     let headerAnimId = null;
     function initHeaderPadelAnimation() {
       const cvs = document.getElementById('header-padel-canvas');
@@ -714,7 +706,6 @@
     }
     animateBalls();
 
-    // --- МИНИ-ИГРА Motion Padel Simulator ---
     let gameLoopReq = null, isGameRunning = false, currentGameScore = 0, gameControlMode = 'touch';
     let userHighScore = parseInt(localStorage.getItem('padel_motion_high_score') || '0', 10);
     let gCanvas, gCtx, gWidth = 360, gHeight = 520;
@@ -924,7 +915,6 @@
       listContainer.innerHTML = html || `<p class="text-[10px] text-slate-400 italic">Таблица пуста</p>`;
     }
 
-    // --- ЛИГИ И ДИВИЗИОНЫ ---
     function getPlayerLeague(lp = 1000) {
       if (lp >= 2100) return { title: 'Master', badge: '👑', color: 'text-amber-300 border-amber-400/50 bg-amber-500/20' };
       if (lp >= 1800) return { title: 'Platinum', badge: '💎', color: 'text-cyan-300 border-cyan-400/50 bg-cyan-500/20' };
@@ -959,7 +949,6 @@
       return totalPts;
     }
 
-    // --- МУЛЬТИЯЗЫЧНОСТЬ ---
     const TRANSLATIONS = {
       ru: {
         tabBooking: "Слоты", tabAmericano: "Американо", tabProfile: "Профиль",
@@ -1209,14 +1198,12 @@
       }
     }
 
-    // --- SUPABASE И ТЕЛЕГРАМ ---
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_KRbMwTasNQpUqQ7gKihOxg_KKQiUbm-'; 
     const shareBotUsername = 'VVPadel_bot';
 
     const CREATOR_TELEGRAM_IDS = ['kizdoi', 'Victor Popovici'];
 
-    // Исправлены математические ротации Американо
     const AMERICANO_ROTATIONS = {
       4: [
         { round: 1, court: 1, a: [0, 1], b: [2, 3] },
@@ -1262,19 +1249,16 @@
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
       const box = document.getElementById('error-box');
-      box.classList.remove('hidden'); box.innerHTML = `<strong>Инфо:</strong> ${sanitizeHTML(msg)}`;
+      if (box) {
+        box.classList.remove('hidden'); 
+        box.innerHTML = `<strong>Инфо:</strong> ${sanitizeHTML(msg)}`;
+      }
     }
 
     function isUserCreator() {
       return String(tgUser.id) === '777777' || tgUser.username === 'kizdoi' || CREATOR_TELEGRAM_IDS.includes(tgUser.username) || CREATOR_TELEGRAM_IDS.includes(tgUser.first_name);
     }
     
-    function getStartParam() {
-      if (tg?.initDataUnsafe?.start_param) return tg.initDataUnsafe.start_param;
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get('tgWebAppStartParam') || urlParams.get('startapp') || urlParams.get('start');
-    }
-
     let supabaseClient = null;
     try {
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1331,13 +1315,7 @@
         };
         let { error: minErr } = await supabaseClient.from('profiles').upsert([minimalPayload], { onConflict: 'id' });
         if (!minErr) return true;
-
-        minimalPayload.id = uidStr;
-        let { error: strErr } = await supabaseClient.from('profiles').upsert([minimalPayload], { onConflict: 'id' });
-        if (!strErr) return true;
-      } catch(e) {
-        console.error('ensureProfileInDatabase err:', e);
-      }
+      } catch(e) {}
       return false;
     }
 
@@ -1451,6 +1429,7 @@
 
     function closeTourneyModal() { document.getElementById('modal-view-tourney').classList.add('hidden'); }
 
+    // --- ГЛАВНАЯ ИНИЦИАЛИЗАЦИЯ С ТАЙМАУТОМ БЕЗОПАСНОСТИ ---
     async function initApp() {
       document.getElementById('user-greeting').innerText = sanitizeHTML(`${tgUser.first_name} ${tgUser.last_name || ''}`.trim());
       initHeaderPadelAnimation();
@@ -1458,8 +1437,15 @@
       const savedState = localStorage.getItem(getAmericanoStorageKey());
       if (savedState) { try { localAmericanoState = JSON.parse(savedState); } catch(e){} }
 
-      await syncUserProfile();
-      await fetchAllPlatformProfiles();
+      // Защита от бесконечного зависания: таймаут на 4 секунды для сети
+      const initPromise = (async () => {
+        await syncUserProfile();
+        await fetchAllPlatformProfiles();
+      })();
+
+      const timeoutPromise = new Promise(resolve => setTimeout(resolve, 4000));
+      await Promise.race([initPromise, timeoutPromise]);
+
       setLanguage(currentLang);
     }
 
@@ -1528,6 +1514,7 @@
         updated_at: new Date().toISOString()
       };
 
+      currentUserProfile = newProf;
       await ensureProfileInDatabase(newProf);
 
       if (supabaseClient) {
@@ -1539,12 +1526,8 @@
               userHighScore = data.game_high_score;
               localStorage.setItem('padel_motion_high_score', userHighScore);
             }
-          } else {
-            currentUserProfile = newProf;
           }
         } catch (err) {}
-      } else {
-        currentUserProfile = newProf;
       }
     }
 
@@ -1604,7 +1587,6 @@
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    // --- ВКЛАДКА 1: СЛОТЫ И ЛЕНТА ОТКРЫТЫХ ИГР ---
     function setSlotsSubTab(subTab) {
       currentSlotSubTab = subTab;
       renderSlotsSubTabContent();
@@ -1645,10 +1627,8 @@
           .filter(m => m && !m.is_registration_closed && new Date(m.scheduled_at) > new Date(now.getTime() - 4 * 3600 * 1000))
           .sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
 
-        if (activeMatches.length > 0) {
-          return activeMatches[0].id;
-        }
-      } catch(e) { console.log('getUserActiveMatchId err:', e); }
+        if (activeMatches.length > 0) return activeMatches[0].id;
+      } catch(e) {}
       return null;
     }
 
@@ -1696,14 +1676,6 @@
               const isPast = matchTime < now;
               const isClosed = m.is_registration_closed === true;
               const isPrivate = m.is_public === false;
-
-              if (isPast && supabaseClient) {
-                supabaseClient.from('match_messages').delete().eq('match_id', m.id).then();
-                supabaseClient.from('match_players').delete().eq('match_id', m.id).then();
-                supabaseClient.from('matches').delete().eq('id', m.id).then();
-                return false;
-              }
-
               return !isPast && !isClosed && !isPrivate;
             });
           }
@@ -1791,7 +1763,6 @@
     async function quickJoinMatchFromFeed(matchId) {
       try {
         await ensureProfileInDatabase(currentUserProfile || tgUser);
-        
         let match = null, players = [];
         if (supabaseClient) {
           const { data: mData } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
@@ -1829,7 +1800,6 @@
 
         await joinMatch(matchId, nextFreeSlot);
       } catch (e) {
-        showError('Ошибка входа: ' + e.message);
         renderMatchDetails(matchId);
       }
     }
@@ -2012,7 +1982,7 @@
         const isMatchCreator = String(match.creator_id) === String(tgUser.id) || isUserCreator();
         const isRegClosed = match.is_registration_closed === true;
 
-        const dateStr = new Date(match.scheduled_at).toLocaleString(currentLang === 'ro' ? 'ro-RO' : (currentLang === 'en' ? 'en-US' : 'ru-RU'), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const dateStr = new Date(match.scheduled_at).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
         const scheduledDateForInput = match.scheduled_at ? new Date(match.scheduled_at).toISOString().slice(0, 16) : '';
         const shareUrl = `https://t.me/${shareBotUsername}/app?startapp=${match.id}`;
 
@@ -2169,23 +2139,22 @@
 
         const chatBox = document.getElementById('chat-box');
         if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
-      } catch (err) { showError('Ошибка загрузки: ' + err.message); }
+      } catch (err) {}
     }
 
     async function kickPlayer(matchId, userId) {
       if (!confirm('Исключить этого игрока из слота?')) return;
       try {
         await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', userId);
-        triggerSlotLeaveToast();
         renderMatchDetails(matchId);
-      } catch(e) { alert('Ошибка: ' + e.message); }
+      } catch(e) {}
     }
 
     async function toggleRegistration(matchId, closeStatus) {
       try {
         await supabaseClient.from('matches').update({ is_registration_closed: closeStatus }).eq('id', matchId);
         renderMatchDetails(matchId);
-      } catch(e) { alert('Ошибка: ' + e.message); }
+      } catch(e) {}
     }
 
     function handleChatKeyPress(e, matchId) { if (e.key === 'Enter') sendChatMessage(matchId); }
@@ -2208,8 +2177,7 @@
 
       if (supabaseClient) {
         try {
-          const { error } = await supabaseClient.from('match_messages').insert([newMsg]);
-          if (error) console.log('Supabase insert chat error:', error.message);
+          await supabaseClient.from('match_messages').insert([newMsg]);
         } catch(e) {}
       }
 
@@ -2217,7 +2185,6 @@
       renderMatchDetails(matchId);
     }
 
-    // --- ВКЛАДКА 2: АМЕРИКАНО ---
     async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
       const savedState = localStorage.getItem(getAmericanoStorageKey());
@@ -2439,7 +2406,7 @@
           alert(`Успешно импортировано ${rawPlayers.length} игроков!`);
         }, 100);
 
-      } catch(e) { alert('Ошибка импорта: ' + e.message); }
+      } catch(e) {}
     }
 
     function startQuickAmericano() {
@@ -2503,17 +2470,13 @@
           r.team_a.forEach(pIdx => { 
             if(leaderboard[pIdx]) { 
               leaderboard[pIdx].points += sa; leaderboard[pIdx].matches++;
-              if (sa > sb) leaderboard[pIdx].wins++;
-              else if (sb > sa) leaderboard[pIdx].losses++;
-              else leaderboard[pIdx].draws++;
+              if (sa > sb) leaderboard[pIdx].wins++; else if (sb > sa) leaderboard[pIdx].losses++; else leaderboard[pIdx].draws++;
             } 
           });
           r.team_b.forEach(pIdx => { 
             if(leaderboard[pIdx]) { 
               leaderboard[pIdx].points += sb; leaderboard[pIdx].matches++;
-              if (sb > sa) leaderboard[pIdx].wins++;
-              else if (sa > sb) leaderboard[pIdx].losses++;
-              else leaderboard[pIdx].draws++;
+              if (sb > sa) leaderboard[pIdx].wins++; else if (sa > sb) leaderboard[pIdx].losses++; else leaderboard[pIdx].draws++;
             } 
           });
         }
@@ -2638,7 +2601,6 @@
       }
     }
 
-    // Оптимизированный пакетный запрос к Supabase
     async function recordTournamentToNationalLeaderboard() {
       if (!localAmericanoState || !localAmericanoState.rounds) return;
       const { players, rounds } = localAmericanoState;
@@ -2744,12 +2706,6 @@
         navigator.clipboard.writeText(text);
         alert('Отчёт скопирован в буфер обмена!');
       }
-    }
-
-    // --- ВКЛАДКА 3: ПРОФИЛЬ И ЛИДЕРБОРД ---
-    function setLeaderboardTab(tab) {
-      currentLeaderboardTab = tab;
-      renderProfileTab();
     }
 
     function openViewPlayerModalById(userId) {
@@ -2882,15 +2838,15 @@
           <div class="grid grid-cols-3 gap-2">
             <div>
               <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">Матчи</label>
-              <input type="number" id="admin_edit_total" value="${p.total_matches_played || 0}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+              <input type="number" id="admin_edit_total" value="${p.total_matches_played || 0}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-emerald-400 mb-1 uppercase">Победы</label>
-              <input type="number" id="admin_edit_wins" value="${p.wins || 0}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+              <input type="number" id="admin_edit_wins" value="${p.wins || 0}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
             </div>
             <div>
               <label class="block text-[10px] font-bold text-rose-400 mb-1 uppercase">Поражения</label>
-              <input type="number" id="admin_edit_losses" value="${p.losses || 0}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
+              <input type="number" id="admin_edit_losses" value="${p.losses || 0}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
             </div>
           </div>
 
@@ -2924,7 +2880,7 @@
         alert('Данные игрока обновлены!');
         await fetchAllPlatformProfiles();
         renderProfileTab();
-      } catch(err) { alert('Ошибка сохранения: ' + err.message); }
+      } catch(err) {}
     }
 
     function closeAdminPlayerModal() { document.getElementById('modal-admin-player').classList.add('hidden'); }
@@ -3216,14 +3172,12 @@
         isProfileEditOpen = false;
         alert('Данные профиля успешно обновлены!');
         renderProfileTab();
-      } catch(err) { alert('Ошибка сохранения: ' + err.message); }
+      } catch(err) {}
     }
 
     async function joinMatch(matchId, slotNumber) {
       try {
-        const ok = await ensureProfileInDatabase(currentUserProfile || tgUser);
-        if (!ok) console.warn('Профиль пересоздаётся...');
-
+        await ensureProfileInDatabase(currentUserProfile || tgUser);
         const uid = tgUser.id;
 
         if (supabaseClient) {
@@ -3252,7 +3206,7 @@
         triggerSlotCelebration();
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
-      } catch (err) { alert('Ошибка при занятии слота: ' + (err.message || err)); }
+      } catch (err) {}
     }
 
     async function leaveMatch(matchId) {
@@ -3264,7 +3218,7 @@
         triggerSlotLeaveToast();
         currentSlotSubTab = 'feed';
         renderSlotsSubTabContent();
-      } catch (err) { alert('Ошибка выхода: ' + err.message); }
+      } catch (err) {}
     }
 
     function copyShareLink(url) {
