@@ -214,54 +214,57 @@
     </div>
   </div>
 
-  <div class="bg-overlay p-4 pb-16 relative z-10">
-    <div id="app" class="max-w-md mx-auto space-y-4">
+  <div class="bg-overlay p-3 sm:p-4 pb-16 relative z-10">
+    <div id="app" class="max-w-md mx-auto space-y-3 sm:space-y-4">
       
-      <!-- ШАПКА В КАРБОНОВОМ СТИЛЕ -->
-      <div class="carbon-padel-card shimmer-border p-4 rounded-3xl space-y-3 shadow-2xl">
+      <!-- ШАПКА В КАРБОНОВОМ СТИЛЕ (АДАПТИРОВАННАЯ ПОД ANDROID МОБИЛЬНЫЕ ЭКРАНЫ) -->
+      <div class="carbon-padel-card shimmer-border p-3.5 rounded-3xl space-y-2.5 shadow-2xl overflow-hidden">
+        
+        <!-- Верхний ряд: Лого/Пользователь + Языки -->
         <div class="flex items-center justify-between gap-2">
           
-          <div class="flex items-center gap-3">
-            <div onclick="openPadelGameModal()" class="w-14 h-14 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
-              <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div onclick="openPadelGameModal()" class="w-12 h-12 shrink-0 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
+              <canvas id="header-padel-canvas" style="width: 48px; height: 48px;"></canvas>
               <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span class="text-[9px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1 py-0.5 rounded shadow">PLAY</span>
+                <span class="text-[8px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1 py-0.5 rounded shadow">PLAY</span>
               </div>
             </div>
 
-            <div>
-              <h1 class="text-lg font-black tracking-tight text-white uppercase italic">Padel <span class="text-emerald-400">Moldova</span></h1>
-              <p id="user-greeting" class="text-xs text-slate-300 font-medium">Загрузка...</p>
+            <div class="min-w-0">
+              <h1 class="text-base font-black tracking-tight text-white uppercase italic truncate">Padel <span class="text-emerald-400">Moldova</span></h1>
+              <p id="user-greeting" class="text-[11px] text-slate-300 font-medium truncate">Загрузка...</p>
             </div>
           </div>
           
-          <div class="flex flex-col items-end gap-1.5">
-            <div class="flex items-center gap-1 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold">
-              <button type="button" onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
-              <button type="button" onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
-              <button type="button" onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
-            </div>
-
-            <div class="flex items-center gap-1">
-              <button type="button" onclick="openSupportModal()" class="px-2 py-1 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
-                🛠️ <span id="txt-btn-support">Поддержка</span>
-              </button>
-              <button type="button" onclick="openCreatorModal()" class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
-                👨‍💻 <span id="txt-btn-creator">Создатель</span>
-              </button>
-            </div>
+          <!-- Выбор Языка -->
+          <div class="flex items-center gap-0.5 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold shrink-0">
+            <button type="button" onclick="setLanguage('ru')" id="lang-ru" class="px-1.5 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
+            <button type="button" onclick="setLanguage('ro')" id="lang-ro" class="px-1.5 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
+            <button type="button" onclick="setLanguage('en')" id="lang-en" class="px-1.5 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
           </div>
+
         </div>
 
-        <!-- Вкладки -->
-        <div class="grid grid-cols-3 gap-1 glass-subcard p-1.5 rounded-2xl border border-white/10">
-          <button type="button" id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
+        <!-- Быстрые действия: Поддержка и Создатель -->
+        <div class="grid grid-cols-2 gap-1.5 pt-1 border-t border-white/10">
+          <button type="button" onclick="openSupportModal()" class="w-full py-1.5 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-xl btn-3d flex items-center justify-center gap-1">
+            🛠️ <span id="txt-btn-support" class="truncate">Поддержка</span>
+          </button>
+          <button type="button" onclick="openCreatorModal()" class="w-full py-1.5 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-xl btn-3d flex items-center justify-center gap-1">
+            👨‍💻 <span id="txt-btn-creator" class="truncate">Создатель</span>
+          </button>
+        </div>
+
+        <!-- Вкладки Навигации -->
+        <div class="grid grid-cols-3 gap-1 glass-subcard p-1 rounded-2xl border border-white/10">
+          <button type="button" id="tab-booking" onclick="switchTab('booking')" class="py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-[11px] uppercase tracking-wider neon-glow-emerald btn-3d">
             🎾 <span id="txt-tab-booking">Слоты</span>
           </button>
-          <button type="button" id="tab-americano" onclick="switchTab('americano')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
+          <button type="button" id="tab-americano" onclick="switchTab('americano')" class="py-2 rounded-xl text-slate-300 font-bold text-[11px] uppercase tracking-wider hover:text-white btn-3d">
             🏆 <span id="txt-tab-americano">Американо</span>
           </button>
-          <button type="button" id="tab-profile" onclick="switchTab('profile')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
+          <button type="button" id="tab-profile" onclick="switchTab('profile')" class="py-2 rounded-xl text-slate-300 font-bold text-[11px] uppercase tracking-wider hover:text-white btn-3d">
             👤 <span id="txt-tab-profile">Профиль</span>
           </button>
         </div>
@@ -271,7 +274,7 @@
       <div id="error-box" class="hidden bg-rose-500/20 border border-rose-500/40 text-rose-200 p-3.5 rounded-2xl text-xs font-mono break-all backdrop-blur-md"></div>
 
       <!-- Главный Контент -->
-      <div id="main-content" class="carbon-padel-card shimmer-border-reverse p-5 rounded-3xl min-h-[300px]">
+      <div id="main-content" class="carbon-padel-card shimmer-border-reverse p-4 sm:p-5 rounded-3xl min-h-[300px]">
         <div class="flex justify-center items-center py-16 text-slate-400 font-semibold text-sm">
           <div class="animate-pulse flex items-center gap-2">
             <span>Загрузка платформы...</span>
@@ -569,7 +572,7 @@
 
     function getAmericanoStorageKey() { return `quick_americano_state_${tgUser.id || 'guest'}`; }
 
-    let currentSlotSubTab = 'feed'; // 'feed', 'my_slot', 'create'
+    let currentSlotSubTab = 'feed';
 
     function isValidRealUser(p) {
       if (!p || !p.id || !p.first_name) return false;
@@ -595,36 +598,36 @@
       const ctx = cvs.getContext('2d');
 
       const dpr = window.devicePixelRatio || 1;
-      const size = 64;
+      const size = 48;
       cvs.width = size * dpr; cvs.height = size * dpr;
       ctx.scale(dpr, dpr);
 
-      let ball = { x: 32, y: 12, vx: 0.2, vy: 0, r: 4.5, squashX: 1, squashY: 1 };
-      let racket = { x: 32, y: 46, targetY: 46, angle: 0, targetAngle: 0, hitFlash: 0 };
+      let ball = { x: 24, y: 10, vx: 0.2, vy: 0, r: 3.5, squashX: 1, squashY: 1 };
+      let racket = { x: 24, y: 35, targetY: 35, angle: 0, targetAngle: 0, hitFlash: 0 };
       let particles = [];
 
       function animate() {
         ctx.clearRect(0, 0, size, size);
         ball.vy += 0.18; ball.x += ball.vx; ball.y += ball.vy;
 
-        if (ball.x < 11) { ball.x = 11; ball.vx = Math.abs(ball.vx); }
-        if (ball.x > 53) { ball.x = 53; ball.vx = -Math.abs(ball.vx); }
+        if (ball.x < 8) { ball.x = 8; ball.vx = Math.abs(ball.vx); }
+        if (ball.x > 40) { ball.x = 40; ball.vx = -Math.abs(ball.vx); }
 
         racket.y += (racket.targetY - racket.y) * 0.2;
-        racket.targetY += (46 - racket.targetY) * 0.15;
+        racket.targetY += (35 - racket.targetY) * 0.15;
         racket.angle += (racket.targetAngle - racket.angle) * 0.2;
         racket.targetAngle += (0 - racket.targetAngle) * 0.15;
         if (racket.hitFlash > 0) racket.hitFlash -= 0.08;
 
-        const hitZoneY = racket.y - 12;
-        if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 8 && Math.abs(ball.x - racket.x) < 18) {
+        const hitZoneY = racket.y - 10;
+        if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 6 && Math.abs(ball.x - racket.x) < 14) {
           ball.y = hitZoneY - ball.r;
-          ball.vy = -(3.6 + Math.random() * 0.6);
-          ball.vx = (ball.x - racket.x) * 0.08 + (Math.random() - 0.5) * 0.5;
+          ball.vy = -(3.4 + Math.random() * 0.5);
+          ball.vx = (ball.x - racket.x) * 0.08 + (Math.random() - 0.5) * 0.4;
           ball.squashX = 1.35; ball.squashY = 0.65;
-          racket.targetY = 51; racket.targetAngle = ball.vx * 0.12; racket.hitFlash = 1.0;
+          racket.targetY = 39; racket.targetAngle = ball.vx * 0.12; racket.hitFlash = 1.0;
 
-          for (let i = 0; i < 5; i++) {
+          for (let i = 0; i < 4; i++) {
             particles.push({
               x: ball.x, y: ball.y,
               vx: (Math.random() - 0.5) * 2, vy: -Math.random() * 1.5,
@@ -637,7 +640,7 @@
         ball.squashY += (1 - ball.squashY) * 0.15;
 
         if (ball.y > size + 10) {
-          ball.x = 32; ball.y = 10; ball.vx = (Math.random() - 0.5) * 0.4; ball.vy = 0;
+          ball.x = 24; ball.y = 8; ball.vx = (Math.random() - 0.5) * 0.4; ball.vy = 0;
         }
 
         ctx.save();
@@ -645,28 +648,28 @@
         ctx.rotate(racket.angle);
 
         ctx.beginPath();
-        if (ctx.roundRect) ctx.roundRect(-2.5, 8, 5, 13, 2);
-        else ctx.rect(-2.5, 8, 5, 13);
+        if (ctx.roundRect) ctx.roundRect(-2, 6, 4, 10, 2);
+        else ctx.rect(-2, 6, 4, 10);
         ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1; ctx.stroke();
 
         ctx.beginPath();
-        ctx.ellipse(0, -6, 14, 16, 0, 0, Math.PI * 2);
-        const rGrad = ctx.createLinearGradient(-14, -22, 14, 10);
+        ctx.ellipse(0, -5, 11, 12, 0, 0, Math.PI * 2);
+        const rGrad = ctx.createLinearGradient(-11, -17, 11, 7);
         rGrad.addColorStop(0, '#1e293b'); rGrad.addColorStop(0.5, '#0f172a'); rGrad.addColorStop(1, '#042f2e');
         ctx.fillStyle = rGrad; ctx.shadowColor = racket.hitFlash > 0 ? '#10b981' : 'rgba(16, 185, 129, 0.4)';
-        ctx.shadowBlur = 8 + racket.hitFlash * 10; ctx.fill();
-        ctx.strokeStyle = racket.hitFlash > 0 ? '#6ee7b7' : '#10b981'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.shadowBlur = 6 + racket.hitFlash * 8; ctx.fill();
+        ctx.strokeStyle = racket.hitFlash > 0 ? '#6ee7b7' : '#10b981'; ctx.lineWidth = 1.5; ctx.stroke();
 
         ctx.shadowBlur = 0; ctx.fillStyle = '#030712';
-        [[-6, -14], [0, -14], [6, -14], [-8, -8], [-2, -8], [4, -8], [8, -8], [-8, -2], [-2, -2], [4, -2], [8, -2], [-6, 4], [0, 4], [6, 4]].forEach(([hx, hy]) => {
-          ctx.beginPath(); ctx.arc(hx, hy, 1.2, 0, Math.PI * 2); ctx.fill();
+        [[-5, -11], [0, -11], [5, -11], [-6, -6], [-1, -6], [4, -6], [-5, -1], [0, -1], [5, -1]].forEach(([hx, hy]) => {
+          ctx.beginPath(); ctx.arc(hx, hy, 1, 0, Math.PI * 2); ctx.fill();
         });
         ctx.restore();
 
         particles.forEach((p, idx) => {
           p.x += p.vx; p.y += p.vy; p.life -= 0.05;
           if (p.life <= 0) { particles.splice(idx, 1); return; }
-          ctx.beginPath(); ctx.arc(p.x, p.y, p.life * 2, 0, Math.PI * 2);
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.life * 1.8, 0, Math.PI * 2);
           ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.fill(); ctx.globalAlpha = 1.0;
         });
 
@@ -674,9 +677,9 @@
         ctx.translate(ball.x, ball.y);
         ctx.scale(ball.squashX, ball.squashY);
         ctx.beginPath(); ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
-        ctx.fillStyle = '#ccff00'; ctx.shadowColor = '#ccff00'; ctx.shadowBlur = 8; ctx.fill();
-        ctx.beginPath(); ctx.arc(-1.2, 0, ball.r * 0.75, -Math.PI * 0.4, Math.PI * 0.4);
-        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.9; ctx.shadowBlur = 0; ctx.stroke();
+        ctx.fillStyle = '#ccff00'; ctx.shadowColor = '#ccff00'; ctx.shadowBlur = 6; ctx.fill();
+        ctx.beginPath(); ctx.arc(-1, 0, ball.r * 0.75, -Math.PI * 0.4, Math.PI * 0.4);
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.8; ctx.shadowBlur = 0; ctx.stroke();
         ctx.restore();
 
         requestAnimationFrame(animate);
@@ -696,17 +699,17 @@
     resizeCanvas();
 
     const balls = [];
-    const ballCount = 16;
+    const ballCount = 14;
 
     class FallingBall {
       constructor() { this.reset(true); }
       reset(initial = false) {
         this.x = Math.random() * width;
         this.y = initial ? Math.random() * height : -30;
-        this.radius = Math.random() * 7 + 7;
-        this.speedY = Math.random() * 0.9 + 0.4;
+        this.radius = Math.random() * 6 + 6;
+        this.speedY = Math.random() * 0.8 + 0.4;
         this.speedX = (Math.random() - 0.5) * 0.4;
-        this.opacity = Math.random() * 0.35 + 0.15;
+        this.opacity = Math.random() * 0.3 + 0.12;
         this.rotation = Math.random() * Math.PI * 2;
         this.spin = (Math.random() - 0.5) * 0.02;
       }
@@ -717,10 +720,9 @@
       draw() {
         ctx.save(); ctx.globalAlpha = this.opacity; ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
         ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#ccff00'; ctx.shadowColor = '#ccff00'; ctx.shadowBlur = 10; ctx.fill();
+        ctx.fillStyle = '#ccff00'; ctx.shadowColor = '#ccff00'; ctx.shadowBlur = 8; ctx.fill();
         ctx.beginPath(); ctx.arc(-this.radius * 0.5, 0, this.radius * 0.7, -Math.PI * 0.45, Math.PI * 0.45);
         ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, this.radius * 0.16); ctx.stroke();
-        ctx.beginPath(); ctx.arc(this.radius * 0.5, 0, this.radius * 0.7, Math.PI * 0.55, Math.PI * 1.45); ctx.stroke();
         ctx.restore();
       }
     }
@@ -1108,7 +1110,7 @@
 
       ['ru', 'ro', 'en'].forEach(l => {
         const btn = document.getElementById(`lang-${l}`);
-        if (btn) btn.className = l === lang ? "px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10 font-bold" : "px-2 py-0.5 rounded-lg text-slate-400 hover:text-white";
+        if (btn) btn.className = l === lang ? "px-1.5 py-0.5 rounded-lg text-emerald-400 bg-white/10 font-bold" : "px-1.5 py-0.5 rounded-lg text-slate-400 hover:text-white";
       });
 
       document.getElementById('txt-tab-booking').innerText = t('tabBooking');
@@ -1280,7 +1282,7 @@
     function showError(msg) {
       if (!msg || msg === 'Script error.') return;
       const box = document.getElementById('error-box');
-      box.classList.remove('hidden'); box.innerHTML = `<strong>Инфо:</strong> ${msg}`;
+      if (box) { box.classList.remove('hidden'); box.innerHTML = `<strong>Инфо:</strong> ${msg}`; }
     }
 
     function isUserCreator() {
@@ -1470,21 +1472,41 @@
 
     function closeTourneyModal() { document.getElementById('modal-view-tourney').classList.add('hidden'); }
 
+    // ТАЙМ-АУТ ДЛЯ СЕТЕВЫХ ЗАПРОСОВ (Защита от зависания на Android)
     async function initApp() {
-      document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
-      initHeaderPadelAnimation();
+      try {
+        document.getElementById('user-greeting').innerText = `${tgUser.first_name} ${tgUser.last_name || ''}`.trim();
+        initHeaderPadelAnimation();
 
-      const savedState = localStorage.getItem(getAmericanoStorageKey());
-      if (savedState) { try { localAmericanoState = JSON.parse(savedState); } catch(e){} }
+        const savedState = localStorage.getItem(getAmericanoStorageKey());
+        if (savedState) { try { localAmericanoState = JSON.parse(savedState); } catch(e){} }
 
-      await syncUserProfile();
-      await fetchAllPlatformProfiles();
-      setLanguage(currentLang);
+        // Безопасный синхронный вызов с лимитом времени 2.5 секунды
+        try {
+          await Promise.race([
+            syncUserProfile(),
+            new Promise(res => setTimeout(res, 2500))
+          ]);
+        } catch(e) { console.warn('User profile sync timeout/error', e); }
 
-      const startParam = getStartParam();
-      if (startParam) {
-        currentSlotSubTab = 'my_slot';
-        renderMatchDetails(startParam);
+        try {
+          await Promise.race([
+            fetchAllPlatformProfiles(),
+            new Promise(res => setTimeout(res, 2500))
+          ]);
+        } catch(e) { console.warn('Fetch profiles timeout/error', e); }
+
+      } catch(e) {
+        console.error('Init error:', e);
+      } finally {
+        // Мгновенная гарантированная отрисовка интерфейса
+        setLanguage(currentLang);
+
+        const startParam = getStartParam();
+        if (startParam) {
+          currentSlotSubTab = 'my_slot';
+          renderMatchDetails(startParam);
+        }
       }
     }
 
@@ -1513,18 +1535,18 @@
       const btnAmericano = document.getElementById('tab-americano');
       const btnProfile = document.getElementById('tab-profile');
 
-      btnBooking.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
-      btnAmericano.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
-      btnProfile.className = 'py-2.5 rounded-xl text-slate-400 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d';
+      if (btnBooking) btnBooking.className = 'py-2 rounded-xl text-slate-400 font-bold text-[11px] uppercase tracking-wider hover:text-white btn-3d';
+      if (btnAmericano) btnAmericano.className = 'py-2 rounded-xl text-slate-400 font-bold text-[11px] uppercase tracking-wider hover:text-white btn-3d';
+      if (btnProfile) btnProfile.className = 'py-2 rounded-xl text-slate-400 font-bold text-[11px] uppercase tracking-wider hover:text-white btn-3d';
 
       if (tab === 'booking') {
-        btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
+        if (btnBooking) btnBooking.className = 'py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-[11px] uppercase tracking-wider neon-glow-emerald btn-3d';
         renderSlotsSubTabContent();
       } else if (tab === 'americano') {
-        btnAmericano.className = 'py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-xs uppercase tracking-wider neon-glow-purple btn-3d';
+        if (btnAmericano) btnAmericano.className = 'py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-[11px] uppercase tracking-wider neon-glow-purple btn-3d';
         renderQuickAmericano();
       } else if (tab === 'profile') {
-        btnProfile.className = 'py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-black text-xs uppercase tracking-wider neon-glow-blue btn-3d';
+        if (btnProfile) btnProfile.className = 'py-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-black text-[11px] uppercase tracking-wider neon-glow-blue btn-3d';
         renderProfileTab();
       }
     }
@@ -1679,6 +1701,8 @@
 
     async function renderSlotsSubTabContent() {
       const container = document.getElementById('main-content');
+      if (!container) return;
+
       if (currentSlotSubTab === 'feed') {
         renderPublicMatchesFeed(container);
       } else if (currentSlotSubTab === 'my_slot') {
@@ -1751,16 +1775,16 @@
           const hostName = hostPlayer?.profiles?.first_name || 'Игрок';
 
           return `
-            <div class="glass-subcard border ${isUserJoined ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-white/10'} p-4 rounded-2xl space-y-3 hover:border-emerald-400/50 transition-all btn-3d">
+            <div class="glass-subcard border ${isUserJoined ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-white/10'} p-3.5 rounded-2xl space-y-2.5 hover:border-emerald-400/50 transition-all btn-3d">
               <div class="flex justify-between items-start gap-2">
                 <div>
                   <div class="flex items-center gap-2">
-                    <h3 class="text-sm font-black text-white">${m.custom_location}</h3>
+                    <h3 class="text-xs sm:text-sm font-black text-white">${m.custom_location}</h3>
                     <span class="px-2 py-0.5 bg-teal-500/20 text-teal-300 font-extrabold text-[9px] rounded-md uppercase border border-teal-500/30">
                       ${m.match_type || 'friendly'}
                     </span>
                   </div>
-                  <p class="text-[11px] text-slate-300 font-medium mt-0.5">📅 ${dateStr}</p>
+                  <p class="text-[10px] text-slate-300 font-medium mt-0.5">📅 ${dateStr}</p>
                 </div>
 
                 <div class="text-right">
@@ -1782,7 +1806,7 @@
                   `}
                 </div>
 
-                <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md cursor-pointer">
+                <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md cursor-pointer">
                   ${isUserJoined ? '🎾 ' + t('subTabMySlot') : t('quickJoinBtn')}
                 </button>
               </div>
@@ -1804,7 +1828,7 @@
       container.innerHTML = `
         ${renderSlotsSubTabHeader()}
         <div class="space-y-3">
-          <h2 class="text-sm font-black text-slate-300 uppercase tracking-wider flex items-center justify-between">
+          <h2 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center justify-between">
             <span>${t('subTabFeed')}</span>
             <span class="text-[10px] text-emerald-400 font-bold">Найдено: ${publicMatches.length}</span>
           </h2>
@@ -1863,23 +1887,23 @@
       const container = document.getElementById('main-content');
       container.innerHTML = `
         ${renderSlotsSubTabHeader()}
-        <h2 class="text-base font-extrabold mb-3 text-white uppercase italic tracking-wide">${t('createGame')}</h2>
+        <h2 class="text-sm font-extrabold mb-3 text-white uppercase italic tracking-wide">${t('createGame')}</h2>
         <form id="create-form" class="space-y-3" onsubmit="handleCreateMatch(event)">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('location')}</label>
-            <input type="text" id="custom_location" required value="Padel Club Chisinau" class="w-full p-3 glass-subcard rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition-all">
+            <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('location')}</label>
+            <input type="text" id="custom_location" required value="Padel Club Chisinau" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white focus:outline-none focus:border-emerald-500 transition-all">
           </div>
 
-          <div class="grid grid-cols-2 gap-2.5">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('maxPlayers')}</label>
-              <select id="max_players" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
+              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('maxPlayers')}</label>
+              <select id="max_players" class="w-full p-2.5 glass-subcard rounded-xl text-xs font-semibold text-white">
                 <option value="4">4 (2х2)</option> <option value="6">6 (Americano)</option> <option value="8">8 (2 корта)</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('format')}</label>
-              <select id="match_type" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
+              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('format')}</label>
+              <select id="match_type" class="w-full p-2.5 glass-subcard rounded-xl text-xs font-semibold text-white">
                 <option value="friendly">${t('friendly')}</option>
                 <option value="competitive">${t('competitive')}</option>
                 <option value="americano">${t('americanoFormat')}</option>
@@ -1888,32 +1912,32 @@
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-amber-300 mb-1 uppercase flex items-center gap-1">
+            <label class="block text-[10px] font-semibold text-amber-300 mb-1 uppercase flex items-center gap-1">
               <span>🌐</span> <span>${t('accessTypeLabel')}</span>
             </label>
-            <select id="is_public" class="w-full p-3 glass-subcard border border-amber-500/40 rounded-xl text-xs font-bold text-white focus:outline-none">
+            <select id="is_public" class="w-full p-2.5 glass-subcard border border-amber-500/40 rounded-xl text-xs font-bold text-white focus:outline-none">
               <option value="true" selected>${t('publicAccessOption')}</option>
               <option value="false">${t('privateAccessOption')}</option>
             </select>
           </div>
 
-          <div class="grid grid-cols-2 gap-2.5">
+          <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('dateTime')}</label>
-              <input type="datetime-local" id="scheduled_at" required class="w-full p-3 glass-subcard rounded-xl text-xs text-white">
+              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('dateTime')}</label>
+              <input type="datetime-local" id="scheduled_at" required class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('price')}</label>
-              <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-3 glass-subcard rounded-xl text-xs text-white">
+              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('price')}</label>
+              <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('notes')}</label>
-            <input type="text" id="notes" placeholder="Level 2.5+" class="w-full p-3 glass-subcard rounded-xl text-xs text-white">
+            <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('notes')}</label>
+            <input type="text" id="notes" placeholder="Level 2.5+" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
           </div>
 
-          <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d mt-2">
+          <button type="submit" id="submit-btn" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d mt-2">
             ${t('generateLink')}
           </button>
         </form>
@@ -2051,22 +2075,22 @@
             const isCreatorOfThisSlot = String(p.user_id) === String(match.creator_id);
 
             slotsHtml += `
-              <div class="p-3 glass-subcard rounded-2xl space-y-1 border border-emerald-500/30">
+              <div class="p-2.5 glass-subcard rounded-2xl space-y-1 border border-emerald-500/30">
                 ${isCreatorOfThisSlot ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
                 <div class="flex items-center justify-between">
                   <span class="text-xs font-bold text-emerald-300">${t('slotLabel')} #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline decoration-dotted hover:text-amber-300">${name}</span></span>
                   <div class="flex items-center gap-2">
-                    <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 font-black px-2 py-0.5 rounded-full uppercase">${t('occupied')}</span>
                     ${isMatchCreator ? `<button type="button" onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d">❌</button>` : ''}
                   </div>
                 </div>
               </div>`;
           } else if (!isRegClosed) {
             slotsHtml += `
-              <div class="p-3 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
+              <div class="p-2.5 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
                 <span>${t('slotLabel')} #${i}: <strong class="text-emerald-400 font-bold">${t('free')}</strong></span>
                 ${!isJoined ? `
-                  <button type="button" onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20 cursor-pointer">
+                  <button type="button" onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[10px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20 cursor-pointer">
                     ${t('joinSlot')} #${i}
                   </button>
                 ` : ''}
@@ -2091,8 +2115,8 @@
           const isMe = String(m.user_id) === String(tgUser.id);
           return `
             <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-0.5">
-              <div class="max-w-[85%] p-2.5 rounded-2xl text-xs space-y-1 ${isMe ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md' : 'glass-subcard text-slate-200 border border-white/10 rounded-bl-none'}">
-                <div class="flex justify-between items-center gap-3 text-[9px] opacity-75 font-bold uppercase">
+              <div class="max-w-[85%] p-2 rounded-2xl text-xs space-y-0.5 ${isMe ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md' : 'glass-subcard text-slate-200 border border-white/10 rounded-bl-none'}">
+                <div class="flex justify-between items-center gap-2 text-[9px] opacity-75 font-bold uppercase">
                   <span>${m.sender_name || 'Игрок'}</span>
                   <span>${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                 </div>
@@ -2105,13 +2129,13 @@
         let creatorControlsHtml = '';
         if (isMatchCreator) {
           creatorControlsHtml = `
-            <div class="p-3.5 glass-subcard border border-amber-500/30 rounded-2xl space-y-3">
+            <div class="p-3 glass-subcard border border-amber-500/30 rounded-2xl space-y-2.5">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-base">👑</span>
                   <div>
                     <h4 class="text-xs font-black text-amber-300 uppercase tracking-wider">${t('hostPanel')}</h4>
-                    <p class="text-[10px] text-slate-400">${t('hostPanelDesc')}</p>
+                    <p class="text-[9px] text-slate-400">${t('hostPanelDesc')}</p>
                   </div>
                 </div>
               </div>
@@ -2119,24 +2143,24 @@
               <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs gap-2">
                 <span class="font-bold text-slate-300 pl-1 whitespace-nowrap">${t('dateTime')}</span>
                 <div class="flex items-center gap-1.5 flex-1 justify-end">
-                  <input type="datetime-local" id="edit_time_${match.id}" value="${scheduledDateForInput}" class="p-1.5 glass-subcard border border-slate-600 rounded-lg text-white font-semibold text-xs text-center max-w-[170px]">
-                  <button type="button" onclick="updateMatchTime('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
+                  <input type="datetime-local" id="edit_time_${match.id}" value="${scheduledDateForInput}" class="p-1 glass-subcard border border-slate-600 rounded-lg text-white font-semibold text-xs text-center max-w-[150px]">
+                  <button type="button" onclick="updateMatchTime('${match.id}')" class="px-2.5 py-1 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
                 </div>
               </div>
 
               <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs">
                 <span class="font-bold text-slate-300 pl-1">${t('pricePerPlayerLabel')}</span>
                 <div class="flex items-center gap-1.5">
-                  <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1.5 glass-subcard border border-slate-600 rounded-lg text-center text-white font-black">
-                  <button type="button" onclick="updateMatchPrice('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
+                  <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1 glass-subcard border border-slate-600 rounded-lg text-center text-white font-black">
+                  <button type="button" onclick="updateMatchPrice('${match.id}')" class="px-2.5 py-1 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-2 pt-1">
-                <button type="button" onclick="toggleRegistration('${match.id}', ${!isRegClosed})" class="py-2.5 bg-amber-500/20 text-amber-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
+                <button type="button" onclick="toggleRegistration('${match.id}', ${!isRegClosed})" class="py-2 bg-amber-500/20 text-amber-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
                   ${isRegClosed ? '🔓 Открыть' : '🔒 Завершить'}
                 </button>
-                <button type="button" onclick="deleteMatchByCreator('${match.id}')" class="py-2.5 bg-rose-500/20 text-rose-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
+                <button type="button" onclick="deleteMatchByCreator('${match.id}')" class="py-2 bg-rose-500/20 text-rose-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
                   ${t('deleteSlotBtn')}
                 </button>
               </div>
@@ -2145,21 +2169,21 @@
         }
 
         const isPublicBadge = match.is_public !== false 
-          ? `<span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-black uppercase rounded-lg">🌐 Публичный</span>`
-          : `<span class="px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[9px] font-black uppercase rounded-lg">🔒 Приватный</span>`;
+          ? `<span class="px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-black uppercase rounded-lg">🌐 Публичный</span>`
+          : `<span class="px-2 py-0.5 bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[9px] font-black uppercase rounded-lg">🔒 Приватный</span>`;
 
         container.innerHTML = `
           ${renderSlotsSubTabHeader()}
-          <div class="space-y-4">
+          <div class="space-y-3.5">
             <div>
-              <div class="flex justify-between items-center mb-2">
+              <div class="flex justify-between items-center mb-1.5">
                 ${isPublicBadge}
-                <span class="px-2.5 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[9px] font-black uppercase rounded-lg">
+                <span class="px-2 py-0.5 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[9px] font-black uppercase rounded-lg">
                   ${match.match_type}
                 </span>
               </div>
               <div class="flex justify-between items-start">
-                <h2 class="text-xl font-black mt-1 text-white">${match.custom_location}</h2>
+                <h2 class="text-lg font-black text-white">${match.custom_location}</h2>
                 <span class="text-xs font-black text-emerald-400">${match.price_per_player} MDL / pers</span>
               </div>
               <p class="text-xs text-slate-400 font-medium mt-0.5">📅 ${dateStr}</p>
@@ -2167,27 +2191,27 @@
 
             ${creatorControlsHtml}
 
-            <div class="border-t border-white/10 pt-3">
-              <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2.5">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
-              <div class="space-y-2">${slotsHtml}</div>
+            <div class="border-t border-white/10 pt-2.5">
+              <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">${t('maxPlayers')} (${players.length}/${match.max_players})</h3>
+              <div class="space-y-1.5">${slotsHtml}</div>
             </div>
 
-            <div class="border-t border-white/10 pt-3 space-y-2">
+            <div class="border-t border-white/10 pt-2.5 space-y-2">
               <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">${t('chatTitle')}</h3>
-              <div id="chat-box" class="h-44 overflow-y-auto space-y-2.5 p-3 glass-subcard rounded-2xl border border-white/10 shadow-inner custom-scrollbar">
-                ${chatHtml.length > 0 ? chatHtml : `<p class="text-xs text-slate-400 text-center py-12 italic">${t('chatEmptyMsg')}</p>`}
+              <div id="chat-box" class="h-36 overflow-y-auto space-y-2 p-2.5 glass-subcard rounded-2xl border border-white/10 shadow-inner custom-scrollbar">
+                ${chatHtml.length > 0 ? chatHtml : `<p class="text-xs text-slate-400 text-center py-8 italic">${t('chatEmptyMsg')}</p>`}
               </div>
-              <div class="flex gap-2">
-                <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-3 glass-subcard border border-slate-700/80 rounded-xl text-xs text-white">
-                <button type="button" onclick="sendChatMessage('${match.id}')" class="px-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
+              <div class="flex gap-1.5">
+                <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-2.5 glass-subcard border border-slate-700/80 rounded-xl text-xs text-white">
+                <button type="button" onclick="sendChatMessage('${match.id}')" class="px-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
                   ${t('sendBtn')}
                 </button>
               </div>
             </div>
 
-            <div class="space-y-2 pt-2">
+            <div class="space-y-2 pt-1">
               ${isJoined ? `<button type="button" onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">${t('leaveGame')}</button>` : ''}
-              <button type="button" onclick="copyShareLink('${shareUrl}')" class="w-full py-3 bg-slate-800/80 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">${t('copyLink')}</button>
+              <button type="button" onclick="copyShareLink('${shareUrl}')" class="w-full py-2.5 bg-slate-800/80 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">${t('copyLink')}</button>
             </div>
           </div>
         `;
@@ -2261,17 +2285,17 @@
       let historyHtml = '';
       if (history.length > 0) {
         historyHtml = `
-          <div class="mt-6 pt-4 border-t border-white/10 space-y-2.5">
+          <div class="mt-5 pt-3 border-t border-white/10 space-y-2">
             <h3 class="text-xs font-black text-purple-300 uppercase tracking-wider flex items-center justify-between">
               <span>${t('tourneyHistoryTitle')}</span>
-              <span class="text-[10px] text-slate-400 font-normal">${t('autoCleanup')}</span>
+              <span class="text-[9px] text-slate-400 font-normal">${t('autoCleanup')}</span>
             </h3>
-            <div class="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+            <div class="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
               ${history.map(item => {
                 const dt = new Date(item.timestamp).toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
                 const topWinner = item.leaderboard && item.leaderboard[0] ? item.leaderboard[0].name : '—';
                 return `
-                  <div onclick="openHistoryTourneyModal('${item.id}')" class="p-3 glass-subcard border border-purple-500/30 hover:border-purple-400/60 rounded-2xl space-y-1.5 text-xs cursor-pointer transition-all hover:bg-white/5 btn-3d">
+                  <div onclick="openHistoryTourneyModal('${item.id}')" class="p-2.5 glass-subcard border border-purple-500/30 hover:border-purple-400/60 rounded-2xl space-y-1 text-xs cursor-pointer transition-all hover:bg-white/5 btn-3d">
                     <div class="flex justify-between items-center text-slate-400 text-[10px] font-bold">
                       <span>📅 ${dt}</span>
                       <span class="text-amber-400">🥇 ${t('winnerLabel')}: ${topWinner}</span>
@@ -2292,14 +2316,14 @@
       }
 
       container.innerHTML = `
-        <h2 class="text-base font-extrabold mb-1 text-purple-300 uppercase italic tracking-wide">🏆 ${t('tabAmericano')}</h2>
+        <h2 class="text-sm font-extrabold mb-1 text-purple-300 uppercase italic tracking-wide">🏆 ${t('tabAmericano')}</h2>
         <p class="text-xs text-slate-400 mb-3">${t('quickAmericanoDesc')}</p>
 
-        <div class="space-y-3.5">
-          <div class="grid grid-cols-2 gap-2.5 items-end">
+        <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-2 items-end">
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('participantsCount')}</label>
-              <select id="quick_player_count" onchange="onPlayerCountChange()" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
+              <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}</label>
+              <select id="quick_player_count" onchange="onPlayerCountChange()" class="w-full p-2.5 glass-subcard rounded-xl text-xs font-semibold text-white">
                 <option value="4" ${currentAmericanoPlayerCount === 4 ? 'selected' : ''}>4 ${t('playersCountLabel')}</option>
                 <option value="5" ${currentAmericanoPlayerCount === 5 ? 'selected' : ''}>5 ${t('playersCountLabel')}</option>
                 <option value="6" ${currentAmericanoPlayerCount === 6 ? 'selected' : ''}>6 ${t('playersCountLabel')}</option>
@@ -2309,27 +2333,27 @@
             </div>
             
             <div class="flex gap-1">
-              <button type="button" onclick="adjustPlayerCount(-1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➖</button>
-              <button type="button" onclick="adjustPlayerCount(1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➕</button>
+              <button type="button" onclick="adjustPlayerCount(-1)" class="flex-1 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-xs btn-3d">➖</button>
+              <button type="button" onclick="adjustPlayerCount(1)" class="flex-1 py-2.5 bg-slate-800 text-white font-bold rounded-xl text-xs btn-3d">➕</button>
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('cyclesLabel')}</label>
-            <select id="quick_cycles" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
+            <label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('cyclesLabel')}</label>
+            <select id="quick_cycles" class="w-full p-2.5 glass-subcard rounded-xl text-xs font-semibold text-white">
               <option value="1">1 ${t('cycleSingleLabel')}</option>
               <option value="2">2 ${t('cyclesLabel')}</option>
               <option value="3">3 ${t('cyclesLabel')}</option>
             </select>
           </div>
 
-          <button type="button" onclick="importPlayersFromCurrentSlot()" class="w-full py-2.5 bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/30 btn-3d">
+          <button type="button" onclick="importPlayersFromCurrentSlot()" class="w-full py-2 bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/30 btn-3d">
             ${t('quickImportBtn')}
           </button>
 
-          <div id="names-container" class="space-y-2.5 pt-1"></div>
+          <div id="names-container" class="space-y-2 pt-1"></div>
 
-          <button type="button" onclick="startQuickAmericano()" class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider neon-glow-purple btn-3d mt-4 shadow-lg shadow-purple-500/30">
+          <button type="button" onclick="startQuickAmericano()" class="w-full py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider neon-glow-purple btn-3d mt-3 shadow-lg shadow-purple-500/30">
             ${t('startTournamentBtn')}
           </button>
 
@@ -2376,23 +2400,23 @@
         optionsHtml += `<option value="${p.id}" data-name="${name}">${name}${usernameTag} (Lvl ${p.skill_level || 2.5})</option>`;
       });
 
-      let html = `<label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}:</label>`;
+      let html = `<label class="block text-[10px] font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}:</label>`;
 
       for (let i = 1; i <= count; i++) {
         const saved = existingData[i - 1];
         const defaultName = saved ? saved.nameVal : ((i === 1) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Player ${i}`);
 
         html += `
-          <div class="p-2.5 glass-subcard rounded-2xl space-y-1.5 border border-white/10">
-            <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase">
+          <div class="p-2 glass-subcard rounded-2xl space-y-1 border border-white/10">
+            <div class="flex justify-between items-center text-[9px] font-bold text-slate-400 uppercase">
               <span>Player #${i}</span>
               <span id="player_badge_${i}" class="text-purple-300"></span>
             </div>
-            <div class="space-y-1.5">
-              <select id="player_select_${i}" onchange="onPlayerSelectChange(${i})" class="w-full p-2 glass-subcard rounded-xl text-xs font-bold text-white focus:outline-none focus:border-purple-500">
+            <div class="space-y-1">
+              <select id="player_select_${i}" onchange="onPlayerSelectChange(${i})" class="w-full p-1.5 glass-subcard rounded-xl text-xs font-bold text-white focus:outline-none focus:border-purple-500">
                 ${optionsHtml}
               </select>
-              <input type="text" id="player_name_${i}" value="${defaultName}" placeholder="Name ${i}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
+              <input type="text" id="player_name_${i}" value="${defaultName}" placeholder="Name ${i}" class="w-full p-1.5 glass-subcard rounded-xl text-xs text-white focus:outline-none focus:border-purple-500">
             </div>
           </div>
         `;
@@ -2564,7 +2588,7 @@
         const scoreDetail = item.draws > 0 ? `${item.wins}W / ${item.draws}D / ${item.losses}L` : `${item.wins}W / ${item.losses}L`;
 
         return `
-          <div class="flex items-center justify-between p-2.5 border rounded-2xl ${cardStyle}">
+          <div class="flex items-center justify-between p-2 border rounded-2xl ${cardStyle}">
             <div class="flex items-center gap-2 text-xs">
               ${badge}
               <span class="font-bold text-white">${item.name}</span>
@@ -2584,59 +2608,59 @@
         const pB2 = players[r.team_b[1]]?.name || '—';
 
         return `
-          <div class="p-3 border border-white/10 rounded-2xl glass-subcard space-y-2 text-xs">
+          <div class="p-2.5 border border-white/10 rounded-2xl glass-subcard space-y-1.5 text-xs">
             <div class="flex justify-between items-center text-slate-300 font-semibold">
               <span>${t('matchRoundLabel')} ${r.cycle} • ${t('matchGameLabel')} #${r.round} ${r.court ? `(${t('courtLabel')} #${r.court})` : ''}</span>
               ${r.completed ? `<span class="text-emerald-400 font-black">${t('completedStatus')}</span>` : `<span class="text-amber-400 font-semibold">${t('pendingStatus')}</span>`}
             </div>
             <div class="flex items-center justify-between gap-1.5">
-              <div class="flex-1 text-center font-bold text-white">${pA1} / ${pA2}</div>
+              <div class="flex-1 text-center font-bold text-white truncate">${pA1} / ${pA2}</div>
               
               <div class="flex items-center gap-1">
-                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
+                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-9 text-center p-1 border border-slate-700 rounded-xl font-black glass-subcard text-white text-xs focus:border-purple-500">
                 <span class="font-black text-slate-500">:</span>
-                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
+                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-9 text-center p-1 border border-slate-700 rounded-xl font-black glass-subcard text-white text-xs focus:border-purple-500">
                 
-                <button type="button" onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
+                <button type="button" onclick="saveQuickScore(${r.id})" class="ml-1 px-2 py-1 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
                   ${t('okBtn')}
                 </button>
               </div>
 
-              <div class="flex-1 text-center font-bold text-white">${pB1} / ${pB2}</div>
+              <div class="flex-1 text-center font-bold text-white truncate">${pB1} / ${pB2}</div>
             </div>
           </div>
         `;
       }).join('');
 
       container.innerHTML = `
-        <div class="space-y-4">
-          <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 p-4 rounded-2xl text-white shadow-lg space-y-1">
-            <h2 class="text-sm font-black uppercase tracking-wide flex justify-between items-center">
+        <div class="space-y-3.5">
+          <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 p-3.5 rounded-2xl text-white shadow-lg space-y-1">
+            <h2 class="text-xs font-black uppercase tracking-wide flex justify-between items-center">
               <span>🏆 ${t('calculatorTitle')}</span>
-              <span class="text-[10px] bg-black/30 px-2 py-0.5 rounded-md font-bold">${rounds.filter(r=>r.completed).length} / ${rounds.length} ${t('roundsCountLabel')}</span>
+              <span class="text-[9px] bg-black/30 px-2 py-0.5 rounded-md font-bold">${rounds.filter(r=>r.completed).length} / ${rounds.length} ${t('roundsCountLabel')}</span>
             </h2>
-            <p class="text-xs opacity-90">${players.length} ${t('gamesLabel')} • ${cycles} ${t('cyclesLabel')}</p>
+            <p class="text-[11px] opacity-90">${players.length} ${t('gamesLabel')} • ${cycles} ${t('cyclesLabel')}</p>
           </div>
 
-          <div class="space-y-2">
+          <div class="space-y-1.5">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('leaderboardTitle')}</h3>
             <div class="space-y-1.5">${leaderboardHtml}</div>
           </div>
 
-          <button type="button" onclick="recordTournamentToNationalLeaderboard()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
+          <button type="button" onclick="recordTournamentToNationalLeaderboard()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
             ${t('recordRatingBtn')}
           </button>
 
-          <div class="space-y-2">
+          <div class="space-y-1.5">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('matchesAndScoreTitle')}</h3>
-            <div class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-1">${roundsHtml}</div>
+            <div class="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-1">${roundsHtml}</div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 pt-2">
-            <button type="button" onclick="generateTelegramAmericanoReport()" class="py-3 bg-teal-500/20 border border-teal-500/40 text-teal-300 font-bold rounded-xl text-xs uppercase btn-3d">
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button type="button" onclick="generateTelegramAmericanoReport()" class="py-2.5 bg-teal-500/20 border border-teal-500/40 text-teal-300 font-bold rounded-xl text-xs uppercase btn-3d">
               ${t('reportTgBtn')}
             </button>
-            <button type="button" onclick="confirmCancelAmericano()" class="py-3 bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold rounded-xl text-xs uppercase btn-3d">
+            <button type="button" onclick="confirmCancelAmericano()" class="py-2.5 bg-rose-500/20 border border-rose-500/40 text-rose-300 font-bold rounded-xl text-xs uppercase btn-3d">
               ${t('cancelTournamentBtn')}
             </button>
           </div>
@@ -2830,11 +2854,11 @@
       content.innerHTML = `
         <div class="${cardClass} p-4 rounded-3xl space-y-3">
           <div class="flex items-center gap-3">
-            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-xl text-slate-950 shadow-md">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-lg text-slate-950 shadow-md">
               ${(p.first_name || 'U')[0].toUpperCase()}
             </div>
             <div>
-              <h3 class="text-base font-black text-white flex items-center gap-1.5">
+              <h3 class="text-sm font-black text-white flex items-center gap-1.5">
                 <span>${p.first_name} ${p.last_name || ''}</span>
                 ${isPro ? '<span class="text-amber-300">👑</span>' : ''}
               </h3>
@@ -2847,7 +2871,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
+          <div class="grid grid-cols-2 gap-2 text-[10px] pt-1">
             <div class="p-2 glass-subcard rounded-xl border border-white/10 space-y-0.5">
               <span class="text-slate-400 font-medium block">${t('ageLabel')} / ${t('gender')}</span>
               <span class="font-bold text-white">${age ? age + ' лет' : '—'} • ${genderText}</span>
@@ -2875,7 +2899,7 @@
 
           <div class="p-2.5 glass-subcard rounded-xl border border-purple-500/30 flex justify-between items-center text-xs">
             <span class="text-purple-300 font-bold">Очки в турнирах Американо:</span>
-            <span class="font-black text-white font-mono text-sm">${histPts} PTS</span>
+            <span class="font-black text-white font-mono text-xs">${histPts} PTS</span>
           </div>
         </div>
       `;
@@ -2931,7 +2955,7 @@
           </div>
 
           <div class="pt-2">
-            <button type="submit" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
+            <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
               💾 Сохранить изменения игрока
             </button>
           </div>
@@ -3052,7 +3076,7 @@
         `).join('');
 
         creatorAdminPanelHtml = `
-          <div class="p-4 glass-subcard border-2 border-cyan-500/50 rounded-3xl space-y-3 bg-slate-950/80">
+          <div class="p-3.5 glass-subcard border-2 border-cyan-500/50 rounded-3xl space-y-2.5 bg-slate-950/80">
             <div class="flex items-center gap-2">
               <span class="text-xl">👑</span>
               <div>
@@ -3063,7 +3087,7 @@
 
             ${pendingHtml}
 
-            <div class="space-y-2 pt-2 border-t border-cyan-500/30">
+            <div class="space-y-1.5 pt-2 border-t border-cyan-500/30">
               <h4 class="text-xs font-extrabold text-slate-300 uppercase tracking-wide">${t('allRegisteredPlayers')}</h4>
               <div class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">${playersManagementList}</div>
             </div>
@@ -3074,18 +3098,18 @@
       let editFormHtml = '';
       if (isProfileEditOpen) {
         editFormHtml = `
-          <div class="p-4 glass-subcard border border-emerald-500/40 rounded-3xl space-y-3">
+          <div class="p-3.5 glass-subcard border border-emerald-500/40 rounded-3xl space-y-2.5">
             <h3 class="text-xs font-black text-emerald-300 uppercase tracking-wide">${t('profileEditTitle')}</h3>
             
-            <form onsubmit="handleSaveProfileDetails(event)" class="space-y-2.5 text-xs">
+            <form onsubmit="handleSaveProfileDetails(event)" class="space-y-2 text-xs">
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('birthDate')}</label>
-                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
+                  <input type="date" id="edit_birth_date" value="${p.birth_date || ''}" class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
                 </div>
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('gender')}</label>
-                  <select id="edit_gender" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
+                  <select id="edit_gender" class="w-full p-2 glass-subcard rounded-xl text-xs text-white font-bold">
                     <option value="" ${!p.gender ? 'selected' : ''}>— ${t('unspecified')} —</option>
                     <option value="male" ${p.gender === 'male' ? 'selected' : ''}>${t('male')}</option>
                     <option value="female" ${p.gender === 'female' ? 'selected' : ''}>${t('female')}</option>
@@ -3096,7 +3120,7 @@
               <div class="grid grid-cols-2 gap-2">
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('preferredSide')}</label>
-                  <select id="edit_preferred_side" class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white font-bold">
+                  <select id="edit_preferred_side" class="w-full p-2 glass-subcard rounded-xl text-xs text-white font-bold">
                     <option value="left" ${p.preferred_side === 'left' ? 'selected' : ''}>${t('leftSide')}</option>
                     <option value="right" ${p.preferred_side === 'right' ? 'selected' : ''}>${t('rightSide')}</option>
                     <option value="both" ${p.preferred_side === 'both' || !p.preferred_side ? 'selected' : ''}>${t('bothSides')}</option>
@@ -3104,15 +3128,15 @@
                 </div>
                 <div>
                   <label class="block text-[10px] font-bold text-slate-300 mb-1 uppercase">${t('phone')}</label>
-                  <input type="tel" id="edit_phone" value="${p.phone_number || ''}" placeholder="+373..." class="w-full p-2.5 glass-subcard rounded-xl text-xs text-white">
+                  <input type="tel" id="edit_phone" value="${p.phone_number || ''}" placeholder="+373..." class="w-full p-2 glass-subcard rounded-xl text-xs text-white">
                 </div>
               </div>
 
               <div class="flex gap-2 pt-1">
-                <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
+                <button type="submit" class="flex-1 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
                   ${t('saveChanges')}
                 </button>
-                <button type="button" onclick="toggleProfileEditForm()" class="px-4 py-3 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs btn-3d">
+                <button type="button" onclick="toggleProfileEditForm()" class="px-3 py-2.5 bg-slate-800 text-slate-300 font-bold rounded-xl text-xs btn-3d">
                   ✕
                 </button>
               </div>
@@ -3132,22 +3156,22 @@
         let rowBg = "lb-card-solid";
         let rankBadge = `<span class="font-black text-slate-400 text-xs">${index + 1}.</span>`;
 
-        if (index === 0) { rowBg = "lb-podium-1"; rankBadge = `<span class="text-xl">🥇</span>`; }
-        else if (index === 1) { rowBg = "lb-podium-2"; rankBadge = `<span class="text-xl">🥈</span>`; }
-        else if (index === 2) { rowBg = "lb-podium-3"; rankBadge = `<span class="text-xl">🥉</span>`; }
+        if (index === 0) { rowBg = "lb-podium-1"; rankBadge = `<span class="text-lg">🥇</span>`; }
+        else if (index === 1) { rowBg = "lb-podium-2"; rankBadge = `<span class="text-lg">🥈</span>`; }
+        else if (index === 2) { rowBg = "lb-podium-3"; rankBadge = `<span class="text-lg">🥉</span>`; }
 
         if (itemIsPro && index > 2) rowBg = "glass-card-pro";
 
         return `
-          <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} p-3 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all btn-3d">
-            <div class="flex items-center gap-2.5">
+          <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} p-2.5 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all btn-3d">
+            <div class="flex items-center gap-2">
               ${rankBadge}
               <div>
                 <h4 class="text-xs font-black text-white flex items-center gap-1">
                   <span>${item.first_name} ${item.last_name || ''}</span>
                   ${itemIsPro ? '<span class="text-amber-300 text-[10px]">👑</span>' : ''}
                 </h4>
-                <div class="flex items-center gap-1.5 mt-0.5">
+                <div class="flex items-center gap-1 mt-0.5">
                   <span class="text-[9px] font-bold text-slate-300">${itemLeague.badge} ${itemLeague.title}</span>
                   <span class="text-[9px] text-slate-400">• Lvl ${item.skill_level || 2.5}</span>
                 </div>
@@ -3163,20 +3187,20 @@
       }).join('');
 
       container.innerHTML = `
-        <div class="space-y-4">
-          <div class="${cardClass} p-4 rounded-3xl space-y-3">
+        <div class="space-y-3.5">
+          <div class="${cardClass} p-3.5 rounded-3xl space-y-2.5">
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-xl text-slate-950 shadow-md">
+              <div class="flex items-center gap-2.5">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center font-black text-lg text-slate-950 shadow-md">
                   ${(p.first_name || 'U')[0].toUpperCase()}
                 </div>
                 <div>
-                  <h3 class="text-base font-black text-white flex items-center gap-1.5">
+                  <h3 class="text-sm font-black text-white flex items-center gap-1">
                     <span>${p.first_name} ${p.last_name || ''}</span>
                     ${isPro ? '<span class="text-amber-300">👑</span>' : ''}
                   </h3>
                   <p class="text-xs text-emerald-400 font-semibold">@${p.username || 'user'}</p>
-                  <div class="flex items-center gap-1 mt-1">
+                  <div class="flex items-center gap-1 mt-0.5">
                     <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
                       ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
                     </span>
@@ -3184,12 +3208,12 @@
                 </div>
               </div>
 
-              <button type="button" onclick="toggleProfileEditForm()" class="px-3 py-1.5 bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-white/10 font-bold text-xs rounded-xl btn-3d">
+              <button type="button" onclick="toggleProfileEditForm()" class="px-2.5 py-1.5 bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-white/10 font-bold text-xs rounded-xl btn-3d">
                 ⚙️ ${t('settingsBtn')}
               </button>
             </div>
 
-            <div class="grid grid-cols-3 gap-2 text-center text-[10px] pt-1">
+            <div class="grid grid-cols-3 gap-1.5 text-center text-[10px] pt-1">
               <div class="p-2 glass-subcard rounded-xl border border-white/10">
                 <span class="text-slate-400 block">${t('matches')}</span>
                 <span class="font-black text-white text-xs">${total}</span>
@@ -3209,22 +3233,22 @@
           ${proSectionHtml}
           ${creatorAdminPanelHtml}
 
-          <div class="p-4 glass-subcard border border-white/10 rounded-3xl space-y-3">
+          <div class="p-3.5 glass-subcard border border-white/10 rounded-3xl space-y-2.5">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('ratingSystemTitle')}</h3>
-            <div class="grid grid-cols-2 gap-2 text-[10px]">
-              <div class="p-2 glass-subcard rounded-xl border border-amber-500/30">👑 <strong>Master</strong>: 2100+ LP</div>
-              <div class="p-2 glass-subcard rounded-xl border border-cyan-500/30">💎 <strong>Platinum</strong>: 1800+ LP</div>
-              <div class="p-2 glass-subcard rounded-xl border border-yellow-500/30">🥇 <strong>Gold</strong>: 1500+ LP</div>
-              <div class="p-2 glass-subcard rounded-xl border border-slate-400/30">🥈 <strong>Silver</strong>: 1200+ LP</div>
+            <div class="grid grid-cols-2 gap-1.5 text-[10px]">
+              <div class="p-1.5 glass-subcard rounded-xl border border-amber-500/30">👑 <strong>Master</strong>: 2100+ LP</div>
+              <div class="p-1.5 glass-subcard rounded-xl border border-cyan-500/30">💎 <strong>Platinum</strong>: 1800+ LP</div>
+              <div class="p-1.5 glass-subcard rounded-xl border border-yellow-500/30">🥇 <strong>Gold</strong>: 1500+ LP</div>
+              <div class="p-1.5 glass-subcard rounded-xl border border-slate-400/30">🥈 <strong>Silver</strong>: 1200+ LP</div>
             </div>
           </div>
 
-          <div class="space-y-2 pt-2">
+          <div class="space-y-2 pt-1">
             <div class="flex justify-between items-center">
-              <h3 class="text-sm font-black text-slate-200 uppercase tracking-wide">${t('leaderboardTitle')}</h3>
+              <h3 class="text-xs font-black text-slate-200 uppercase tracking-wide">${t('leaderboardTitle')}</h3>
               <span class="text-[10px] text-emerald-400 font-bold">${platformProfilesList.length} игроков</span>
             </div>
-            <div class="space-y-2 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">${leaderboardRowsHtml}</div>
+            <div class="space-y-1.5 max-h-[400px] overflow-y-auto custom-scrollbar pr-1">${leaderboardRowsHtml}</div>
           </div>
         </div>
       `;
