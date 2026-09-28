@@ -202,7 +202,8 @@
     .btn-3d { transition: all 0.15s ease; }
     .btn-3d:active { transform: translateY(2px) scale(0.98); }
 
-    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+    input[type="date"]::-webkit-calendar-picker-indicator,
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
   </style>
 </head>
 <body class="antialiased selection:bg-emerald-500 selection:text-white">
@@ -569,7 +570,6 @@
       const idStr = String(p.id).trim();
       const numericId = parseInt(idStr, 10);
 
-      // Исключаем нечисловые, 6-значные тестовые ID (например 777777) и системные заглушки
       if (isNaN(numericId) || numericId <= 999999) return false;
 
       const firstName = String(p.first_name).trim().toLowerCase();
@@ -1162,7 +1162,7 @@
         approveProBtn: "✅ Подтвердить PRO", rejectProBtn: "❌ Отклонить", settingsBtn: "Настройки",
         ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы", tourneyHistoryTitle: "📜 История турниров (за 7 дней)",
         autoCleanup: "Автоочистка", winnerLabel: "Победитель", participantsCount: "Участников", gamesCount: "игр(ы)",
-        hostPanel: "Панель Организатора Слота", hostPanelDesc: "Управление составом, местами и ценой", profileEditTitle: "✏️ Редактирование Данных Профиля",
+        hostPanel: "Панель Организатора Слота", hostPanelDesc: "Управление составом, местами, временем и ценой", profileEditTitle: "✏️ Редактирование Данных Профиля",
         creatorPanelTitle: "👑 Панель Создателя: Управление Платформой", allRegisteredPlayers: "Все зарегистрированные игроки платформы:",
         gamesLabel: "игр", reportTgBtn: "📋 Отчёт в Telegram", recordRatingBtn: "🏆 Записать в Рейтинг",
         cancelTournamentBtn: "🛑 Отменить / Сбросить турнир", confirmCancelMsg: "Вы действительно хотите отменить турнир?",
@@ -1174,7 +1174,7 @@
         place3: "🥉 3-е МЕСТО", matchRoundLabel: "Круг", matchGameLabel: "Игра", courtLabel: "Корт",
         completedStatus: "Завершён", pendingStatus: "Ожидает", okBtn: "ОК", viewTourneyDetails: "Смотреть матчи",
         tourneyMatchesTitle: "Матчи турнира", pricePerPlayerLabel: "Цена за игрока (MDL)", deleteSlotBtn: "🗑️ Удалить слот",
-        backToCreate: "➕ Создать другой слот"
+        backToCreate: "➕ Создать другой слот", slotLabel: "Слот"
       },
       ro: {
         tabBooking: "Sloturi", tabAmericano: "Americano", tabProfile: "Profil",
@@ -1195,7 +1195,7 @@
         approveProBtn: "✅ Confirmă PRO", rejectProBtn: "❌ Respinge", settingsBtn: "Setări",
         ratingSystemTitle: "🇲🇩 Sistemul de Clasament și Ligi Moldova", tourneyHistoryTitle: "📜 Istoricul turneelor",
         autoCleanup: "Curățare automată", winnerLabel: "Câștigător", participantsCount: "Participanți", gamesCount: "jocuri",
-        hostPanel: "Panou Organizator Slot", hostPanelDesc: "Gestionare echipă, locuri și preț", profileEditTitle: "✏️ Editare Date Profil",
+        hostPanel: "Panou Organizator Slot", hostPanelDesc: "Gestionare echipă, locuri, timp și preț", profileEditTitle: "✏️ Editare Date Profil",
         creatorPanelTitle: "👑 Panou Autor", allRegisteredPlayers: "Toți jucătorii înregistrați pe platformă:",
         gamesLabel: "jocuri", reportTgBtn: "📋 Raport pe Telegram", recordRatingBtn: "🏆 Înregistrează în Clasament",
         cancelTournamentBtn: "🛑 Anulează / Resetează turneul", confirmCancelMsg: "Doriți într-adevăr să anulați turneul?",
@@ -1207,7 +1207,7 @@
         place3: "🥉 LOCUL 3", matchRoundLabel: "Runda", matchGameLabel: "Jocul", courtLabel: "Teren",
         completedStatus: "Finalizat", pendingStatus: "În așteptare", okBtn: "OK", viewTourneyDetails: "Vezi meciurile",
         tourneyMatchesTitle: "Meciurile turneului", pricePerPlayerLabel: "Preț per jucător (MDL)", deleteSlotBtn: "🗑️ Șterge slotul",
-        backToCreate: "➕ Creează alt slot"
+        backToCreate: "➕ Creează alt slot", slotLabel: "Slot"
       },
       en: {
         tabBooking: "Slots", tabAmericano: "Americano", tabProfile: "Profile",
@@ -1228,7 +1228,7 @@
         approveProBtn: "✅ Approve PRO", rejectProBtn: "❌ Reject", settingsBtn: "Settings",
         ratingSystemTitle: "🇲🇩 Moldova Ranking & Division System", tourneyHistoryTitle: "📜 Tournament History",
         autoCleanup: "Auto-cleanup", winnerLabel: "Winner", participantsCount: "Participants", gamesCount: "game(s)",
-        hostPanel: "Slot Host Panel", hostPanelDesc: "Manage players, slots and price", profileEditTitle: "✏️ Edit Profile Data",
+        hostPanel: "Slot Host Panel", hostPanelDesc: "Manage players, slots, time and price", profileEditTitle: "✏️ Edit Profile Data",
         creatorPanelTitle: "👑 Creator Panel", allRegisteredPlayers: "All registered platform players:",
         gamesLabel: "games", reportTgBtn: "📋 Telegram Report", recordRatingBtn: "🏆 Record to Leaderboard",
         cancelTournamentBtn: "🛑 Cancel / Reset Tournament", confirmCancelMsg: "Are you sure you want to cancel?",
@@ -1240,7 +1240,7 @@
         place3: "🥉 3rd PLACE", matchRoundLabel: "Round", matchGameLabel: "Game", courtLabel: "Court",
         completedStatus: "Completed", pendingStatus: "Pending", okBtn: "OK", viewTourneyDetails: "View Matches",
         tourneyMatchesTitle: "Tournament Matches", pricePerPlayerLabel: "Price per player (MDL)", deleteSlotBtn: "🗑️ Delete slot",
-        backToCreate: "➕ Create another slot"
+        backToCreate: "➕ Create another slot", slotLabel: "Slot"
       }
     };
 
@@ -1557,7 +1557,6 @@
         }
       } catch(e) {}
 
-      // Гарантируем присутствие текущего залогиненного профиля, если он реальный
       if (currentUserProfile && isValidRealUser(currentUserProfile)) {
         if (!platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
           platformProfilesList.push(currentUserProfile);
@@ -1785,6 +1784,21 @@
       } catch (e) { alert('Ошибка: ' + e.message); }
     }
 
+    async function updateMatchTime(matchId) {
+      const timeInput = document.getElementById(`edit_time_${matchId}`);
+      if (!timeInput || !timeInput.value) {
+        alert('Выберите корректную дату и время.');
+        return;
+      }
+      try {
+        const newIsoTime = new Date(timeInput.value).toISOString();
+        const { error } = await supabaseClient.from('matches').update({ scheduled_at: newIsoTime }).eq('id', matchId);
+        if (error) throw error;
+        alert('Время игры успешно обновлено!');
+        renderMatchDetails(matchId);
+      } catch (e) { alert('Ошибка обновления времени: ' + e.message); }
+    }
+
     async function deleteMatchByCreator(matchId) {
       if (!confirm('Вы уверены, что хотите полностью удалить этот слот?')) return;
       try {
@@ -1799,6 +1813,19 @@
 
         renderCreateMatchForm();
       } catch(e) { alert('Ошибка: ' + e.message); }
+    }
+
+    // --- ЛОКАЛЬНОЕ ХРАНИЛИЩЕ СООБЩЕНИЙ ЧАТА (ФОЛЛБЭК И КЭШ) ---
+    function getLocalChatMessages(matchId) {
+      try {
+        return JSON.parse(localStorage.getItem(`padel_chat_msgs_${matchId}`) || '[]');
+      } catch(e) { return []; }
+    }
+
+    function saveLocalChatMessage(matchId, msg) {
+      const list = getLocalChatMessages(matchId);
+      list.push(msg);
+      localStorage.setItem(`padel_chat_msgs_${matchId}`, JSON.stringify(list));
     }
 
     async function renderMatchDetails(matchId) {
@@ -1819,6 +1846,7 @@
         const isRegClosed = match.is_registration_closed === true;
 
         const dateStr = new Date(match.scheduled_at).toLocaleString(currentLang === 'ro' ? 'ro-RO' : (currentLang === 'en' ? 'en-US' : 'ru-RU'), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const scheduledDateForInput = match.scheduled_at ? new Date(match.scheduled_at).toISOString().slice(0, 16) : '';
         const shareUrl = `https://t.me/${shareBotUsername}/app?startapp=${match.id}`;
 
         let slotsHtml = '';
@@ -1834,7 +1862,7 @@
               <div class="p-3 glass-subcard rounded-2xl space-y-1 border border-emerald-500/30">
                 ${isCreatorOfThisSlot ? `<span class="text-[9px] bg-amber-500/20 border border-amber-500/40 text-amber-300 font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider inline-block">${t('creatorTag')}</span>` : ''}
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-emerald-300">Слот #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline decoration-dotted hover:text-amber-300">${name}</span></span>
+                  <span class="text-xs font-bold text-emerald-300">${t('slotLabel')} #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline decoration-dotted hover:text-amber-300">${name}</span></span>
                   <div class="flex items-center gap-2">
                     <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
                     ${isMatchCreator ? `<button onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d">❌</button>` : ''}
@@ -1844,7 +1872,7 @@
           } else if (!isRegClosed) {
             slotsHtml += `
               <div class="p-3 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
-                <span>Слот #${i}: <strong class="text-emerald-400 font-bold">${t('free')}</strong></span>
+                <span>${t('slotLabel')} #${i}: <strong class="text-emerald-400 font-bold">${t('free')}</strong></span>
                 ${!isJoined ? `
                   <button onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20">
                     ${t('joinSlot')} #${i}
@@ -1854,11 +1882,18 @@
           }
         }
 
-        let messagesList = [];
-        try {
-          const { data: dbMsgs } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
-          if (dbMsgs) messagesList = dbMsgs;
-        } catch(e) {}
+        let messagesList = getLocalChatMessages(matchId);
+        if (supabaseClient) {
+          try {
+            const { data: dbMsgs, error } = await supabaseClient.from('match_messages').select('*').eq('match_id', matchId).order('created_at', { ascending: true });
+            if (!error && dbMsgs) {
+              const msgMap = new Map();
+              dbMsgs.forEach(m => msgMap.set(`${m.user_id}_${m.created_at}_${m.message_text}`, m));
+              messagesList.forEach(m => msgMap.set(`${m.user_id}_${m.created_at}_${m.message_text}`, m));
+              messagesList = Array.from(msgMap.values()).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+            }
+          } catch(e) {}
+        }
 
         let chatHtml = messagesList.map(m => {
           const isMe = String(m.user_id) === String(tgUser.id);
@@ -1889,6 +1924,16 @@
                 </div>
               </div>
 
+              <!-- Изменение даты и времени -->
+              <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs gap-2">
+                <span class="font-bold text-slate-300 pl-1 whitespace-nowrap">${t('dateTime')}</span>
+                <div class="flex items-center gap-1.5 flex-1 justify-end">
+                  <input type="datetime-local" id="edit_time_${match.id}" value="${scheduledDateForInput}" class="p-1.5 glass-subcard border border-slate-600 rounded-lg text-white font-semibold text-xs text-center max-w-[170px]">
+                  <button onclick="updateMatchTime('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
+                </div>
+              </div>
+
+              <!-- Изменение цены -->
               <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs">
                 <span class="font-bold text-slate-300 pl-1">${t('pricePerPlayerLabel')}</span>
                 <div class="flex items-center gap-1.5">
@@ -1978,15 +2023,27 @@
 
     async function sendChatMessage(matchId) {
       const input = document.getElementById('chat_input');
+      if (!input) return;
       const text = input.value.trim();
       if (!text) return;
 
       const newMsg = {
-        match_id: matchId, user_id: tgUser.id, sender_name: tgUser.first_name || 'Игрок',
-        message_text: text, created_at: new Date().toISOString()
+        match_id: matchId,
+        user_id: tgUser.id,
+        sender_name: `${tgUser.first_name || 'Игрок'} ${tgUser.last_name || ''}`.trim(),
+        message_text: text,
+        created_at: new Date().toISOString()
       };
 
-      try { await supabaseClient.from('match_messages').insert([newMsg]); } catch(e){}
+      saveLocalChatMessage(matchId, newMsg);
+
+      if (supabaseClient) {
+        try {
+          const { error } = await supabaseClient.from('match_messages').insert([newMsg]);
+          if (error) console.log('Supabase insert chat error:', error.message);
+        } catch(e) { console.log('Chat send error:', e); }
+      }
+
       input.value = '';
       renderMatchDetails(matchId);
     }
@@ -2688,12 +2745,10 @@
         sortedList.sort((a, b) => (b.rating_competitive || 1000) - (a.rating_competitive || 1000));
       }
 
-      // --- ГЕНЕРАЦИЯ ПОДИУМА ТОП-3 И СПИСКА С ПРИНУДИТЕЛЬНОЙ СТАБИЛЬНОСТЬЮ ОТРИСОВКИ ---
       let podiumHtml = '';
       let restRowsHtml = '';
 
       if (sortedList.length > 0) {
-        // ТОП-1, 2, 3 ПОДИУМ
         const top3 = sortedList.slice(0, 3);
         podiumHtml = top3.map((item, index) => {
           const league = getPlayerLeague(item.computedLP);
@@ -2723,7 +2778,6 @@
           `;
         }).join('');
 
-        // ТОП-4+ ТАБЛИЦА
         const rest = sortedList.slice(3);
         restRowsHtml = rest.map((item, index) => {
           const rank = index + 4;
