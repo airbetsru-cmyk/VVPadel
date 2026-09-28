@@ -544,6 +544,29 @@
       username: 'kizdoi'
     };
 
+    // --- WEB AUDIO SOUND SYNTHESIS FOR MINI-GAME & ACTIONS ---
+    let audioCtx = null;
+    function playAudioTone(freq, type, duration, vol = 0.1) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function soundHit() { playAudioTone(320, 'square', 0.08, 0.15); }
+    function soundBounce() { playAudioTone(180, 'sine', 0.05, 0.08); }
+    function soundGameOver() { playAudioTone(110, 'sawtooth', 0.4, 0.2); }
+
     function getAmericanoStorageKey() { return `quick_americano_state_${tgUser.id || 'guest'}`; }
 
     let currentSlotSubTab = 'feed'; // 'feed', 'my_slot', 'create'
@@ -734,7 +757,8 @@
       const handlePointerMove = (clientX) => {
         if (!isGameRunning || gameControlMode !== 'touch') return;
         const cRect = gCanvas.getBoundingClientRect();
-        gRacket.targetX = clientX - cRect.left;
+        const scaleX = gWidth / (cRect.width || 1);
+        gRacket.targetX = (clientX - cRect.left) * scaleX;
       };
       gCanvas.onmousemove = (e) => handlePointerMove(e.clientX);
       gCanvas.ontouchmove = (e) => { if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX); };
@@ -799,9 +823,9 @@
       gBall.vy += 0.22; gBall.vx += gBall.spin * 0.04; gBall.x += gBall.vx; gBall.y += gBall.vy;
       gBall.rotation += gBall.spin * 0.1; gBall.vx *= 0.992;
 
-      if (gBall.x - gBall.r <= 0) { gBall.x = gBall.r; gBall.vx = Math.abs(gBall.vx) * 0.9; gBall.spin = -gBall.spin; }
-      if (gBall.x + gBall.r >= gWidth) { gBall.x = gWidth - gBall.r; gBall.vx = -Math.abs(gBall.vx) * 0.9; gBall.spin = -gBall.spin; }
-      if (gBall.y - gBall.r <= 0) { gBall.y = gBall.r; gBall.vy = Math.abs(gBall.vy); }
+      if (gBall.x - gBall.r <= 0) { gBall.x = gBall.r; gBall.vx = Math.abs(gBall.vx) * 0.9; gBall.spin = -gBall.spin; soundBounce(); }
+      if (gBall.x + gBall.r >= gWidth) { gBall.x = gWidth - gBall.r; gBall.vx = -Math.abs(gBall.vx) * 0.9; gBall.spin = -gBall.spin; soundBounce(); }
+      if (gBall.y - gBall.r <= 0) { gBall.y = gBall.r; gBall.vy = Math.abs(gBall.vy); soundBounce(); }
 
       const racketTop = gRacket.y - 10;
       if (gBall.vy > 0 && gBall.y + gBall.r >= racketTop && gBall.y - gBall.r <= racketTop + 14 && Math.abs(gBall.x - gRacket.x) <= halfW + 6) {
@@ -812,6 +836,7 @@
         gBall.vx = offset * 4.5 + gRacket.vx * 0.4;
         gBall.spin = gRacket.vx * 0.5;
         gBall.squashX = 1.3; gBall.squashY = 0.7;
+        soundHit();
         if (navigator.vibrate) navigator.vibrate(20);
 
         for (let i = 0; i < 8; i++) {
@@ -882,6 +907,7 @@
 
     async function triggerPadelGameOver() {
       isGameRunning = false;
+      soundGameOver();
       document.getElementById('go-score').innerText = currentGameScore;
       document.getElementById('game-over-overlay').classList.remove('hidden');
       renderGameLeaderboard();
@@ -1272,7 +1298,7 @@
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) { showError('Ошибка базы: ' + e.message); }
 
-    // ПОЛНОЕ УСТРАНЕНИЕ ОШИБКИ FOREIGN KEY CONSTRAINTS
+    // УСТРАНЕНИЕ ОШИБКИ FOREIGN KEY CONSTRAINTS
     async function ensureProfileInDatabase(userObj) {
       if (!supabaseClient || !userObj || !userObj.id) return false;
       const uid = userObj.id;
@@ -1454,6 +1480,12 @@
       await syncUserProfile();
       await fetchAllPlatformProfiles();
       setLanguage(currentLang);
+
+      const startParam = getStartParam();
+      if (startParam) {
+        currentSlotSubTab = 'my_slot';
+        renderMatchDetails(startParam);
+      }
     }
 
     async function fetchAllPlatformProfiles() {
@@ -1619,7 +1651,6 @@
       `;
     }
 
-    // СТРОГАЯ ПРОВЕРКА: Активный слот ТОЛЬКО для текущего авторизованного пользователя
     async function getUserActiveMatchId() {
       if (!supabaseClient) return null;
       try {
@@ -1659,7 +1690,6 @@
         if (mySlotId) {
           renderMatchDetails(mySlotId);
         } else {
-          // Если текущий игрок НЕ занимает места ни в одном слоте — ПОКАЗЫВАЕМ ЧИСТУЮ ФОРМУ СОЗДАНИЯ!
           renderCreateMatchForm();
         }
       } else if (currentSlotSubTab === 'create') {
