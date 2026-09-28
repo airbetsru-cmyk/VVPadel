@@ -42,13 +42,11 @@
       z-index: 1;
     }
 
-    /* ФИРМЕННЫЙ СТИЛЬ КАРБОНОВОЙ ПАДЕЛ-РАКЕТКИ С ПЕРФОРАЦИЕЙ (ЕДИНЫЙ ДИЗАЙН) */
+    /* ФИРМЕННЫЙ СТИЛЬ КАРБОНОВОЙ ПАДЕЛ-РАКЕТКИ С ПЕРФОРАЦИЕЙ */
     .carbon-padel-card {
       background-color: #0b0f19 !important;
       background-image: 
-        /* Перфорация падел-ракетки (точечная матрица) */
         radial-gradient(circle, rgba(16, 185, 129, 0.35) 1.5px, rgba(15, 23, 42, 0.95) 2.5px, transparent 3px),
-        /* Текстура углеволокна Carbon Fiber */
         linear-gradient(45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.03) 75%),
         linear-gradient(-45deg, rgba(255, 255, 255, 0.03) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.03) 75%),
         linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(9, 13, 22, 0.98) 100%);
@@ -101,7 +99,6 @@
       border: 1px solid rgba(255, 255, 255, 0.10);
     }
 
-    /* СТАБИЛИЗИРОВАННЫЕ ЭЛЕМЕНТЫ РЕЙТИНГА БЕЗ БАГОВ ИСЧЕЗНОВЕНИЯ WEBKIT */
     .lb-card-solid {
       background: rgba(15, 23, 42, 0.92) !important;
       border: 1px solid rgba(255, 255, 255, 0.12);
@@ -129,20 +126,10 @@
       contain: content;
     }
 
-    .custom-scrollbar {
-      -webkit-overflow-scrolling: touch;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 5px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
-      border-radius: 8px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: rgba(16, 185, 129, 0.5);
-      border-radius: 8px;
-    }
+    .custom-scrollbar { -webkit-overflow-scrolling: touch; }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); border-radius: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.5); border-radius: 8px; }
 
     .shimmer-border { position: relative; }
     .shimmer-border::before {
@@ -224,12 +211,11 @@
   <div class="bg-overlay p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <!-- ШАПКА B КАРБОНОВОМ СТИЛЕ С ПЕРФОРАЦИЕЙ ПАДЕЛ-РАКЕТКИ -->
+      <!-- ШАПКА В КАРБОНОВОМ СТИЛЕ -->
       <div class="carbon-padel-card shimmer-border p-4 rounded-3xl space-y-3 shadow-2xl">
         <div class="flex items-center justify-between gap-2">
           
           <div class="flex items-center gap-3">
-            <!-- ДИНАМИЧЕСКАЯ 3D ПАДЕЛ-РАКЕТКА -->
             <div onclick="openPadelGameModal()" class="w-14 h-14 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
               <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
               <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -290,7 +276,7 @@
     </div>
   </div>
 
-  <!-- ИНТЕРАКТИВНАЯ ИГРА "MOTION PADEL SIMULATOR" -->
+  <!-- МИНИ-ИГРА "MOTION PADEL SIMULATOR" -->
   <div id="modal-padel-game" class="fixed inset-0 bg-slate-950/95 backdrop-blur-2xl z-50 hidden flex flex-col items-center justify-between p-4 overflow-hidden select-none">
     <div class="w-full max-w-md flex justify-between items-center glass-subcard p-3 rounded-2xl border border-emerald-500/40 z-20">
       <div class="flex items-center gap-2">
@@ -356,7 +342,7 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО ОПЛАТЫ PRO -->
+  <!-- МОДАЛЬНЫЕ ОКНА (PRO, ПОДДЕРЖКА, АВТОР) -->
   <div id="modal-pay-pro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card-pro p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
@@ -405,7 +391,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО ДЕТАЛЕЙ АКТИВНОЙ PRO-ПОДПИСКИ -->
   <div id="modal-pro-details" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card-pro p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
@@ -423,7 +408,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИСТОРИИ ТУРНИРА -->
   <div id="modal-view-tourney" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4 max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-center border-b border-white/10 pb-3 flex-shrink-0">
@@ -441,7 +425,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО ПРОСМОТРА ИГРОКА -->
   <div id="modal-view-player" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -459,7 +442,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО УПРАВЛЕНИЯ ИГРОКОМ ДЛЯ СОЗДАТЕЛЯ -->
   <div id="modal-admin-player" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -473,7 +455,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО SUPPORT -->
   <div id="modal-support" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -511,7 +492,6 @@
     </div>
   </div>
 
-  <!-- МОДАЛЬНОЕ ОКНО CREATOR -->
   <div id="modal-creator" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="carbon-padel-card shimmer-border p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-white/10 pb-3">
@@ -562,32 +542,22 @@
     function getAmericanoStorageKey() { return `quick_americano_state_${tgUser.id || 'guest'}`; }
 
     let currentActiveMatchId = localStorage.getItem(getSlotStorageKey()) || null;
+    let currentSlotSubTab = 'feed'; // 'feed', 'my_slot', 'create'
 
-    // --- ПОЛНОСТЬЮ СТРОГАЯ ФИЛЬТРАЦИЯ РЕАЛЬНЫХ ПОЛЬЗОВАТЕЛЕЙ (БЕЗ ТЕСТОВЫХ АККАУНТОВ) ---
     function isValidRealUser(p) {
       if (!p || !p.id || !p.first_name) return false;
-
       const idStr = String(p.id).trim();
       const numericId = parseInt(idStr, 10);
-
       if (isNaN(numericId) || numericId <= 999999) return false;
 
       const firstName = String(p.first_name).trim().toLowerCase();
       const lastName = String(p.last_name || '').trim().toLowerCase();
       const fullName = `${firstName} ${lastName}`.trim();
 
-      const fakeKeywords = [
-        'test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 
-        'admin', 'админ', 'dummy', 'fake', 'user', 'пользователь', 'sample', 
-        'null', 'undefined', 'noname', 'без имени'
-      ];
-
+      const fakeKeywords = ['test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 'admin', 'админ', 'dummy', 'fake', 'user', 'пользователь', 'sample', 'null', 'undefined', 'noname', 'без имени'];
       for (const kw of fakeKeywords) {
-        if (firstName === kw || lastName === kw || fullName.includes(kw)) {
-          return false;
-        }
+        if (firstName === kw || lastName === kw || fullName.includes(kw)) return false;
       }
-
       return true;
     }
 
@@ -599,8 +569,7 @@
 
       const dpr = window.devicePixelRatio || 1;
       const size = 64;
-      cvs.width = size * dpr;
-      cvs.height = size * dpr;
+      cvs.width = size * dpr; cvs.height = size * dpr;
       ctx.scale(dpr, dpr);
 
       let ball = { x: 32, y: 12, vx: 0.2, vy: 0, r: 4.5, squashX: 1, squashY: 1 };
@@ -609,10 +578,7 @@
 
       function animate() {
         ctx.clearRect(0, 0, size, size);
-
-        ball.vy += 0.18;
-        ball.x += ball.vx;
-        ball.y += ball.vy;
+        ball.vy += 0.18; ball.x += ball.vx; ball.y += ball.vy;
 
         if (ball.x < 11) { ball.x = 11; ball.vx = Math.abs(ball.vx); }
         if (ball.x > 53) { ball.x = 53; ball.vx = -Math.abs(ball.vx); }
@@ -628,12 +594,8 @@
           ball.y = hitZoneY - ball.r;
           ball.vy = -(3.6 + Math.random() * 0.6);
           ball.vx = (ball.x - racket.x) * 0.08 + (Math.random() - 0.5) * 0.5;
-          ball.squashX = 1.35;
-          ball.squashY = 0.65;
-
-          racket.targetY = 51;
-          racket.targetAngle = ball.vx * 0.12;
-          racket.hitFlash = 1.0;
+          ball.squashX = 1.35; ball.squashY = 0.65;
+          racket.targetY = 51; racket.targetAngle = ball.vx * 0.12; racket.hitFlash = 1.0;
 
           for (let i = 0; i < 5; i++) {
             particles.push({
@@ -658,46 +620,20 @@
         ctx.beginPath();
         if (ctx.roundRect) ctx.roundRect(-2.5, 8, 5, 13, 2);
         else ctx.rect(-2.5, 8, 5, 13);
-        ctx.fillStyle = '#1e293b';
-        ctx.fill();
-        ctx.strokeStyle = '#34d399';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.moveTo(-2, 11); ctx.lineTo(2, 13);
-        ctx.moveTo(-2, 15); ctx.lineTo(2, 17);
-        ctx.strokeStyle = '#059669';
-        ctx.stroke();
+        ctx.fillStyle = '#1e293b'; ctx.fill(); ctx.strokeStyle = '#34d399'; ctx.lineWidth = 1; ctx.stroke();
 
         ctx.beginPath();
         ctx.ellipse(0, -6, 14, 16, 0, 0, Math.PI * 2);
-        
         const rGrad = ctx.createLinearGradient(-14, -22, 14, 10);
-        rGrad.addColorStop(0, '#1e293b');
-        rGrad.addColorStop(0.5, '#0f172a');
-        rGrad.addColorStop(1, '#042f2e');
-        ctx.fillStyle = rGrad;
-        ctx.shadowColor = racket.hitFlash > 0 ? '#10b981' : 'rgba(16, 185, 129, 0.4)';
-        ctx.shadowBlur = 8 + racket.hitFlash * 10;
-        ctx.fill();
+        rGrad.addColorStop(0, '#1e293b'); rGrad.addColorStop(0.5, '#0f172a'); rGrad.addColorStop(1, '#042f2e');
+        ctx.fillStyle = rGrad; ctx.shadowColor = racket.hitFlash > 0 ? '#10b981' : 'rgba(16, 185, 129, 0.4)';
+        ctx.shadowBlur = 8 + racket.hitFlash * 10; ctx.fill();
+        ctx.strokeStyle = racket.hitFlash > 0 ? '#6ee7b7' : '#10b981'; ctx.lineWidth = 2; ctx.stroke();
 
-        ctx.strokeStyle = racket.hitFlash > 0 ? '#6ee7b7' : '#10b981';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#030712';
-        const holePositions = [
-          [-6, -14], [0, -14], [6, -14],
-          [-8, -8], [-2, -8], [4, -8], [8, -8],
-          [-8, -2], [-2, -2], [4, -2], [8, -2],
-          [-6, 4], [0, 4], [6, 4]
-        ];
-        holePositions.forEach(([hx, hy]) => {
+        ctx.shadowBlur = 0; ctx.fillStyle = '#030712';
+        [[-6, -14], [0, -14], [6, -14], [-8, -8], [-2, -8], [4, -8], [8, -8], [-8, -2], [-2, -2], [4, -2], [8, -2], [-6, 4], [0, 4], [6, 4]].forEach(([hx, hy]) => {
           ctx.beginPath(); ctx.arc(hx, hy, 1.2, 0, Math.PI * 2); ctx.fill();
         });
-
         ctx.restore();
 
         particles.forEach((p, idx) => {
@@ -710,26 +646,14 @@
         ctx.save();
         ctx.translate(ball.x, ball.y);
         ctx.scale(ball.squashX, ball.squashY);
-
-        ctx.beginPath();
-        ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
-        ctx.fillStyle = '#ccff00';
-        ctx.shadowColor = '#ccff00';
-        ctx.shadowBlur = 8;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(-1.2, 0, ball.r * 0.75, -Math.PI * 0.4, Math.PI * 0.4);
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 0.9;
-        ctx.shadowBlur = 0;
-        ctx.stroke();
-
+        ctx.beginPath(); ctx.arc(0, 0, ball.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#ccff00'; ctx.shadowColor = '#ccff00'; ctx.shadowBlur = 8; ctx.fill();
+        ctx.beginPath(); ctx.arc(-1.2, 0, ball.r * 0.75, -Math.PI * 0.4, Math.PI * 0.4);
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 0.9; ctx.shadowBlur = 0; ctx.stroke();
         ctx.restore();
 
         requestAnimationFrame(animate);
       }
-
       requestAnimationFrame(animate);
     }
 
@@ -749,7 +673,6 @@
 
     class FallingBall {
       constructor() { this.reset(true); }
-
       reset(initial = false) {
         this.x = Math.random() * width;
         this.y = initial ? Math.random() * height : -30;
@@ -760,43 +683,21 @@
         this.rotation = Math.random() * Math.PI * 2;
         this.spin = (Math.random() - 0.5) * 0.02;
       }
-
       update() {
-        this.y += this.speedY;
-        this.x += this.speedX;
-        this.rotation += this.spin;
+        this.y += this.speedY; this.x += this.speedX; this.rotation += this.spin;
         if (this.y - this.radius > height) this.reset(false);
       }
-
       draw() {
-        ctx.save();
-        ctx.globalAlpha = this.opacity;
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.rotation);
-
-        ctx.beginPath();
-        ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#ccff00';
-        ctx.shadowColor = '#ccff00';
-        ctx.shadowBlur = 10;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(-this.radius * 0.5, 0, this.radius * 0.7, -Math.PI * 0.45, Math.PI * 0.45);
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = Math.max(1, this.radius * 0.16);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(this.radius * 0.5, 0, this.radius * 0.7, Math.PI * 0.55, Math.PI * 1.45);
-        ctx.stroke();
-
+        ctx.save(); ctx.globalAlpha = this.opacity; ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
+        ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#ccff00'; ctx.shadowColor = '#ccff00'; ctx.shadowBlur = 10; ctx.fill();
+        ctx.beginPath(); ctx.arc(-this.radius * 0.5, 0, this.radius * 0.7, -Math.PI * 0.45, Math.PI * 0.45);
+        ctx.strokeStyle = '#ffffff'; ctx.lineWidth = Math.max(1, this.radius * 0.16); ctx.stroke();
+        ctx.beginPath(); ctx.arc(this.radius * 0.5, 0, this.radius * 0.7, Math.PI * 0.55, Math.PI * 1.45); ctx.stroke();
         ctx.restore();
       }
     }
-
     for (let i = 0; i < ballCount; i++) balls.push(new FallingBall());
-
     function animateBalls() {
       ctx.clearRect(0, 0, width, height);
       balls.forEach(ball => { ball.update(); ball.draw(); });
@@ -805,15 +706,9 @@
     animateBalls();
 
     // --- МИНИ-ИГРА Motion Padel Simulator ---
-    let gameLoopReq = null;
-    let isGameRunning = false;
-    let currentGameScore = 0;
-    let gameControlMode = 'touch';
+    let gameLoopReq = null, isGameRunning = false, currentGameScore = 0, gameControlMode = 'touch';
     let userHighScore = parseInt(localStorage.getItem('padel_motion_high_score') || '0', 10);
-
-    let gCanvas, gCtx;
-    let gWidth = 360, gHeight = 520;
-
+    let gCanvas, gCtx, gWidth = 360, gHeight = 520;
     let gRacket = { x: 180, y: 440, w: 76, h: 22, vx: 0, targetX: 180, tiltAngle: 0 };
     let gBall = { x: 180, y: 100, vx: 2, vy: 3, r: 8, spin: 0, rotation: 0, squashX: 1, squashY: 1 };
     let gParticles = [];
@@ -826,29 +721,20 @@
 
       gCanvas = document.getElementById('padel-motion-canvas');
       gCtx = gCanvas.getContext('2d');
-
       const rect = gCanvas.parentElement.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      gWidth = rect.width || 360;
-      gHeight = rect.height || 520;
-      gCanvas.width = gWidth * dpr;
-      gCanvas.height = gHeight * dpr;
+      gWidth = rect.width || 360; gHeight = rect.height || 520;
+      gCanvas.width = gWidth * dpr; gCanvas.height = gHeight * dpr;
       gCtx.scale(dpr, dpr);
 
       const handlePointerMove = (clientX) => {
         if (!isGameRunning || gameControlMode !== 'touch') return;
         const cRect = gCanvas.getBoundingClientRect();
-        const posX = clientX - cRect.left;
-        gRacket.targetX = posX;
+        gRacket.targetX = clientX - cRect.left;
       };
-
       gCanvas.onmousemove = (e) => handlePointerMove(e.clientX);
-      gCanvas.ontouchmove = (e) => {
-        if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX);
-      };
-      gCanvas.ontouchstart = (e) => {
-        if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX);
-      };
+      gCanvas.ontouchmove = (e) => { if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX); };
+      gCanvas.ontouchstart = (e) => { if (e.touches && e.touches[0]) handlePointerMove(e.touches[0].clientX); };
     }
 
     function closePadelGameModal() {
@@ -861,34 +747,25 @@
     function startGameWithMode(mode) {
       gameControlMode = mode;
       document.getElementById('game-start-overlay').classList.add('hidden');
-
       const subLabel = document.getElementById('game-control-sublabel');
-      if (subLabel) {
-        subLabel.innerText = mode === 'gyro' ? '📱 Управление: Наклон телефона' : '👆 Управление: Касание пальцем';
-      }
+      if (subLabel) subLabel.innerText = mode === 'gyro' ? '📱 Управление: Наклон телефона' : '👆 Управление: Касание пальцем';
 
       if (mode === 'gyro') {
         if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-          DeviceOrientationEvent.requestPermission()
-            .then(permissionState => {
-              if (permissionState === 'granted') {
-                window.addEventListener('deviceorientation', handleGyroscopeMotion);
-              }
-            }).catch(console.error);
+          DeviceOrientationEvent.requestPermission().then(permissionState => {
+            if (permissionState === 'granted') window.addEventListener('deviceorientation', handleGyroscopeMotion);
+          }).catch(console.error);
         } else {
           window.addEventListener('deviceorientation', handleGyroscopeMotion);
         }
       }
-
       restartPadelGame();
     }
 
     function handleGyroscopeMotion(e) {
       if (!isGameRunning || gameControlMode !== 'gyro') return;
       let gamma = e.gamma || 0;
-      if (gamma > 35) gamma = 35;
-      if (gamma < -35) gamma = -35;
-
+      if (gamma > 35) gamma = 35; if (gamma < -35) gamma = -35;
       const norm = (gamma + 35) / 70;
       gRacket.targetX = norm * gWidth;
       gRacket.tiltAngle = (gamma / 35) * 0.35;
@@ -898,17 +775,8 @@
       currentGameScore = 0;
       document.getElementById('game-current-score').innerText = 0;
       document.getElementById('game-over-overlay').classList.add('hidden');
-
-      gRacket.x = gWidth / 2;
-      gRacket.targetX = gWidth / 2;
-      gRacket.y = gHeight - 70;
-
-      gBall.x = gWidth / 2;
-      gBall.y = 80;
-      gBall.vx = (Math.random() - 0.5) * 4;
-      gBall.vy = 3.5;
-      gBall.spin = 0;
-
+      gRacket.x = gWidth / 2; gRacket.targetX = gWidth / 2; gRacket.y = gHeight - 70;
+      gBall.x = gWidth / 2; gBall.y = 80; gBall.vx = (Math.random() - 0.5) * 4; gBall.vy = 3.5; gBall.spin = 0;
       isGameRunning = true;
       if (gameLoopReq) cancelAnimationFrame(gameLoopReq);
       runMotionGameLoop();
@@ -916,61 +784,30 @@
 
     function runMotionGameLoop() {
       if (!isGameRunning) return;
-
       const prevX = gRacket.x;
       gRacket.x += (gRacket.targetX - gRacket.x) * 0.3;
       gRacket.vx = gRacket.x - prevX;
-
       const halfW = gRacket.w / 2;
       if (gRacket.x < halfW) gRacket.x = halfW;
       if (gRacket.x > gWidth - halfW) gRacket.x = gWidth - halfW;
+      if (gameControlMode === 'touch') gRacket.tiltAngle = (gRacket.vx / 15) * 0.3;
 
-      if (gameControlMode === 'touch') {
-        gRacket.tiltAngle = (gRacket.vx / 15) * 0.3;
-      }
+      gBall.vy += 0.22; gBall.vx += gBall.spin * 0.04; gBall.x += gBall.vx; gBall.y += gBall.vy;
+      gBall.rotation += gBall.spin * 0.1; gBall.vx *= 0.992;
 
-      gBall.vy += 0.22;
-      gBall.vx += gBall.spin * 0.04;
-      gBall.x += gBall.vx;
-      gBall.y += gBall.vy;
-      gBall.rotation += gBall.spin * 0.1;
-
-      gBall.vx *= 0.992;
-
-      if (gBall.x - gBall.r <= 0) {
-        gBall.x = gBall.r;
-        gBall.vx = Math.abs(gBall.vx) * 0.9;
-        gBall.spin = -gBall.spin;
-      }
-      if (gBall.x + gBall.r >= gWidth) {
-        gBall.x = gWidth - gBall.r;
-        gBall.vx = -Math.abs(gBall.vx) * 0.9;
-        gBall.spin = -gBall.spin;
-      }
-
-      if (gBall.y - gBall.r <= 0) {
-        gBall.y = gBall.r;
-        gBall.vy = Math.abs(gBall.vy);
-      }
+      if (gBall.x - gBall.r <= 0) { gBall.x = gBall.r; gBall.vx = Math.abs(gBall.vx) * 0.9; gBall.spin = -gBall.spin; }
+      if (gBall.x + gBall.r >= gWidth) { gBall.x = gWidth - gBall.r; gBall.vx = -Math.abs(gBall.vx) * 0.9; gBall.spin = -gBall.spin; }
+      if (gBall.y - gBall.r <= 0) { gBall.y = gBall.r; gBall.vy = Math.abs(gBall.vy); }
 
       const racketTop = gRacket.y - 10;
-      if (
-        gBall.vy > 0 &&
-        gBall.y + gBall.r >= racketTop &&
-        gBall.y - gBall.r <= racketTop + 14 &&
-        Math.abs(gBall.x - gRacket.x) <= halfW + 6
-      ) {
+      if (gBall.vy > 0 && gBall.y + gBall.r >= racketTop && gBall.y - gBall.r <= racketTop + 14 && Math.abs(gBall.x - gRacket.x) <= halfW + 6) {
         gBall.y = racketTop - gBall.r;
         gBall.vy = -(Math.abs(gBall.vy) * 0.96 + 1.3);
         if (gBall.vy < -11.5) gBall.vy = -11.5;
-
         const offset = (gBall.x - gRacket.x) / halfW;
         gBall.vx = offset * 4.5 + gRacket.vx * 0.4;
         gBall.spin = gRacket.vx * 0.5;
-
-        gBall.squashX = 1.3;
-        gBall.squashY = 0.7;
-
+        gBall.squashX = 1.3; gBall.squashY = 0.7;
         if (navigator.vibrate) navigator.vibrate(20);
 
         for (let i = 0; i < 8; i++) {
@@ -980,7 +817,6 @@
             life: 1.0, color: Math.random() > 0.4 ? '#ccff00' : '#10b981'
           });
         }
-
         currentGameScore++;
         document.getElementById('game-current-score').innerText = currentGameScore;
         if (currentGameScore > userHighScore) {
@@ -994,19 +830,12 @@
       gBall.squashX += (1 - gBall.squashX) * 0.12;
       gBall.squashY += (1 - gBall.squashY) * 0.12;
 
-      if (gBall.y - gBall.r > gHeight) {
-        triggerPadelGameOver();
-        return;
-      }
+      if (gBall.y - gBall.r > gHeight) { triggerPadelGameOver(); return; }
 
       gCtx.clearRect(0, 0, gWidth, gHeight);
-
-      gCtx.strokeStyle = 'rgba(255,255,255,0.06)';
-      gCtx.lineWidth = 2;
+      gCtx.strokeStyle = 'rgba(255,255,255,0.06)'; gCtx.lineWidth = 2;
       gCtx.strokeRect(10, 10, gWidth - 20, gHeight - 20);
-      gCtx.beginPath();
-      gCtx.moveTo(10, gHeight / 2); gCtx.lineTo(gWidth - 10, gHeight / 2);
-      gCtx.stroke();
+      gCtx.beginPath(); gCtx.moveTo(10, gHeight / 2); gCtx.lineTo(gWidth - 10, gHeight / 2); gCtx.stroke();
 
       gParticles.forEach((p, idx) => {
         p.x += p.vx; p.y += p.vy; p.life -= 0.04;
@@ -1018,28 +847,17 @@
       gCtx.save();
       gCtx.translate(gRacket.x, gRacket.y);
       gCtx.rotate(gRacket.tiltAngle || 0);
-
-      gCtx.fillStyle = '#1e293b';
-      gCtx.fillRect(-4, 6, 8, 16);
-      gCtx.strokeStyle = '#10b981';
-      gCtx.strokeRect(-4, 6, 8, 16);
+      gCtx.fillStyle = '#1e293b'; gCtx.fillRect(-4, 6, 8, 16);
+      gCtx.strokeStyle = '#10b981'; gCtx.strokeRect(-4, 6, 8, 16);
 
       gCtx.beginPath();
       gCtx.ellipse(0, -8, halfW, 14, 0, 0, Math.PI * 2);
       const rGrad = gCtx.createLinearGradient(-halfW, -20, halfW, 10);
-      rGrad.addColorStop(0, '#1e293b');
-      rGrad.addColorStop(0.5, '#0f172a');
-      rGrad.addColorStop(1, '#042f2e');
-      gCtx.fillStyle = rGrad;
-      gCtx.shadowColor = '#10b981';
-      gCtx.shadowBlur = 12;
-      gCtx.fill();
-      gCtx.strokeStyle = '#34d399';
-      gCtx.lineWidth = 2;
-      gCtx.stroke();
+      rGrad.addColorStop(0, '#1e293b'); rGrad.addColorStop(0.5, '#0f172a'); rGrad.addColorStop(1, '#042f2e');
+      gCtx.fillStyle = rGrad; gCtx.shadowColor = '#10b981'; gCtx.shadowBlur = 12; gCtx.fill();
+      gCtx.strokeStyle = '#34d399'; gCtx.lineWidth = 2; gCtx.stroke();
 
-      gCtx.shadowBlur = 0;
-      gCtx.fillStyle = '#030712';
+      gCtx.shadowBlur = 0; gCtx.fillStyle = '#030712';
       for (let hx = -halfW + 10; hx <= halfW - 10; hx += 12) {
         gCtx.beginPath(); gCtx.arc(hx, -8, 1.8, 0, Math.PI * 2); gCtx.fill();
       }
@@ -1049,20 +867,10 @@
       gCtx.translate(gBall.x, gBall.y);
       gCtx.scale(gBall.squashX, gBall.squashY);
       gCtx.rotate(gBall.rotation);
-
-      gCtx.beginPath();
-      gCtx.arc(0, 0, gBall.r, 0, Math.PI * 2);
-      gCtx.fillStyle = '#ccff00';
-      gCtx.shadowColor = '#ccff00';
-      gCtx.shadowBlur = 12;
-      gCtx.fill();
-
-      gCtx.beginPath();
-      gCtx.arc(-2, 0, gBall.r * 0.7, -Math.PI * 0.4, Math.PI * 0.4);
-      gCtx.strokeStyle = '#ffffff';
-      gCtx.lineWidth = 1;
-      gCtx.shadowBlur = 0;
-      gCtx.stroke();
+      gCtx.beginPath(); gCtx.arc(0, 0, gBall.r, 0, Math.PI * 2);
+      gCtx.fillStyle = '#ccff00'; gCtx.shadowColor = '#ccff00'; gCtx.shadowBlur = 12; gCtx.fill();
+      gCtx.beginPath(); gCtx.arc(-2, 0, gBall.r * 0.7, -Math.PI * 0.4, Math.PI * 0.4);
+      gCtx.strokeStyle = '#ffffff'; gCtx.lineWidth = 1; gCtx.shadowBlur = 0; gCtx.stroke();
       gCtx.restore();
 
       gameLoopReq = requestAnimationFrame(runMotionGameLoop);
@@ -1072,7 +880,6 @@
       isGameRunning = false;
       document.getElementById('go-score').innerText = currentGameScore;
       document.getElementById('game-over-overlay').classList.remove('hidden');
-
       renderGameLeaderboard();
     }
 
@@ -1091,7 +898,6 @@
           p.game_high_score = userHighScore;
         }
       });
-
       sorted.sort((a, b) => (b.game_high_score || 0) - (a.game_high_score || 0));
 
       let html = sorted.slice(0, 5).map((item, idx) => {
@@ -1103,7 +909,6 @@
           </div>
         `;
       }).join('');
-
       listContainer.innerHTML = html || `<p class="text-[10px] text-slate-400 italic">Таблица пуста</p>`;
     }
 
@@ -1118,8 +923,7 @@
 
     function calculateAge(birthDateStr) {
       if (!birthDateStr) return null;
-      const today = new Date();
-      const birthDate = new Date(birthDateStr);
+      const today = new Date(); const birthDate = new Date(birthDateStr);
       let age = today.getFullYear() - birthDate.getFullYear();
       const m = today.getMonth() - birthDate.getMonth();
       if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
@@ -1174,7 +978,12 @@
         place3: "🥉 3-е МЕСТО", matchRoundLabel: "Круг", matchGameLabel: "Игра", courtLabel: "Корт",
         completedStatus: "Завершён", pendingStatus: "Ожидает", okBtn: "ОК", viewTourneyDetails: "Смотреть матчи",
         tourneyMatchesTitle: "Матчи турнира", pricePerPlayerLabel: "Цена за игрока (MDL)", deleteSlotBtn: "🗑️ Удалить слот",
-        backToCreate: "➕ Создать другой слот", slotLabel: "Слот"
+        backToCreate: "➕ Создать слот", slotLabel: "Слот",
+        // Новый функционал
+        subTabFeed: "🔥 Открытые игры", subTabMySlot: "🎾 Мой активный слот", subTabCreate: "➕ Создать слот",
+        accessTypeLabel: "Тип доступа", publicAccessOption: "🌐 Публичный (виден всем в ленте)", privateAccessOption: "🔒 Приватный (только по ссылке)",
+        noPublicSlotsMsg: "В данный момент нет открытых публичных слотов. Будьте первыми и создайте игру!",
+        spotsLeft: "Осталось мест", fullSlotBadge: "Заполнен", quickJoinBtn: "⚡ Занять слот"
       },
       ro: {
         tabBooking: "Sloturi", tabAmericano: "Americano", tabProfile: "Profil",
@@ -1207,7 +1016,11 @@
         place3: "🥉 LOCUL 3", matchRoundLabel: "Runda", matchGameLabel: "Jocul", courtLabel: "Teren",
         completedStatus: "Finalizat", pendingStatus: "În așteptare", okBtn: "OK", viewTourneyDetails: "Vezi meciurile",
         tourneyMatchesTitle: "Meciurile turneului", pricePerPlayerLabel: "Preț per jucător (MDL)", deleteSlotBtn: "🗑️ Șterge slotul",
-        backToCreate: "➕ Creează alt slot", slotLabel: "Slot"
+        backToCreate: "➕ Creează slot", slotLabel: "Slot",
+        subTabFeed: "🔥 Jocuri Deschise", subTabMySlot: "🎾 Slotul Meu", subTabCreate: "➕ Creează Slot",
+        accessTypeLabel: "Tip Acces", publicAccessOption: "🌐 Public (vizibil tuturor)", privateAccessOption: "🔒 Privat (doar prin link)",
+        noPublicSlotsMsg: "Nu există meciuri publice deschise în acest moment. Fii primul și creează unul!",
+        spotsLeft: "Locuri rămase", fullSlotBadge: "Complet", quickJoinBtn: "⚡ Ocupă un loc"
       },
       en: {
         tabBooking: "Slots", tabAmericano: "Americano", tabProfile: "Profile",
@@ -1240,7 +1053,11 @@
         place3: "🥉 3rd PLACE", matchRoundLabel: "Round", matchGameLabel: "Game", courtLabel: "Court",
         completedStatus: "Completed", pendingStatus: "Pending", okBtn: "OK", viewTourneyDetails: "View Matches",
         tourneyMatchesTitle: "Tournament Matches", pricePerPlayerLabel: "Price per player (MDL)", deleteSlotBtn: "🗑️ Delete slot",
-        backToCreate: "➕ Create another slot", slotLabel: "Slot"
+        backToCreate: "➕ Create Slot", slotLabel: "Slot",
+        subTabFeed: "🔥 Open Games", subTabMySlot: "🎾 My Active Slot", subTabCreate: "➕ Create Slot",
+        accessTypeLabel: "Access Type", publicAccessOption: "🌐 Public (in general feed)", privateAccessOption: "🔒 Private (link only)",
+        noPublicSlotsMsg: "No public slots available right now. Be the first to create one!",
+        spotsLeft: "Spots left", fullSlotBadge: "Full", quickJoinBtn: "⚡ Quick Join"
       }
     };
 
@@ -1552,9 +1369,7 @@
       }
       try {
         const { data, error } = await supabaseClient.from('profiles').select('*').order('total_matches_played', { ascending: false });
-        if (!error && data) {
-          platformProfilesList = data.filter(isValidRealUser);
-        }
+        if (!error && data) platformProfilesList = data.filter(isValidRealUser);
       } catch(e) {}
 
       if (currentUserProfile && isValidRealUser(currentUserProfile)) {
@@ -1578,13 +1393,11 @@
         btnBooking.className = 'py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d';
         
         const directStartParam = getStartParam();
-        const userSavedSlot = localStorage.getItem(getSlotStorageKey());
-        const matchIdToRender = directStartParam || currentActiveMatchId || userSavedSlot;
-
-        if (matchIdToRender) {
-          renderMatchDetails(matchIdToRender);
+        if (directStartParam) {
+          currentSlotSubTab = 'my_slot';
+          renderMatchDetails(directStartParam);
         } else {
-          renderCreateMatchForm();
+          renderSlotsSubTabContent();
         }
       } else if (tab === 'americano') {
         btnAmericano.className = 'py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-xs uppercase tracking-wider neon-glow-purple btn-3d';
@@ -1677,7 +1490,6 @@
     async function rejectUserProStatus(userId) {
       try {
         await safeUpdateProfile(userId, { payment_pending: false, updated_at: new Date().toISOString() });
-        
         let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
         localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
@@ -1688,33 +1500,174 @@
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    // --- ВКЛАДКА 1: СЛОТЫ ---
-    function createNewSlotClick() {
-      currentActiveMatchId = null;
-      localStorage.removeItem(getSlotStorageKey());
-      renderCreateMatchForm();
+    // --- ВКЛАДКА 1: СЛОТЫ И ЛЕНТА ОТКРЫТЫХ ИГР ---
+    function setSlotsSubTab(subTab) {
+      currentSlotSubTab = subTab;
+      renderSlotsSubTabContent();
+    }
+
+    function renderSlotsSubTabHeader() {
+      const userSavedSlot = localStorage.getItem(getSlotStorageKey());
+      return `
+        <div class="grid grid-cols-3 gap-1 glass-subcard p-1 rounded-2xl border border-white/10 mb-4 text-[10px]">
+          <button onclick="setSlotsSubTab('feed')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'feed' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+            ${t('subTabFeed')}
+          </button>
+          <button onclick="setSlotsSubTab('my_slot')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'my_slot' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+            ${t('subTabMySlot')}
+          </button>
+          <button onclick="setSlotsSubTab('create')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'create' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+            ${t('subTabCreate')}
+          </button>
+        </div>
+      `;
+    }
+
+    function renderSlotsSubTabContent() {
+      const container = document.getElementById('main-content');
+      if (currentSlotSubTab === 'feed') {
+        renderPublicMatchesFeed(container);
+      } else if (currentSlotSubTab === 'my_slot') {
+        const userSavedSlot = localStorage.getItem(getSlotStorageKey());
+        if (userSavedSlot || currentActiveMatchId) {
+          renderMatchDetails(userSavedSlot || currentActiveMatchId);
+        } else {
+          renderCreateMatchForm();
+        }
+      } else if (currentSlotSubTab === 'create') {
+        renderCreateMatchForm();
+      }
+    }
+
+    // --- ЛЕНТА ПУБЛИЧНЫХ ИГР (MARKETPLACE) ---
+    async function renderPublicMatchesFeed(container) {
+      if (!container) container = document.getElementById('main-content');
+      
+      container.innerHTML = `
+        ${renderSlotsSubTabHeader()}
+        <div class="text-center py-10 text-slate-400 font-semibold text-sm animate-pulse">Поиск открытых игр...</div>
+      `;
+
+      let publicMatches = [];
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('matches')
+            .select('*, match_players(*, profiles(*))')
+            .order('scheduled_at', { ascending: true });
+
+          if (!error && data) {
+            publicMatches = data.filter(m => (m.is_public !== false) && (!m.is_registration_closed));
+          }
+        } catch(e) { console.log('Feed fetch err:', e); }
+      }
+
+      let matchesHtml = '';
+      if (publicMatches.length > 0) {
+        matchesHtml = publicMatches.map(m => {
+          const players = m.match_players || [];
+          const occupiedCount = players.length;
+          const maxCount = m.max_players || 4;
+          const spotsLeft = Math.max(0, maxCount - occupiedCount);
+          const isFull = spotsLeft === 0;
+
+          const dateStr = new Date(m.scheduled_at).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+          const isUserJoined = players.some(p => String(p.user_id) === String(tgUser.id));
+
+          const hostPlayer = players.find(p => String(p.user_id) === String(m.creator_id)) || players[0];
+          const hostName = hostPlayer?.profiles?.first_name || 'Игрок';
+
+          return `
+            <div class="glass-subcard border ${isUserJoined ? 'border-emerald-500/60 bg-emerald-500/10' : 'border-white/10'} p-4 rounded-2xl space-y-3 hover:border-emerald-400/50 transition-all btn-3d">
+              <div class="flex justify-between items-start gap-2">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-sm font-black text-white">${m.custom_location}</h3>
+                    <span class="px-2 py-0.5 bg-teal-500/20 text-teal-300 font-extrabold text-[9px] rounded-md uppercase border border-teal-500/30">
+                      ${m.match_type || 'friendly'}
+                    </span>
+                  </div>
+                  <p class="text-[11px] text-slate-300 font-medium mt-0.5">📅 ${dateStr}</p>
+                </div>
+
+                <div class="text-right">
+                  <span class="text-xs font-black text-emerald-400 block">${m.price_per_player || 0} MDL</span>
+                  <span class="text-[9px] text-slate-400 uppercase font-bold">${t('host')}: ${hostName}</span>
+                </div>
+              </div>
+
+              ${m.notes ? `<p class="text-[10px] text-slate-300 italic bg-white/5 p-2 rounded-xl border border-white/5">💬 "${m.notes}"</p>` : ''}
+
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs">👥</span>
+                  <span class="text-xs font-black text-white">${occupiedCount} / ${maxCount}</span>
+                  ${isFull ? `
+                    <span class="text-[9px] bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold px-2 py-0.5 rounded-md uppercase">${t('fullSlotBadge')}</span>
+                  ` : `
+                    <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-2 py-0.5 rounded-md uppercase">⚡ ${t('spotsLeft')}: ${spotsLeft}</span>
+                  `}
+                </div>
+
+                <button onclick="openPublicMatchSlot('${m.id}')" class="px-3.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md">
+                  ${isUserJoined ? '🎾 ' + t('subTabMySlot') : t('quickJoinBtn')}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        matchesHtml = `
+          <div class="glass-subcard p-6 rounded-2xl border border-white/10 text-center space-y-2">
+            <span class="text-3xl block">🎾</span>
+            <p class="text-xs text-slate-300 font-medium leading-relaxed">${t('noPublicSlotsMsg')}</p>
+            <button onclick="setSlotsSubTab('create')" class="px-4 py-2 bg-emerald-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d mt-2">
+              ${t('subTabCreate')}
+            </button>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        ${renderSlotsSubTabHeader()}
+        <div class="space-y-3">
+          <h2 class="text-sm font-black text-slate-300 uppercase tracking-wider flex items-center justify-between">
+            <span>${t('subTabFeed')}</span>
+            <span class="text-[10px] text-emerald-400 font-bold">Найдено: ${publicMatches.length}</span>
+          </h2>
+          <div class="space-y-2.5">${matchesHtml}</div>
+        </div>
+      `;
+    }
+
+    function openPublicMatchSlot(matchId) {
+      currentActiveMatchId = matchId;
+      localStorage.setItem(getSlotStorageKey(), matchId);
+      currentSlotSubTab = 'my_slot';
+      renderSlotsSubTabContent();
     }
 
     function renderCreateMatchForm() {
       const container = document.getElementById('main-content');
       container.innerHTML = `
-        <h2 class="text-base font-extrabold mb-4 text-white uppercase italic tracking-wide">${t('createGame')}</h2>
-        <form id="create-form" class="space-y-3.5" onsubmit="handleCreateMatch(event)">
+        ${renderSlotsSubTabHeader()}
+        <h2 class="text-base font-extrabold mb-3 text-white uppercase italic tracking-wide">${t('createGame')}</h2>
+        <form id="create-form" class="space-y-3" onsubmit="handleCreateMatch(event)">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('location')}</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('location')}</label>
             <input type="text" id="custom_location" required value="Padel Club Chisinau" class="w-full p-3 glass-subcard rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition-all">
           </div>
 
           <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('maxPlayers')}</label>
-              <select id="max_players" class="w-full p-3 glass-subcard rounded-xl text-sm font-semibold text-white">
+              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('maxPlayers')}</label>
+              <select id="max_players" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
                 <option value="4">4 (2х2)</option> <option value="6">6 (Americano)</option> <option value="8">8 (2 корта)</option>
               </select>
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('format')}</label>
-              <select id="match_type" class="w-full p-3 glass-subcard rounded-xl text-sm font-semibold text-white">
+              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('format')}</label>
+              <select id="match_type" class="w-full p-3 glass-subcard rounded-xl text-xs font-semibold text-white">
                 <option value="friendly">${t('friendly')}</option>
                 <option value="competitive">${t('competitive')}</option>
                 <option value="americano">${t('americanoFormat')}</option>
@@ -1722,23 +1675,34 @@
             </div>
           </div>
 
+          <!-- НОВОЕ ПОЛЕ: ПРИВАТНОСТЬ / ПУБЛИЧНОСТЬ СЛОТА -->
+          <div>
+            <label class="block text-xs font-semibold text-amber-300 mb-1 uppercase flex items-center gap-1">
+              <span>🌐</span> <span>${t('accessTypeLabel')}</span>
+            </label>
+            <select id="is_public" class="w-full p-3 glass-subcard border border-amber-500/40 rounded-xl text-xs font-bold text-white focus:outline-none">
+              <option value="true" selected>${t('publicAccessOption')}</option>
+              <option value="false">${t('privateAccessOption')}</option>
+            </select>
+          </div>
+
           <div class="grid grid-cols-2 gap-2.5">
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('dateTime')}</label>
-              <input type="datetime-local" id="scheduled_at" required class="w-full p-3 glass-subcard rounded-xl text-sm text-white">
+              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('dateTime')}</label>
+              <input type="datetime-local" id="scheduled_at" required class="w-full p-3 glass-subcard rounded-xl text-xs text-white">
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('price')}</label>
-              <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-3 glass-subcard rounded-xl text-sm text-white">
+              <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('price')}</label>
+              <input type="number" id="price_per_player" value="150" min="0" step="10" class="w-full p-3 glass-subcard rounded-xl text-xs text-white">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase">${t('notes')}</label>
-            <input type="text" id="notes" placeholder="Level 2.5+" class="w-full p-3 glass-subcard rounded-xl text-sm text-white">
+            <label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('notes')}</label>
+            <input type="text" id="notes" placeholder="Level 2.5+" class="w-full p-3 glass-subcard rounded-xl text-xs text-white">
           </div>
 
-          <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-sm uppercase tracking-wider neon-glow-emerald btn-3d mt-2">
+          <button type="submit" id="submit-btn" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d mt-2">
             ${t('generateLink')}
           </button>
         </form>
@@ -1753,12 +1717,20 @@
 
       try {
         await syncUserProfile();
+        const isPublicValue = document.getElementById('is_public').value === 'true';
+
         const matchData = {
-          creator_id: tgUser.id, custom_location: document.getElementById('custom_location').value,
-          max_players: parseInt(document.getElementById('max_players').value), match_type: document.getElementById('match_type').value,
-          scheduled_at: new Date(document.getElementById('scheduled_at').value).toISOString(), price_per_player: parseFloat(document.getElementById('price_per_player').value) || 0,
-          notes: document.getElementById('notes').value, is_registration_closed: false
+          creator_id: tgUser.id,
+          custom_location: document.getElementById('custom_location').value,
+          max_players: parseInt(document.getElementById('max_players').value),
+          match_type: document.getElementById('match_type').value,
+          is_public: isPublicValue,
+          scheduled_at: new Date(document.getElementById('scheduled_at').value).toISOString(),
+          price_per_player: parseFloat(document.getElementById('price_per_player').value) || 0,
+          notes: document.getElementById('notes').value,
+          is_registration_closed: false
         };
+
         const { data: match, error } = await supabaseClient.from('matches').insert([matchData]).select().single();
         if (error) throw error;
 
@@ -1767,7 +1739,8 @@
         currentActiveMatchId = match.id;
         localStorage.setItem(getSlotStorageKey(), match.id);
 
-        renderMatchDetails(match.id);
+        currentSlotSubTab = 'my_slot';
+        renderSlotsSubTabContent();
       } catch (err) {
         showError('Ошибка создания: ' + err.message);
         if (btn) btn.disabled = false;
@@ -1786,10 +1759,7 @@
 
     async function updateMatchTime(matchId) {
       const timeInput = document.getElementById(`edit_time_${matchId}`);
-      if (!timeInput || !timeInput.value) {
-        alert('Выберите корректную дату и время.');
-        return;
-      }
+      if (!timeInput || !timeInput.value) { alert('Выберите дату и время.'); return; }
       try {
         const newIsoTime = new Date(timeInput.value).toISOString();
         const { error } = await supabaseClient.from('matches').update({ scheduled_at: newIsoTime }).eq('id', matchId);
@@ -1810,16 +1780,13 @@
 
         currentActiveMatchId = null;
         localStorage.removeItem(getSlotStorageKey());
-
-        renderCreateMatchForm();
+        currentSlotSubTab = 'feed';
+        renderSlotsSubTabContent();
       } catch(e) { alert('Ошибка: ' + e.message); }
     }
 
-    // --- ЛОКАЛЬНОЕ ХРАНИЛИЩЕ СООБЩЕНИЙ ЧАТА (ФОЛЛБЭК И КЭШ) ---
     function getLocalChatMessages(matchId) {
-      try {
-        return JSON.parse(localStorage.getItem(`padel_chat_msgs_${matchId}`) || '[]');
-      } catch(e) { return []; }
+      try { return JSON.parse(localStorage.getItem(`padel_chat_msgs_${matchId}`) || '[]'); } catch(e) { return []; }
     }
 
     function saveLocalChatMessage(matchId, msg) {
@@ -1830,13 +1797,22 @@
 
     async function renderMatchDetails(matchId) {
       currentActiveMatchId = matchId;
-
       const container = document.getElementById('main-content');
-      container.innerHTML = `<div class="text-center py-10 text-slate-400">${t('loadingMatch')}</div>`;
+      
+      container.innerHTML = `
+        ${renderSlotsSubTabHeader()}
+        <div class="text-center py-10 text-slate-400">${t('loadingMatch')}</div>
+      `;
 
       try {
         const { data: match } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
-        if (!match) { container.innerHTML = `<div class="text-center py-8 text-rose-300 font-bold">${t('slotNotFound')}</div>`; return; }
+        if (!match) {
+          container.innerHTML = `
+            ${renderSlotsSubTabHeader()}
+            <div class="text-center py-8 text-rose-300 font-bold">${t('slotNotFound')}</div>
+          `;
+          return;
+        }
 
         const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', matchId);
         const players = rawPlayers || [];
@@ -1924,7 +1900,6 @@
                 </div>
               </div>
 
-              <!-- Изменение даты и времени -->
               <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs gap-2">
                 <span class="font-bold text-slate-300 pl-1 whitespace-nowrap">${t('dateTime')}</span>
                 <div class="flex items-center gap-1.5 flex-1 justify-end">
@@ -1933,7 +1908,6 @@
                 </div>
               </div>
 
-              <!-- Изменение цены -->
               <div class="flex items-center justify-between p-2 glass-subcard rounded-xl border border-white/5 text-xs">
                 <span class="font-bold text-slate-300 pl-1">${t('pricePerPlayerLabel')}</span>
                 <div class="flex items-center gap-1.5">
@@ -1954,14 +1928,17 @@
           `;
         }
 
+        const isPublicBadge = match.is_public !== false 
+          ? `<span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[9px] font-black uppercase rounded-lg">🌐 Публичный</span>`
+          : `<span class="px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[9px] font-black uppercase rounded-lg">🔒 Приватный</span>`;
+
         container.innerHTML = `
+          ${renderSlotsSubTabHeader()}
           <div class="space-y-4">
             <div>
               <div class="flex justify-between items-center mb-2">
-                <button onclick="createNewSlotClick()" class="px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-bold rounded-xl text-xs btn-3d border border-white/10 flex items-center gap-1">
-                  ${t('backToCreate')}
-                </button>
-                <span class="px-2.5 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[10px] font-black uppercase tracking-wider rounded-lg">
+                ${isPublicBadge}
+                <span class="px-2.5 py-1 bg-teal-500/20 border border-teal-500/30 text-teal-300 text-[9px] font-black uppercase rounded-lg">
                   ${match.match_type}
                 </span>
               </div>
@@ -2051,13 +2028,10 @@
     // --- ВКЛАДКА 2: АМЕРИКАНО ---
     async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
-      
       const savedState = localStorage.getItem(getAmericanoStorageKey());
       if (savedState) {
         try { localAmericanoState = JSON.parse(savedState); } catch(e){ localAmericanoState = null; }
-      } else {
-        localAmericanoState = null;
-      }
+      } else { localAmericanoState = null; }
 
       if (localAmericanoState && localAmericanoState.rounds) {
         renderQuickAmericanoBoard(container);
@@ -2159,10 +2133,8 @@
 
     function adjustPlayerCount(delta) {
       let newCount = currentAmericanoPlayerCount + delta;
-      if (newCount < 4) newCount = 4;
-      if (newCount > 8) newCount = 8;
+      if (newCount < 4) newCount = 4; if (newCount > 8) newCount = 8;
       currentAmericanoPlayerCount = newCount;
-
       const select = document.getElementById('quick_player_count');
       if (select) select.value = currentAmericanoPlayerCount;
       renderNameInputs();
@@ -2181,7 +2153,6 @@
       }
       
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
-      
       platformProfilesList.forEach(p => {
         const name = `${p.first_name} ${p.last_name || ''}`.trim();
         const usernameTag = p.username ? ` (@${p.username})` : '';
@@ -2248,8 +2219,7 @@
         if (!rawPlayers || rawPlayers.length === 0) { alert('В этом слоте нет зарегистрированных игроков.'); return; }
 
         let count = rawPlayers.length;
-        if (count < 4) count = 4;
-        if (count > 8) count = 8;
+        if (count < 4) count = 4; if (count > 8) count = 8;
         
         currentAmericanoPlayerCount = count;
         const countSelect = document.getElementById('quick_player_count');
@@ -2340,8 +2310,7 @@
           
           r.team_a.forEach(pIdx => { 
             if(leaderboard[pIdx]) { 
-              leaderboard[pIdx].points += sa; 
-              leaderboard[pIdx].matches++;
+              leaderboard[pIdx].points += sa; leaderboard[pIdx].matches++;
               if (sa > sb) leaderboard[pIdx].wins++;
               else if (sb > sa) leaderboard[pIdx].losses++;
               else leaderboard[pIdx].draws++;
@@ -2349,8 +2318,7 @@
           });
           r.team_b.forEach(pIdx => { 
             if(leaderboard[pIdx]) { 
-              leaderboard[pIdx].points += sb; 
-              leaderboard[pIdx].matches++;
+              leaderboard[pIdx].points += sb; leaderboard[pIdx].matches++;
               if (sb > sa) leaderboard[pIdx].wins++;
               else if (sa > sb) leaderboard[pIdx].losses++;
               else leaderboard[pIdx].draws++;
@@ -2490,22 +2458,15 @@
 
     async function syncResultsToPlatformProfiles() {
       if (!localAmericanoState || !localAmericanoState.players) return;
-
       const { players, rounds } = localAmericanoState;
       const completedRounds = rounds.filter(r => r.completed);
 
-      if (completedRounds.length === 0) {
-        alert('Заполните хотя бы один матч.');
-        return;
-      }
+      if (completedRounds.length === 0) { alert('Заполните хотя бы один матч.'); return; }
 
       try {
         const playerStats = {};
         players.forEach(p => {
-          playerStats[p.id] = {
-            userId: p.userId, name: p.name, pointsGained: 0,
-            wins: 0, losses: 0, draws: 0, matchesCount: 0
-          };
+          playerStats[p.id] = { userId: p.userId, name: p.name, pointsGained: 0, wins: 0, losses: 0, draws: 0, matchesCount: 0 };
         });
 
         completedRounds.forEach(r => {
@@ -2514,8 +2475,7 @@
 
           r.team_a.forEach(pIdx => {
             if (playerStats[pIdx]) {
-              playerStats[pIdx].pointsGained += sa;
-              playerStats[pIdx].matchesCount += 1;
+              playerStats[pIdx].pointsGained += sa; playerStats[pIdx].matchesCount += 1;
               if (sa > sb) playerStats[pIdx].wins += 1;
               else if (sb > sa) playerStats[pIdx].losses += 1;
               else playerStats[pIdx].draws += 1;
@@ -2524,8 +2484,7 @@
 
           r.team_b.forEach(pIdx => {
             if (playerStats[pIdx]) {
-              playerStats[pIdx].pointsGained += sb;
-              playerStats[pIdx].matchesCount += 1;
+              playerStats[pIdx].pointsGained += sb; playerStats[pIdx].matchesCount += 1;
               if (sb > sa) playerStats[pIdx].wins += 1;
               else if (sa > sb) playerStats[pIdx].losses += 1;
               else playerStats[pIdx].draws += 1;
@@ -2537,11 +2496,7 @@
         for (const pKey in playerStats) {
           const stat = playerStats[pKey];
           if (stat.userId && supabaseClient) {
-            const { data } = await supabaseClient
-              .from('profiles')
-              .select('league_points, rating_americano, total_matches_played, wins, losses, draws')
-              .eq('id', stat.userId)
-              .maybeSingle();
+            const { data } = await supabaseClient.from('profiles').select('league_points, rating_americano, total_matches_played, wins, losses, draws').eq('id', stat.userId).maybeSingle();
             
             if (data) {
               const currentLp = data.league_points || 1000;
@@ -2568,11 +2523,7 @@
         }
 
         const sortedLeaderboard = Object.values(playerStats).sort((a,b) => b.pointsGained - a.pointsGained);
-        saveAmericanoToHistory({
-          players: players,
-          rounds: completedRounds,
-          leaderboard: sortedLeaderboard
-        });
+        saveAmericanoToHistory({ players: players, rounds: completedRounds, leaderboard: sortedLeaderboard });
 
         alert(`Турнир завершён! Статистика игроков (${updatedCount}) обновлена.`);
         await fetchAllPlatformProfiles();
@@ -2582,14 +2533,12 @@
     function saveQuickScore(roundId) {
       const inputA = document.getElementById(`quick_score_a_${roundId}`);
       const inputB = document.getElementById(`quick_score_b_${roundId}`);
-
       const scoreA = parseInt(inputA.value) || 0;
       const scoreB = parseInt(inputB.value) || 0;
 
       const round = localAmericanoState.rounds.find(r => r.id === roundId);
       if (round) {
-        round.score_a = scoreA;
-        round.score_b = scoreB;
+        round.score_a = scoreA; round.score_b = scoreB;
         round.completed = (scoreA > 0 || scoreB > 0);
         
         localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
@@ -2721,9 +2670,7 @@
         is_premium: false, payment_pending: false, shield_cards: 1, total_matches_played: 0, wins: 0, losses: 0, draws: 0
       };
 
-      const wins = p.wins || 0;
-      const losses = p.losses || 0;
-      const draws = p.draws || 0;
+      const wins = p.wins || 0; const losses = p.losses || 0; const draws = p.draws || 0;
       const total = p.total_matches_played || (wins + losses + draws);
       const winrate = total > 0 ? Math.round(((wins + draws * 0.5) / total) * 100) : 0;
 
@@ -2982,17 +2929,15 @@
 
           ${creatorAdminPanelHtml}
 
-          <!-- ЕДИНЫЙ КАРБОНОВЫЙ БЛОК РЕЙТИНГА С ПЕРФОРАЦИЕЙ ПАДЕЛ-РАКЕТКИ -->
+          <!-- ЕДИНЫЙ КАРБОНОВЫЙ БЛОК РЕЙТИНГА -->
           <div class="carbon-padel-card p-4 rounded-3xl space-y-3.5 shadow-2xl">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center justify-between">
               <span>${t('ratingSystemTitle')}</span>
               <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/30">LIVE</span>
             </h3>
 
-            <!-- БЛОК ПОДИУМА (ТОП-3 ИГРОКА) -->
             ${podiumHtml ? `<div class="space-y-2">${podiumHtml}</div>` : ''}
 
-            <!-- ОСТАЛЬНЫЕ ИГРОКИ В СКРОЛЛ-ЗОНЕ (ТОП-4+) -->
             <div class="max-h-80 overflow-y-auto space-y-2 custom-scrollbar pr-0.5">
               ${restRowsHtml || (podiumHtml ? '' : '<p class="text-xs text-slate-500 py-4 text-center">Зарегистрированные реальные игроки пока отсутствуют...</p>')}
             </div>
@@ -3046,7 +2991,6 @@
           </button>
         </div>
       `;
-
       modal.classList.remove('hidden');
     }
 
@@ -3107,7 +3051,8 @@
         localStorage.setItem(getSlotStorageKey(), matchId);
 
         triggerSlotCelebration();
-        renderMatchDetails(matchId);
+        currentSlotSubTab = 'my_slot';
+        renderSlotsSubTabContent();
       } catch (err) { alert('Ошибка: ' + err.message); }
     }
 
