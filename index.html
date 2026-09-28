@@ -237,16 +237,16 @@
           
           <div class="flex flex-col items-end gap-1.5">
             <div class="flex items-center gap-1 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold">
-              <button onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
-              <button onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
-              <button onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
+              <button type="button" onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
+              <button type="button" onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
+              <button type="button" onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
             </div>
 
             <div class="flex items-center gap-1">
-              <button onclick="openSupportModal()" class="px-2 py-1 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
+              <button type="button" onclick="openSupportModal()" class="px-2 py-1 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
                 🛠️ <span id="txt-btn-support">Поддержка</span>
               </button>
-              <button onclick="openCreatorModal()" class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
+              <button type="button" onclick="openCreatorModal()" class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
                 👨‍💻 <span id="txt-btn-creator">Создатель</span>
               </button>
             </div>
@@ -255,13 +255,13 @@
 
         <!-- Вкладки -->
         <div class="grid grid-cols-3 gap-1 glass-subcard p-1.5 rounded-2xl border border-white/10">
-          <button id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
+          <button type="button" id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
             🎾 <span id="txt-tab-booking">Слоты</span>
           </button>
-          <button id="tab-americano" onclick="switchTab('americano')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
+          <button type="button" id="tab-americano" onclick="switchTab('americano')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
             🏆 <span id="txt-tab-americano">Американо</span>
           </button>
-          <button id="tab-profile" onclick="switchTab('profile')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
+          <button type="button" id="tab-profile" onclick="switchTab('profile')" class="py-2.5 rounded-xl text-slate-300 font-bold text-xs uppercase tracking-wider hover:text-white btn-3d">
             👤 <span id="txt-tab-profile">Профиль</span>
           </button>
         </div>
@@ -298,7 +298,7 @@
           <span class="text-[9px] text-slate-400 uppercase font-bold block">Счёт / Рекорд</span>
           <span class="text-sm font-black text-white"><span id="game-current-score" class="text-emerald-400">0</span> / <span id="game-high-score" class="text-amber-300">0</span></span>
         </div>
-        <button onclick="closePadelGameModal()" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center border border-white/10 btn-3d">✕</button>
+        <button type="button" onclick="closePadelGameModal()" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-sm flex items-center justify-center border border-white/10 btn-3d">✕</button>
       </div>
     </div>
 
@@ -316,11 +316,11 @@
         </div>
 
         <div class="w-full space-y-2.5 pt-2">
-          <button onclick="startGameWithMode('touch')" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 border border-emerald-300">
+          <button type="button" onclick="startGameWithMode('touch')" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 border border-emerald-300">
             <span>👆</span> <span>Касание / Джойстик (Пальцем)</span>
           </button>
 
-          <button onclick="startGameWithMode('gyro')" class="w-full py-3.5 bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-2">
+          <button type="button" onclick="startGameWithMode('gyro')" class="w-full py-3.5 bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d flex items-center justify-center gap-2">
             <span>📱</span> <span>Гироскоп (Наклон телефона)</span>
           </button>
         </div>
@@ -341,21 +341,21 @@
           <div id="game-leaderboard-list" class="space-y-1 text-xs divide-y divide-white/5"></div>
         </div>
 
-        <button onclick="restartPadelGame()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-emerald-500/30">
+        <button type="button" onclick="restartPadelGame()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-emerald-500/30">
           🔄 Попробовать снова
         </button>
       </div>
     </div>
   </div>
 
-  <!-- МОДАЛЬНЫЕ ОКНА (PRO, ПОДДЕРЖКА, АВТОР) -->
+  <!-- МОДАЛЬНЫЕ ОКНА -->
   <div id="modal-pay-pro" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="glass-card-pro p-5 rounded-3xl w-full max-w-sm space-y-4">
       <div class="flex justify-between items-center border-b border-amber-500/30 pb-3">
         <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
           👑 Подписка Padel Moldova PRO
         </h3>
-        <button onclick="closePayProModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closePayProModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div class="space-y-3 text-xs">
@@ -386,12 +386,12 @@
           <p class="text-[9px] text-slate-400 italic text-center">* В комментарии к переводу укажите ваше имя в Telegram</p>
         </div>
 
-        <button onclick="submitProPaymentRequest()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
+        <button type="button" onclick="submitProPaymentRequest()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
           ✅ Я оплатил, отправить заявку
         </button>
       </div>
 
-      <button onclick="closePayProModal()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs btn-3d border border-white/10">
+      <button type="button" onclick="closePayProModal()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs btn-3d border border-white/10">
         Закрыть
       </button>
     </div>
@@ -403,12 +403,12 @@
         <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
           👑 Моя Премиум-Подписка PRO
         </h3>
-        <button onclick="closeProDetailsModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeProDetailsModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div id="pro-details-content" class="space-y-3 text-xs"></div>
 
-      <button onclick="closeProDetailsModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
+      <button type="button" onclick="closeProDetailsModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
         Закрыть
       </button>
     </div>
@@ -420,12 +420,12 @@
         <h3 class="text-sm font-black text-purple-300 uppercase italic tracking-wide flex items-center gap-2">
           🏆 Просмотр турнира
         </h3>
-        <button onclick="closeTourneyModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeTourneyModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div id="view-tourney-content" class="space-y-3 text-xs overflow-y-auto pr-1 flex-1 custom-scrollbar"></div>
 
-      <button onclick="closeTourneyModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10 flex-shrink-0">
+      <button type="button" onclick="closeTourneyModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10 flex-shrink-0">
         Закрыть
       </button>
     </div>
@@ -437,12 +437,12 @@
         <h3 class="text-sm font-black text-emerald-400 uppercase italic tracking-wide flex items-center gap-2">
           👤 Карточка игрока
         </h3>
-        <button onclick="closeViewPlayerModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeViewPlayerModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div id="view-player-card-content" class="space-y-3 text-xs"></div>
 
-      <button onclick="closeViewPlayerModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
+      <button type="button" onclick="closeViewPlayerModal()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
         Закрыть
       </button>
     </div>
@@ -454,7 +454,7 @@
         <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
           👑 Редактирование игрока
         </h3>
-        <button onclick="closeAdminPlayerModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeAdminPlayerModal()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div id="admin-player-form-content" class="space-y-3 text-xs"></div>
@@ -467,7 +467,7 @@
         <h3 class="text-sm font-black text-amber-300 uppercase italic tracking-wide flex items-center gap-2">
           🛠️ <span>Поддержка и Помощь</span>
         </h3>
-        <button onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div class="space-y-3 text-xs">
@@ -492,7 +492,7 @@
         </div>
       </div>
 
-      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
+      <button type="button" onclick="closeModals()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
         Закрыть
       </button>
     </div>
@@ -504,7 +504,7 @@
         <h3 class="text-sm font-black text-cyan-300 uppercase italic tracking-wide flex items-center gap-2">
           👨‍💻 <span>Разработчик Проекта</span>
         </h3>
-        <button onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+        <button type="button" onclick="closeModals()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
       </div>
 
       <div class="space-y-3 text-xs text-center">
@@ -526,7 +526,7 @@
         </a>
       </div>
 
-      <button onclick="closeModals()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
+      <button type="button" onclick="closeModals()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d border border-white/10">
         Закрыть
       </button>
     </div>
@@ -547,7 +547,6 @@
     function getSlotStorageKey() { return `padel_active_match_id_${tgUser.id || 'guest'}`; }
     function getAmericanoStorageKey() { return `quick_americano_state_${tgUser.id || 'guest'}`; }
 
-    let currentActiveMatchId = localStorage.getItem(getSlotStorageKey()) || null;
     let currentSlotSubTab = 'feed'; // 'feed', 'my_slot', 'create'
 
     function isValidRealUser(p) {
@@ -891,7 +890,7 @@
 
     async function saveUserGameScoreToProfile(score) {
       if (!tgUser.id) return;
-      await safeUpdateProfile(tgUser.id, { game_high_score: score, updated_at: new Date().toISOString() });
+      await safeUpsertProfile(tgUser.id, { game_high_score: score, updated_at: new Date().toISOString() });
     }
 
     function renderGameLeaderboard() {
@@ -1138,7 +1137,7 @@
             </ul>
           </div>
 
-          <button onclick="closeProDetailsModal(); openPayProModal();" class="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
+          <button type="button" onclick="closeProDetailsModal(); openPayProModal();" class="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30">
             ➕ Продлить PRO ещё на 30 дней
           </button>
         </div>
@@ -1271,19 +1270,18 @@
       if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) { showError('Ошибка базы: ' + e.message); }
 
-    async function safeUpdateProfile(userId, updateObj) {
+    // ИСПРАВЛЕНИЕ ДЛЯ iOS: Гарантированный UPSERT профиля
+    async function safeUpsertProfile(userId, profileObj) {
       if (!supabaseClient) return;
       try {
-        let { error } = await supabaseClient.from('profiles').update(updateObj).eq('id', userId);
+        let { error } = await supabaseClient.from('profiles').upsert([profileObj], { onConflict: 'id' });
         if (error && error.message && error.message.includes('column')) {
-          const safeObj = { ...updateObj };
+          const safeObj = { ...profileObj };
           delete safeObj.is_premium; delete safeObj.payment_pending; delete safeObj.premium_until;
           delete safeObj.league_points; delete safeObj.shield_cards; delete safeObj.game_high_score;
-          if (Object.keys(safeObj).length > 0) {
-            await supabaseClient.from('profiles').update(safeObj).eq('id', userId);
-          }
+          await supabaseClient.from('profiles').upsert([safeObj], { onConflict: 'id' });
         }
-      } catch(e) {}
+      } catch(e) { console.log('safeUpsertProfile err:', e); }
     }
 
     function cleanAndGetAmericanoHistory() {
@@ -1444,19 +1442,34 @@
     }
 
     async function syncUserProfile() {
+      const newProf = {
+        id: tgUser.id,
+        first_name: tgUser.first_name || 'Игрок',
+        last_name: tgUser.last_name || null,
+        username: tgUser.username || null,
+        skill_level: 2.5,
+        league_points: 1000,
+        rating_americano: 1000,
+        rating_friendly: 1000,
+        rating_competitive: 1000,
+        preferred_side: 'both',
+        is_premium: false,
+        payment_pending: false,
+        shield_cards: 1,
+        is_public_profile: true,
+        total_matches_played: 0,
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        game_high_score: userHighScore,
+        updated_at: new Date().toISOString()
+      };
+
       if (!supabaseClient) {
-        if (!currentUserProfile) {
-          currentUserProfile = {
-            id: tgUser.id, first_name: tgUser.first_name || 'Victor', last_name: tgUser.last_name || 'Popovici',
-            username: tgUser.username || 'kizdoi', skill_level: 2.5, league_points: 1000, rating_americano: 1000,
-            rating_friendly: 1000, rating_competitive: 1000, preferred_side: 'both',
-            is_premium: false, payment_pending: false, shield_cards: 1, is_public_profile: true,
-            total_matches_played: 0, wins: 0, losses: 0, draws: 0,
-            game_high_score: userHighScore, updated_at: new Date().toISOString()
-          };
-        }
+        if (!currentUserProfile) currentUserProfile = newProf;
         return;
       }
+
       try {
         const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
         if (data) {
@@ -1466,15 +1479,7 @@
             localStorage.setItem('padel_motion_high_score', userHighScore);
           }
         } else {
-          const newProf = {
-            id: tgUser.id, first_name: tgUser.first_name || 'Игрок', last_name: tgUser.last_name || null,
-            username: tgUser.username || null, skill_level: 2.5, league_points: 1000, rating_americano: 1000,
-            rating_friendly: 1000, rating_competitive: 1000, preferred_side: 'both',
-            is_premium: false, payment_pending: false, shield_cards: 1, is_public_profile: true,
-            total_matches_played: 0, wins: 0, losses: 0, draws: 0,
-            game_high_score: userHighScore, updated_at: new Date().toISOString()
-          };
-          await safeUpdateProfile(tgUser.id, newProf);
+          await safeUpsertProfile(tgUser.id, newProf);
           currentUserProfile = newProf;
         }
       } catch (err) { console.log('Profile sync err:', err); }
@@ -1499,7 +1504,7 @@
         localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
 
         if (currentUserProfile) currentUserProfile.payment_pending = true;
-        await safeUpdateProfile(tgUser.id, { payment_pending: true, updated_at: new Date().toISOString() });
+        await safeUpsertProfile(tgUser.id, { payment_pending: true, updated_at: new Date().toISOString() });
 
         closePayProModal();
         alert('Заявка на активицию PRO успешно отправлена создателю!');
@@ -1510,7 +1515,7 @@
     async function approveUserProStatus(userId) {
       try {
         const untilDate = new Date(); untilDate.setDate(untilDate.getDate() + 30);
-        await safeUpdateProfile(userId, { is_premium: true, payment_pending: false, premium_until: untilDate.toISOString(), shield_cards: 2, updated_at: new Date().toISOString() });
+        await safeUpsertProfile(userId, { is_premium: true, payment_pending: false, premium_until: untilDate.toISOString(), shield_cards: 2, updated_at: new Date().toISOString() });
         
         let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
@@ -1524,7 +1529,7 @@
 
     async function rejectUserProStatus(userId) {
       try {
-        await safeUpdateProfile(userId, { payment_pending: false, updated_at: new Date().toISOString() });
+        await safeUpsertProfile(userId, { payment_pending: false, updated_at: new Date().toISOString() });
         let currentLocal = JSON.parse(localStorage.getItem('padel_pending_pro_requests') || '[]');
         currentLocal = currentLocal.filter(r => String(r.id) !== String(userId));
         localStorage.setItem('padel_pending_pro_requests', JSON.stringify(currentLocal));
@@ -1544,28 +1549,55 @@
     function renderSlotsSubTabHeader() {
       return `
         <div class="grid grid-cols-3 gap-1 glass-subcard p-1 rounded-2xl border border-white/10 mb-4 text-[10px]">
-          <button onclick="setSlotsSubTab('feed')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'feed' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+          <button type="button" onclick="setSlotsSubTab('feed')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'feed' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
             ${t('subTabFeed')}
           </button>
-          <button onclick="setSlotsSubTab('my_slot')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'my_slot' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+          <button type="button" onclick="setSlotsSubTab('my_slot')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'my_slot' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
             ${t('subTabMySlot')}
           </button>
-          <button onclick="setSlotsSubTab('create')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'create' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
+          <button type="button" onclick="setSlotsSubTab('create')" class="py-2 rounded-xl font-bold transition-all ${currentSlotSubTab === 'create' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow' : 'text-slate-400 hover:text-white'}">
             ${t('subTabCreate')}
           </button>
         </div>
       `;
     }
 
-    function renderSlotsSubTabContent() {
+    // ИСПРАВЛЕНИЕ: Проверка активного слота конкретно для текущего пользователя
+    async function getUserActiveMatchId() {
+      if (!supabaseClient) return null;
+      try {
+        const { data: playerRows } = await supabaseClient
+          .from('match_players')
+          .select('match_id, matches(*)')
+          .eq('user_id', tgUser.id);
+
+        if (playerRows && playerRows.length > 0) {
+          const now = new Date();
+          const activeMatch = playerRows
+            .map(p => p.matches)
+            .filter(m => m && new Date(m.scheduled_at) > new Date(now.getTime() - 4 * 3600 * 1000))
+            .sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at))[0];
+
+          if (activeMatch) return activeMatch.id;
+        }
+      } catch(e) { console.log('getUserActiveMatchId err:', e); }
+      return null;
+    }
+
+    async function renderSlotsSubTabContent() {
       const container = document.getElementById('main-content');
       if (currentSlotSubTab === 'feed') {
         renderPublicMatchesFeed(container);
       } else if (currentSlotSubTab === 'my_slot') {
-        const userSavedSlot = localStorage.getItem(getSlotStorageKey());
-        if (userSavedSlot || currentActiveMatchId) {
-          renderMatchDetails(userSavedSlot || currentActiveMatchId);
+        container.innerHTML = `
+          ${renderSlotsSubTabHeader()}
+          <div class="text-center py-12 text-slate-400 font-semibold text-xs animate-pulse">Проверка Вашего активного слота...</div>
+        `;
+        const mySlotId = await getUserActiveMatchId();
+        if (mySlotId) {
+          renderMatchDetails(mySlotId);
         } else {
+          // Если текущий пользователь не зашел ни в один слот — показываем пустую форму создания нового слота!
           renderCreateMatchForm();
         }
       } else if (currentSlotSubTab === 'create') {
@@ -1573,7 +1605,7 @@
       }
     }
 
-    // --- ЛЕНТА ПУБЛИЧНЫХ ИГР (С АВТОУДАЛЕНИЕМ И ПОДДЕРЖКОЙ iOS) ---
+    // --- ЛЕНТА ПУБЛИЧНЫХ ИГР (С ПОДДЕРЖКОЙ iOS И АВТООЧИСТКОЙ) ---
     async function renderPublicMatchesFeed(container) {
       if (!container) container = document.getElementById('main-content');
       
@@ -1599,7 +1631,7 @@
               const isClosed = m.is_registration_closed === true;
               const isPrivate = m.is_public === false;
 
-              // АВТОУДАЛЕНИЕ ПРОШЕДШИХ И НЕЗАПОЛНЕННЫХ ИГР ИЗ SUPABASE
+              // Удаление прошедших слотов
               if (isPast && supabaseClient) {
                 supabaseClient.from('match_messages').delete().eq('match_id', m.id).then();
                 supabaseClient.from('match_players').delete().eq('match_id', m.id).then();
@@ -1660,7 +1692,7 @@
                   `}
                 </div>
 
-                <button onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md cursor-pointer">
+                <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md cursor-pointer">
                   ${isUserJoined ? '🎾 ' + t('subTabMySlot') : t('quickJoinBtn')}
                 </button>
               </div>
@@ -1672,7 +1704,7 @@
           <div class="glass-subcard p-6 rounded-2xl border border-white/10 text-center space-y-2">
             <span class="text-3xl block">🎾</span>
             <p class="text-xs text-slate-300 font-medium leading-relaxed">${t('noPublicSlotsMsg')}</p>
-            <button onclick="setSlotsSubTab('create')" class="px-4 py-2 bg-emerald-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d mt-2">
+            <button type="button" onclick="setSlotsSubTab('create')" class="px-4 py-2 bg-emerald-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d mt-2">
               ${t('subTabCreate')}
             </button>
           </div>
@@ -1704,13 +1736,14 @@
         }
 
         if (!match) {
-          openPublicMatchSlot(matchId);
+          renderMatchDetails(matchId);
           return;
         }
 
         const isUserJoined = players.some(p => String(p.user_id) === String(tgUser.id));
         if (isUserJoined) {
-          openPublicMatchSlot(matchId);
+          currentSlotSubTab = 'my_slot';
+          renderSlotsSubTabContent();
           return;
         }
 
@@ -1725,22 +1758,15 @@
 
         if (players.length >= match.max_players) {
           alert('Этот слот уже полностью заполнен.');
-          openPublicMatchSlot(matchId);
+          renderMatchDetails(matchId);
           return;
         }
 
         await joinMatch(matchId, nextFreeSlot);
       } catch (e) {
         showError('Ошибка входа: ' + e.message);
-        openPublicMatchSlot(matchId);
+        renderMatchDetails(matchId);
       }
-    }
-
-    function openPublicMatchSlot(matchId) {
-      currentActiveMatchId = matchId;
-      localStorage.setItem(getSlotStorageKey(), matchId);
-      currentSlotSubTab = 'my_slot';
-      renderSlotsSubTabContent();
     }
 
     function renderCreateMatchForm() {
@@ -1826,7 +1852,6 @@
           is_registration_closed: false
         };
 
-        // ФОЛЛБЭК: ЕСЛИ В SUPABASE НЕТ КОЛОНКИ is_public, ПОВТОРЯЕМ ВСТАВКУ БЕЗ НЕЁ
         let match = null;
         let { data, error } = await supabaseClient.from('matches').insert([matchData]).select().single();
         
@@ -1843,9 +1868,6 @@
 
         await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]);
         
-        currentActiveMatchId = match.id;
-        localStorage.setItem(getSlotStorageKey(), match.id);
-
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
       } catch (err) {
@@ -1883,10 +1905,8 @@
         await supabaseClient.from('match_players').delete().eq('match_id', matchId);
         const { error } = await supabaseClient.from('matches').delete().eq('id', matchId);
         if (error) throw error;
-        alert('Слот успешно удалён.');
-
-        currentActiveMatchId = null;
-        localStorage.removeItem(getSlotStorageKey());
+        
+        triggerSlotLeaveToast();
         currentSlotSubTab = 'feed';
         renderSlotsSubTabContent();
       } catch(e) { alert('Ошибка: ' + e.message); }
@@ -1903,7 +1923,6 @@
     }
 
     async function renderMatchDetails(matchId) {
-      currentActiveMatchId = matchId;
       const container = document.getElementById('main-content');
       
       container.innerHTML = `
@@ -1948,7 +1967,7 @@
                   <span class="text-xs font-bold text-emerald-300">${t('slotLabel')} #${i}: <span onclick="openViewPlayerModalById('${p.user_id}')" class="cursor-pointer underline decoration-dotted hover:text-amber-300">${name}</span></span>
                   <div class="flex items-center gap-2">
                     <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-2.5 py-1 rounded-full uppercase">${t('occupied')}</span>
-                    ${isMatchCreator ? `<button onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d">❌</button>` : ''}
+                    ${isMatchCreator ? `<button type="button" onclick="kickPlayer('${match.id}', '${p.user_id}')" class="px-2 py-0.5 bg-rose-500/20 hover:bg-rose-500/40 text-rose-300 border border-rose-500/30 font-bold text-[10px] rounded-lg btn-3d">❌</button>` : ''}
                   </div>
                 </div>
               </div>`;
@@ -1957,7 +1976,7 @@
               <div class="p-3 glass-subcard border border-dashed border-slate-700/60 rounded-2xl text-slate-300 text-xs font-semibold flex justify-between items-center gap-2">
                 <span>${t('slotLabel')} #${i}: <strong class="text-emerald-400 font-bold">${t('free')}</strong></span>
                 ${!isJoined ? `
-                  <button onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20 cursor-pointer">
+                  <button type="button" onclick="joinMatch('${match.id}', ${i})" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-[11px] uppercase tracking-wider btn-3d shadow-md shadow-emerald-500/20 cursor-pointer">
                     ${t('joinSlot')} #${i}
                   </button>
                 ` : ''}
@@ -2011,7 +2030,7 @@
                 <span class="font-bold text-slate-300 pl-1 whitespace-nowrap">${t('dateTime')}</span>
                 <div class="flex items-center gap-1.5 flex-1 justify-end">
                   <input type="datetime-local" id="edit_time_${match.id}" value="${scheduledDateForInput}" class="p-1.5 glass-subcard border border-slate-600 rounded-lg text-white font-semibold text-xs text-center max-w-[170px]">
-                  <button onclick="updateMatchTime('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
+                  <button type="button" onclick="updateMatchTime('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
                 </div>
               </div>
 
@@ -2019,15 +2038,15 @@
                 <span class="font-bold text-slate-300 pl-1">${t('pricePerPlayerLabel')}</span>
                 <div class="flex items-center gap-1.5">
                   <input type="number" id="edit_price_${match.id}" value="${match.price_per_player || 0}" class="w-16 p-1.5 glass-subcard border border-slate-600 rounded-lg text-center text-white font-black">
-                  <button onclick="updateMatchPrice('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
+                  <button type="button" onclick="updateMatchPrice('${match.id}')" class="px-3 py-1.5 bg-slate-800 text-amber-400 font-black rounded-lg btn-3d">💾</button>
                 </div>
               </div>
 
               <div class="grid grid-cols-2 gap-2 pt-1">
-                <button onclick="toggleRegistration('${match.id}', ${!isRegClosed})" class="py-2.5 bg-amber-500/20 text-amber-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
+                <button type="button" onclick="toggleRegistration('${match.id}', ${!isRegClosed})" class="py-2.5 bg-amber-500/20 text-amber-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
                   ${isRegClosed ? '🔓 Открыть' : '🔒 Завершить'}
                 </button>
-                <button onclick="deleteMatchByCreator('${match.id}')" class="py-2.5 bg-rose-500/20 text-rose-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
+                <button type="button" onclick="deleteMatchByCreator('${match.id}')" class="py-2.5 bg-rose-500/20 text-rose-300 font-extrabold rounded-xl text-xs uppercase btn-3d">
                   ${t('deleteSlotBtn')}
                 </button>
               </div>
@@ -2070,15 +2089,15 @@
               </div>
               <div class="flex gap-2">
                 <input type="text" id="chat_input" placeholder="${t('chatPlaceholder')}" onkeypress="handleChatKeyPress(event, '${match.id}')" class="flex-1 p-3 glass-subcard border border-slate-700/80 rounded-xl text-xs text-white">
-                <button onclick="sendChatMessage('${match.id}')" class="px-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
+                <button type="button" onclick="sendChatMessage('${match.id}')" class="px-5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs btn-3d uppercase">
                   ${t('sendBtn')}
                 </button>
               </div>
             </div>
 
             <div class="space-y-2 pt-2">
-              ${isJoined ? `<button onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">${t('leaveGame')}</button>` : ''}
-              <button onclick="copyShareLink('${shareUrl}')" class="w-full py-3 bg-slate-800/80 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">${t('copyLink')}</button>
+              ${isJoined ? `<button type="button" onclick="leaveMatch('${match.id}')" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 font-bold rounded-xl text-xs btn-3d">${t('leaveGame')}</button>` : ''}
+              <button type="button" onclick="copyShareLink('${shareUrl}')" class="w-full py-3 bg-slate-800/80 border border-slate-700 text-slate-200 font-bold rounded-xl text-xs btn-3d">${t('copyLink')}</button>
             </div>
           </div>
         `;
@@ -2200,8 +2219,8 @@
             </div>
             
             <div class="flex gap-1">
-              <button onclick="adjustPlayerCount(-1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➖</button>
-              <button onclick="adjustPlayerCount(1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➕</button>
+              <button type="button" onclick="adjustPlayerCount(-1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➖</button>
+              <button type="button" onclick="adjustPlayerCount(1)" class="flex-1 py-3 bg-slate-800 text-white font-bold rounded-xl text-sm btn-3d">➕</button>
             </div>
           </div>
 
@@ -2214,13 +2233,13 @@
             </select>
           </div>
 
-          <button onclick="importPlayersFromCurrentSlot()" class="w-full py-2.5 bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/30 btn-3d">
+          <button type="button" onclick="importPlayersFromCurrentSlot()" class="w-full py-2.5 bg-purple-500/20 border border-purple-500/40 text-purple-300 font-bold rounded-xl text-xs hover:bg-purple-500/30 btn-3d">
             ${t('quickImportBtn')}
           </button>
 
           <div id="names-container" class="space-y-2.5 pt-1"></div>
 
-          <button onclick="startQuickAmericano()" class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider neon-glow-purple btn-3d mt-4 shadow-lg shadow-purple-500/30">
+          <button type="button" onclick="startQuickAmericano()" class="w-full py-3.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider neon-glow-purple btn-3d mt-4 shadow-lg shadow-purple-500/30">
             ${t('startTournamentBtn')}
           </button>
 
@@ -2319,11 +2338,11 @@
     }
 
     async function importPlayersFromCurrentSlot() {
-      const slotIdToImport = currentActiveMatchId || getStartParam();
-      if (!slotIdToImport) { alert('Нет активного созданного слота.'); return; }
+      const activeSlotId = await getUserActiveMatchId();
+      if (!activeSlotId) { alert('У вас нет активного занятого или созданного слота.'); return; }
 
       try {
-        const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', slotIdToImport);
+        const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', activeSlotId);
         if (!rawPlayers || rawPlayers.length === 0) { alert('В этом слоте нет зарегистрированных игроков.'); return; }
 
         let count = rawPlayers.length;
@@ -2488,7 +2507,7 @@
                 <span class="font-black text-slate-500">:</span>
                 <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 text-center p-1.5 border border-slate-700 rounded-xl font-black glass-subcard text-white text-sm focus:border-purple-500">
                 
-                <button onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
+                <button type="button" onclick="saveQuickScore(${r.id})" class="ml-1 px-2.5 py-1.5 bg-purple-600 text-white rounded-xl font-black text-xs hover:bg-purple-500 btn-3d">
                   ${t('okBtn')}
                 </button>
               </div>
@@ -2506,10 +2525,10 @@
               <h2 class="text-base font-black uppercase tracking-wide">${t('calculatorTitle')}</h2>
               <p class="text-xs opacity-90">${t('roundsCountLabel')}: ${rounds.length} (${cycles || 1} ${cycles > 1 ? t('cyclesLabel') : t('cycleSingleLabel')})</p>
             </div>
-            <button onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold btn-3d border border-white/20">${t('resetBtn')}</button>
+            <button type="button" onclick="resetQuickAmericano()" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold btn-3d border border-white/20">${t('resetBtn')}</button>
           </div>
 
-          <button onclick="confirmCancelAmericano()" class="w-full py-3 bg-gradient-to-r from-rose-600/80 to-red-600/80 hover:from-rose-500 hover:to-red-500 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-rose-500/20 border border-rose-400/30 flex items-center justify-center gap-2">
+          <button type="button" onclick="confirmCancelAmericano()" class="w-full py-3 bg-gradient-to-r from-rose-600/80 to-red-600/80 hover:from-rose-500 hover:to-red-500 text-white font-extrabold rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-rose-500/20 border border-rose-400/30 flex items-center justify-center gap-2">
             <span>🛑</span> <span>${t('cancelTournamentBtn')}</span>
           </button>
 
@@ -2519,10 +2538,10 @@
           </div>
 
           <div class="grid grid-cols-2 gap-2">
-            <button onclick="syncResultsToPlatformProfiles()" class="py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
+            <button type="button" onclick="syncResultsToPlatformProfiles()" class="py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider neon-glow-emerald btn-3d">
               ${t('recordRatingBtn')}
             </button>
-            <button onclick="shareAmericanoResultsSummary()" class="py-3 bg-slate-800/80 hover:bg-slate-700/80 text-purple-300 border border-purple-500/40 font-bold rounded-xl text-xs btn-3d flex items-center justify-center gap-1">
+            <button type="button" onclick="shareAmericanoResultsSummary()" class="py-3 bg-slate-800/80 hover:bg-slate-700/80 text-purple-300 border border-purple-500/40 font-bold rounded-xl text-xs btn-3d flex items-center justify-center gap-1">
               ${t('reportTgBtn')}
             </button>
           </div>
@@ -2624,7 +2643,7 @@
                 updated_at: new Date().toISOString()
               };
 
-              await safeUpdateProfile(stat.userId, updateData);
+              await safeUpsertProfile(stat.userId, updateData);
               updatedCount++;
             }
           }
@@ -2870,8 +2889,8 @@
               <p class="text-[10px] text-amber-300 font-mono">@${u.username || u.id} • MIA 150 MDL</p>
             </div>
             <div class="flex gap-1">
-              <button onclick="approveUserProStatus('${u.id}')" class="px-2.5 py-1 bg-emerald-500 text-slate-950 font-black rounded-lg text-[10px] btn-3d">${t('approveProBtn')}</button>
-              <button onclick="rejectUserProStatus('${u.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg text-[10px] btn-3d">${t('rejectProBtn')}</button>
+              <button type="button" onclick="approveUserProStatus('${u.id}')" class="px-2.5 py-1 bg-emerald-500 text-slate-950 font-black rounded-lg text-[10px] btn-3d">${t('approveProBtn')}</button>
+              <button type="button" onclick="rejectUserProStatus('${u.id}')" class="px-2 py-1 bg-rose-500/20 text-rose-300 font-bold rounded-lg text-[10px] btn-3d">${t('rejectProBtn')}</button>
             </div>
           </div>
         `).join('') : `<p class="text-[11px] text-slate-400 italic">Нет новых заявок на оплату.</p>`;
@@ -2944,7 +2963,7 @@
         `;
       } else {
         proBannerStatus = `
-          <button onclick="openPayProModal()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+          <button type="button" onclick="openPayProModal()" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
             <span>💎</span> <span>${t('getProBtn')}</span>
           </button>
         `;
@@ -2972,8 +2991,8 @@
               </div>
 
               <div class="flex items-center gap-1.5">
-                <button onclick="shareMyProfileCard()" class="p-2 glass-subcard border border-white/20 rounded-xl text-white text-xs font-bold btn-3d">📤</button>
-                <button onclick="toggleProfileEditForm()" class="px-2.5 py-1.5 glass-subcard border border-white/30 rounded-xl text-white text-xs font-extrabold btn-3d flex items-center gap-1">
+                <button type="button" onclick="shareMyProfileCard()" class="p-2 glass-subcard border border-white/20 rounded-xl text-white text-xs font-bold btn-3d">📤</button>
+                <button type="button" onclick="toggleProfileEditForm()" class="px-2.5 py-1.5 glass-subcard border border-white/30 rounded-xl text-white text-xs font-extrabold btn-3d flex items-center gap-1">
                   ✏️ <span>${t('settingsBtn')}</span>
                 </button>
               </div>
@@ -2992,7 +3011,7 @@
           <div id="profile-edit-box" class="${isProfileEditOpen ? '' : 'hidden'} glass-subcard p-4 rounded-3xl border border-cyan-500/40 space-y-3 shadow-2xl">
             <div class="flex justify-between items-center border-b border-white/10 pb-2">
               <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider">${t('profileEditTitle')}</h3>
-              <button onclick="toggleProfileEditForm()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+              <button type="button" onclick="toggleProfileEditForm()" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
             </div>
             
             <form onsubmit="saveProfileData(event)" class="space-y-3 text-xs">
@@ -3037,7 +3056,6 @@
 
           ${creatorAdminPanelHtml}
 
-          <!-- ЕДИНЫЙ КАРБОНОВЫЙ БЛОК РЕЙТИНГА -->
           <div class="carbon-padel-card p-4 rounded-3xl space-y-3.5 shadow-2xl">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center justify-between">
               <span>${t('ratingSystemTitle')}</span>
@@ -3094,7 +3112,7 @@
             </div>
           </div>
 
-          <button onclick="saveAdminPlayerChanges('${player.id}')" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl uppercase text-xs btn-3d mt-2">
+          <button type="button" onclick="saveAdminPlayerChanges('${player.id}')" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl uppercase text-xs btn-3d mt-2">
             ${t('saveChanges')}
           </button>
         </div>
@@ -3111,7 +3129,7 @@
       const shields = parseInt(document.getElementById('ap_shields').value) || 1;
 
       try {
-        await safeUpdateProfile(userId, {
+        await safeUpsertProfile(userId, {
           league_points: newLp,
           rating_americano: newLp,
           skill_level: newSkill,
@@ -3135,7 +3153,7 @@
       const phone = document.getElementById('edit_phone').value.trim();
 
       try {
-        await safeUpdateProfile(tgUser.id, {
+        await safeUpsertProfile(tgUser.id, {
           birth_date: birthDate,
           gender: gender,
           preferred_side: preferredSide,
@@ -3150,6 +3168,7 @@
       } catch(err) { alert('Ошибка: ' + err.message); }
     }
 
+    // ИСПРАВЛЕНИЕ: Прямая надёжная запись слота с автосозданием профиля на iOS
     async function joinMatch(matchId, nextSlot) {
       try {
         await syncUserProfile();
@@ -3157,16 +3176,12 @@
 
         if (supabaseClient) {
           let { error } = await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: uid, slot_number: nextSlot }]);
-          if (error && error.message && error.message.includes('user_id')) {
-            await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: parseInt(uid, 10), slot_number: nextSlot }]);
-          } else if (error) {
-            throw error;
+          if (error) {
+            let { error: retryError } = await supabaseClient.from('match_players').insert([{ match_id: matchId, user_id: String(uid), slot_number: nextSlot }]);
+            if (retryError) throw retryError;
           }
         }
         
-        currentActiveMatchId = matchId;
-        localStorage.setItem(getSlotStorageKey(), matchId);
-
         triggerSlotCelebration();
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
@@ -3179,7 +3194,8 @@
           await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', tgUser.id);
         }
         triggerSlotLeaveToast();
-        renderMatchDetails(matchId);
+        currentSlotSubTab = 'my_slot';
+        renderSlotsSubTabContent();
       } catch (err) { alert('Ошибка: ' + err.message); }
     }
 
