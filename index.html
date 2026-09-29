@@ -129,17 +129,20 @@
     }
 
     .vvpadel-title-animated {
-      display: inline-block;
-      background: linear-gradient(110deg, #ffffff 0%, #34d399 30%, #ccff00 65%, #ffffff 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
-      animation: vvpadelTextShine 3.2s ease-in-out infinite;
-      padding-right: 2px;
-      line-height: 1.15;
-    }
+  display: inline-block;
+  background: linear-gradient(110deg, #ffffff 0%, #34d399 35%, #ccff00 65%, #ffffff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  animation: vvpadelTextShine 3.2s ease-in-out infinite;
+  padding-right: 14px; /* Запас ширины для наклонных букв и свечения */
+  padding-bottom: 4px;
+  line-height: 1.25;
+  overflow: visible; /* Разрешает свечению и буквам выходить за границы */
+  white-space: nowrap;
+}
 
     .toast-pop { animation: popInOut 2.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     .neon-glow-emerald { box-shadow: 0 0 18px rgba(16, 185, 129, 0.4); }
