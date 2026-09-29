@@ -2617,52 +2617,124 @@
 
       const finalLeaderboard = Array.from(leaderboardMap.values()).sort((a, b) => b.pts - a.pts);
 
-      const updatesPromises = finalLeaderboard.map(async (item, i) => {
-        let gainedLP = (i === 0) ? 40 : (i === 1) ? 25 : (i === 2) ? 15 : 5;
-        item.pointsGained = gainedLP;
+      // ✅ КАК СДЕЛАТЬ ПОСЛЕ:
+async function recordTournamentToNationalLeaderboard() {
+  if (!localAmericanoState || !localAmericanoState.rounds) return;
+  if (localAmericanoState.isRecorded) {
+    alert('Уже записано в рейтинг.');
+    return;
+  }
+  const { players, rounds } = localAmericanoState;
 
-        if (item.userId && isValidRealUser({id: item.userId})) {
-          const cachedProf = platformProfilesList.find(p => String(p.id) === String(item.userId));
-          if (cachedProf) {
-            cachedProf.league_points = (cachedProf.league_points || 1000) + gainedLP;
-            cachedProf.wins = (cachedProf.wins || 0) + item.wins;
-            cachedProf.losses = (cachedProf.losses || 0) + item.losses;
-            cachedProf.draws = (cachedProf.draws || 0) + item.draws;
-            cachedProf.total_matches_played = (cachedProf.total_matches_played || 0) + item.matches;
-          }
+  const completedRounds = rounds.filter(r => r.completed);
+  if (completedRounds.length === 0) {
+    alert('Завершите хотя бы один матч.');
+    return;
+  }
 
-          if (currentUserProfile && String(currentUserProfile.id) === String(item.userId)) {
-            currentUserProfile.league_points = (currentUserProfile.league_points || 1000) + gainedLP;
-            currentUserProfile.wins = (currentUserProfile.wins || 0) + item.wins;
-            currentUserProfile.losses = (currentUserProfile.losses || 0) + item.losses;
-            currentUserProfile.draws = (currentUserProfile.draws || 0) + item.draws;
-            currentUserProfile.total_matches_played = (currentUserProfile.total_matches_played || 0) + item.matches;
-          }
+  // 1. Подсчет итогов текущего турнира Американо
+  const leaderboardMap = new Map();
+  players.forEach(p => {
+    leaderboardMap.set(p.id, {
+      userId: p.userId,
+      name: p.name,
+      pts: 0, matches: 0, wins: 0, losses: 0, draws: 0
+    });
+  });
 
-          if (supabaseClient) {
-            try {
-              await ensureProfileInDatabase({ id: item.userId, first_name: item.name });
-              const { data: dbProf } = await supabaseClient.from('profiles').select('*').eq('id', item.userId).maybeSingle();
-              
-              const currentLP = dbProf ? (dbProf.league_points || 1000) : 1000;
-              const currentWins = dbProf ? (dbProf.wins || 0) : 0;
-              const currentLosses = dbProf ? (dbProf.losses || 0) : 0;
-              const currentDraws = dbProf ? (dbProf.draws || 0) : 0;
-              const currentTotal = dbProf ? (dbProf.total_matches_played || 0) : 0;
+  rounds.forEach(r => {
+    if (r.completed) {
+      const sa = parseInt(r.score_a) || 0;
+      const sb = parseInt(r.score_b) || 0;
 
-              await safeUpsertProfile(item.userId, {
-                first_name: item.name,
-                league_points: currentLP + gainedLP,
-                wins: currentWins + item.wins,
-                losses: currentLosses + item.losses,
-                draws: currentDraws + item.draws,
-                total_matches_played: currentTotal + item.matches,
-                updated_at: new Date().toISOString()
-              });
-            } catch(e) {}
-          }
+      r.team_a.forEach(pIdx => {
+        const p = leaderboardMap.get(pIdx);
+        if (p) {
+          p.pts += sa; p.matches++;
+          if (sa > sb) p.wins++; else if (sb > sa) p.losses++; else p.draws++;
         }
       });
+      r.team_b.forEach(pIdx => {
+        const p = leaderboardMap.get(pIdx);
+        if (p) {
+          p.pts += sb; p.matches++;
+          if (sb > sa) p.wins++; else if (sa > sb) p.losses++; else p.draws++;
+        }
+      });
+    }
+  });
+
+  const finalLeaderboard = Array.from(leaderboardMap.values()).sort((a, b) => b.pts - a.pts);
+
+  // 2. Атомарное обновление с гарантированным суммированием прошлых LP из БД
+  const updatesPromises = finalLeaderboard.map(async (item, i) => {
+    let gainedLP = (i === 0) ? 40 : (i === 1) ? 25 : (i === 2) ? 15 : 5;
+    item.pointsGained = gainedLP;
+
+    if (item.userId && isValidRealUser({ id: item.userId })) {
+      if (supabaseClient) {
+        try {
+          // Убеждаемся, что запись профиля существует
+          await ensureProfileInDatabase({ id: item.userId, first_name: item.name });
+
+          // Делаем прямую выборку свежих данных ИМЕННО из базы данных
+          const { data: dbProf } = await supabaseClient
+            .from('profiles')
+            .select('league_points, wins, losses, draws, total_matches_played')
+            .eq('id', item.userId)
+            .maybeSingle();
+
+          // Чёткий расчёт: Актуальный LP из БД + Набранные очки
+          const existingLP = dbProf && typeof dbProf.league_points === 'number' ? dbProf.league_points : 1000;
+          const newLP = existingLP + gainedLP;
+
+          const existingWins = dbProf ? (dbProf.wins || 0) : 0;
+          const existingLosses = dbProf ? (dbProf.losses || 0) : 0;
+          const existingDraws = dbProf ? (dbProf.draws || 0) : 0;
+          const existingTotal = dbProf ? (dbProf.total_matches_played || 0) : 0;
+
+          const updatePayload = {
+            first_name: item.name,
+            league_points: newLP,
+            wins: existingWins + item.wins,
+            losses: existingLosses + item.losses,
+            draws: existingDraws + item.draws,
+            total_matches_played: existingTotal + item.matches,
+            updated_at: new Date().toISOString()
+          };
+
+          // Сохраняем обновленные накопительные данные в Supabase
+          await safeUpsertProfile(item.userId, updatePayload);
+
+          // Обновляем локальный текущий профиль, если это авторизованный юзер
+          if (currentUserProfile && String(currentUserProfile.id) === String(item.userId)) {
+            Object.assign(currentUserProfile, updatePayload);
+          }
+        } catch (e) {
+          console.error("Ошибка при обновлении профиля:", e);
+        }
+      }
+    }
+  });
+
+  await Promise.all(updatesPromises);
+
+  // 3. Сохранение истории и принудительное перезапрашивание лидерборда
+  saveAmericanoToHistory({
+    players,
+    rounds: completedRounds,
+    leaderboard: finalLeaderboard
+  });
+
+  localAmericanoState.isRecorded = true;
+  localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
+
+  alert('Результаты турнира успешно суммированы с прошлыми очками в Едином Рейтинге!');
+  
+  // Принудительно сбрасываем кэш и запрашиваем свежую таблицу из БД
+  await fetchAllPlatformProfiles(true);
+  renderQuickAmericano();
+}
 
       await Promise.all(updatesPromises);
 
