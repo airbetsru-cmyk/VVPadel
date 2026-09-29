@@ -1411,8 +1411,23 @@
         if (mySlotId) {
           renderMatchDetails(mySlotId);
         } else {
-          renderCreateMatchForm();
+          container.innerHTML = `
+            ${renderSlotsSubTabHeader()}
+            <div class="glass-subcard p-6 sm:p-8 rounded-3xl border border-white/10 text-center space-y-4 my-2">
+              <div class="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 mx-auto flex items-center justify-center text-3xl shadow-lg shadow-emerald-500/10">
+                🎾
+              </div>
+              <div class="space-y-1">
+                <h3 class="text-base font-black text-white uppercase italic">У вас нет активного слота</h3>
+                <p class="text-xs text-slate-300 max-w-xs mx-auto leading-relaxed">Вы ещё не создали игру и не забронировали место ни в одном открытом матче.</p>
+              </div>
+              <button type="button" onclick="setSlotsSubTab('create')" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-emerald-500/30">
+                🚀 Создать слот прямо сейчас
+              </button>
+            </div>
+          `;
         }
+      }
       } else if (currentSlotSubTab === 'create') {
         renderCreateMatchForm();
       }
