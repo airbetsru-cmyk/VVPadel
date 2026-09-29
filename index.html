@@ -113,7 +113,6 @@
       100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
     }
 
-    /* НЕОНОВАЯ АНИМАЦИЯ ДЛЯ ТЕКСТА VVPADEL */
     @keyframes vvpadelNeonFlow {
       0% {
         background-position: 0% 50%;
@@ -175,10 +174,10 @@
   <div class="bg-overlay p-3 sm:p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <!-- ВЕРХНИЙ БЛОК: Трёхуровневая компоновка без выходов за границы -->
+      <!-- ВЕРХНИЙ БЛОК: Трёхуровневая компоновка -->
       <div class="carbon-padel-card p-4 sm:p-5 rounded-3xl space-y-3.5 shadow-2xl border-2 border-emerald-500/50">
         
-        <!-- УРОВЕНЬ 1: Кнопки управления (Языки + Сервис) -->
+        <!-- УРОВЕНЬ 1: Сервисная панель -->
         <div class="flex items-center justify-between border-b border-white/10 pb-2.5 gap-2">
           <div class="flex items-center gap-0.5 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold">
             <button type="button" onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
@@ -196,7 +195,7 @@
           </div>
         </div>
 
-        <!-- УРОВЕНЬ 2: Логотип + Заголовок VVPadel + Приветствие -->
+        <!-- УРОВЕНЬ 2: Логотип + VVPadel -->
         <div class="flex items-center gap-3 py-0.5 min-w-0">
           <div onclick="openPadelGameModal()" class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-slate-950/90 border-2 border-emerald-400/80 flex items-center justify-center p-0.5 shadow-xl shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
             <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
@@ -213,7 +212,7 @@
           </div>
         </div>
 
-        <!-- УРОВЕНЬ 3: Главные Навигационные Табы -->
+        <!-- УРОВЕНЬ 3: Навигационные Табы -->
         <div class="grid grid-cols-3 gap-1 glass-subcard p-1.5 rounded-2xl border border-white/10">
           <button type="button" id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d truncate">
             🎾 <span id="txt-tab-booking">Слоты</span>
@@ -879,6 +878,7 @@
         chatPlaceholder: "Напишите сообщение...", sendBtn: "Отправить", creatorTag: "👑 Организатор",
         quickImportBtn: "⚡ Импортировать из Слота", guestOption: "➕ Ввести вручную (Гость)",
         ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы", tourneyHistoryTitle: "📜 История турниров (за 7 дней)",
+        globalLeaderboardTitle: "Единый Рейтинг Игроков (Американо)",
         autoCleanup: "Автоочистка", winnerLabel: "Победитель", participantsCount: "Участников", gamesCount: "игр(ы)",
         hostPanel: "Панель Организатора Слота", hostPanelDesc: "Управление составом, временем и ценой", profileEditTitle: "✏️ Редактирование Профиля",
         creatorPanelTitle: "👑 Управление Платформой", allRegisteredPlayers: "Все игроки платформы:",
@@ -887,7 +887,7 @@
         loadingMatch: "Загрузка матча...", slotNotFound: "Слот не найден или был удалён.",
         chatEmptyMsg: "Обсудите детали матча. Напишите первое сообщение!", quickAmericanoDesc: "Калькулятор турнира Американо.",
         startTournamentBtn: "🚀 Начать турнир", calculatorTitle: "🏆 Калькулятор", roundsCountLabel: "Всего игр",
-        cyclesLabel: "круга", cycleSingleLabel: "круг", leaderboardTitle: "Общий Лидерборд",
+        cyclesLabel: "круга", cycleSingleLabel: "круг", leaderboardTitle: "Таблица Текущего Турнира",
         matchesAndScoreTitle: "Матчи и Счёт", placeLabel: "место", place1: "🥇 1-е МЕСТО", place2: "🥈 2-е МЕСТО",
         place3: "🥉 3-е МЕСТО", matchRoundLabel: "Круг", matchGameLabel: "Игра", courtLabel: "Корт",
         completedStatus: "Завершён", pendingStatus: "Ожидает", okBtn: "ОК", viewTourneyDetails: "Смотреть матчи",
@@ -913,6 +913,7 @@
         chatPlaceholder: "Scrie un mesaj...", sendBtn: "Trimite", creatorTag: "👑 Organizator",
         quickImportBtn: "⚡ Importă din Slot", guestOption: "➕ Introdu manual (Oaspete)",
         ratingSystemTitle: "🇲🇩 Sistemul de Clasament Moldova", tourneyHistoryTitle: "📜 Istoricul turneelor",
+        globalLeaderboardTitle: "Clasament General Jucători (Americano)",
         autoCleanup: "Curățare automată", winnerLabel: "Câștigător", participantsCount: "Participanți", gamesCount: "jocuri",
         hostPanel: "Panou Organizator Slot", hostPanelDesc: "Gestionare echipă, timp și preț", profileEditTitle: "✏️ Editare Profil",
         creatorPanelTitle: "👑 Panou Administrator", allRegisteredPlayers: "Toți jucătorii înregistrați:",
@@ -921,7 +922,7 @@
         loadingMatch: "Se încarcă meciul...", slotNotFound: "Slotul nu a fost găsit.",
         chatEmptyMsg: "Discutați detaliile meciului.", quickAmericanoDesc: "Calculator pentru turneul Americano.",
         startTournamentBtn: "🚀 Începe turneul", calculatorTitle: "🏆 Calculator", roundsCountLabel: "Total jocuri",
-        cyclesLabel: "runde", cycleSingleLabel: "rundă", leaderboardTitle: "Clasament General",
+        cyclesLabel: "runde", cycleSingleLabel: "rundă", leaderboardTitle: "Clasament Turneu Curent",
         matchesAndScoreTitle: "Meciuri și Scor", placeLabel: "locul", place1: "🥇 LOCUL 1", place2: "🥈 LOCUL 2",
         place3: "🥉 LOCUL 3", matchRoundLabel: "Runda", matchGameLabel: "Jocul", courtLabel: "Teren",
         completedStatus: "Finalizat", pendingStatus: "În așteptare", okBtn: "OK", viewTourneyDetails: "Vezi meciurile",
@@ -947,6 +948,7 @@
         chatPlaceholder: "Type a message...", sendBtn: "Send", creatorTag: "👑 Host",
         quickImportBtn: "⚡ Import from Slot", guestOption: "➕ Enter manually (Guest)",
         ratingSystemTitle: "🇲🇩 Moldova Ranking System", tourneyHistoryTitle: "📜 Tournament History",
+        globalLeaderboardTitle: "All-Time Player Leaderboard (Americano)",
         autoCleanup: "Auto-cleanup", winnerLabel: "Winner", participantsCount: "Participants", gamesCount: "game(s)",
         hostPanel: "Slot Host Panel", hostPanelDesc: "Manage players, time and price", profileEditTitle: "✏️ Edit Profile Data",
         creatorPanelTitle: "👑 Admin Panel", allRegisteredPlayers: "All registered players:",
@@ -955,7 +957,7 @@
         loadingMatch: "Loading game...", slotNotFound: "Slot not found.",
         chatEmptyMsg: "Discuss game details.", quickAmericanoDesc: "Americano tournament calculator.",
         startTournamentBtn: "🚀 Start Tournament", calculatorTitle: "🏆 Calculator", roundsCountLabel: "Total games",
-        cyclesLabel: "rounds", cycleSingleLabel: "round", leaderboardTitle: "Overall Leaderboard",
+        cyclesLabel: "rounds", cycleSingleLabel: "round", leaderboardTitle: "Current Tournament Board",
         matchesAndScoreTitle: "Matches & Score", placeLabel: "place", place1: "🥇 1st PLACE", place2: "🥈 2nd PLACE",
         place3: "🥉 3rd PLACE", matchRoundLabel: "Round", matchGameLabel: "Game", courtLabel: "Court",
         completedStatus: "Completed", pendingStatus: "Pending", okBtn: "OK", viewTourneyDetails: "View Matches",
@@ -2057,8 +2059,91 @@
       }
     }
 
+    /* ФУНКЦИЯ ОТОБРАЖЕНИЯ ЕДИНОГО РЕЙТИНГА В СЛОТЕ АМЕРИКАНО */
+    function renderGlobalAmericanoLeaderboardSection() {
+      let leaderboardList = platformProfilesList.filter(isValidRealUser);
+
+      if (currentUserProfile && isValidRealUser(currentUserProfile)) {
+        if (!leaderboardList.some(p => String(p.id) === String(currentUserProfile.id))) {
+          leaderboardList.push(currentUserProfile);
+        }
+      }
+
+      leaderboardList.sort((a, b) => (b.league_points || 1000) - (a.league_points || 1000) || (b.wins || 0) - (a.wins || 0));
+
+      if (leaderboardList.length === 0) {
+        return `
+          <div class="mt-6 pt-4 border-t border-white/10 space-y-2">
+            <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span>🏆</span>
+              <span>${t('globalLeaderboardTitle')}</span>
+            </h3>
+            <div class="glass-subcard p-4 rounded-2xl border border-white/10 text-center text-xs text-slate-400">
+              Рейтинг пока пуст. Завершите первый турнир Американо!
+            </div>
+          </div>
+        `;
+      }
+
+      let rowsHtml = leaderboardList.map((item, index) => {
+        const itemLp = item.league_points || 1000;
+        const itemLeague = getPlayerLeague(itemLp);
+        const itemAvatarHtml = renderPlayerAvatarHtml(item, "w-9 h-9");
+
+        let rowBg = "lb-card-solid";
+        let rankBadge = `<span class="font-black text-slate-400 text-xs w-6 text-center shrink-0">${index + 1}.</span>`;
+
+        if (index === 0) { rowBg = "lb-podium-1"; rankBadge = `<span class="text-xl w-6 text-center shrink-0">🥇</span>`; }
+        else if (index === 1) { rowBg = "lb-podium-2"; rankBadge = `<span class="text-xl w-6 text-center shrink-0">🥈</span>`; }
+        else if (index === 2) { rowBg = "lb-podium-3"; rankBadge = `<span class="text-xl w-6 text-center shrink-0">🥉</span>`; }
+
+        const isCurrentUser = String(item.id) === String(tgUser?.id);
+
+        return `
+          <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} ${isCurrentUser ? 'border-2 border-emerald-400/80 shadow-lg shadow-emerald-500/20' : ''} p-3 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all btn-3d">
+            <div class="flex items-center gap-2.5 min-w-0">
+              ${rankBadge}
+              ${itemAvatarHtml}
+              <div class="min-w-0">
+                <h4 class="text-xs font-black text-white truncate flex items-center gap-1.5">
+                  <span>${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}</span>
+                  ${isCurrentUser ? `<span class="text-[8px] bg-emerald-500 text-slate-950 font-black px-1.5 py-0.2 rounded uppercase">ВЫ</span>` : ''}
+                </h4>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="text-[9px] font-bold text-slate-300">${itemLeague.badge} ${itemLeague.title}</span>
+                  <span class="text-[9px] text-slate-400">• Lvl ${item.skill_level || 2.5}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-right shrink-0 pl-2">
+              <span class="font-black text-amber-300 text-xs font-mono block">${itemLp} LP</span>
+              <span class="text-[9px] text-emerald-400 font-bold">${item.wins || 0}W / ${item.losses || 0}L</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <div class="mt-6 pt-4 border-t border-white/10 space-y-2.5">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span>🏆</span>
+              <span>${t('globalLeaderboardTitle')}</span>
+            </h3>
+            <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">${leaderboardList.length} участников</span>
+          </div>
+          <div class="space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar pr-1">
+            ${rowsHtml}
+          </div>
+        </div>
+      `;
+    }
+
     async function renderQuickAmericano() {
       const container = document.getElementById('main-content');
+      await fetchAllPlatformProfiles();
+
       const savedState = localStorage.getItem(getAmericanoStorageKey());
       if (savedState) {
         try { localAmericanoState = JSON.parse(savedState); } catch(e){ localAmericanoState = null; }
@@ -2069,7 +2154,6 @@
         return;
       }
 
-      await fetchAllPlatformProfiles();
       const history = cleanAndGetAmericanoHistory();
 
       let historyHtml = '';
@@ -2104,6 +2188,8 @@
           </div>
         `;
       }
+
+      const globalLeaderboardHtml = renderGlobalAmericanoLeaderboardSection();
 
       container.innerHTML = `
         <h2 class="text-base font-extrabold mb-1 text-purple-300 uppercase italic tracking-wide">🏆 ${t('tabAmericano')}</h2>
@@ -2148,6 +2234,7 @@
           </button>
 
           ${historyHtml}
+          ${globalLeaderboardHtml}
         </div>
       `;
 
@@ -2424,6 +2511,8 @@
         `;
       }).join('');
 
+      const globalLeaderboardHtml = renderGlobalAmericanoLeaderboardSection();
+
       container.innerHTML = `
         <div class="space-y-4">
           <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 p-4 rounded-2xl text-white shadow-lg space-y-1">
@@ -2456,6 +2545,8 @@
               ${t('cancelTournamentBtn')}
             </button>
           </div>
+
+          ${globalLeaderboardHtml}
         </div>
       `;
     }
@@ -2911,45 +3002,6 @@
         `;
       }
 
-      let leaderboardList = platformProfilesList.filter(isValidRealUser);
-      leaderboardList.sort((a, b) => (b.league_points || 1000) - (a.league_points || 1000));
-
-      let leaderboardRowsHtml = leaderboardList.map((item, index) => {
-        const itemLp = item.league_points || 1000;
-        const itemLeague = getPlayerLeague(itemLp);
-        const itemAvatarHtml = renderPlayerAvatarHtml(item, "w-8 h-8");
-
-        let rowBg = "lb-card-solid";
-        let rankBadge = `<span class="font-black text-slate-400 text-xs">${index + 1}.</span>`;
-
-        if (index === 0) { rowBg = "lb-podium-1"; rankBadge = `<span class="text-xl">🥇</span>`; }
-        else if (index === 1) { rowBg = "lb-podium-2"; rankBadge = `<span class="text-xl">🥈</span>`; }
-        else if (index === 2) { rowBg = "lb-podium-3"; rankBadge = `<span class="text-xl">🥉</span>`; }
-
-        return `
-          <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} p-3 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all btn-3d">
-            <div class="flex items-center gap-2.5 min-w-0">
-              ${rankBadge}
-              ${itemAvatarHtml}
-              <div class="min-w-0">
-                <h4 class="text-xs font-black text-white truncate">
-                  ${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}
-                </h4>
-                <div class="flex items-center gap-1.5 mt-0.5">
-                  <span class="text-[9px] font-bold text-slate-300">${itemLeague.badge} ${itemLeague.title}</span>
-                  <span class="text-[9px] text-slate-400">• Lvl ${item.skill_level || 2.5}</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="text-right shrink-0">
-              <span class="font-black text-amber-300 text-xs font-mono block">${itemLp} LP</span>
-              <span class="text-[9px] text-emerald-400 font-bold">${item.wins || 0}W / ${item.losses || 0}L</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-
       container.innerHTML = `
         <div class="space-y-4">
           <div class="glass-card p-4 rounded-3xl space-y-3">
@@ -3001,14 +3053,6 @@
               <div class="p-2 glass-subcard rounded-xl border border-yellow-500/30">🥇 <strong>Gold</strong>: 1500+ LP</div>
               <div class="p-2 glass-subcard rounded-xl border border-slate-400/30">🥈 <strong>Silver</strong>: 1200+ LP</div>
             </div>
-          </div>
-
-          <div class="space-y-2 pt-2">
-            <div class="flex justify-between items-center">
-              <h3 class="text-sm font-black text-slate-200 uppercase tracking-wide">${t('leaderboardTitle')}</h3>
-              <span class="text-[10px] text-emerald-400 font-bold">${leaderboardList.length} игроков</span>
-            </div>
-            <div class="space-y-2 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">${leaderboardRowsHtml}</div>
           </div>
         </div>
       `;
