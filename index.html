@@ -1762,6 +1762,32 @@
       }
     }
 
+    async function changeMaxPlayers(matchId, newMax, currentOccupiedCount) {
+      if (newMax < 2) {
+        const msg = 'Минимальное количество участников — 2.';
+        if (tg?.showAlert) tg.showAlert(msg); else alert(msg);
+        return;
+      }
+      if (newMax < currentOccupiedCount) {
+        const msg = `Нельзя уменьшить количество мест меньше числа уже занятых слотов (${currentOccupiedCount}). Сначала исключите лишних участников.`;
+        if (tg?.showAlert) tg.showAlert(msg); else alert(msg);
+        return;
+      }
+      if (newMax > 12) {
+        const msg = 'Максимальное количество участников — 12.';
+        if (tg?.showAlert) tg.showAlert(msg); else alert(msg);
+        return;
+      }
+
+      try {
+        const { error } = await supabaseClient.from('matches').update({ max_players: newMax }).eq('id', matchId);
+        if (error) throw error;
+        renderMatchDetails(matchId);
+      } catch (e) {
+        alert('Ошибка при изменении количества мест: ' + e.message);
+      }
+    }
+
     async function updateMatchPrice(matchId) {
       const newPrice = parseFloat(document.getElementById(`edit_price_${matchId}`).value) || 0;
       try {
@@ -1967,6 +1993,23 @@
                 </div>
               </div>
 
+              <!-- Изменение количества мест -->
+              <div class="space-y-1.5 p-2.5 glass-subcard rounded-xl border border-white/5 text-xs">
+                <div class="flex justify-between items-center pl-0.5">
+                  <label class="font-bold text-slate-300">Количество мест в слоте:</label>
+                  <span class="text-amber-300 font-black text-sm font-mono">${match.max_players}</span>
+                </div>
+                <div class="flex items-center gap-2 pt-1">
+                  <button type="button" onclick="changeMaxPlayers('${match.id}', ${match.max_players - 1}, ${players.length})" class="flex-1 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-black rounded-xl btn-3d text-[11px] flex items-center justify-center gap-1">
+                    <span>➖</span> <span>Убрать место</span>
+                  </button>
+                  <button type="button" onclick="changeMaxPlayers('${match.id}', ${match.max_players + 1}, ${players.length})" class="flex-1 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-black rounded-xl btn-3d text-[11px] flex items-center justify-center gap-1">
+                    <span>➕</span> <span>Добавить место</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Изменение даты и времени -->
               <div class="space-y-1.5 p-2.5 glass-subcard rounded-xl border border-white/5 text-xs">
                 <label class="block font-bold text-slate-300 pl-0.5">${t('dateTime')}</label>
                 <div class="flex items-center gap-2">
@@ -1977,6 +2020,7 @@
                 </div>
               </div>
 
+              <!-- Изменение цены -->
               <div class="space-y-1.5 p-2.5 glass-subcard rounded-xl border border-white/5 text-xs">
                 <label class="block font-bold text-slate-300 pl-0.5">${t('pricePerPlayerLabel')}</label>
                 <div class="flex items-center gap-2">
@@ -2089,7 +2133,6 @@
       }
     }
 
-    /* ФУНКЦИЯ ОТОБРАЖЕНИЯ ЕДИНОГО РЕЙТИНГА В СЛОТЕ АМЕРИКАНО */
     function renderGlobalAmericanoLeaderboardSection() {
       let leaderboardList = platformProfilesList.filter(isValidRealUser);
 
