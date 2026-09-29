@@ -171,24 +171,25 @@
   <div class="bg-overlay p-3 sm:p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <div class="carbon-padel-card p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl border-2 border-emerald-500/40">
-        <div class="flex items-center justify-between gap-3">
-          
-          <div class="flex items-center gap-3 min-w-0">
-            <div onclick="openPadelGameModal()" class="w-14 h-14 shrink-0 rounded-2xl bg-slate-950/90 border border-emerald-500/60 flex items-center justify-center p-0.5 shadow-xl shadow-emerald-500/25 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
-              <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
-              <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span class="text-[9px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1.5 py-0.5 rounded shadow">GAME</span>
-              </div>
-            </div>
-
-            <div class="truncate">
-              <h1 class="text-xl sm:text-2xl font-black tracking-wider uppercase italic truncate vvpadel-title-animated">
-                VVPadel
-              </h1>
-              <p id="user-greeting" class="text-xs text-slate-300 font-semibold truncate mt-0.5">Загрузка...</p>
-            </div>
-          </div>
+<div class="carbon-padel-card p-6 sm:p-7 rounded-3xl space-y-5 shadow-2xl border-2 border-emerald-500/50 min-h-[175px] flex flex-col justify-between">
+  <div class="flex items-center justify-between gap-3">
+    
+    <div class="flex items-center gap-3.5 min-w-0 overflow-visible">
+   
+      <div onclick="openPadelGameModal()" class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl bg-slate-950/90 border-2 border-emerald-400/80 flex items-center justify-center p-0.5 shadow-xl shadow-emerald-500/35 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
+        <canvas id="header-padel-canvas" style="width: 72px; height: 72px;"></canvas>
+        <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <span class="text-[10px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1.5 py-0.5 rounded shadow">GAME</span>
+        </div>
+      </div>
+      
+      <div class="flex flex-col justify-center min-w-0 overflow-visible pr-2">
+        <h1 class="text-2xl sm:text-3xl font-black tracking-wide uppercase italic vvpadel-title-animated leading-none">
+          VVPadel
+        </h1>
+        <p id="user-greeting" class="text-xs sm:text-sm text-slate-300 font-bold truncate mt-1">Загрузка...</p>
+      </div>
+    </div>
           
           <div class="flex flex-col items-end gap-1.5 shrink-0">
             <div class="flex items-center gap-1 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold">
