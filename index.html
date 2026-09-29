@@ -494,14 +494,23 @@
     const tg = window.Telegram?.WebApp;
     if (tg) { try { tg.ready(); tg.expand(); } catch(e) {} }
 
-    const tgUser = tg?.initDataUnsafe?.user || {
-      id: 777777,
-      first_name: 'Victor',
-      last_name: 'Popovici',
-      username: 'kizdoi'
-    };
+    function getTgUser() {
+      const activeUser = tg?.initDataUnsafe?.user;
+      if (activeUser && activeUser.id) return activeUser;
+      return {
+        id: 777777,
+        first_name: 'Victor',
+        last_name: 'Popovici',
+        username: 'kizdoi'
+      };
+    }
 
-    function getAmericanoStorageKey() { return `quick_americano_state_${tgUser?.id || 'guest'}`; }
+    const tgUser = getTgUser();
+
+    function getAmericanoStorageKey() { 
+      const user = getTgUser();
+      return `quick_americano_state_${user?.id || 'guest'}`; 
+    }
 
     let currentSlotSubTab = 'feed';
     let onboardSelectedAvatar = PIXEL_AVATARS[0].url;
@@ -514,8 +523,23 @@
       return true;
     }
 
+    function safeGetLocalStorage(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function safeSetLocalStorage(key, value) {
+      try {
+        localStorage.setItem(key, value);
+      } catch (e) {}
+    }
+
     function renderPlayerAvatarHtml(p, sizeClass = "w-10 h-10") {
-      const avatarUrl = p?.avatar_url || localStorage.getItem(`padel_avatar_${p?.id || tgUser.id}`) || PIXEL_AVATARS[0].url;
+      const user = getTgUser();
+      const avatarUrl = p?.avatar_url || safeGetLocalStorage(`padel_avatar_${p?.id || user.id}`) || PIXEL_AVATARS[0].url;
       if (avatarUrl) {
         return `<img src="${avatarUrl}" alt="Avatar" class="${sizeClass} rounded-2xl object-cover border border-emerald-500/40 shadow-md shrink-0">`;
       }
@@ -639,7 +663,7 @@
     animateBalls();
 
     let gameLoopReq = null, isGameRunning = false, currentGameScore = 0, gameControlMode = 'touch';
-    let userHighScore = parseInt(localStorage.getItem('padel_motion_high_score') || '0', 10);
+    let userHighScore = parseInt(safeGetLocalStorage('padel_motion_high_score') || '0', 10);
     let gCanvas, gCtx, gWidth = 360, gHeight = 520;
     let gRacket = { x: 180, y: 440, w: 76, h: 22, vx: 0, targetX: 180, tiltAngle: 0 };
     let gBall = { x: 180, y: 100, vx: 2, vy: 3, r: 8, spin: 0, rotation: 0, squashX: 1, squashY: 1 };
@@ -752,7 +776,7 @@
         document.getElementById('game-current-score').innerText = currentGameScore;
         if (currentGameScore > userHighScore) {
           userHighScore = currentGameScore;
-          localStorage.setItem('padel_motion_high_score', userHighScore);
+          safeSetLocalStorage('padel_motion_high_score', userHighScore);
           document.getElementById('game-high-score').innerText = userHighScore;
         }
       }
@@ -812,20 +836,22 @@
     }
 
     async function saveUserGameScoreToProfile(score) {
-      if (!tgUser?.id || !isValidRealUser(tgUser)) return;
-      await ensureProfileInDatabase(currentUserProfile || tgUser);
+      const user = getTgUser();
+      if (!user?.id || !isValidRealUser(user)) return;
+      await ensureProfileInDatabase(currentUserProfile || user);
       if (supabaseClient) {
-        await supabaseClient.from('profiles').update({ game_high_score: score, updated_at: new Date().toISOString() }).eq('id', tgUser.id);
+        await supabaseClient.from('profiles').update({ game_high_score: score, updated_at: new Date().toISOString() }).eq('id', user.id);
       }
     }
 
     function renderGameLeaderboard() {
       const listContainer = document.getElementById('game-leaderboard-list');
       if (!listContainer) return;
+      const user = getTgUser();
 
       let sorted = platformProfilesList.filter(isValidRealUser);
       sorted.forEach(p => {
-        if (String(p.id) === String(tgUser.id) && userHighScore > (p.game_high_score || 0)) {
+        if (String(p.id) === String(user.id) && userHighScore > (p.game_high_score || 0)) {
           p.game_high_score = userHighScore;
         }
       });
@@ -926,7 +952,7 @@
         matchesAndScoreTitle: "Meciuri și Scor", placeLabel: "locul", place1: "🥇 LOCUL 1", place2: "🥈 LOCUL 2",
         place3: "🥉 LOCUL 3", matchRoundLabel: "Runda", matchGameLabel: "Jocul", courtLabel: "Teren",
         completedStatus: "Finalizat", pendingStatus: "În așteptare", okBtn: "OK", viewTourneyDetails: "Vezi meciurile",
-        tourneyMatchesTitle: "Meciurile turneului", pricePerPlayerLabel: "Preț per jucător (MDL)", deleteSlotBtn: "🗑️ Șterge slotul",
+        tourneyMatchesTitle: "Meciurile turneului", pricePerPlayerLabel: "Preț per jucător (MDL)", deleteSlotBtn: "🗑️️ Șterge slotul",
         subTabFeed: "🔥 Jocuri Deschise", subTabMySlot: "🎾 Slotul Meu", subTabCreate: "➕ Creează Slot",
         accessTypeLabel: "Tip Acces", publicAccessOption: "🌐 Public (vizibil tuturor)", privateAccessOption: "🔒 Privat (doar prin link)",
         noPublicSlotsMsg: "Nu există meciuri publice deschise în acest moment.",
@@ -970,14 +996,14 @@
       }
     };
 
-    let currentLang = localStorage.getItem('padel_lang') || 'ru';
+    let currentLang = safeGetLocalStorage('padel_lang') || 'ru';
     let isProfileEditOpen = false; 
 
     function t(key) { return TRANSLATIONS[currentLang][key] || key; }
 
     function setLanguage(lang) {
       currentLang = lang; 
-      localStorage.setItem('padel_lang', lang);
+      safeSetLocalStorage('padel_lang', lang);
 
       ['ru', 'ro', 'en'].forEach(l => {
         const btn = document.getElementById(`lang-${l}`);
@@ -1130,7 +1156,8 @@
     }
 
     function isUserCreator() {
-      return String(tgUser?.id) === '777777' || tgUser?.username === 'kizdoi';
+      const user = getTgUser();
+      return String(user?.id) === '777777' || user?.username === 'kizdoi';
     }
     
     let supabaseClient = null;
@@ -1140,7 +1167,7 @@
 
     async function ensureProfileInDatabase(userObj) {
       if (!supabaseClient || !userObj || !userObj.id) return false;
-      const uid = userObj.id;
+      const uid = String(userObj.id);
 
       try {
         const { data: existing } = await supabaseClient.from('profiles').select('*').eq('id', uid).maybeSingle();
@@ -1150,7 +1177,7 @@
         }
       } catch (e) {}
 
-      const savedAvatar = localStorage.getItem(`padel_avatar_${uid}`) || PIXEL_AVATARS[0].url;
+      const savedAvatar = safeGetLocalStorage(`padel_avatar_${uid}`) || PIXEL_AVATARS[0].url;
 
       const fullPayload = {
         id: uid,
@@ -1170,36 +1197,43 @@
       };
 
       try {
-        await supabaseClient.from('profiles').upsert([fullPayload], { onConflict: 'id' });
+        const { error } = await supabaseClient.from('profiles').upsert([fullPayload], { onConflict: 'id' });
+        if (error) {
+          console.error("Profile upsert error:", error);
+          return false;
+        }
         currentUserProfile = fullPayload;
         return true;
-      } catch(e) { return false; }
+      } catch(e) { 
+        return false; 
+      }
     }
 
     async function safeUpsertProfile(userId, profileObj) {
       if (!supabaseClient || !userId) return;
       try {
-        const payload = { id: userId, ...profileObj };
+        const payload = { id: String(userId), ...profileObj };
         await supabaseClient.from('profiles').upsert([payload], { onConflict: 'id' });
       } catch(e) {}
     }
 
     function cleanAndGetAmericanoHistory() {
-      const historyRaw = localStorage.getItem('padel_americano_history_v2');
+      const historyRaw = safeGetLocalStorage('padel_americano_history_v2');
       if (!historyRaw) return [];
       try {
         const history = JSON.parse(historyRaw);
         const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
         const freshHistory = history.filter(item => new Date(item.timestamp).getTime() > oneWeekAgo);
-        localStorage.setItem('padel_americano_history_v2', JSON.stringify(freshHistory));
+        safeSetLocalStorage('padel_americano_history_v2', JSON.stringify(freshHistory));
         return freshHistory;
       } catch(e) { return []; }
     }
 
     function saveAmericanoToHistory(tournamentData) {
+      const user = getTgUser();
       const history = cleanAndGetAmericanoHistory();
-      history.unshift({ id: 'am_' + Date.now(), creatorId: tgUser?.id, timestamp: new Date().toISOString(), ...tournamentData });
-      localStorage.setItem('padel_americano_history_v2', JSON.stringify(history));
+      history.unshift({ id: 'am_' + Date.now(), creatorId: user?.id, timestamp: new Date().toISOString(), ...tournamentData });
+      safeSetLocalStorage('padel_americano_history_v2', JSON.stringify(history));
     }
 
     function openHistoryTourneyModal(tourneyId) {
@@ -1254,8 +1288,9 @@
       const modal = document.getElementById('modal-onboarding');
       const nameInput = document.getElementById('onboard_name');
       const grid = document.getElementById('onboard_avatar_grid');
+      const user = getTgUser();
       
-      if (nameInput) nameInput.value = `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 'Игрок Padel';
+      if (nameInput) nameInput.value = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Игрок Padel';
 
       if (grid) {
         grid.innerHTML = PIXEL_AVATARS.map(av => `
@@ -1275,13 +1310,14 @@
     }
 
     async function submitOnboardingRegistration() {
-      const nameVal = document.getElementById('onboard_name').value.trim() || tgUser.first_name || 'Игрок';
+      const user = getTgUser();
+      const nameVal = document.getElementById('onboard_name').value.trim() || user.first_name || 'Игрок';
       const skillVal = parseFloat(document.getElementById('onboard_skill').value) || 2.5;
 
       const profilePayload = {
-        id: tgUser.id,
+        id: String(user.id),
         first_name: nameVal,
-        username: tgUser.username || null,
+        username: user.username || null,
         skill_level: skillVal,
         avatar_url: onboardSelectedAvatar,
         league_points: 1000,
@@ -1290,10 +1326,10 @@
         updated_at: new Date().toISOString()
       };
 
-      localStorage.setItem(`padel_avatar_${tgUser.id}`, onboardSelectedAvatar);
-      localStorage.setItem(`padel_onboarded_${tgUser.id}`, 'true');
+      safeSetLocalStorage(`padel_avatar_${user.id}`, onboardSelectedAvatar);
+      safeSetLocalStorage(`padel_onboarded_${user.id}`, 'true');
 
-      await safeUpsertProfile(tgUser.id, profilePayload);
+      await safeUpsertProfile(user.id, profilePayload);
       currentUserProfile = profilePayload;
 
       document.getElementById('modal-onboarding').classList.add('hidden');
@@ -1303,17 +1339,17 @@
     }
 
     async function initApp() {
-      if (!tgUser) return;
+      const user = getTgUser();
       const greetingEl = document.getElementById('user-greeting');
       if (greetingEl) {
-        greetingEl.innerText = sanitizeHTML(`${tgUser.first_name || 'Игрок'} ${tgUser.last_name || ''}`.trim());
+        greetingEl.innerText = sanitizeHTML(`${user.first_name || 'Игрок'} ${user.last_name || ''}`.trim());
       }
       
       try {
         initHeaderPadelAnimation();
       } catch(e) {}
 
-      const savedState = localStorage.getItem(getAmericanoStorageKey());
+      const savedState = safeGetLocalStorage(getAmericanoStorageKey());
       if (savedState) { try { localAmericanoState = JSON.parse(savedState); } catch(e){} }
 
       try {
@@ -1324,7 +1360,7 @@
       } finally {
         setLanguage(currentLang);
 
-        const isOnboarded = localStorage.getItem(`padel_onboarded_${tgUser.id}`);
+        const isOnboarded = safeGetLocalStorage(`padel_onboarded_${user.id}`);
         if (!isOnboarded && (!currentUserProfile || !currentUserProfile.avatar_url)) {
           openOnboardingModal();
         }
@@ -1339,6 +1375,7 @@
     }
 
     async function fetchAllPlatformProfiles(force = false) {
+      const user = getTgUser();
       const now = Date.now();
       if (!force && platformProfilesList.length > 0 && (now - profilesCacheTime < 10000)) {
         return;
@@ -1355,7 +1392,7 @@
             platformProfilesList = data.filter(isValidRealUser);
             profilesCacheTime = now;
 
-            const myDbProfile = platformProfilesList.find(p => String(p.id) === String(tgUser?.id));
+            const myDbProfile = platformProfilesList.find(p => String(p.id) === String(user?.id));
             if (myDbProfile) {
               currentUserProfile = myDbProfile;
             }
@@ -1387,12 +1424,13 @@
     }
 
     async function syncUserProfile() {
-      if (!tgUser) return;
-      const savedAvatar = localStorage.getItem(`padel_avatar_${tgUser.id}`) || PIXEL_AVATARS[0].url;
+      const user = getTgUser();
+      if (!user) return;
+      const savedAvatar = safeGetLocalStorage(`padel_avatar_${user.id}`) || PIXEL_AVATARS[0].url;
 
       if (supabaseClient) {
         try {
-          const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
+          const { data } = await supabaseClient.from('profiles').select('*').eq('id', String(user.id)).maybeSingle();
           if (data) {
             currentUserProfile = data;
             if (!currentUserProfile.avatar_url && savedAvatar) {
@@ -1404,10 +1442,10 @@
       }
 
       const newProf = {
-        id: tgUser.id,
-        first_name: tgUser.first_name || 'Игрок',
-        last_name: tgUser.last_name || null,
-        username: tgUser.username || null,
+        id: String(user.id),
+        first_name: user.first_name || 'Игрок',
+        last_name: user.last_name || null,
+        username: user.username || null,
         avatar_url: savedAvatar,
         skill_level: 2.5,
         league_points: 1000,
@@ -1444,9 +1482,10 @@
     }
 
     async function getUserActiveMatchId() {
-      if (!supabaseClient || !tgUser) return null;
+      const user = getTgUser();
+      if (!supabaseClient || !user) return null;
       try {
-        const uidStr = String(tgUser.id);
+        const uidStr = String(user.id);
         const { data: playerRows } = await supabaseClient
           .from('match_players')
           .select('match_id, matches(*)')
@@ -1513,6 +1552,7 @@
 
     async function renderPublicMatchesFeed(container) {
       if (!container) container = document.getElementById('main-content');
+      const user = getTgUser();
       
       container.innerHTML = `
         ${renderSlotsSubTabHeader()}
@@ -1547,7 +1587,7 @@
           const isFull = spotsLeft === 0;
 
           const dateStr = new Date(m.scheduled_at).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-          const isUserJoined = players.some(p => String(p.user_id) === String(tgUser?.id));
+          const isUserJoined = players.some(p => String(p.user_id) === String(user?.id));
 
           const hostPlayer = players.find(p => String(p.user_id) === String(m.creator_id)) || players[0];
           const hostName = sanitizeHTML(hostPlayer?.profiles?.first_name || 'Игрок');
@@ -1618,7 +1658,8 @@
 
     async function quickJoinMatchFromFeed(matchId) {
       try {
-        await ensureProfileInDatabase(currentUserProfile || tgUser);
+        const user = getTgUser();
+        await ensureProfileInDatabase(currentUserProfile || user);
         let match = null, players = [];
         if (supabaseClient) {
           const { data: mData } = await supabaseClient.from('matches').select('*').eq('id', matchId).maybeSingle();
@@ -1632,7 +1673,7 @@
           return;
         }
 
-        const isUserJoined = players.some(p => String(p.user_id) === String(tgUser?.id));
+        const isUserJoined = players.some(p => String(p.user_id) === String(user?.id));
         if (isUserJoined) {
           currentSlotSubTab = 'my_slot';
           renderSlotsSubTabContent();
@@ -1727,11 +1768,12 @@
       if (btn) btn.disabled = true;
 
       try {
-        await ensureProfileInDatabase(currentUserProfile || tgUser);
+        const user = getTgUser();
+        await ensureProfileInDatabase(currentUserProfile || user);
         const isPublicValue = document.getElementById('is_public').value === 'true';
 
         let baseMatchData = {
-          creator_id: tgUser.id,
+          creator_id: String(user.id),
           custom_location: document.getElementById('custom_location').value,
           max_players: parseInt(document.getElementById('max_players').value),
           match_type: document.getElementById('match_type').value,
@@ -1752,7 +1794,7 @@
           match = data;
         }
 
-        await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: tgUser.id, slot_number: 1 }]);
+        await supabaseClient.from('match_players').insert([{ match_id: match.id, user_id: String(user.id), slot_number: 1 }]);
         
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
@@ -1824,17 +1866,22 @@
     }
 
     function getLocalChatMessages(matchId) {
-      try { return JSON.parse(localStorage.getItem(`padel_chat_msgs_${matchId}`) || '[]'); } catch(e) { return []; }
+      try { 
+        return JSON.parse(safeGetLocalStorage(`padel_chat_msgs_${matchId}`) || '[]'); 
+      } catch(e) { 
+        return []; 
+      }
     }
 
     function saveLocalChatMessage(matchId, msg) {
       const list = getLocalChatMessages(matchId);
       list.push(msg);
-      localStorage.setItem(`padel_chat_msgs_${matchId}`, JSON.stringify(list));
+      safeSetLocalStorage(`padel_chat_msgs_${matchId}`, JSON.stringify(list));
     }
 
     let activeChatSubscription = null;
     function setupChatRealtime(matchId) {
+      const user = getTgUser();
       if (!supabaseClient) return;
       if (activeChatSubscription) {
         try { supabaseClient.removeChannel(activeChatSubscription); } catch(e){}
@@ -1842,7 +1889,7 @@
       activeChatSubscription = supabaseClient
         .channel(`public:match_messages:match_id=eq.${matchId}`)
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'match_messages', filter: `match_id=eq.${matchId}` }, payload => {
-          if (String(payload.new.user_id) !== String(tgUser?.id)) {
+          if (String(payload.new.user_id) !== String(user?.id)) {
             appendChatMessageUI(payload.new);
           }
         })
@@ -1852,11 +1899,12 @@
     function appendChatMessageUI(m) {
       const chatBox = document.getElementById('chat-box');
       if (!chatBox) return;
+      const user = getTgUser();
       
       const emptyMsg = chatBox.querySelector('p');
       if (emptyMsg) emptyMsg.remove();
 
-      const isMe = String(m.user_id) === String(tgUser?.id);
+      const isMe = String(m.user_id) === String(user?.id);
       const msgEl = document.createElement('div');
       msgEl.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-0.5`;
       msgEl.innerHTML = `
@@ -1874,6 +1922,7 @@
 
     async function renderMatchDetails(matchId) {
       const container = document.getElementById('main-content');
+      const user = getTgUser();
       
       container.innerHTML = `
         ${renderSlotsSubTabHeader()}
@@ -1893,8 +1942,8 @@
         const { data: rawPlayers } = await supabaseClient.from('match_players').select('*, profiles(*)').eq('match_id', matchId);
         const players = rawPlayers || [];
 
-        const isJoined = players.some(p => String(p.user_id) === String(tgUser?.id));
-        const isMatchCreator = String(match.creator_id) === String(tgUser?.id) || isUserCreator();
+        const isJoined = players.some(p => String(p.user_id) === String(user?.id));
+        const isMatchCreator = String(match.creator_id) === String(user?.id) || isUserCreator();
         const isRegClosed = match.is_registration_closed === true;
 
         const dateStr = new Date(match.scheduled_at).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -1907,9 +1956,9 @@
         for (let i = 1; i <= displayLimit; i++) {
           const p = players.find(item => item.slot_number === i || (!item.slot_number && players.indexOf(item) === i - 1));
           if (p) {
-            const name = sanitizeHTML(p.profiles?.first_name || (String(p.user_id) === String(tgUser?.id) ? tgUser?.first_name : 'Player'));
+            const name = sanitizeHTML(p.profiles?.first_name || (String(p.user_id) === String(user?.id) ? user?.first_name : 'Player'));
             const isCreatorOfThisSlot = String(p.user_id) === String(match.creator_id);
-            const isSelf = String(p.user_id) === String(tgUser?.id);
+            const isSelf = String(p.user_id) === String(user?.id);
             const avatarHtml = renderPlayerAvatarHtml(p.profiles || { first_name: name, id: p.user_id }, "w-7 h-7");
 
             let actionBtnHtml = '';
@@ -1965,7 +2014,7 @@
         }
 
         let chatHtml = messagesList.map(m => {
-          const isMe = String(m.user_id) === String(tgUser?.id);
+          const isMe = String(m.user_id) === String(user?.id);
           return `
             <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-0.5">
               <div class="max-w-[85%] p-2.5 rounded-2xl text-xs space-y-1 ${isMe ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-none shadow-md' : 'glass-subcard text-slate-200 border border-white/10 rounded-bl-none'}">
@@ -2096,7 +2145,7 @@
     async function kickPlayer(matchId, userId, playerName = "игрока") {
       if (!confirm(`Вы действительно хотите исключить ${playerName}?`)) return;
       try {
-        await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', userId);
+        await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', String(userId));
         renderMatchDetails(matchId);
       } catch(e) {}
     }
@@ -2115,11 +2164,12 @@
       if (!input) return;
       const text = input.value.trim();
       if (!text) return;
+      const user = getTgUser();
 
       const newMsg = {
         match_id: matchId,
-        user_id: tgUser.id,
-        sender_name: `${tgUser.first_name || 'Игрок'} ${tgUser.last_name || ''}`.trim(),
+        user_id: String(user.id),
+        sender_name: `${user.first_name || 'Игрок'} ${user.last_name || ''}`.trim(),
         message_text: text,
         created_at: new Date().toISOString()
       };
@@ -2135,6 +2185,7 @@
 
     function renderGlobalAmericanoLeaderboardSection() {
       let leaderboardList = platformProfilesList.filter(isValidRealUser);
+      const user = getTgUser();
 
       if (currentUserProfile && isValidRealUser(currentUserProfile)) {
         if (!leaderboardList.some(p => String(p.id) === String(currentUserProfile.id))) {
@@ -2170,7 +2221,7 @@
         else if (index === 1) { rowBg = "lb-podium-2"; rankBadge = `<span class="text-xl w-6 text-center shrink-0">🥈</span>`; }
         else if (index === 2) { rowBg = "lb-podium-3"; rankBadge = `<span class="text-xl w-6 text-center shrink-0">🥉</span>`; }
 
-        const isCurrentUser = String(item.id) === String(tgUser?.id);
+        const isCurrentUser = String(item.id) === String(user?.id);
 
         return `
           <div onclick="openViewPlayerModalById('${item.id}')" class="${rowBg} ${isCurrentUser ? 'border-2 border-emerald-400/80 shadow-lg shadow-emerald-500/20' : ''} p-3 rounded-2xl flex justify-between items-center cursor-pointer hover:scale-[1.01] transition-all btn-3d">
@@ -2217,7 +2268,7 @@
       const container = document.getElementById('main-content');
       await fetchAllPlatformProfiles();
 
-      const savedState = localStorage.getItem(getAmericanoStorageKey());
+      const savedState = safeGetLocalStorage(getAmericanoStorageKey());
       if (savedState) {
         try { localAmericanoState = JSON.parse(savedState); } catch(e){ localAmericanoState = null; }
       } else { localAmericanoState = null; }
@@ -2335,6 +2386,7 @@
       const count = currentAmericanoPlayerCount;
       const container = document.getElementById('names-container');
       if (!container) return;
+      const user = getTgUser();
 
       const existingData = [];
       for (let i = 1; i <= 8; i++) {
@@ -2353,7 +2405,7 @@
 
       for (let i = 1; i <= count; i++) {
         const saved = existingData[i - 1];
-        const defaultName = saved ? saved.nameVal : ((i === 1 && tgUser) ? `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : `Player ${i}`);
+        const defaultName = saved ? saved.nameVal : ((i === 1 && user) ? `${user.first_name} ${user.last_name || ''}`.trim() : `Player ${i}`);
 
         html += `
           <div class="p-2.5 glass-subcard rounded-2xl space-y-1.5 border border-white/10">
@@ -2377,7 +2429,7 @@
         const saved = existingData[i - 1];
         const sel = document.getElementById(`player_select_${i}`);
         if (sel) {
-          sel.value = saved ? saved.selectVal : (i === 1 && currentUserProfile && isValidRealUser(currentUserProfile) ? tgUser.id : 'custom');
+          sel.value = saved ? saved.selectVal : (i === 1 && currentUserProfile && isValidRealUser(currentUserProfile) ? user.id : 'custom');
           onPlayerSelectChange(i);
         }
       }
@@ -2484,14 +2536,14 @@
       }
 
       localAmericanoState = { players, rounds, cycles, isRecorded: false };
-      localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
+      safeSetLocalStorage(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
       renderQuickAmericano();
     }
 
     function confirmCancelAmericano() {
       if (confirm(t('confirmCancelMsg'))) {
         localAmericanoState = null;
-        localStorage.removeItem(getAmericanoStorageKey());
+        try { localStorage.removeItem(getAmericanoStorageKey()); } catch(e){}
         renderQuickAmericano();
       }
     }
@@ -2638,7 +2690,7 @@
       const r = localAmericanoState.rounds.find(item => item.id === roundId);
       if (r) {
         r.score_a = sa; r.score_b = sb; r.completed = true;
-        localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
+        safeSetLocalStorage(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
         renderQuickAmericano();
       }
     }
@@ -2697,12 +2749,12 @@
         if (item.userId && isValidRealUser({ id: item.userId })) {
           if (supabaseClient) {
             try {
-              await ensureProfileInDatabase({ id: item.userId, first_name: item.name });
+              await ensureProfileInDatabase({ id: String(item.userId), first_name: item.name });
 
               const { data: dbProf } = await supabaseClient
                 .from('profiles')
                 .select('league_points, wins, losses, draws, total_matches_played')
-                .eq('id', item.userId)
+                .eq('id', String(item.userId))
                 .maybeSingle();
 
               const existingLP = dbProf && typeof dbProf.league_points === 'number' ? dbProf.league_points : 1000;
@@ -2744,7 +2796,7 @@
       });
 
       localAmericanoState.isRecorded = true;
-      localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
+      safeSetLocalStorage(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
 
       alert('Результаты турнира успешно суммированы с прошлыми очками в Едином Рейтинге!');
       await fetchAllPlatformProfiles(true);
@@ -2950,7 +3002,7 @@
     function selectPixelAvatar(avatarUrl) {
       if (!currentUserProfile) return;
       currentUserProfile.avatar_url = avatarUrl;
-      localStorage.setItem(`padel_avatar_${currentUserProfile.id}`, avatarUrl);
+      safeSetLocalStorage(`padel_avatar_${currentUserProfile.id}`, avatarUrl);
       safeUpsertProfile(currentUserProfile.id, { avatar_url: avatarUrl, updated_at: new Date().toISOString() });
       renderProfileTab();
     }
@@ -2958,10 +3010,11 @@
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
       await fetchAllPlatformProfiles(true);
+      const user = getTgUser();
 
       const p = currentUserProfile || {
-        first_name: tgUser?.first_name || 'Игрок',
-        last_name: tgUser?.last_name || '',
+        first_name: user?.first_name || 'Игрок',
+        last_name: user?.last_name || '',
         skill_level: 2.5, league_points: 1000, total_matches_played: 0, wins: 0, losses: 0, draws: 0
       };
 
@@ -3136,6 +3189,7 @@
 
     async function handleSaveProfileDetails(e) {
       e.preventDefault();
+      const user = getTgUser();
       try {
         const payload = {
           birth_date: document.getElementById('edit_birth_date').value || null,
@@ -3146,7 +3200,7 @@
         };
 
         if (currentUserProfile) Object.assign(currentUserProfile, payload);
-        await safeUpsertProfile(tgUser.id, payload);
+        await safeUpsertProfile(user.id, payload);
 
         isProfileEditOpen = false;
         alert('Данные профиля обновлены!');
@@ -3156,13 +3210,20 @@
 
     async function joinMatch(matchId, slotNumber) {
       try {
-        await ensureProfileInDatabase(currentUserProfile || tgUser);
-        const uid = tgUser.id;
+        const user = getTgUser();
+        const targetUserObj = currentUserProfile || user;
+        
+        const profileCreated = await ensureProfileInDatabase(targetUserObj);
+        if (!profileCreated) {
+          throw new Error("Не удалось инициализировать профиль в базе.");
+        }
+
+        const uidStr = String(user.id);
 
         if (supabaseClient) {
           let { error } = await supabaseClient.from('match_players').insert([{
             match_id: matchId,
-            user_id: uid,
+            user_id: uidStr,
             slot_number: slotNumber
           }]);
           if (error) throw error;
@@ -3172,17 +3233,19 @@
         currentSlotSubTab = 'my_slot';
         renderSlotsSubTabContent();
       } catch (err) {
-        if (tg?.showAlert) tg.showAlert('Не удалось занять слот.');
-        else alert('Не удалось занять слот.');
+        console.error("Join match error:", err);
+        if (tg?.showAlert) tg.showAlert('Не удалось занять слот. Попробуйте еще раз.');
+        else alert('Не удалось занять слот. Попробуйте еще раз.');
       }
     }
 
     async function leaveMatch(matchId) {
       if (!confirm('Вы действительно хотите покинуть этот слот?')) return;
+      const user = getTgUser();
 
       try {
-        if (supabaseClient && tgUser?.id) {
-          const uidStr = String(tgUser.id);
+        if (supabaseClient && user?.id) {
+          const uidStr = String(user.id);
           await supabaseClient
             .from('match_players')
             .delete()
