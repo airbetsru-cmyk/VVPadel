@@ -113,7 +113,7 @@
       100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
     }
 
-    /* НОВАЯ АНИМАЦИЯ ДЛЯ ТЕКСТА VVPADEL */
+    /* НЕОНОВАЯ АНИМАЦИЯ ДЛЯ ТЕКСТА VVPADEL */
     @keyframes vvpadelNeonFlow {
       0% {
         background-position: 0% 50%;
@@ -133,7 +133,7 @@
       display: inline-block;
       font-weight: 900;
       font-style: italic;
-      font-size: clamp(1.25rem, 5.5vw, 1.8rem);
+      font-size: clamp(1.4rem, 6vw, 1.9rem);
       letter-spacing: 0.02em;
       background: linear-gradient(115deg, #ffffff 0%, #6ee7b7 25%, #ccff00 55%, #34d399 80%, #ffffff 100%);
       background-size: 220% auto;
@@ -144,8 +144,8 @@
       animation: vvpadelNeonFlow 3s linear infinite;
       white-space: nowrap !important;
       overflow: visible !important;
-      padding-right: 10px;
-      line-height: 1.2;
+      padding-right: 8px;
+      line-height: 1.1;
     }
 
     .toast-pop { animation: popInOut 2.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -175,44 +175,45 @@
   <div class="bg-overlay p-3 sm:p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <!-- ВЕРХНИЙ БЛОК: Увеличен по высоте, заголовок защищен от сжатия -->
-      <div class="carbon-padel-card p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl border-2 border-emerald-500/50 min-h-[160px] flex flex-col justify-between">
-        <div class="flex items-center justify-between gap-2">
-          
-          <div class="flex items-center gap-3 shrink-0 min-w-0">
-            <div onclick="openPadelGameModal()" class="w-16 h-16 sm:w-18 sm:h-18 shrink-0 rounded-2xl bg-slate-950/90 border-2 border-emerald-400/80 flex items-center justify-center p-0.5 shadow-xl shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
-              <canvas id="header-padel-canvas" style="width: 64px; height: 64px;"></canvas>
-              <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span class="text-[9px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1.5 py-0.5 rounded shadow">GAME</span>
-              </div>
-            </div>
-
-            <div class="flex flex-col justify-center shrink-0">
-              <h1 class="vvpadel-title-v3 uppercase">
-                VVPadel
-              </h1>
-              <p id="user-greeting" class="text-xs text-slate-300 font-bold truncate mt-0.5 max-w-[130px] sm:max-w-none">Загрузка...</p>
-            </div>
+      <!-- ВЕРХНИЙ БЛОК: Трёхуровневая компоновка без выходов за границы -->
+      <div class="carbon-padel-card p-4 sm:p-5 rounded-3xl space-y-3.5 shadow-2xl border-2 border-emerald-500/50">
+        
+        <!-- УРОВЕНЬ 1: Кнопки управления (Языки + Сервис) -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-2.5 gap-2">
+          <div class="flex items-center gap-0.5 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold">
+            <button type="button" onclick="setLanguage('ru')" id="lang-ru" class="px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
+            <button type="button" onclick="setLanguage('ro')" id="lang-ro" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
+            <button type="button" onclick="setLanguage('en')" id="lang-en" class="px-2 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
           </div>
-          
-          <div class="flex flex-col items-end gap-1.5 shrink-0">
-            <div class="flex items-center gap-0.5 glass-subcard p-1 rounded-xl border border-white/10 text-[10px] font-bold">
-              <button type="button" onclick="setLanguage('ru')" id="lang-ru" class="px-1.5 py-0.5 rounded-lg text-emerald-400 bg-white/10">RU</button>
-              <button type="button" onclick="setLanguage('ro')" id="lang-ro" class="px-1.5 py-0.5 rounded-lg text-slate-400 hover:text-white">RO</button>
-              <button type="button" onclick="setLanguage('en')" id="lang-en" class="px-1.5 py-0.5 rounded-lg text-slate-400 hover:text-white">EN</button>
-            </div>
 
-            <div class="flex items-center gap-1">
-              <button type="button" onclick="openSupportModal()" class="px-2 py-1 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
-                🛠️ <span id="txt-btn-support">Инфо</span>
-              </button>
-              <button type="button" onclick="openCreatorModal()" class="px-2 py-1 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
-                👨‍💻 <span id="txt-btn-creator">Автор</span>
-              </button>
-            </div>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="openSupportModal()" class="px-2.5 py-1 bg-amber-500/20 border border-amber-500/40 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
+              🛠️ <span id="txt-btn-support">Инфо</span>
+            </button>
+            <button type="button" onclick="openCreatorModal()" class="px-2.5 py-1 bg-cyan-500/20 border border-cyan-500/40 hover:bg-cyan-500/30 text-cyan-300 font-bold text-[10px] rounded-lg btn-3d flex items-center gap-1">
+              👨‍💻 <span id="txt-btn-creator">Автор</span>
+            </button>
           </div>
         </div>
 
+        <!-- УРОВЕНЬ 2: Логотип + Заголовок VVPadel + Приветствие -->
+        <div class="flex items-center gap-3 py-0.5 min-w-0">
+          <div onclick="openPadelGameModal()" class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-2xl bg-slate-950/90 border-2 border-emerald-400/80 flex items-center justify-center p-0.5 shadow-xl shadow-emerald-500/30 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
+            <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
+            <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <span class="text-[8px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1 py-0.5 rounded shadow">GAME</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col justify-center min-w-0">
+            <h1 class="vvpadel-title-v3 uppercase">
+              VVPadel
+            </h1>
+            <p id="user-greeting" class="text-xs text-slate-300 font-bold truncate mt-0.5">Загрузка...</p>
+          </div>
+        </div>
+
+        <!-- УРОВЕНЬ 3: Главные Навигационные Табы -->
         <div class="grid grid-cols-3 gap-1 glass-subcard p-1.5 rounded-2xl border border-white/10">
           <button type="button" id="tab-booking" onclick="switchTab('booking')" class="py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs uppercase tracking-wider neon-glow-emerald btn-3d truncate">
             🎾 <span id="txt-tab-booking">Слоты</span>
@@ -224,6 +225,7 @@
             👤 <span id="txt-tab-profile">Профиль</span>
           </button>
         </div>
+
       </div>
 
       <div id="error-box" class="hidden bg-rose-500/20 border border-rose-500/40 text-rose-200 p-3.5 rounded-2xl text-xs font-mono break-all backdrop-blur-md"></div>
@@ -533,12 +535,12 @@
       const ctx = cvs.getContext('2d');
 
       const dpr = window.devicePixelRatio || 1;
-      const size = 64;
+      const size = 56;
       cvs.width = size * dpr; cvs.height = size * dpr;
       ctx.scale(dpr, dpr);
 
-      let ball = { x: 32, y: 11, vx: 0.2, vy: 0, r: 4.5, squashX: 1, squashY: 1 };
-      let racket = { x: 32, y: 46, targetY: 46, angle: 0, targetAngle: 0, hitFlash: 0 };
+      let ball = { x: 28, y: 10, vx: 0.2, vy: 0, r: 4, squashX: 1, squashY: 1 };
+      let racket = { x: 28, y: 40, targetY: 40, angle: 0, targetAngle: 0, hitFlash: 0 };
 
       function animate() {
         if (document.hidden) {
@@ -549,34 +551,34 @@
         ctx.clearRect(0, 0, size, size);
         ball.vy += 0.18; ball.x += ball.vx; ball.y += ball.vy;
 
-        if (ball.x < 11) { ball.x = 11; ball.vx = Math.abs(ball.vx); }
-        if (ball.x > 53) { ball.x = 53; ball.vx = -Math.abs(ball.vx); }
+        if (ball.x < 10) { ball.x = 10; ball.vx = Math.abs(ball.vx); }
+        if (ball.x > 46) { ball.x = 46; ball.vx = -Math.abs(ball.vx); }
 
         racket.y += (racket.targetY - racket.y) * 0.2;
-        racket.targetY += (46 - racket.targetY) * 0.15;
+        racket.targetY += (40 - racket.targetY) * 0.15;
         racket.angle += (racket.targetAngle - racket.angle) * 0.2;
         racket.targetAngle += (0 - racket.targetAngle) * 0.15;
 
-        const hitZoneY = racket.y - 11;
-        if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 7 && Math.abs(ball.x - racket.x) < 16) {
+        const hitZoneY = racket.y - 10;
+        if (ball.vy > 0 && ball.y + ball.r >= hitZoneY && ball.y - ball.r <= hitZoneY + 6 && Math.abs(ball.x - racket.x) < 14) {
           ball.y = hitZoneY - ball.r;
-          ball.vy = -(3.4 + Math.random() * 0.5);
+          ball.vy = -(3.2 + Math.random() * 0.5);
           ball.vx = (ball.x - racket.x) * 0.08;
           ball.squashX = 1.3; ball.squashY = 0.7;
-          racket.targetY = 50;
+          racket.targetY = 44;
         }
 
         ball.squashX += (1 - ball.squashX) * 0.15;
         ball.squashY += (1 - ball.squashY) * 0.15;
 
-        if (ball.y > size + 11) { ball.x = 32; ball.y = 9; ball.vx = 0; ball.vy = 0; }
+        if (ball.y > size + 10) { ball.x = 28; ball.y = 8; ball.vx = 0; ball.vy = 0; }
 
         ctx.save();
         ctx.translate(racket.x, racket.y);
         ctx.rotate(racket.angle);
-        ctx.fillStyle = '#1e293b'; ctx.fillRect(-2.5, 7, 5, 11);
-        ctx.beginPath(); ctx.ellipse(0, -4, 12, 14, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#0f172a'; ctx.fill(); ctx.strokeStyle = '#10b981'; ctx.lineWidth = 1.8; ctx.stroke();
+        ctx.fillStyle = '#1e293b'; ctx.fillRect(-2, 6, 4, 10);
+        ctx.beginPath(); ctx.ellipse(0, -4, 10, 12, 0, 0, Math.PI * 2);
+        ctx.fillStyle = '#0f172a'; ctx.fill(); ctx.strokeStyle = '#10b981'; ctx.lineWidth = 1.6; ctx.stroke();
         ctx.restore();
 
         ctx.save();
@@ -864,7 +866,7 @@
     const TRANSLATIONS = {
       ru: {
         tabBooking: "Слоты", tabAmericano: "Американо", tabProfile: "Профиль",
-        btnSupport: "Поддержка", btnCreator: "Автор", createGame: "Создать новую игру",
+        btnSupport: "Инфо", btnCreator: "Автор", createGame: "Создать новую игру",
         location: "Локация / Корт", maxPlayers: "Мест", format: "Формат", dateTime: "Дата и время",
         price: "Цена с игрока (MDL)", notes: "Заметки / Пожелания", generateLink: "Сформировать игру",
         joinSlot: "Занять слот", leaveGame: "Покинуть игру", copyLink: "📋 Скопировать ссылку на игру",
@@ -898,7 +900,7 @@
       },
       ro: {
         tabBooking: "Sloturi", tabAmericano: "Americano", tabProfile: "Profil",
-        btnSupport: "Suport", btnCreator: "Autor", createGame: "Creează joc nou",
+        btnSupport: "Info", btnCreator: "Autor", createGame: "Creează joc nou",
         location: "Locație / Teren", maxPlayers: "Locuri", format: "Format", dateTime: "Data și ora",
         price: "Preț per jucător (MDL)", notes: "Note / Detalii", generateLink: "Creează jocul",
         joinSlot: "Ocupă un loc", leaveGame: "Părăsește jocul", copyLink: "📋 Copiază link-ul",
@@ -932,7 +934,7 @@
       },
       en: {
         tabBooking: "Slots", tabAmericano: "Americano", tabProfile: "Profile",
-        btnSupport: "Support", btnCreator: "Creator", createGame: "Create New Game",
+        btnSupport: "Info", btnCreator: "Creator", createGame: "Create New Game",
         location: "Location / Court", maxPlayers: "Slots", format: "Format", dateTime: "Date & Time",
         price: "Price per player (MDL)", notes: "Notes / Details", generateLink: "Create Game",
         joinSlot: "Take Slot", leaveGame: "Leave Game", copyLink: "📋 Copy Link",
@@ -977,7 +979,7 @@
 
       ['ru', 'ro', 'en'].forEach(l => {
         const btn = document.getElementById(`lang-${l}`);
-        if (btn) btn.className = l === lang ? "px-1.5 py-0.5 rounded-lg text-emerald-400 bg-white/10 font-bold" : "px-1.5 py-0.5 rounded-lg text-slate-400 hover:text-white";
+        if (btn) btn.className = l === lang ? "px-2 py-0.5 rounded-lg text-emerald-400 bg-white/10 font-bold" : "px-2 py-0.5 rounded-lg text-slate-400 hover:text-white";
       });
 
       document.getElementById('txt-tab-booking').innerText = t('tabBooking');
