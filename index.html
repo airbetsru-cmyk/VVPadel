@@ -174,7 +174,7 @@
   <div class="bg-overlay p-3 sm:p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <!-- ВЕРХНИЙ БЛОК: Трёхуровневая компоновка -->
+      <!-- ВЕРХНИЙ БЛОК -->
       <div class="carbon-padel-card p-4 sm:p-5 rounded-3xl space-y-3.5 shadow-2xl border-2 border-emerald-500/50">
         
         <!-- УРОВЕНЬ 1: Сервисная панель -->
@@ -524,17 +524,11 @@
     }
 
     function safeGetLocalStorage(key) {
-      try {
-        return localStorage.getItem(key);
-      } catch (e) {
-        return null;
-      }
+      try { return localStorage.getItem(key); } catch (e) { return null; }
     }
 
     function safeSetLocalStorage(key, value) {
-      try {
-        localStorage.setItem(key, value);
-      } catch (e) {}
+      try { localStorage.setItem(key, value); } catch (e) {}
     }
 
     function renderPlayerAvatarHtml(p, sizeClass = "w-10 h-10") {
@@ -952,7 +946,7 @@
         matchesAndScoreTitle: "Meciuri și Scor", placeLabel: "locul", place1: "🥇 LOCUL 1", place2: "🥈 LOCUL 2",
         place3: "🥉 LOCUL 3", matchRoundLabel: "Runda", matchGameLabel: "Jocul", courtLabel: "Teren",
         completedStatus: "Finalizat", pendingStatus: "În așteptare", okBtn: "OK", viewTourneyDetails: "Vezi meciurile",
-        tourneyMatchesTitle: "Meciurile turneului", pricePerPlayerLabel: "Preț per jucător (MDL)", deleteSlotBtn: "🗑️️ Șterge slotul",
+        tourneyMatchesTitle: "Meciurile turneului", pricePerPlayerLabel: "Preț per jucător (MDL)", deleteSlotBtn: "🗑 Șterge slotul",
         subTabFeed: "🔥 Jocuri Deschise", subTabMySlot: "🎾 Slotul Meu", subTabCreate: "➕ Creează Slot",
         accessTypeLabel: "Tip Acces", publicAccessOption: "🌐 Public (vizibil tuturor)", privateAccessOption: "🔒 Privat (doar prin link)",
         noPublicSlotsMsg: "Nu există meciuri publice deschise în acest moment.",
@@ -2548,6 +2542,7 @@
       }
     }
 
+    /* ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТОБРАЖЕНИЯ МАТЧЕЙ В АМЕРИКАНО */
     function renderQuickAmericanoBoard(container) {
       const { players, rounds, cycles } = localAmericanoState;
       const leaderboard = players.map(p => ({ ...p, points: 0, matches: 0, wins: 0, losses: 0, draws: 0 }));
@@ -2612,25 +2607,38 @@
         const pB2 = sanitizeHTML(players[r.team_b[1]]?.name || '—');
 
         return `
-          <div class="p-3 border border-white/10 rounded-2xl glass-subcard space-y-2 text-xs">
-            <div class="flex justify-between items-center text-slate-300 font-semibold">
-              <span>${t('matchRoundLabel')} ${r.cycle} • ${t('matchGameLabel')} #${r.round}</span>
-              ${r.completed ? `<span class="text-emerald-400 font-black">${t('completedStatus')}</span>` : `<span class="text-amber-400 font-semibold">${t('pendingStatus')}</span>`}
+          <div class="p-3.5 border border-purple-500/30 rounded-2xl glass-subcard space-y-2.5 text-xs">
+            <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 border-b border-white/5 pb-1.5">
+              <span class="text-purple-300 font-extrabold">${t('matchRoundLabel')} ${r.cycle} • ${t('matchGameLabel')} #${r.round} (Корт #${r.court || 1})</span>
+              ${r.completed ? `<span class="text-emerald-400 font-black px-2 py-0.5 bg-emerald-500/10 rounded-full border border-emerald-500/30">${t('completedStatus')}</span>` : `<span class="text-amber-400 font-semibold px-2 py-0.5 bg-amber-500/10 rounded-full border border-amber-500/30">${t('pendingStatus')}</span>`}
             </div>
-            <div class="flex items-center justify-between gap-1">
-              <div class="flex-1 text-center font-bold text-white text-[11px] truncate">${pA1} / ${pA2}</div>
-              
-              <div class="flex items-center gap-1 shrink-0">
-                <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-9 text-center p-1 border border-slate-700 rounded-xl font-black glass-subcard text-white text-xs focus:border-purple-500">
-                <span class="font-black text-slate-500">:</span>
-                <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-9 text-center p-1 border border-slate-700 rounded-xl font-black glass-subcard text-white text-xs focus:border-purple-500">
-                
-                <button type="button" onclick="saveQuickScore(${r.id})" class="ml-0.5 px-2 py-1 bg-purple-600 text-white rounded-lg font-black text-xs hover:bg-purple-500 btn-3d">
+
+            <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+              <!-- Команда A -->
+              <div class="p-2.5 glass-subcard rounded-xl border border-amber-500/20 bg-amber-500/5 text-left space-y-1 min-w-0">
+                <div class="text-[9px] font-black text-amber-400 uppercase tracking-wider">Команда A</div>
+                <div class="font-extrabold text-white text-xs leading-snug break-words">${pA1}</div>
+                <div class="font-extrabold text-white text-xs leading-snug break-words">${pA2}</div>
+              </div>
+
+              <!-- Счёт и Кнопка сохранения -->
+              <div class="flex flex-col items-center gap-1.5 shrink-0 px-1">
+                <div class="flex items-center gap-1">
+                  <input type="number" id="quick_score_a_${r.id}" value="${r.score_a || ''}" placeholder="0" class="w-10 h-9 text-center border border-slate-700 rounded-xl font-black glass-subcard text-white text-xs focus:border-purple-500 focus:outline-none">
+                  <span class="font-black text-slate-400 text-sm">:</span>
+                  <input type="number" id="quick_score_b_${r.id}" value="${r.score_b || ''}" placeholder="0" class="w-10 h-9 text-center border border-slate-700 rounded-xl font-black glass-subcard text-white text-xs focus:border-purple-500 focus:outline-none">
+                </div>
+                <button type="button" onclick="saveQuickScore(${r.id})" class="w-full py-1 px-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-black text-[10px] uppercase tracking-wider btn-3d shadow-md">
                   ${t('okBtn')}
                 </button>
               </div>
 
-              <div class="flex-1 text-center font-bold text-white text-[11px] truncate">${pB1} / ${pB2}</div>
+              <!-- Команда B -->
+              <div class="p-2.5 glass-subcard rounded-xl border border-cyan-500/20 bg-cyan-500/5 text-right space-y-1 min-w-0">
+                <div class="text-[9px] font-black text-cyan-400 uppercase tracking-wider">Команда B</div>
+                <div class="font-extrabold text-white text-xs leading-snug break-words">${pB1}</div>
+                <div class="font-extrabold text-white text-xs leading-snug break-words">${pB2}</div>
+              </div>
             </div>
           </div>
         `;
