@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VVPadel - Ranking, Slots & Motion Game</title>
+  <title>VVPadel - Moldova Ranking, Slots & Motion Game</title>
   
   <!-- Telegram Web App SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -113,6 +113,29 @@
       100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
     }
 
+    @keyframes vvpadelShine {
+      0% {
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.4));
+      }
+      50% {
+        background-position: 100% 50%;
+        filter: drop-shadow(0 0 14px rgba(204, 255, 0, 0.75));
+      }
+      100% {
+        background-position: 0% 50%;
+        filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.4));
+      }
+    }
+
+    .vvpadel-title-animated {
+      background: linear-gradient(120deg, #ffffff 0%, #34d399 35%, #ccff00 70%, #ffffff 100%);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: vvpadelShine 3.5s ease-in-out infinite;
+    }
+
     .toast-pop { animation: popInOut 2.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     .neon-glow-emerald { box-shadow: 0 0 18px rgba(16, 185, 129, 0.4); }
     .neon-glow-purple { box-shadow: 0 0 18px rgba(139, 92, 246, 0.4); }
@@ -140,20 +163,22 @@
   <div class="bg-overlay p-3 sm:p-4 pb-16 relative z-10">
     <div id="app" class="max-w-md mx-auto space-y-4">
       
-      <div class="carbon-padel-card p-4 rounded-3xl space-y-3 shadow-2xl">
-        <div class="flex items-center justify-between gap-2">
+      <div class="carbon-padel-card p-5 sm:p-6 rounded-3xl space-y-4 shadow-2xl border-2 border-emerald-500/40">
+        <div class="flex items-center justify-between gap-3">
           
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div onclick="openPadelGameModal()" class="w-13 h-13 shrink-0 rounded-2xl bg-slate-950/90 border border-emerald-500/50 flex items-center justify-center p-0.5 shadow-lg shadow-emerald-500/20 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
-              <canvas id="header-padel-canvas" style="width: 52px; height: 52px;"></canvas>
+          <div class="flex items-center gap-3 min-w-0">
+            <div onclick="openPadelGameModal()" class="w-14 h-14 shrink-0 rounded-2xl bg-slate-950/90 border border-emerald-500/60 flex items-center justify-center p-0.5 shadow-xl shadow-emerald-500/25 overflow-hidden relative cursor-pointer hover:scale-105 transition-transform group">
+              <canvas id="header-padel-canvas" style="width: 56px; height: 56px;"></canvas>
               <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span class="text-[9px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1 py-0.5 rounded shadow">GAME</span>
+                <span class="text-[9px] font-black text-emerald-300 uppercase bg-slate-950/90 px-1.5 py-0.5 rounded shadow">GAME</span>
               </div>
             </div>
 
             <div class="truncate">
-              <h1 class="text-base sm:text-lg font-black tracking-tight text-white uppercase italic truncate">Padel <span class="text-emerald-400">Moldova</span></h1>
-              <p id="user-greeting" class="text-[11px] text-slate-300 font-medium truncate">Загрузка...</p>
+              <h1 class="text-xl sm:text-2xl font-black tracking-wider uppercase italic truncate vvpadel-title-animated">
+                VVPadel
+              </h1>
+              <p id="user-greeting" class="text-xs text-slate-300 font-semibold truncate mt-0.5">Загрузка...</p>
             </div>
           </div>
           
@@ -208,7 +233,7 @@
       </div>
 
       <div>
-        <h3 class="text-base font-black text-white uppercase italic">Добро пожаловать в Padel Moldova!</h3>
+        <h3 class="text-base font-black text-white uppercase italic">Добро пожаловать в VVPadel!</h3>
         <p class="text-xs text-slate-300 mt-1">Подтвердите свои данные, чтобы войти в Единый Рейтинг Игроков Молдовы.</p>
       </div>
 
@@ -371,7 +396,7 @@
         </a>
 
         <div class="glass-subcard p-3.5 rounded-2xl border border-amber-500/30 space-y-2 mt-3">
-          <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wide">☕ Поддержать Padel Moldova</h4>
+          <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wide">☕ Поддержать VVPadel</h4>
           <p class="text-[11px] text-slate-300">Если вам нравится платформа, вы можете сделать добровольный перевод:</p>
 
           <div class="glass-subcard p-2.5 rounded-xl border border-white/10 space-y-1.5 font-mono text-[11px]">
@@ -409,7 +434,7 @@
         </div>
 
         <p class="text-slate-300 text-xs leading-relaxed">
-          Платформа Padel Moldova создана для объединения игроков, проведения турниров и роста рейтинга по всей Молдове.
+          Платформа VVPadel создана для объединения игроков, проведения турниров и роста рейтинга по всей Молдове.
         </p>
 
         <a href="https://t.me/kizdoi" target="_blank" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-black rounded-xl text-center block text-xs uppercase tracking-wider btn-3d shadow-lg shadow-cyan-500/20">
@@ -467,11 +492,7 @@
     let onboardSelectedAvatar = PIXEL_AVATARS[0].url;
 
     function isValidRealUser(p) {
-      if (!p || !p.id || !p.first_name) return false;
-      const fn = String(p.first_name).trim().toLowerCase();
-      const ln = String(p.last_name || '').trim().toLowerCase();
-      const fakeKeywords = ['test', 'тест', 'игрок', 'player', 'guest', 'гость', 'demo', 'демо', 'dummy', 'fake'];
-      return !fakeKeywords.some(kw => fn === kw || ln === kw);
+      return p && p.id;
     }
 
     function renderPlayerAvatarHtml(p, sizeClass = "w-10 h-10") {
@@ -494,13 +515,12 @@
       const ctx = cvs.getContext('2d');
 
       const dpr = window.devicePixelRatio || 1;
-      const size = 52;
+      const size = 56;
       cvs.width = size * dpr; cvs.height = size * dpr;
       ctx.scale(dpr, dpr);
 
-      let ball = { x: 26, y: 10, vx: 0.2, vy: 0, r: 4, squashX: 1, squashY: 1 };
-      let racket = { x: 26, y: 38, targetY: 38, angle: 0, targetAngle: 0, hitFlash: 0 };
-      let particles = [];
+      let ball = { x: 28, y: 10, vx: 0.2, vy: 0, r: 4, squashX: 1, squashY: 1 };
+      let racket = { x: 28, y: 40, targetY: 40, angle: 0, targetAngle: 0, hitFlash: 0 };
 
       function animate() {
         if (document.hidden) {
@@ -512,10 +532,10 @@
         ball.vy += 0.18; ball.x += ball.vx; ball.y += ball.vy;
 
         if (ball.x < 10) { ball.x = 10; ball.vx = Math.abs(ball.vx); }
-        if (ball.x > 42) { ball.x = 42; ball.vx = -Math.abs(ball.vx); }
+        if (ball.x > 46) { ball.x = 46; ball.vx = -Math.abs(ball.vx); }
 
         racket.y += (racket.targetY - racket.y) * 0.2;
-        racket.targetY += (38 - racket.targetY) * 0.15;
+        racket.targetY += (40 - racket.targetY) * 0.15;
         racket.angle += (racket.targetAngle - racket.angle) * 0.2;
         racket.targetAngle += (0 - racket.targetAngle) * 0.15;
 
@@ -525,13 +545,13 @@
           ball.vy = -(3.2 + Math.random() * 0.5);
           ball.vx = (ball.x - racket.x) * 0.08;
           ball.squashX = 1.3; ball.squashY = 0.7;
-          racket.targetY = 42;
+          racket.targetY = 44;
         }
 
         ball.squashX += (1 - ball.squashX) * 0.15;
         ball.squashY += (1 - ball.squashY) * 0.15;
 
-        if (ball.y > size + 10) { ball.x = 26; ball.y = 8; ball.vx = 0; ball.vy = 0; }
+        if (ball.y > size + 10) { ball.x = 28; ball.y = 8; ball.vx = 0; ball.vy = 0; }
 
         ctx.save();
         ctx.translate(racket.x, racket.y);
@@ -1249,8 +1269,14 @@
 
     async function initApp() {
       if (!tgUser) return;
-      document.getElementById('user-greeting').innerText = sanitizeHTML(`${tgUser.first_name} ${tgUser.last_name || ''}`.trim());
-      initHeaderPadelAnimation();
+      const greetingEl = document.getElementById('user-greeting');
+      if (greetingEl) {
+        greetingEl.innerText = sanitizeHTML(`${tgUser.first_name || 'Игрок'} ${tgUser.last_name || ''}`.trim());
+      }
+      
+      try {
+        initHeaderPadelAnimation();
+      } catch(e) {}
 
       const savedState = localStorage.getItem(getAmericanoStorageKey());
       if (savedState) { try { localAmericanoState = JSON.parse(savedState); } catch(e){} }
@@ -1258,20 +1284,22 @@
       try {
         await syncUserProfile();
         await fetchAllPlatformProfiles(true);
-      } catch(e) {}
+      } catch(e) {
+        console.error('Initialization error:', e);
+      } finally {
+        setLanguage(currentLang);
 
-      setLanguage(currentLang);
+        const isOnboarded = localStorage.getItem(`padel_onboarded_${tgUser.id}`);
+        if (!isOnboarded && (!currentUserProfile || !currentUserProfile.avatar_url)) {
+          openOnboardingModal();
+        }
 
-      const isOnboarded = localStorage.getItem(`padel_onboarded_${tgUser.id}`);
-      if (!isOnboarded && (!currentUserProfile || !currentUserProfile.avatar_url)) {
-        openOnboardingModal();
-      }
-
-      const startParam = tg?.initDataUnsafe?.start_param;
-      if (startParam) {
-        currentSlotSubTab = 'my_slot';
-        switchTab('booking');
-        await renderMatchDetails(startParam);
+        const startParam = tg?.initDataUnsafe?.start_param;
+        if (startParam) {
+          currentSlotSubTab = 'my_slot';
+          switchTab('booking');
+          await renderMatchDetails(startParam);
+        }
       }
     }
 
@@ -1411,27 +1439,38 @@
           ${renderSlotsSubTabHeader()}
           <div class="text-center py-12 text-slate-400 font-semibold text-xs animate-pulse">Проверка слота...</div>
         `;
-        const mySlotId = await getUserActiveMatchId();
-        if (mySlotId) {
-          renderMatchDetails(mySlotId);
-        } else {
+        try {
+          const mySlotId = await getUserActiveMatchId();
+          if (mySlotId) {
+            await renderMatchDetails(mySlotId);
+          } else {
+            container.innerHTML = `
+              ${renderSlotsSubTabHeader()}
+              <div class="glass-subcard p-6 sm:p-8 rounded-3xl border border-white/10 text-center space-y-4 my-2">
+                <div class="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 mx-auto flex items-center justify-center text-3xl shadow-lg shadow-emerald-500/10">
+                  🎾
+                </div>
+                <div class="space-y-1">
+                  <h3 class="text-base font-black text-white uppercase italic">У вас нет активного слота</h3>
+                  <p class="text-xs text-slate-300 max-w-xs mx-auto leading-relaxed">Вы ещё не создали игру и не забронировали место ни в одном открытом матче.</p>
+                </div>
+                <button type="button" onclick="setSlotsSubTab('create')" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-emerald-500/30">
+                  🚀 Создать слот прямо сейчас
+                </button>
+              </div>
+            `;
+          }
+        } catch(e) {
           container.innerHTML = `
             ${renderSlotsSubTabHeader()}
-            <div class="glass-subcard p-6 sm:p-8 rounded-3xl border border-white/10 text-center space-y-4 my-2">
-              <div class="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 mx-auto flex items-center justify-center text-3xl shadow-lg shadow-emerald-500/10">
-                🎾
-              </div>
-              <div class="space-y-1">
-                <h3 class="text-base font-black text-white uppercase italic">У вас нет активного слота</h3>
-                <p class="text-xs text-slate-300 max-w-xs mx-auto leading-relaxed">Вы ещё не создали игру и не забронировали место ни в одном открытом матче.</p>
-              </div>
-              <button type="button" onclick="setSlotsSubTab('create')" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-emerald-500/30">
-                🚀 Создать слот прямо сейчас
+            <div class="glass-subcard p-6 rounded-3xl text-center space-y-3">
+              <p class="text-xs text-slate-300">У вас нет активного слота.</p>
+              <button type="button" onclick="setSlotsSubTab('create')" class="px-4 py-2 bg-emerald-500 text-slate-950 font-black rounded-xl text-xs uppercase btn-3d">
+                Создать слот
               </button>
             </div>
           `;
         }
-      }
       } else if (currentSlotSubTab === 'create') {
         renderCreateMatchForm();
       }
@@ -1500,10 +1539,11 @@
 
               ${m.notes ? `<p class="text-[10px] text-slate-300 italic bg-white/5 p-2 rounded-xl border border-white/5">💬 "${sanitizeHTML(m.notes)}"</p>` : ''}
 
-             <div class="flex flex-wrap items-center justify-between gap-2 pt-1 min-w-0">
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-1 min-w-0">
                 <div class="flex items-center gap-1.5 shrink-0 min-w-0 flex-wrap">
                   <span class="text-xs">👥</span>
-                  <span class="text-xs font-black text-white">${occupiedCount} / ${maxCount}</span>${isFull ? `
+                  <span class="text-xs font-black text-white">${occupiedCount} / ${maxCount}</span>
+                  ${isFull ? `
                     <span class="text-[9px] bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold px-1.5 py-0.5 rounded-md uppercase">${t('fullSlotBadge')}</span>
                   ` : `
                     <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-1.5 py-0.5 rounded-md uppercase">⚡ ${t('spotsLeft')}: ${spotsLeft}</span>
@@ -2157,7 +2197,7 @@
         const saved = existingData[i - 1];
         const sel = document.getElementById(`player_select_${i}`);
         if (sel) {
-          sel.value = saved ? saved.selectVal : (i === 1 && isValidRealUser(currentUserProfile) ? tgUser.id : 'custom');
+          sel.value = saved ? saved.selectVal : (i === 1 && currentUserProfile ? tgUser.id : 'custom');
           onPlayerSelectChange(i);
         }
       }
@@ -2530,7 +2570,7 @@
         const medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : `${idx + 1}.`));
         text += `${medal} *${item.name}*: ${item.points} PTS\n`;
       });
-      text += `\n🎾 _Padel Moldova App_`;
+      text += `\n🎾 _VVPadel App_`;
 
       if (tg && tg.openTelegramLink) {
         tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(text)}`);
