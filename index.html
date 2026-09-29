@@ -1122,9 +1122,10 @@
     }
 
     async function safeUpsertProfile(userId, profileObj) {
-      if (!supabaseClient) return;
+      if (!supabaseClient || !userId) return;
       try {
-        await supabaseClient.from('profiles').upsert([profileObj], { onConflict: 'id' });
+        const payload = { id: userId, ...profileObj };
+        await supabaseClient.from('profiles').upsert([payload], { onConflict: 'id' });
       } catch(e) {}
     }
 
@@ -1480,18 +1481,17 @@
 
               ${m.notes ? `<p class="text-[10px] text-slate-300 italic bg-white/5 p-2 rounded-xl border border-white/5">💬 "${sanitizeHTML(m.notes)}"</p>` : ''}
 
-              <div class="flex items-center justify-between gap-2 pt-1">
-                <div class="flex items-center gap-1.5 shrink-0">
+             <div class="flex flex-wrap items-center justify-between gap-2 pt-1 min-w-0">
+                <div class="flex items-center gap-1.5 shrink-0 min-w-0 flex-wrap">
                   <span class="text-xs">👥</span>
-                  <span class="text-xs font-black text-white">${occupiedCount} / ${maxCount}</span>
-                  ${isFull ? `
+                  <span class="text-xs font-black text-white">${occupiedCount} / ${maxCount}</span>${isFull ? `
                     <span class="text-[9px] bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold px-1.5 py-0.5 rounded-md uppercase">${t('fullSlotBadge')}</span>
                   ` : `
                     <span class="text-[9px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold px-1.5 py-0.5 rounded-md uppercase">⚡ ${t('spotsLeft')}: ${spotsLeft}</span>
                   `}
                 </div>
 
-                <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-3 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md shrink-0">
+                <button type="button" onclick="quickJoinMatchFromFeed('${m.id}')" class="px-2.5 py-1.5 ${isUserJoined ? 'bg-cyan-500 text-slate-950' : 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950'} font-black rounded-xl text-[10px] sm:text-xs uppercase tracking-wider btn-3d shadow-md max-w-full truncate">
                   ${isUserJoined ? '🎾 Мой активный слот' : t('quickJoinBtn')}
                 </button>
               </div>
@@ -2455,16 +2455,22 @@
           try {
             await ensureProfileInDatabase({ id: item.userId, first_name: item.name });
             const { data: dbProf } = await supabaseClient.from('profiles').select('*').eq('id', item.userId).maybeSingle();
-            if (dbProf) {
-              await safeUpsertProfile(item.userId, {
-                league_points: (dbProf.league_points || 1000) + gainedLP,
-                wins: (dbProf.wins || 0) + item.wins,
-                losses: (dbProf.losses || 0) + item.losses,
-                draws: (dbProf.draws || 0) + item.draws,
-                total_matches_played: (dbProf.total_matches_played || 0) + item.matches,
-                updated_at: new Date().toISOString()
-              });
-            }
+            
+            const currentLP = dbProf ? (dbProf.league_points || 1000) : 1000;
+            const currentWins = dbProf ? (dbProf.wins || 0) : 0;
+            const currentLosses = dbProf ? (dbProf.losses || 0) : 0;
+            const currentDraws = dbProf ? (dbProf.draws || 0) : 0;
+            const currentTotal = dbProf ? (dbProf.total_matches_played || 0) : 0;
+
+            await safeUpsertProfile(item.userId, {
+              first_name: item.name,
+              league_points: currentLP + gainedLP,
+              wins: currentWins + item.wins,
+              losses: currentLosses + item.losses,
+              draws: currentDraws + item.draws,
+              total_matches_played: currentTotal + item.matches,
+              updated_at: new Date().toISOString()
+            });
           } catch(e) {}
         }
       });
