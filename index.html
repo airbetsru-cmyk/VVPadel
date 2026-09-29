@@ -1324,6 +1324,19 @@
       if (!tgUser) return;
       const savedAvatar = localStorage.getItem(`padel_avatar_${tgUser.id}`) || PIXEL_AVATARS[0].url;
 
+      if (supabaseClient) {
+        try {
+          const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
+          if (data) {
+            currentUserProfile = data;
+            if (!currentUserProfile.avatar_url && savedAvatar) {
+              currentUserProfile.avatar_url = savedAvatar;
+            }
+            return;
+          }
+        } catch (err) {}
+      }
+
       const newProf = {
         id: tgUser.id,
         first_name: tgUser.first_name || 'Игрок',
@@ -1341,18 +1354,6 @@
 
       currentUserProfile = newProf;
       await ensureProfileInDatabase(newProf);
-
-      if (supabaseClient) {
-        try {
-          const { data } = await supabaseClient.from('profiles').select('*').eq('id', tgUser.id).maybeSingle();
-          if (data) {
-            currentUserProfile = data;
-            if (!currentUserProfile.avatar_url && savedAvatar) {
-              currentUserProfile.avatar_url = savedAvatar;
-            }
-          }
-        } catch (err) {}
-      }
     }
 
     function setSlotsSubTab(subTab) {
