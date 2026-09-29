@@ -2716,7 +2716,7 @@
 
     async function renderProfileTab() {
       const container = document.getElementById('main-content');
-      await fetchAllPlatformProfiles();
+      await fetchAllPlatformProfiles(true);
 
       const p = currentUserProfile || {
         first_name: tgUser?.first_name || 'Игрок',
