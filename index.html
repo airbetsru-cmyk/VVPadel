@@ -1277,24 +1277,27 @@
 
     async function fetchAllPlatformProfiles(force = false) {
       const now = Date.now();
-      if (!force && platformProfilesList.length > 0 && (now - profilesCacheTime < 30000)) {
+      if (!force && platformProfilesList.length > 0 && (now - profilesCacheTime < 10000)) {
         return;
       }
 
       if (supabaseClient) {
         try {
-          const { data, error } = await supabaseClient.from('profiles').select('*').order('league_points', { ascending: false });
+          const { data, error } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .order('league_points', { ascending: false });
+
           if (!error && data) {
             platformProfilesList = data.filter(isValidRealUser);
             profilesCacheTime = now;
+
+            const myDbProfile = platformProfilesList.find(p => String(p.id) === String(tgUser?.id));
+            if (myDbProfile) {
+              currentUserProfile = myDbProfile;
+            }
           }
         } catch(e) {}
-      }
-
-      if (currentUserProfile && isValidRealUser(currentUserProfile)) {
-        if (!platformProfilesList.some(p => String(p.id) === String(currentUserProfile.id))) {
-          platformProfilesList.push(currentUserProfile);
-        }
       }
     }
 
