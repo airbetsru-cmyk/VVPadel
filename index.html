@@ -1022,38 +1022,50 @@
       "Slab di tat"
     ];
 
+    let toastTimer = null;
+
+    function showToastNotification(message, emoji = "🎾🔥", borderColor = "border-emerald-400") {
+      const toast = document.getElementById('celebration-toast');
+      const toastText = document.getElementById('celebration-text');
+      if (!toast || !toastText) return;
+
+      const toastCard = toast.querySelector('div');
+      const toastEmoji = toast.querySelector('span');
+
+      if (toastTimer) {
+        clearTimeout(toastTimer);
+        toastTimer = null;
+      }
+
+      if (toastEmoji) toastEmoji.innerText = emoji;
+      if (toastCard) {
+        toastCard.className = `glass-card px-6 py-4 rounded-3xl text-center shadow-2xl bg-slate-950/95 border-2 ${borderColor}`;
+      }
+
+      toastText.innerText = message;
+
+      toast.classList.remove('hidden', 'toast-pop');
+      void toast.offsetWidth; 
+      toast.classList.add('toast-pop');
+
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('toast-pop');
+        toastTimer = null;
+      }, 2200);
+    }
+
     function triggerSlotCelebration() {
       if (window.confetti) {
         window.confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 }, colors: ['#10b981', '#ccff00', '#3b82f6', '#f59e0b'] });
       }
-
       const randomMsg = RANDOM_CELEBRATION_TEXTS[Math.floor(Math.random() * RANDOM_CELEBRATION_TEXTS.length)];
-      const toast = document.getElementById('celebration-toast');
-      const toastText = document.getElementById('celebration-text');
-      
-      if (toast && toastText) {
-        toastText.innerText = randomMsg;
-        toast.classList.remove('hidden', 'toast-pop');
-        void toast.offsetWidth;
-        toast.classList.add('toast-pop');
-
-        setTimeout(() => { toast.classList.add('hidden'); }, 2200);
-      }
+      showToastNotification(randomMsg, "🎾🔥", "border-emerald-400");
     }
 
     function triggerSlotLeaveToast() {
       const randomMsg = RANDOM_LEAVE_TEXTS[Math.floor(Math.random() * RANDOM_LEAVE_TEXTS.length)];
-      const toast = document.getElementById('celebration-toast');
-      const toastText = document.getElementById('celebration-text');
-      
-      if (toast && toastText) {
-        toastText.innerText = randomMsg;
-        toast.classList.remove('hidden', 'toast-pop');
-        void toast.offsetWidth;
-        toast.classList.add('toast-pop');
-
-        setTimeout(() => { toast.classList.add('hidden'); }, 2200);
-      }
+      showToastNotification(randomMsg, "👋😢", "border-rose-500/80");
     }
 
     const SUPABASE_URL = 'https://ppdxzmcycwhtuhebaduh.supabase.co'; 
@@ -2117,7 +2129,7 @@
             </div>
 
             <div class="text-right shrink-0 pl-2">
-              <span class="font-black text-amber-300 text-xs font-mono block">${itemLp} LP</span>
+              <span class="font-black text-amber-300 text-xs font-mono block">${itemLp.toLocaleString('ru-RU')} LP</span>
               <span class="text-[9px] text-emerald-400 font-bold">${item.wins || 0}W / ${item.losses || 0}L</span>
             </div>
           </div>
@@ -2273,7 +2285,7 @@
       let optionsHtml = `<option value="custom">${t('guestOption')}</option>`;
       platformProfilesList.filter(isValidRealUser).forEach(p => {
         const name = sanitizeHTML(`${p.first_name} ${p.last_name || ''}`.trim());
-        optionsHtml += `<option value="${p.id}" data-name="${name}">${name} (${p.league_points || 1000} LP • Lvl ${p.skill_level || 2.5})</option>`;
+        optionsHtml += `<option value="${p.id}" data-name="${name}">${name} (${(p.league_points || 1000).toLocaleString('ru-RU')} LP • Lvl ${p.skill_level || 2.5})</option>`;
       });
 
       let html = `<label class="block text-xs font-semibold text-slate-300 mb-1 uppercase">${t('participantsCount')}:</label>`;
@@ -2617,124 +2629,50 @@
 
       const finalLeaderboard = Array.from(leaderboardMap.values()).sort((a, b) => b.pts - a.pts);
 
-      // ✅ КАК СДЕЛАТЬ ПОСЛЕ:
-async function recordTournamentToNationalLeaderboard() {
-  if (!localAmericanoState || !localAmericanoState.rounds) return;
-  if (localAmericanoState.isRecorded) {
-    alert('Уже записано в рейтинг.');
-    return;
-  }
-  const { players, rounds } = localAmericanoState;
+      const updatesPromises = finalLeaderboard.map(async (item, i) => {
+        let gainedLP = (i === 0) ? 40 : (i === 1) ? 25 : (i === 2) ? 15 : 5;
+        item.pointsGained = gainedLP;
 
-  const completedRounds = rounds.filter(r => r.completed);
-  if (completedRounds.length === 0) {
-    alert('Завершите хотя бы один матч.');
-    return;
-  }
+        if (item.userId && isValidRealUser({ id: item.userId })) {
+          if (supabaseClient) {
+            try {
+              await ensureProfileInDatabase({ id: item.userId, first_name: item.name });
 
-  // 1. Подсчет итогов текущего турнира Американо
-  const leaderboardMap = new Map();
-  players.forEach(p => {
-    leaderboardMap.set(p.id, {
-      userId: p.userId,
-      name: p.name,
-      pts: 0, matches: 0, wins: 0, losses: 0, draws: 0
-    });
-  });
+              const { data: dbProf } = await supabaseClient
+                .from('profiles')
+                .select('league_points, wins, losses, draws, total_matches_played')
+                .eq('id', item.userId)
+                .maybeSingle();
 
-  rounds.forEach(r => {
-    if (r.completed) {
-      const sa = parseInt(r.score_a) || 0;
-      const sb = parseInt(r.score_b) || 0;
+              const existingLP = dbProf && typeof dbProf.league_points === 'number' ? dbProf.league_points : 1000;
+              const newLP = existingLP + gainedLP;
 
-      r.team_a.forEach(pIdx => {
-        const p = leaderboardMap.get(pIdx);
-        if (p) {
-          p.pts += sa; p.matches++;
-          if (sa > sb) p.wins++; else if (sb > sa) p.losses++; else p.draws++;
-        }
-      });
-      r.team_b.forEach(pIdx => {
-        const p = leaderboardMap.get(pIdx);
-        if (p) {
-          p.pts += sb; p.matches++;
-          if (sb > sa) p.wins++; else if (sa > sb) p.losses++; else p.draws++;
-        }
-      });
-    }
-  });
+              const existingWins = dbProf ? (dbProf.wins || 0) : 0;
+              const existingLosses = dbProf ? (dbProf.losses || 0) : 0;
+              const existingDraws = dbProf ? (dbProf.draws || 0) : 0;
+              const existingTotal = dbProf ? (dbProf.total_matches_played || 0) : 0;
 
-  const finalLeaderboard = Array.from(leaderboardMap.values()).sort((a, b) => b.pts - a.pts);
+              const updatePayload = {
+                first_name: item.name,
+                league_points: newLP,
+                wins: existingWins + item.wins,
+                losses: existingLosses + item.losses,
+                draws: existingDraws + item.draws,
+                total_matches_played: existingTotal + item.matches,
+                updated_at: new Date().toISOString()
+              };
 
-  // 2. Атомарное обновление с гарантированным суммированием прошлых LP из БД
-  const updatesPromises = finalLeaderboard.map(async (item, i) => {
-    let gainedLP = (i === 0) ? 40 : (i === 1) ? 25 : (i === 2) ? 15 : 5;
-    item.pointsGained = gainedLP;
+              await safeUpsertProfile(item.userId, updatePayload);
 
-    if (item.userId && isValidRealUser({ id: item.userId })) {
-      if (supabaseClient) {
-        try {
-          // Убеждаемся, что запись профиля существует
-          await ensureProfileInDatabase({ id: item.userId, first_name: item.name });
-
-          // Делаем прямую выборку свежих данных ИМЕННО из базы данных
-          const { data: dbProf } = await supabaseClient
-            .from('profiles')
-            .select('league_points, wins, losses, draws, total_matches_played')
-            .eq('id', item.userId)
-            .maybeSingle();
-
-          // Чёткий расчёт: Актуальный LP из БД + Набранные очки
-          const existingLP = dbProf && typeof dbProf.league_points === 'number' ? dbProf.league_points : 1000;
-          const newLP = existingLP + gainedLP;
-
-          const existingWins = dbProf ? (dbProf.wins || 0) : 0;
-          const existingLosses = dbProf ? (dbProf.losses || 0) : 0;
-          const existingDraws = dbProf ? (dbProf.draws || 0) : 0;
-          const existingTotal = dbProf ? (dbProf.total_matches_played || 0) : 0;
-
-          const updatePayload = {
-            first_name: item.name,
-            league_points: newLP,
-            wins: existingWins + item.wins,
-            losses: existingLosses + item.losses,
-            draws: existingDraws + item.draws,
-            total_matches_played: existingTotal + item.matches,
-            updated_at: new Date().toISOString()
-          };
-
-          // Сохраняем обновленные накопительные данные в Supabase
-          await safeUpsertProfile(item.userId, updatePayload);
-
-          // Обновляем локальный текущий профиль, если это авторизованный юзер
-          if (currentUserProfile && String(currentUserProfile.id) === String(item.userId)) {
-            Object.assign(currentUserProfile, updatePayload);
+              if (currentUserProfile && String(currentUserProfile.id) === String(item.userId)) {
+                Object.assign(currentUserProfile, updatePayload);
+              }
+            } catch (e) {
+              console.error("Ошибка обновления профиля:", e);
+            }
           }
-        } catch (e) {
-          console.error("Ошибка при обновлении профиля:", e);
         }
-      }
-    }
-  });
-
-  await Promise.all(updatesPromises);
-
-  // 3. Сохранение истории и принудительное перезапрашивание лидерборда
-  saveAmericanoToHistory({
-    players,
-    rounds: completedRounds,
-    leaderboard: finalLeaderboard
-  });
-
-  localAmericanoState.isRecorded = true;
-  localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
-
-  alert('Результаты турнира успешно суммированы с прошлыми очками в Едином Рейтинге!');
-  
-  // Принудительно сбрасываем кэш и запрашиваем свежую таблицу из БД
-  await fetchAllPlatformProfiles(true);
-  renderQuickAmericano();
-}
+      });
 
       await Promise.all(updatesPromises);
 
@@ -2747,7 +2685,7 @@ async function recordTournamentToNationalLeaderboard() {
       localAmericanoState.isRecorded = true;
       localStorage.setItem(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
 
-      alert('Результаты турнира успешно сохранены в Единый Рейтинг!');
+      alert('Результаты турнира успешно суммированы с прошлыми очками в Едином Рейтинге!');
       await fetchAllPlatformProfiles(true);
       renderQuickAmericano();
     }
@@ -2829,7 +2767,7 @@ async function recordTournamentToNationalLeaderboard() {
               ${p.username ? `<p class="text-xs text-emerald-400 font-semibold">@${sanitizeHTML(p.username)}</p>` : ''}
               <div class="flex items-center gap-1 mt-1">
                 <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
-                  ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
+                  ${leagueInfo.badge} ${leagueInfo.title} (${lp.toLocaleString('ru-RU')} LP)
                 </span>
               </div>
             </div>
@@ -2979,7 +2917,7 @@ async function recordTournamentToNationalLeaderboard() {
           <div class="p-2 glass-subcard rounded-xl border border-white/10 flex justify-between items-center text-xs">
             <div class="truncate max-w-[180px]">
               <span class="font-bold text-white">${sanitizeHTML(item.first_name)} ${sanitizeHTML(item.last_name || '')}</span>
-              <span class="text-[10px] text-amber-300 block font-mono">${item.league_points || 1000} LP • Lvl ${item.skill_level || 2.5}</span>
+              <span class="text-[10px] text-amber-300 block font-mono">${(item.league_points || 1000).toLocaleString('ru-RU')} LP • Lvl ${item.skill_level || 2.5}</span>
             </div>
             <button type="button" onclick="openAdminEditPlayerModal('${item.id}')" class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px] rounded-lg btn-3d shrink-0">
               ✏️ Изменить
@@ -3087,7 +3025,7 @@ async function recordTournamentToNationalLeaderboard() {
                   <p class="text-xs text-emerald-400 font-semibold">@${sanitizeHTML(p.username || 'user')}</p>
                   <div class="flex items-center gap-1 mt-1">
                     <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase border ${leagueInfo.color}">
-                      ${leagueInfo.badge} ${leagueInfo.title} (${lp} LP)
+                      ${leagueInfo.badge} ${leagueInfo.title} (${lp.toLocaleString('ru-RU')} LP)
                     </span>
                   </div>
                 </div>
@@ -3120,10 +3058,10 @@ async function recordTournamentToNationalLeaderboard() {
           <div class="p-4 glass-subcard border border-white/10 rounded-3xl space-y-3">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('ratingSystemTitle')}</h3>
             <div class="grid grid-cols-2 gap-2 text-[10px]">
-              <div class="p-2 glass-subcard rounded-xl border border-amber-500/30">👑 <strong>Master</strong>: 2100+ LP</div>
-              <div class="p-2 glass-subcard rounded-xl border border-cyan-500/30">💎 <strong>Platinum</strong>: 1800+ LP</div>
-              <div class="p-2 glass-subcard rounded-xl border border-yellow-500/30">🥇 <strong>Gold</strong>: 1500+ LP</div>
-              <div class="p-2 glass-subcard rounded-xl border border-slate-400/30">🥈 <strong>Silver</strong>: 1200+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-amber-500/30">👑 <strong>Master</strong>: 2 100+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-cyan-500/30">💎 <strong>Platinum</strong>: 1 800+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-yellow-500/30">🥇 <strong>Gold</strong>: 1 500+ LP</div>
+              <div class="p-2 glass-subcard rounded-xl border border-slate-400/30">🥈 <strong>Silver</strong>: 1 200+ LP</div>
             </div>
           </div>
         </div>
@@ -3179,15 +3117,24 @@ async function recordTournamentToNationalLeaderboard() {
     }
 
     async function leaveMatch(matchId) {
-      try {
-        if (supabaseClient) {
-          await supabaseClient.from('match_players').delete().eq('match_id', matchId).eq('user_id', tgUser.id);
-        }
+      if (!confirm('Вы действительно хотите покинуть слот?')) return;
 
+      try {
+        if (supabaseClient && tgUser?.id) {
+          const uidStr = String(tgUser.id);
+          await supabaseClient
+            .from('match_players')
+            .delete()
+            .eq('match_id', matchId)
+            .eq('user_id', uidStr);
+        }
+      } catch (err) {
+        console.error("Ошибка при выходе из слота:", err);
+      } finally {
         triggerSlotLeaveToast();
         currentSlotSubTab = 'feed';
         renderSlotsSubTabContent();
-      } catch (err) {}
+      }
     }
 
     function copyShareLink(url) {
