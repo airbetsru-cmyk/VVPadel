@@ -258,7 +258,7 @@
 
         <div>
           <label class="block text-[10px] font-bold text-emerald-400 mb-1 uppercase">Выберите ваш пиксельный аватар</label>
-          <div id="onboard_avatar_grid" class="grid grid-cols-4 gap-2 pt-1"></div>
+          <div id="onboard_avatar_grid" class="grid grid-cols-4 gap-2 pt-1 max-h-52 overflow-y-auto custom-scrollbar p-1"></div>
         </div>
       </div>
 
@@ -452,6 +452,7 @@
   </div>
 
   <script>
+    // РАСШИРЕННЫЙ СПИСОК ПИКСЕЛЬНЫХ АВАТАРКОВ (24 ПЕРСОНАЖА)
     const PIXEL_AVATARS = [
       { id: 'pix_cyber', name: 'Cyber Hero', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=CyberHero' },
       { id: 'pix_racket', name: 'Golden Racket', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=GoldenRacket' },
@@ -460,7 +461,23 @@
       { id: 'pix_champ', name: 'Pixel Champ', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=PixelChamp' },
       { id: 'pix_legend', name: '8-Bit Legend', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=Legend8Bit' },
       { id: 'pix_wolf', name: 'Pixel Wolf', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=PixelWolf' },
-      { id: 'pix_ace', name: 'Retro Ace', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=RetroAce' }
+      { id: 'pix_ace', name: 'Retro Ace', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=RetroAce' },
+      { id: 'pix_samurai', name: 'Shadow Samurai', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=ShadowSamurai' },
+      { id: 'pix_panda', name: 'Cyber Panda', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=CyberPanda' },
+      { id: 'pix_wizard', name: 'Neon Wizard', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=NeonWizard' },
+      { id: 'pix_dragon', name: 'Pixel Dragon', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=PixelDragon' },
+      { id: 'pix_robot', name: 'Retro Robot', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=RetroRobot' },
+      { id: 'pix_viking', name: 'Viking Padel', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=VikingPadel' },
+      { id: 'pix_alien', name: 'Alien Ace', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=AlienAce' },
+      { id: 'pix_cat', name: 'Cosmic Cat', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=CosmicCat' },
+      { id: 'pix_knight', name: 'Phantom Knight', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=PhantomKnight' },
+      { id: 'pix_cobra', name: 'Golden Cobra', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=GoldenCobra' },
+      { id: 'pix_panther', name: 'Turbo Panther', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=TurboPanther' },
+      { id: 'pix_phoenix', name: 'Fire Phoenix', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=FirePhoenix' },
+      { id: 'pix_ghost', name: 'Ghost Player', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=GhostPlayer' },
+      { id: 'pix_bear', name: 'Astro Bear', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=AstroBear' },
+      { id: 'pix_tiger', name: 'Pixel Tiger', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=PixelTiger' },
+      { id: 'pix_mecha', name: 'Mecha Master', url: 'https://api.dicebear.com/7.x/pixel-art/svg?seed=MechaMaster' }
     ];
 
     function sanitizeHTML(str) {
@@ -498,7 +515,6 @@
     let currentSlotSubTab = 'feed';
     let onboardSelectedAvatar = PIXEL_AVATARS[0].url;
 
-    // ИСПРАВЛЕНА ЛОГИКА ПРОВЕРКИ - Убрана фильтрация по ^\d{6}$ для поддержки любых ID пользователей
     function isValidRealUser(p) {
       if (!p || p.id === undefined || p.id === null) return false;
       const idStr = String(p.id).trim();
@@ -836,10 +852,12 @@
         quickImportBtn: "⚡ Импортировать из Слота", guestOption: "➕ Ввести вручную (Гость)",
         ratingSystemTitle: "🇲🇩 Система Рейтингов и Лиг Молдовы", tourneyHistoryTitle: "📜 История турниров",
         globalLeaderboardTitle: "Единый Рейтинг Игроков (Американо)",
-        autoCleanup: "Автоочистка (за 7 дней)", winnerLabel: "Победитель", participantsCount: "Участников", gamesCount: "игр(ы)",
+        autoCleanup: "Сохранённая история", winnerLabel: "Победитель", participantsCount: "Участников", gamesCount: "игр(ы)",
         hostPanel: "Панель Организатора Слота", hostPanelDesc: "Управление составом, временем и ценой", profileEditTitle: "✏️ Редактирование Профиля",
         creatorPanelTitle: "👑 Управление Платформой", allRegisteredPlayers: "Все игроки платформы:",
-        gamesLabel: "участников", reportTgBtn: "📋 Отчёт в Telegram", recordRatingBtn: "🏆 Записать в Рейтинг",
+        gamesLabel: "участников", reportTgBtn: "📋 Отчёт в Telegram", recordRatingBtn: "🏁 Завершить турнир и записать результаты",
+        recalcLeaderboardBtn: "🔄 Обновить единый рейтинг игроков Americano",
+        startNewTournamentBtn: "✨ Начать новый турнир",
         cancelTournamentBtn: "🛑 Отменить турнир", confirmCancelMsg: "Вы действительно хотите отменить турнир?",
         loadingMatch: "Загрузка матча...", slotNotFound: "Слот не найден или был удалён.",
         chatEmptyMsg: "Обсудите детали матча. Напишите первое сообщение!", quickAmericanoDesc: "Калькулятор турнира Американо.",
@@ -871,10 +889,12 @@
         quickImportBtn: "⚡ Importă din Slot", guestOption: "➕ Introdu manual (Oaspete)",
         ratingSystemTitle: "🇲🇩 Sistemul de Clasament Moldova", tourneyHistoryTitle: "📜 Istoricul turneelor",
         globalLeaderboardTitle: "Clasament General Jucători",
-        autoCleanup: "Curățare automată", winnerLabel: "Câștigător", participantsCount: "Participanți", gamesCount: "jocuri",
+        autoCleanup: "Istoric salvat", winnerLabel: "Câștigător", participantsCount: "Participanți", gamesCount: "jocuri",
         hostPanel: "Panou Organizator Slot", hostPanelDesc: "Gestionare echipă, timp și preț", profileEditTitle: "✏️ Editare Profil",
         creatorPanelTitle: "👑 Panou Administrator", allRegisteredPlayers: "Toți jucătorii înregistrați:",
-        gamesLabel: "jucători", reportTgBtn: "📋 Raport pe Telegram", recordRatingBtn: "🏆 Înregistrează în Clasament",
+        gamesLabel: "jucători", reportTgBtn: "📋 Raport pe Telegram", recordRatingBtn: "🏁 Finalizează turneul și salvează rezultatele",
+        recalcLeaderboardBtn: "🔄 Actualizează Clasamentul General Americano",
+        startNewTournamentBtn: "✨ Începe un turneu nou",
         cancelTournamentBtn: "🛑 Anulează turneul", confirmCancelMsg: "Doriți într-adevăr să anulați turneul?",
         loadingMatch: "Se încarcă meciul...", slotNotFound: "Slotul nu a fost găsit.",
         chatEmptyMsg: "Discutați detaliile meciului.", quickAmericanoDesc: "Calculator pentru turneul Americano.",
@@ -906,10 +926,12 @@
         quickImportBtn: "⚡ Import from Slot", guestOption: "➕ Enter manually (Guest)",
         ratingSystemTitle: "🇲🇩 Moldova Ranking System", tourneyHistoryTitle: "📜 Tournament History",
         globalLeaderboardTitle: "All-Time Player Leaderboard",
-        autoCleanup: "Auto-cleanup", winnerLabel: "Winner", participantsCount: "Participants", gamesCount: "game(s)",
+        autoCleanup: "Saved History", winnerLabel: "Winner", participantsCount: "Participants", gamesCount: "game(s)",
         hostPanel: "Slot Host Panel", hostPanelDesc: "Manage players, time and price", profileEditTitle: "✏️ Edit Profile Data",
         creatorPanelTitle: "👑 Admin Panel", allRegisteredPlayers: "All registered players:",
-        gamesLabel: "players", reportTgBtn: "📋 Telegram Report", recordRatingBtn: "🏆 Record to Leaderboard",
+        gamesLabel: "players", reportTgBtn: "📋 Telegram Report", recordRatingBtn: "🏁 Finish Tournament & Save Results",
+        recalcLeaderboardBtn: "🔄 Sync & Recalculate All Americano Games",
+        startNewTournamentBtn: "✨ Start New Tournament",
         cancelTournamentBtn: "🛑 Cancel Tournament", confirmCancelMsg: "Are you sure you want to cancel?",
         loadingMatch: "Loading game...", slotNotFound: "Slot not found.",
         chatEmptyMsg: "Discuss game details.", quickAmericanoDesc: "Americano tournament calculator.",
@@ -1108,15 +1130,13 @@
       } catch(e) {}
     }
 
+    // ВОССТАНОВЛЕНО ПОЛНОЕ ХРАНЕНИЕ ИСТОРИИ ТУРНИРОВ БЕЗ УДАЛЕНИЯ СТАРАНИЙ
     function cleanAndGetAmericanoHistory() {
       const historyRaw = safeGetLocalStorage('padel_americano_history_v2');
       if (!historyRaw) return [];
       try {
         const history = JSON.parse(historyRaw);
-        const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-        const freshHistory = history.filter(item => new Date(item.timestamp).getTime() > oneWeekAgo);
-        safeSetLocalStorage('padel_americano_history_v2', JSON.stringify(freshHistory));
-        return freshHistory;
+        return Array.isArray(history) ? history : [];
       } catch(e) { return []; }
     }
 
@@ -1127,7 +1147,81 @@
       safeSetLocalStorage('padel_americano_history_v2', JSON.stringify(history));
     }
 
-    /* ИСПРАВЛЕННАЯ ФУНКЦИЯ ДЕТАЛЕЙ ТУРНИРА (ИСТОРИЯ) */
+    // ФУНКЦИЯ ПОЛНОГО ПЕРЕСЧЕТА ВСЕХ СЫГРАННЫХ ТУРНИРОВ АМЕРИКАНО ИЗ ИСТОРИИ
+    async function recalculateNationalLeaderboardFromHistory() {
+      const user = getTgUser();
+      if (!isUserCreator()) {
+        alert("Данная функция доступна только Организатору.");
+        return;
+      }
+
+      const history = cleanAndGetAmericanoHistory();
+      if (history.length === 0) {
+        alert("В истории пока нет записанных турниров для пересчёта.");
+        return;
+      }
+
+      const playerStatsMap = new Map();
+      const sortedHistory = [...history].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+      sortedHistory.forEach(tourney => {
+        if (!tourney.leaderboard || !Array.isArray(tourney.leaderboard)) return;
+
+        tourney.leaderboard.forEach((item, rankIdx) => {
+          if (!item.userId || !isValidRealUser({ id: item.userId })) return;
+          const uId = String(item.userId);
+
+          if (!playerStatsMap.has(uId)) {
+            playerStatsMap.set(uId, {
+              userId: uId,
+              name: item.name,
+              league_points: 1000,
+              wins: 0,
+              losses: 0,
+              draws: 0,
+              matches: 0
+            });
+          }
+
+          const pStats = playerStatsMap.get(uId);
+          const gainedLP = (rankIdx === 0) ? 40 : (rankIdx === 1) ? 25 : (rankIdx === 2) ? 15 : 5;
+
+          pStats.league_points += gainedLP;
+          pStats.wins += (item.wins || 0);
+          pStats.losses += (item.losses || 0);
+          pStats.draws += (item.draws || 0);
+          pStats.matches += (item.matches || item.total_matches || ((item.wins || 0) + (item.losses || 0) + (item.draws || 0)));
+        });
+      });
+
+      let updatedCount = 0;
+      for (const [uId, stats] of playerStatsMap.entries()) {
+        if (supabaseClient) {
+          try {
+            const updatePayload = {
+              league_points: stats.league_points,
+              wins: stats.wins,
+              losses: stats.losses,
+              draws: stats.draws,
+              total_matches_played: stats.matches,
+              updated_at: new Date().toISOString()
+            };
+            await safeUpsertProfile(uId, updatePayload);
+            if (currentUserProfile && String(currentUserProfile.id) === uId) {
+              Object.assign(currentUserProfile, updatePayload);
+            }
+            updatedCount++;
+          } catch (e) {
+            console.error("Recalc update error:", e);
+          }
+        }
+      }
+
+      alert(`✅ Единый рейтинг успешно синхронизирован! Пересчитано ${sortedHistory.length} турниров из истории (${updatedCount} игроков обновлено).`);
+      await fetchAllPlatformProfiles(true);
+      switchTab(activeTab);
+    }
+
     function openHistoryTourneyModal(tourneyId) {
       const history = cleanAndGetAmericanoHistory();
       const tourney = history.find(t => t.id === tourneyId);
@@ -1137,7 +1231,6 @@
       const content = document.getElementById('view-tourney-content');
       const dt = new Date(tourney.timestamp).toLocaleString([], { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
-      // Рендерим Скорборд
       let lbHtml = '';
       if (tourney.leaderboard && tourney.leaderboard.length > 0) {
         lbHtml = tourney.leaderboard.map((item, idx) => {
@@ -1164,7 +1257,6 @@
         lbHtml = `<p class="text-[10px] text-slate-400 text-center italic py-2">Скорборд пуст</p>`;
       }
 
-      // Рендерим Историю Матчей
       let matchesHtml = '';
       if (tourney.rounds && tourney.rounds.length > 0) {
         matchesHtml = tourney.rounds.map(r => {
@@ -1235,8 +1327,9 @@
 
       if (grid) {
         grid.innerHTML = PIXEL_AVATARS.map(av => `
-          <div onclick="selectOnboardAvatar('${av.url}')" class="avatar-opt-card p-1 rounded-2xl border ${av.url === onboardSelectedAvatar ? 'border-emerald-400 bg-emerald-500/20' : 'border-white/10 glass-subcard'} cursor-pointer transition-all text-center btn-3d">
+          <div onclick="selectOnboardAvatar('${av.url}')" class="avatar-opt-card p-1 rounded-2xl border ${av.url === onboardSelectedAvatar ? 'border-emerald-400 bg-emerald-500/20 scale-105' : 'border-white/10 glass-subcard'} cursor-pointer transition-all text-center btn-3d">
             <img src="${av.url}" alt="${av.name}" class="w-10 h-10 mx-auto rounded-xl object-cover">
+            <span class="text-[8px] font-bold text-slate-300 block mt-1 truncate">${av.name}</span>
           </div>
         `).join('');
       }
@@ -1247,7 +1340,7 @@
       onboardSelectedAvatar = url;
       const cards = document.querySelectorAll('.avatar-opt-card');
       cards.forEach(c => c.className = 'avatar-opt-card p-1 rounded-2xl border border-white/10 glass-subcard cursor-pointer transition-all text-center btn-3d');
-      event.currentTarget.className = 'avatar-opt-card p-1 rounded-2xl border border-emerald-400 bg-emerald-500/20 cursor-pointer transition-all text-center btn-3d';
+      event.currentTarget.className = 'avatar-opt-card p-1 rounded-2xl border border-emerald-400 bg-emerald-500/20 scale-105 cursor-pointer transition-all text-center btn-3d';
     }
 
     async function submitOnboardingRegistration() {
@@ -1969,12 +2062,22 @@
 
       leaderboardList.sort((a, b) => (b.league_points || 1000) - (a.league_points || 1000) || (b.wins || 0) - (a.wins || 0));
 
+      let adminRecalcBtn = '';
+      if (isUserCreator()) {
+        adminRecalcBtn = `
+          <button type="button" onclick="recalculateNationalLeaderboardFromHistory()" class="w-full py-2.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 hover:from-amber-500/30 hover:to-yellow-500/30 text-amber-300 border border-amber-500/40 font-black rounded-xl text-xs uppercase tracking-wider btn-3d mt-2 shadow flex items-center justify-center gap-1.5">
+            <span>🔄</span> <span>${t('recalcLeaderboardBtn')}</span>
+          </button>
+        `;
+      }
+
       if (leaderboardList.length === 0) {
         return `
           <div class="mt-6 pt-4 border-t border-white/10 space-y-2">
             <h3 class="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
               <span>🏆</span><span>${t('globalLeaderboardTitle')}</span>
             </h3>
+            ${adminRecalcBtn}
             <div class="glass-subcard p-4 rounded-2xl border border-white/10 text-center text-xs text-slate-400">
               Рейтинг пока пуст. Завершите первый турнир Американо!
             </div>
@@ -2025,6 +2128,7 @@
             </h3>
             <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">${leaderboardList.length} участников</span>
           </div>
+          ${adminRecalcBtn}
           <div class="space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar pr-1">${rowsHtml}</div>
         </div>
       `;
@@ -2049,7 +2153,7 @@
           <div class="mt-6 pt-4 border-t border-white/10 space-y-2.5">
             <h3 class="text-xs font-black text-purple-300 uppercase tracking-wider flex items-center justify-between">
               <span>${t('tourneyHistoryTitle')}</span>
-              <span class="text-[10px] text-slate-400 font-normal">${t('autoCleanup')}</span>
+              <span class="text-[10px] text-slate-400 font-normal">${t('autoCleanup')} (${history.length})</span>
             </h3>
             <div class="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
               ${history.map(item => {
@@ -2285,7 +2389,7 @@
         });
       }
 
-      localAmericanoState = { players, rounds, cycles, isRecorded: false };
+      localAmericanoState = { players, rounds, cycles, isRecorded: false, isCompleted: false };
       safeSetLocalStorage(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
       renderQuickAmericano();
     }
@@ -2299,7 +2403,7 @@
     }
 
     function renderQuickAmericanoBoard(container) {
-      const { players, rounds, cycles } = localAmericanoState;
+      const { players, rounds, cycles, isRecorded } = localAmericanoState;
       const leaderboard = players.map(p => ({ ...p, points: 0, matches: 0, wins: 0, losses: 0, draws: 0 }));
 
       rounds.forEach(r => {
@@ -2398,6 +2502,24 @@
 
       const globalLeaderboardHtml = renderGlobalAmericanoLeaderboardSection();
 
+      let finishActionBlockHtml = '';
+      if (!isRecorded) {
+        finishActionBlockHtml = `
+          <button type="button" onclick="recordTournamentToNationalLeaderboard()" class="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500 hover:from-emerald-400 hover:to-amber-400 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2 border-2 border-emerald-300">
+            <span class="text-base">🏁</span> <span>${t('recordRatingBtn')}</span>
+          </button>
+        `;
+      } else {
+        finishActionBlockHtml = `
+          <div class="p-3.5 glass-subcard border-2 border-emerald-500/60 rounded-2xl text-center space-y-2 bg-emerald-950/20">
+            <span class="text-xs font-black text-emerald-400 block uppercase tracking-wide">✅ Турнир завершён и записан в Единый Рейтинг!</span>
+            <button type="button" onclick="confirmCancelAmericano()" class="w-full py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md">
+              ${t('startNewTournamentBtn')}
+            </button>
+          </div>
+        `;
+      }
+
       container.innerHTML = `
         <div class="space-y-4">
           <div class="bg-gradient-to-r from-purple-600/80 to-indigo-600/80 p-4 rounded-2xl text-white shadow-lg space-y-1">
@@ -2413,9 +2535,7 @@
             <div class="space-y-1.5">${leaderboardHtml}</div>
           </div>
 
-          <button type="button" onclick="recordTournamentToNationalLeaderboard()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-wider btn-3d shadow-lg shadow-amber-500/30 ${localAmericanoState.isRecorded ? 'opacity-50 cursor-not-allowed' : ''}">
-            ${localAmericanoState.isRecorded ? '✅ Записано в Единый Рейтинг' : t('recordRatingBtn')}
-          </button>
+          ${finishActionBlockHtml}
 
           <div class="space-y-2">
             <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">${t('matchesAndScoreTitle')}</h3>
@@ -2455,11 +2575,11 @@
 
     async function recordTournamentToNationalLeaderboard() {
       if (!localAmericanoState || !localAmericanoState.rounds) return;
-      if (localAmericanoState.isRecorded) { alert('Уже записано в рейтинг.'); return; }
+      if (localAmericanoState.isRecorded) { alert('Этот турнир уже записан в рейтинг.'); return; }
       const { players, rounds } = localAmericanoState;
 
       const completedRounds = rounds.filter(r => r.completed);
-      if (completedRounds.length === 0) { alert('Завершите хотя бы один матч.'); return; }
+      if (completedRounds.length === 0) { alert('Заполните хотя бы один сыгранный матч перед завершением.'); return; }
 
       const leaderboardMap = new Map();
       players.forEach(p => { leaderboardMap.set(p.id, { userId: p.userId, name: p.name, pts: 0, matches: 0, wins: 0, losses: 0, draws: 0 }); });
@@ -2515,9 +2635,11 @@
 
       saveAmericanoToHistory({ players, rounds: completedRounds, leaderboard: finalLeaderboard });
       localAmericanoState.isRecorded = true;
+      localAmericanoState.isCompleted = true;
       safeSetLocalStorage(getAmericanoStorageKey(), JSON.stringify(localAmericanoState));
 
-      alert('Результаты турнира успешно суммированы с прошлыми очками в Едином Рейтинге!');
+      triggerSlotCelebration();
+      alert('🏆 Турнир официально завершён! Результаты сохранены и суммированы в Единый Рейтинг!');
       await fetchAllPlatformProfiles(true);
       renderQuickAmericano();
     }
@@ -2722,9 +2844,14 @@
               <span class="text-xl">👑</span>
               <div>
                 <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wide">${t('creatorPanelTitle')}</h3>
-                <p class="text-[10px] text-slate-400">Редактирование параметров участников</p>
+                <p class="text-[10px] text-slate-400">Управление рейтингом и игроками</p>
               </div>
             </div>
+
+            <button type="button" onclick="recalculateNationalLeaderboardFromHistory()" class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider btn-3d shadow-md flex items-center justify-center gap-1.5">
+              <span>🔄</span> <span>${t('recalcLeaderboardBtn')}</span>
+            </button>
+
             <div class="space-y-2 pt-1 border-t border-cyan-500/30">
               <h4 class="text-xs font-extrabold text-slate-300 uppercase tracking-wide">${t('allRegisteredPlayers')}</h4>
               <div class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar pr-1">${playersManagementList}</div>
@@ -2736,7 +2863,7 @@
       let pixelAvatarPickerHtml = `
         <div class="space-y-2 pt-1">
           <label class="block text-[10px] font-bold text-amber-300 uppercase tracking-wider">${t('selectAvatar')}</label>
-          <div class="grid grid-cols-4 gap-2">
+          <div class="grid grid-cols-4 gap-2 max-h-60 overflow-y-auto custom-scrollbar p-1">
             ${PIXEL_AVATARS.map(av => {
               const isSelected = p.avatar_url === av.url;
               return `
